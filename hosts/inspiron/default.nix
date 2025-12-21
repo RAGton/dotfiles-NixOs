@@ -12,8 +12,10 @@
 
     ./hardware-configuration.nix
     "${nixosModules}/common"
-    "${nixosModules}/desktop/hyprland"
+    "${nixosModules}/desktop/kde"
     "${nixosModules}/programs/steam"
+    ../../modules/kernel/zen.nix
+    ../../modules/virtualization/kvm.nix
   ];
 
   # Set hostname

@@ -70,20 +70,20 @@
   };
 
   # Timezone
-  time.timeZone = "Europe/Warsaw";
+  time.timeZone = "America/Cuiaba";
 
   # Internationalization
-  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.defaultLocale = "pt_BR.UTF-8";
   i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_IE.UTF-8";
-    LC_IDENTIFICATION = "en_IE.UTF-8";
-    LC_MEASUREMENT = "en_IE.UTF-8";
-    LC_MONETARY = "en_IE.UTF-8";
-    LC_NAME = "en_IE.UTF-8";
-    LC_NUMERIC = "en_IE.UTF-8";
-    LC_PAPER = "en_IE.UTF-8";
-    LC_TELEPHONE = "en_IE.UTF-8";
-    LC_TIME = "en_IE.UTF-8";
+    LC_ADDRESS = "pt_BR.UTF-8";
+    LC_IDENTIFICATION = "pt_BR.UTF-8";
+    LC_MEASUREMENT = "pt_BR.UTF-8";
+    LC_MONETARY = "pt_BR.UTF-8";
+    LC_NAME = "pt_BR.UTF-8";
+    LC_NUMERIC = "pt_BR.UTF-8";
+    LC_PAPER = "pt_BR.UTF-8";
+    LC_TELEPHONE = "pt_BR.UTF-8";
+    LC_TIME = "pt_BR.UTF-8";
   };
 
   # Enables support for Bluetooth
@@ -97,8 +97,8 @@
 
   # xserver settings
   services.xserver = {
-    xkb.layout = "pl";
-    xkb.variant = "";
+    xkb.layout = "br";
+    xkb.variant = "abnt2";
     excludePackages = with pkgs; [ xterm ];
   };
 

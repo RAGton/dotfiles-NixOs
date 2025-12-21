@@ -11,7 +11,7 @@
     ../programs/albert
     ../programs/atuin
     ../programs/bat
-    ../programs/brave
+    ../programs/zen-browser
     ../programs/btop
     ../programs/fastfetch
     ../programs/fzf
@@ -72,6 +72,7 @@
       python3
       ripgrep
       terraform
+      vscode	
     ]
     ++ lib.optionals stdenv.isDarwin [
       anki-bin

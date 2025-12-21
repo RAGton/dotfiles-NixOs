@@ -11,9 +11,12 @@
   config = lib.mkIf (!pkgs.stdenv.isDarwin) {
     services.flatpak = {
       enable = true;
-      packages = [ "us.zoom.Zoom" ];
+      packages = [ 
+        "app.zen_browser.zen" 
+        ];
+
       uninstallUnmanaged = true;
-      update.auto.enable = false;
+      update.auto.enable = true;
     };
 
     home.packages = [ pkgs.flatpak ];

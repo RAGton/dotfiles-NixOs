@@ -69,7 +69,7 @@
       };
       launch-alacritty = {
         name = "Launch Alacritty";
-        key = "Meta+Shift+Return";
+        key = "Meta+Return";
         command = "alacritty";
       };
       launch-brave = {
@@ -138,10 +138,7 @@
       keyboard = {
         layouts = [
           {
-            layout = "pl";
-          }
-          {
-            layout = "ru";
+            layout = "br";
           }
         ];
         repeatDelay = 250;
@@ -206,7 +203,7 @@
     panels = [
       {
         alignment = "left";
-        height = 30;
+        height = 36;
         lengthMode = "fit";
         location = "top";
         opacity = "translucent";
@@ -230,7 +227,7 @@
       }
       {
         alignment = "center";
-        height = 30;
+        height = 36;
         lengthMode = "fit";
         location = "top";
         opacity = "translucent";
@@ -254,7 +251,7 @@
       }
       {
         alignment = "right";
-        height = 30;
+        height = 36;
         lengthMode = "fit";
         location = "top";
         opacity = "translucent";
