@@ -47,24 +47,15 @@
       inherit (self) outputs;
 
       # Define user configurations
-      users = {
-        "alexander.nabokikh" = {
-          inherit (users.nabokikh)
-            avatar
-            email
-            fullName
-            gitKey
-            ;
-          name = "alexander.nabokikh";
-        };
-        nabokikh = {
-          avatar = ./files/avatar/face;
-          email = "alexander.nabokikh@olx.pl";
-          fullName = "Alexander Nabokikh";
-          gitKey = "C5810093";
-          name = "nabokikh";
-        };
-      };
+users = {
+  rag = {
+    avatar = ./files/avatar/face;
+    email = "g.rocha@estudante.ifmt.edu.br";
+    fullName = "Gabriel Aguiar Rocha";
+    gitKey = "";
+    name = "rag";
+  };
+};
 
       # Function for NixOS system configuration
       mkNixosConfiguration =
@@ -108,20 +99,15 @@
         };
     in
     {
-      nixosConfigurations = {
-        energy = mkNixosConfiguration "energy" "nabokikh";
-      };
 
-      darwinConfigurations = {
-        "PL-OLX-KCGXHGK3PY" = mkDarwinConfiguration "PL-OLX-KCGXHGK3PY" "alexander.nabokikh";
-      };
+	nixosConfigurations = {
+	  inspiron = mkNixosConfiguration "inspiron" "rag";
+	};
 
-      homeConfigurations = {
-        "alexander.nabokikh@PL-OLX-KCGXHGK3PY" =
-          mkHomeConfiguration "aarch64-darwin" "alexander.nabokikh"
-            "PL-OLX-KCGXHGK3PY";
-        "nabokikh@energy" = mkHomeConfiguration "x86_64-linux" "nabokikh" "energy";
-      };
+
+	homeConfigurations = {
+	  "rag@inspiron" = mkHomeConfiguration "x86_64-linux" "rag" "inspiron";
+	};
 
       overlays = import ./overlays { inherit inputs; };
     };
