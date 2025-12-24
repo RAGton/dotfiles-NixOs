@@ -13,6 +13,7 @@
       enable = true;
       packages = [ 
         "app.zen_browser.zen" 
+        "com.anydesk.Anydesk"
         ];
 
       uninstallUnmanaged = true;

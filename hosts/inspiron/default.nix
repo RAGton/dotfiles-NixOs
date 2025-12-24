@@ -6,24 +6,57 @@
 }:
 {
   imports = [
-    inputs.hardware.nixosModules.common-cpu-amd
-    inputs.hardware.nixosModules.common-gpu-amd
+    # Hardware correto para INTEL
+    inputs.hardware.nixosModules.common-cpu-intel
+    inputs.hardware.nixosModules.common-gpu-intel
     inputs.hardware.nixosModules.common-pc-ssd
 
     ./hardware-configuration.nix
+
+    # Módulos do seu layout
     "${nixosModules}/common"
     "${nixosModules}/desktop/kde"
     "${nixosModules}/programs/steam"
-    ../../modules/kernel/zen.nix
-    ../../modules/virtualization/kvm.nix
+    "${nixosModules}/virtualization/default.nix"
   ];
 
-  # Set hostname
+  ############################
+  # Hostname
+  ############################
   networking.hostName = hostname;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
+  ############################
+  # Locale PT-BR
+  ############################
+  i18n = {
+    defaultLocale = "pt_BR.UTF-8";
+    supportedLocales = [
+      "pt_BR.UTF-8/UTF-8"
+    ];
+  };
+
+  environment.variables = {
+    LANG = "pt_BR.UTF-8";
+    LC_ALL = "pt_BR.UTF-8";
+  };
+  ############################
+  # IOMMU (Intel)
+  ############################
+  boot.kernelParams = [
+    "intel_iommu=on"
+    "iommu=pt"
+  ];
+
+  # Use GRUB as the system bootloader (EFI mode)
+  boot.loader.grub = {
+    enable = true;
+    version = 2;
+    # Install to the EFI NVRAM (mark removable so it works on many machines)
+    efiInstallAsRemovable = true;
+  };
+
+  ############################
+  # Versão de estado
+  ############################
   system.stateVersion = "25.11";
 }

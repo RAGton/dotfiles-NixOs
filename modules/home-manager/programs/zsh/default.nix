@@ -82,6 +82,28 @@
         # Enable ALT-C fzf keybinding on Mac
         bindkey 'ć' fzf-cd-widget
       ''}
+
+      # Executa fastfetch automaticamente ao abrir o terminal
+      fastfetch || true
+
+      # Carrega o Powerlevel10k do pacote Nix
+      source "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme"
+      [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
     '';
+    plugins = [
+      {
+        name = "powerlevel10k";
+        src = pkgs.zsh-powerlevel10k;
+      }
+      {
+        name = "zsh-syntax-highlighting";
+        src = pkgs.zsh-syntax-highlighting;
+      }
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.zsh-autosuggestions;
+      }
+    ];
+    # Removido oh-my-zsh para evitar conflito de frameworks
   };
 }

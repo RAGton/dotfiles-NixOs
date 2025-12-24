@@ -67,10 +67,10 @@
         key = "Meta+Shift+Backspace";
         command = "clear-kde-notifications";
       };
-      launch-alacritty = {
+      launch-warp-terminal = {
         name = "Launch Alacritty";
         key = "Meta+Return";
-        command = "alacritty";
+        command = "warp-terminal";
       };
       launch-brave = {
         name = "Launch Brave";
@@ -119,7 +119,7 @@
       };
       screenshot-region = {
         name = "Capture a rectangular region of the screen";
-        key = "Meta+Shift+S";
+        key = "Print";
         command = "spectacle --region --nonotify";
       };
       screenshot-screen = {

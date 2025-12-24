@@ -28,14 +28,54 @@ This repository manages NixOS and nix-darwin configurations for multiple machine
 - **Cross-Component**: System and user modules communicate via imports and shared variables (e.g., wallpaper, user info).
 - **Platform Detection**: Many modules use `stdenv.isDarwin` to branch logic for macOS vs Linux.
 
-## Examples
-- To add a new package for all users: edit `modules/home-manager/common/default.nix` under `home.packages`.
-- To customize KDE: edit `modules/home-manager/desktop/kde/default.nix`.
-- To add a new script: place it in `modules/home-manager/scripts/bin/` and ensure it is executable.
+# Copilot Instructions for AI Coding Agents
 
-## References
-- See `README.md` for a high-level overview and module descriptions.
-- Key files: `flake.nix`, `hosts/`, `home/`, `modules/`, `overlays/`, `README.md`.
+**Visão rápida**: Este repositório gerencia configurações Nix (NixOS + home-manager) via flakes, com módulos organizados por host, usuário e desktop.
+
+**Arquitetura (onde olhar primeiro)**
+- `flake.nix`: ponto de entrada — define hosts, entradas e overlays.
+- `hosts/`: configurações do sistema por hostname (ex.: [hosts/inspiron/default.nix](hosts/inspiron/default.nix)).
+- `home/`: configurações por usuário+host (ex.: [home/rag/inspiron/default.nix](home/rag/inspiron/default.nix)).
+- `modules/home-manager/` e `modules/nixos/`: lógica reutilizável e agrupamentos (programas, serviços, scripts).
+- `modules/home-manager/scripts/bin/`: scripts utilitários (ver shebang e permissões antes de alterar).
+
+**Fluxos de trabalho essenciais**
+- Aplicar mudanças no sistema:
+
+	```bash
+	sudo nixos-rebuild switch --flake .#<hostname>
+	```
+
+- Aplicar mudanças do usuário (Home Manager):
+
+	```bash
+	home-manager switch --flake .#<user>@<hostname>
+	```
+
+- Validação: não há testes automatizados — valide aplicando as flakes e verificando serviços/arquivos gerados.
+
+**Convenções do projeto**
+- Hosts nomeados em `hosts/<hostname>/` e configurações de usuário em `home/<user>/<hostname>/`.
+- Pacotes globais: editar `modules/home-manager/common/default.nix` (campo `home.packages`).
+- Overlays globais: `overlays/default.nix`.
+- Plataformas: use `stdenv.isDarwin` para ramificações macOS vs Linux.
+- Temas/desktop: catppuccin e módulos específicos em `modules/*/desktop/*` (ex.: KDE, Hyprland).
+
+**Integrações e dependências externas**
+- Flake inputs: Nixpkgs, Home Manager e outros overlays (ver `flake.nix` para a lista completa).
+- Krew / kubectl / AWS: plugins e aliases são gerenciados por `programs/krew` e `programs/zsh`.
+
+**Padrões de edição e PRs**
+- Para adicionar um pacote ao ambiente do usuário: atualizar `modules/home-manager/common/default.nix` e testar com `home-manager switch`.
+- Para alterar comportamento de host: modificar `hosts/<hostname>/default.nix` e rodar `nixos-rebuild switch --flake .#<hostname>`.
+- Scripts novos: colocar em `modules/home-manager/scripts/bin/`, garantir shebang e `chmod +x`.
+
+**Exemplos rápidos (onde tocar)**
+- Customizar KDE: [modules/home-manager/desktop/kde/default.nix](modules/home-manager/desktop/kde/default.nix)
+- Scripts utilitários: [modules/home-manager/scripts/bin/](modules/home-manager/scripts/bin/)
+- Overlays: [overlays/default.nix](overlays/default.nix)
+
+Se algo não for óbvio (dependências ausentes, comportamento de módulo), abra uma PR com uma descrição curta e testes manuais demonstrando `nixos-rebuild` / `home-manager switch` usados para validação.
 
 ---
-If you are unsure about a workflow or convention, check the relevant module or script, or ask for clarification in a pull request.
+Se quiser, eu posso ajustar esta versão para incluir exemplos de comandos reais do host `inspiron` ou expandir uma seção sobre como adicionar novos módulos.
