@@ -15,7 +15,6 @@
 # =============================================================================
 { ... }:
 {
-  # O widget/IPC de clipboard do DMS usa um backend de histórico.
-  # Mantemos o cliphist sempre ativo para o shell do DMS e para o fallback via rofi.
+  # O shell Wayland e o menu declarativo usam este backend de histórico.
   services.cliphist.enable = true;
 }

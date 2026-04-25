@@ -11,7 +11,7 @@ let
   caelestiaPackages = inputs.caelestia-shell.packages.${system};
   defaultPackage = caelestiaPackages.with-cli;
   cliPackage = inputs.caelestia-shell.inputs.caelestia-cli.packages.${system}.default;
-  launcherPatch = ./patches/rag-launch-desktop-entry-desktop-id.patch;
+  launcherPatch = ./patches/kryonix-launch-desktop-entry-desktop-id.patch;
   kryonixLaunch = pkgs.writeShellApplication {
     name = "kryonix-launch";
     runtimeInputs = with pkgs; [
@@ -151,13 +151,6 @@ let
       fail "could not launch '$entry'; expected a desktop entry resolvable by uwsm, gtk-launch or Exec"
     '';
   };
-  legacyLauncherHelper = pkgs.writeShellApplication {
-    name = "rag-launch-desktop-entry";
-    runtimeInputs = [ kryonixLaunch ];
-    text = ''
-      exec kryonix-launch "$@"
-    '';
-  };
   effectivePackage = cfg.package.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ launcherPatch ];
   });
@@ -209,7 +202,6 @@ in
         pkgs.networkmanager
         pkgs.procps
         kryonixLaunch
-        legacyLauncherHelper
         pkgs.swappy
         pkgs.systemd
         pkgs.util-linux
@@ -236,7 +228,6 @@ in
       effectivePackage
       cliPackage
       kryonixLaunch
-      legacyLauncherHelper
     ];
 
     systemd.user.services.caelestia = {

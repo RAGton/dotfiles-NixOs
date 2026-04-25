@@ -123,7 +123,7 @@ while true; do
       fi
       IFS='|' read -r DISK _ _ <<<"${disks[$((disk_idx-1))]}"
 
-      USERNAME=$(ui::prompt "Usuário inicial (ex: rag): ")
+      USERNAME=$(ui::prompt "Usuário inicial (ex: rocha): ")
       if [ -z "$USERNAME" ]; then
         echo "Usuário não pode ser vazio." >&2
         ui::pause

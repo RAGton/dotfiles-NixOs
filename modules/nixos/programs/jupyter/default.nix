@@ -102,7 +102,7 @@ in
     users = lib.mkOption {
       type = lib.types.nullOr (lib.types.listOf lib.types.str);
       default = null;
-      example = [ "rag" ];
+      example = [ "rocha" ];
       description = ''
         Lista de usuários que receberão o bootstrap do venv (pip mutável) e o registro dos kernels.
         Se null, usa o usuário principal definido em `userConfig.name`.

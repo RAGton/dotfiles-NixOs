@@ -109,7 +109,6 @@ Todos os widgets e features. Requer hardware decente.
 
 Instaladas automaticamente pelo módulo:
 - waybar
-- rofi-wayland
 - dunst
 - material-design-icons
 - material-symbols
@@ -156,4 +155,3 @@ DMS pode conflitar com:
 - [DankMaterialShell Repo](https://github.com/AvengeMedia/DankMaterialShell)
 - [Hyprland Docs](https://wiki.hyprland.org/)
 - [Waybar Wiki](https://github.com/Alexays/Waybar/wiki)
-

@@ -150,10 +150,6 @@ let
   '';
 in
 {
-  imports = [
-    (lib.mkAliasOptionModule [ "ragos" ] [ "kryonix" "branding" ])
-  ];
-
   options.kryonix.branding = {
     enable = lib.mkEnableOption "Ativa branding do sistema como Kryonix";
 

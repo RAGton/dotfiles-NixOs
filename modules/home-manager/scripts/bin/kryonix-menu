@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+prompt="> "
+delimiter=""
+with_nth=""
+accept_nth=""
+only_match=0
+query_mode=0
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--prompt)
+			shift
+			[ "$#" -gt 0 ] || exit 2
+			prompt="$1"
+			;;
+		--prompt=*)
+			prompt="${1#--prompt=}"
+			;;
+		--delimiter)
+			shift
+			[ "$#" -gt 0 ] || exit 2
+			delimiter="$1"
+			;;
+		--delimiter=*)
+			delimiter="${1#--delimiter=}"
+			;;
+		--with-nth)
+			shift
+			[ "$#" -gt 0 ] || exit 2
+			with_nth="$1"
+			;;
+		--with-nth=*)
+			with_nth="${1#--with-nth=}"
+			;;
+		--accept-nth)
+			shift
+			[ "$#" -gt 0 ] || exit 2
+			accept_nth="$1"
+			;;
+		--accept-nth=*)
+			accept_nth="${1#--accept-nth=}"
+			;;
+		--only-match)
+			only_match=1
+			;;
+		--query)
+			query_mode=1
+			;;
+		*)
+			echo "kryonix-menu: argumento desconhecido: $1" >&2
+			exit 2
+			;;
+	esac
+	shift
+done
+
+tmp="$(mktemp)"
+cleanup() {
+	rm -f "$tmp"
+}
+trap cleanup EXIT
+cat >"$tmp"
+
+choose_fuzzel() {
+	local -a args
+
+	args=(
+		--dmenu
+		"--prompt=$prompt"
+		--lines=12
+		--width=72
+		--layer=overlay
+		--match-mode=fzf
+		--minimal-lines
+		--no-icons
+	)
+
+	if [ -n "$delimiter" ]; then
+		args+=("--nth-delimiter=$delimiter")
+	fi
+	if [ -n "$with_nth" ]; then
+		args+=("--with-nth=$with_nth")
+	fi
+	if [ -n "$accept_nth" ]; then
+		args+=("--accept-nth=$accept_nth")
+	fi
+	if [ "$only_match" -eq 1 ] && [ "$query_mode" -eq 0 ]; then
+		args+=(--only-match)
+	fi
+
+	fuzzel "${args[@]}" <"$tmp"
+}
+
+choose_fzf() {
+	local selection
+	local fzf_delimiter
+	local -a args
+
+	args=(
+		"--prompt=$prompt"
+		--layout=reverse
+		--height=100%
+		--border
+	)
+
+	if [ -n "$delimiter" ] && [ -n "$with_nth" ]; then
+		fzf_delimiter="$delimiter"
+		case "$fzf_delimiter" in
+			"|")
+				fzf_delimiter="[|]"
+				;;
+		esac
+		args+=("--delimiter=$fzf_delimiter" "--with-nth=$with_nth")
+	fi
+
+	if [ "$query_mode" -eq 1 ]; then
+		args+=(--print-query --phony)
+		selection="$(fzf "${args[@]}" <"$tmp" | head -n1)" || return 1
+	else
+		selection="$(fzf "${args[@]}" <"$tmp")" || return 1
+	fi
+
+	if [ -n "$accept_nth" ]; then
+		if [ -n "$delimiter" ] && [ "${#delimiter}" -eq 1 ]; then
+			printf '%s\n' "$selection" | cut -d "$delimiter" -f "$accept_nth"
+		else
+			printf '%s\n' "$selection"
+		fi
+	else
+		printf '%s\n' "$selection"
+	fi
+}
+
+if [ -n "${WAYLAND_DISPLAY-}" ] && command -v fuzzel >/dev/null 2>&1; then
+	choose_fuzzel
+else
+	choose_fzf
+fi

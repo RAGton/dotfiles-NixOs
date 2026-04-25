@@ -9,7 +9,7 @@
 - `modules/nixos/**`: implementação base e serviços
 - `desktop/hyprland/**`: stack desktop atual
 - `home/**`: configuração user-level por usuário/host
-- `packages/`: artefatos do projeto, incluindo `kryonix` e o wrapper compat `ragos`
+- `packages/`: artefatos do projeto, incluindo a CLI `kryonix`
 
 ## Regras de modelagem
 
@@ -28,11 +28,17 @@
 
 ## Caminho do launcher atual
 
-1. bind ou drawer do Caelestia
-2. `modules/launcher/services/Apps.qml`
-3. `kryonix-launch` para apps gráficas
-4. `uwsm app -- <desktop entry resolvido>`
-5. fallback `gtk-launch`, depois fallback por `Exec=`
+1. `SUPER+A`
+2. `kryonix-launcher`
+3. resolução declarativa de `.desktop` em XDG/NixOS
+4. `gtk-launch <desktop-id>`
+
+O drawer do Caelestia continua suportado via patch local:
+
+1. `modules/launcher/services/Apps.qml`
+2. `kryonix-launch <entry.id>`
+3. `uwsm app -- <desktop entry resolvido>`
+4. fallback `gtk-launch`, depois fallback por `Exec=`
 
 Apps de terminal continuam usando `app2unit`.
 

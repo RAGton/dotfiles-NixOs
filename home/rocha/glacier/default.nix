@@ -43,43 +43,35 @@
     }
 
     decoration {
-      rounding = 18
-      active_opacity = 0.96
-      inactive_opacity = 0.90
+      rounding = 8
+      active_opacity = 1.0
+      inactive_opacity = 1.0
 
       blur {
-        enabled = true
-        size = 4
-        passes = 2
-        noise = 0.008
-        contrast = 1.0
-        brightness = 0.92
+        enabled = false
       }
 
       shadow {
-        enabled = true
-        range = 18
-        render_power = 3
-        color = rgba(05070cee)
+        enabled = false
       }
     }
 
     animations {
       enabled = true
-      animation = windows, 1, 5, oversh, slide
-      animation = windowsOut, 1, 4, smooth, popin 82%
-      animation = border, 1, 10, smooth
-      animation = workspaces, 1, 5, oversh, slide
+      animation = windows, 1, 3, default
+      animation = fade, 1, 3, default
+      animation = border, 0
+      animation = workspaces, 0
+      animation = layers, 0
     }
 
-    windowrule = match:class ^(steam|steam_app_.*|heroic|lutris)$, opacity 0.97 0.93
   '';
 
   kryonix.shell.caelestia.settings = {
     appearance.transparency = {
-      enabled = true;
-      base = 0.78;
-      layers = 0.34;
+      enabled = false;
+      base = 1.0;
+      layers = 1.0;
     };
 
     border = {
@@ -91,8 +83,16 @@
     dashboard = {
       enabled = true;
       showMedia = true;
+      showPerformance = false;
       showWeather = false;
     };
+
+    background.visualiser = {
+      enabled = false;
+      blur = false;
+    };
+
+    services.visualiserBars = 0;
 
     general.apps = {
       terminal = [ "kryonix-terminal" ];

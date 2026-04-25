@@ -25,6 +25,5 @@
     slurp
     swappy
     wl-clipboard
-    rofi
   ];
 }

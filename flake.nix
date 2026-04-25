@@ -261,19 +261,11 @@
       packages = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-          kryonixCli = pkgs.callPackage ./packages/kryonix-cli.nix { };
-          ragosCli = pkgs.callPackage ./packages/ragos-cli.nix {
-            kryonix-cli = kryonixCli;
-          };
+          pkgs = import nixpkgs { inherit system; };
         in
-        {
-          default = kryonixCli;
-          kryonix = kryonixCli;
-          ragos = ragosCli;
+        rec {
+          kryonix = import ./packages/kryonix-cli.nix { inherit pkgs; };
+          default = kryonix;
         }
       );
 

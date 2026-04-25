@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+commands="$(
+	compgen -c 2>/dev/null | sort -u || true
+)"
+
+command_line="$(
+	printf '%s\n' "$commands" | kryonix-menu --prompt 'Run: ' --query
+)" || exit 0
+
+[ -n "$command_line" ] || exit 0
+
+if command -v uwsm >/dev/null 2>&1; then
+	exec uwsm app -- sh -lc "$command_line"
+fi
+
+exec sh -lc "$command_line"

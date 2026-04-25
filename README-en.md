@@ -22,8 +22,6 @@ kryonix fmt
 kryonix iso
 ```
 
-The old `ragos` command remains available temporarily as a compatibility alias and prints `ragos is deprecated, use kryonix`.
-
 ## Quick Start
 
 ```sh

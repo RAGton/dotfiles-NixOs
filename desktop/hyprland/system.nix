@@ -242,7 +242,7 @@ in
       })
 
       (writeShellApplication {
-        name = "rag-screenshot";
+        name = "kryonix-screenshot";
         runtimeInputs = [
           bash
           coreutils
@@ -303,7 +303,7 @@ in
               ;;
 
             *)
-              echo "Uso: rag-screenshot {copy-area|copysave-screen|copysave-active|edit-area|edit-output}" >&2
+              echo "Uso: kryonix-screenshot {copy-area|copysave-screen|copysave-active|edit-area|edit-output}" >&2
               exit 2
               ;;
           esac

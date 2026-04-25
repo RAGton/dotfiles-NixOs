@@ -47,7 +47,12 @@
     }
 
     animations {
-      enabled = false
+      enabled = true
+      animation = windows, 1, 3, default
+      animation = fade, 1, 3, default
+      animation = border, 0
+      animation = workspaces, 0
+      animation = layers, 0
     }
 
     misc {

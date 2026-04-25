@@ -17,9 +17,11 @@ Use leitura progressiva, não varredura cega.
 
 - `context/CURRENT_STATE.md`
 - `context/ARCHITECTURE.md`
-- `context/RUNBOOKS/launcher-diagnosis.md`
-- `context/DECISIONS/ADR-0002-caelestia-launch-via-desktop-entry.md`
-- `skills/launcher-diagnosis/SKILL.md`
+- `context/DECISIONS/ADR-0003-kryonix-menu-wayland.md`
+- `context/DECISIONS/ADR-0004-winbox-xwayland.md`
+- `desktop/hyprland/user.nix`
+- `ai/kryonix-vault/05-Skills/refatoracao-segura/SKILL.md`
+- `ai/kryonix-vault/05-Skills/analise-performance/SKILL.md`
 
 ### Host / Nix / implementação
 

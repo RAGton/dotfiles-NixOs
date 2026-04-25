@@ -7,7 +7,7 @@
 let
   cfg = config.kryonix.shell.caelestia;
   blueScheme = {
-    name = "rag-blue";
+    name = "kryonix-blue";
     flavour = "blue";
     mode = "dark";
     colours = {
@@ -139,6 +139,17 @@ in
 
   config = lib.mkIf ((config.kryonix.shell.backend or null) == "caelestia") {
     kryonix.shell.caelestia.settings.launcher.useFuzzy.apps = lib.mkDefault false;
+    kryonix.shell.caelestia.settings.appearance.transparency = lib.mkDefault {
+      enabled = false;
+      base = 1.0;
+      layers = 1.0;
+    };
+    kryonix.shell.caelestia.settings.background.visualiser = lib.mkDefault {
+      enabled = false;
+      blur = false;
+    };
+    kryonix.shell.caelestia.settings.dashboard.showPerformance = lib.mkDefault false;
+    kryonix.shell.caelestia.settings.services.visualiserBars = lib.mkDefault 0;
 
     home.activation.caelestiaMutableState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       applications_dir="${config.xdg.dataHome}/applications"

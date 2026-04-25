@@ -25,7 +25,7 @@ O flake publica hoje:
 - `nixosConfigurations` para `inspiron`, `inspiron-nina`, `glacier` e `iso`
 - `homeConfigurations` para `rocha@inspiron`, `rocha@glacier` e `nina@inspiron-nina`
 - overlays reutilizáveis
-- formatter, checks e pacotes `kryonix` e `ragos` compat
+- formatter, checks e pacote `kryonix`
 
 O host principal de produto neste momento é o `glacier`, tratado como:
 
@@ -36,7 +36,7 @@ O host principal de produto neste momento é o `glacier`, tratado como:
 
 ## Fluxo diário
 
-O fluxo operacional padrão agora é a CLI `kryonix`, instalada no PATH do sistema. A CLI antiga `ragos` continua disponível temporariamente como alias e emite `ragos is deprecated, use kryonix`.
+O fluxo operacional padrão é a CLI `kryonix`, instalada no PATH do sistema.
 
 ```sh
 kryonix switch
@@ -103,7 +103,7 @@ O projeto já padroniza o branding do Kryonix no:
 - wallpaper do desktop
 - `/etc/os-release` e `/etc/issue`
 
-O produto é apresentado publicamente como **Kryonix**. O nome antigo permanece apenas como compatibilidade temporária de CLI/opções/caminho.
+O produto é apresentado publicamente como **Kryonix**, com CLI, opções e caminhos operacionais declarados nesse namespace.
 
 ## Documentação
 

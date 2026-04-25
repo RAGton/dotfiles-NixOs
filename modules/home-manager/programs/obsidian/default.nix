@@ -15,21 +15,12 @@ let
       exec ${pkgs.obsidian}/bin/obsidian --disable-gpu "$@"
     '';
   };
-  ragObsidianCompat = pkgs.writeShellApplication {
-    name = "rag-obsidian";
-    runtimeInputs = [ kryonixObsidian ];
-    text = ''
-      printf '%s\n' "rag-obsidian is deprecated, use kryonix-obsidian" >&2
-      exec kryonix-obsidian "$@"
-    '';
-  };
 in
 {
   config = lib.mkIf (!pkgs.stdenv.isDarwin) {
     home.packages = [
       pkgs.obsidian
       kryonixObsidian
-      ragObsidianCompat
     ];
 
     # Sobrescreve a entrada `.desktop` do pacote para usar o launcher estável.

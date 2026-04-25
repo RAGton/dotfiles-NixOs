@@ -27,6 +27,19 @@
 
 let
   cfg = config.programs.winbox;
+  waylandSafePackage = pkgs.symlinkJoin {
+    name = "${cfg.package.pname or "winbox"}-xwayland";
+    paths = [ cfg.package ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      rm -f "$out/bin/WinBox" "$out/bin/winbox"
+      makeWrapper "${cfg.package}/bin/WinBox" "$out/bin/WinBox" \
+        --set QT_QPA_PLATFORM xcb \
+        --set GDK_BACKEND x11
+      ln -s "$out/bin/WinBox" "$out/bin/winbox"
+    '';
+  };
+  effectivePackage = if cfg.forceXwayland then waylandSafePackage else cfg.package;
 in
 {
   options.programs.winbox = {
@@ -43,10 +56,21 @@ in
       default = false;
       type = lib.types.bool;
     };
+
+    forceXwayland = lib.mkOption {
+      description = ''
+        Executa o Winbox com backend Qt/X11 via XWayland.
+
+        O desktop continua Wayland; este ajuste fica isolado no wrapper do Winbox
+        para evitar falhas de render/eventos do aplicativo sob Wayland nativo.
+      '';
+      default = true;
+      type = lib.types.bool;
+    };
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [ effectivePackage ];
 
     networking.firewall = lib.mkIf cfg.openFirewall {
       allowedUDPPorts = [ 5678 ];

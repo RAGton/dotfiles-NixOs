@@ -30,10 +30,6 @@ let
     (config.services.displayManager.gdm.enable or false) || (config.programs.hyprland.enable or false);
 in
 {
-  imports = [
-    (lib.mkAliasOptionModule [ "rag" ] [ "kryonix" ])
-  ];
-
   options.kryonix = {
     # =========================
     # Desktop Environment

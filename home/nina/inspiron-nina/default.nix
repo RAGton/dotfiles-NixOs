@@ -17,9 +17,9 @@
 
   kryonix.shell.caelestia.settings = {
     appearance.transparency = {
-      enabled = true;
-      base = 0.84;
-      layers = 0.28;
+      enabled = false;
+      base = 1.0;
+      layers = 1.0;
     };
 
     border = {
@@ -31,8 +31,16 @@
     dashboard = {
       enabled = true;
       showMedia = false;
+      showPerformance = false;
       showWeather = false;
     };
+
+    background.visualiser = {
+      enabled = false;
+      blur = false;
+    };
+
+    services.visualiserBars = 0;
 
     general.apps = {
       terminal = [ "kryonix-terminal" ];

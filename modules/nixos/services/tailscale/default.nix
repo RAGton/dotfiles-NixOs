@@ -38,10 +38,6 @@ let
   needsForwarding = cfg.advertiseExitNode || cfg.advertiseRoutes != [ ];
 in
 {
-  imports = [
-    (lib.mkAliasOptionModule [ "services" "rag" "tailscale" ] [ "services" "kryonix" "tailscale" ])
-  ];
-
   options.services.kryonix.tailscale = {
     enable = lib.mkEnableOption "Tailscale VPN (system-wide)";
 
@@ -105,7 +101,7 @@ in
       default = [ ];
       example = [
         "--hostname=glacier"
-        "--operator=rag"
+        "--operator=rocha"
       ];
       description = "Flags extras passadas para `tailscale up`.";
     };

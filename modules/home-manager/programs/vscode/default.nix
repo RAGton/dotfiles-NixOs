@@ -32,7 +32,6 @@ let
       "Code";
 
   userDataDir = "${config.home.homeDirectory}/.config/${configRootName}";
-  legacyInsidersRoot = "${config.home.homeDirectory}/.local/share/ragos/vscode-insiders";
   insidersRoot = "${config.home.homeDirectory}/.local/share/kryonix/vscode-insiders";
   extensionsDir = "${insidersRoot}/extensions";
   insidersCurrent = "${insidersRoot}/current";
@@ -494,14 +493,7 @@ in
           ${writeMutableJson "${configRootName}/argv.json" vscodeArgvFile}
         '';
 
-        home.activation.vscodeKryonixStateCompat = lib.hm.dag.entryAfter [ "vscodeMutableConfigFiles" ] ''
-          if [ ! -e ${lib.escapeShellArg insidersRoot} ] && [ -e ${lib.escapeShellArg legacyInsidersRoot} ]; then
-            mkdir -p "$(dirname ${lib.escapeShellArg insidersRoot})"
-            ln -s ${lib.escapeShellArg legacyInsidersRoot} ${lib.escapeShellArg insidersRoot}
-          fi
-        '';
-
-        home.activation.vscodeBootstrap = lib.hm.dag.entryAfter [ "vscodeKryonixStateCompat" ] ''
+        home.activation.vscodeBootstrap = lib.hm.dag.entryAfter [ "vscodeMutableConfigFiles" ] ''
           echo "[home-manager] vscode: sincronizando extensões"
           ${vscodeBootstrap}/bin/vscode-bootstrap || true
         '';

@@ -90,24 +90,12 @@ let
       exec tilix "${"$"}{tilix_args[@]}"
     '';
   };
-  ragTerminalCompat = pkgs.writeShellApplication {
-    name = "rag-terminal";
-    runtimeInputs = [ kryonixTerminal ];
-    text = ''
-      set -euo pipefail
-
-      printf '%s\n' "rag-terminal is deprecated, use kryonix-terminal" >&2
-      exec kryonix-terminal "$@"
-    '';
-  };
-
 in
 {
   config = lib.mkIf pkgs.stdenv.isLinux {
     home.packages = [
       pkgs.tilix
       kryonixTerminal
-      ragTerminalCompat
     ];
 
     home.sessionVariables.TERMINAL = "kryonix-terminal";

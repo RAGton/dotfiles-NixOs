@@ -163,17 +163,6 @@
         '';
       };
 
-      rag-install = pkgs.writeShellApplication {
-        name = "rag-install";
-        runtimeInputs = [ kryonix-install ];
-        text = ''
-          set -euo pipefail
-
-          printf '%s\n' "rag-install is deprecated, use kryonix-install" >&2
-          exec kryonix-install "$@"
-        '';
-      };
-
       kryonix-install-tui = pkgs.writeShellApplication {
         name = "kryonix-install-tui";
         runtimeInputs =
@@ -205,22 +194,10 @@
         '';
       };
 
-      rag-install-tui = pkgs.writeShellApplication {
-        name = "rag-install-tui";
-        runtimeInputs = [ kryonix-install-tui ];
-        text = ''
-          set -euo pipefail
-
-          printf '%s\n' "rag-install-tui is deprecated, use kryonix-install-tui" >&2
-          exec kryonix-install-tui "$@"
-        '';
-      };
     in
     [
       kryonix-install
-      rag-install
       kryonix-install-tui
-      rag-install-tui
     ];
 
   networking.networkmanager.enable = lib.mkDefault true;

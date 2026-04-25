@@ -24,14 +24,6 @@
 }:
 {
   imports = [
-    (
-      { lib, ... }:
-      {
-        imports = [
-          (lib.mkAliasOptionModule [ "rag" ] [ "kryonix" ])
-        ];
-      }
-    )
     ../programs/aerospace
     ../programs/tilix
     ../programs/warp-terminal
@@ -53,7 +45,6 @@
     ../programs/lazygit
     ../programs/neovim
     ../programs/obs-studio
-    ../programs/rofi
     ../programs/saml2aws
     ../programs/starship
     ../programs/telegram

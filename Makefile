@@ -7,10 +7,12 @@ HOME_TARGET ?= .#$(USERNAME)@$(HOSTNAME)
 ALLOW_DANGEROUS ?= 0
 INSTALL_HOST ?= inspiron
 INSTALL_USER ?= rocha
+VAULT_SUBMODULE ?= ai/kryonix-vault
 
 .PHONY: help flake-show flake-check flake-update nixos-rebuild \
 	home-manager-switch home-manager-news nix-gc dangerous-help \
-	guard-dangerous format-full format-system install-system
+	guard-dangerous sync submodules update-vault \
+	format-full format-system install-system
 
 help:
 	@echo "Fluxo principal do projeto: use a CLI 'kryonix' para operacao diaria."
@@ -21,6 +23,8 @@ help:
 	@echo "  flake-show           - Mostra os outputs da flake em todos os sistemas"
 	@echo "  flake-check          - Roda nix flake check com keep-going"
 	@echo "  flake-update         - Atualiza os inputs da flake"
+	@echo "  sync                 - Inicializa submodules no commit pinado"
+	@echo "  update-vault         - Atualiza ai/kryonix-vault para o upstream"
 	@echo "  nixos-rebuild        - Aplica o host em FLAKE (default: $(FLAKE))"
 	@echo "  home-manager-switch  - Aplica HOME_TARGET (default: $(HOME_TARGET))"
 	@echo "  home-manager-news    - Mostra as novidades do Home Manager para HOME_TARGET"
@@ -39,6 +43,37 @@ flake-check:
 
 flake-update:
 	@nix flake update
+
+sync: submodules
+	@echo "Sync concluído: submodules inicializados no estado declarado pelo Git."
+
+submodules:
+	@if [ ! -f .gitmodules ]; then \
+		echo "Sem .gitmodules; nada a inicializar."; \
+		exit 0; \
+	fi
+	@if [ -d "$(VAULT_SUBMODULE)/.git" ] || [ -f "$(VAULT_SUBMODULE)/.git" ]; then \
+		if ! git -C "$(VAULT_SUBMODULE)" diff --quiet -- || \
+		   ! git -C "$(VAULT_SUBMODULE)" diff --cached --quiet --; then \
+			echo "Submodule $(VAULT_SUBMODULE) possui alterações locais; recusando sincronizar."; \
+			echo "Resolva, commit ou stash dentro do submodule antes de rodar make sync."; \
+			exit 1; \
+		fi; \
+	fi
+	@git submodule sync -- "$(VAULT_SUBMODULE)"
+	@git submodule update --init --recursive -- "$(VAULT_SUBMODULE)"
+	@git submodule status --recursive -- "$(VAULT_SUBMODULE)"
+
+update-vault: submodules
+	@if ! git -C "$(VAULT_SUBMODULE)" diff --quiet -- || \
+	   ! git -C "$(VAULT_SUBMODULE)" diff --cached --quiet --; then \
+		echo "Submodule $(VAULT_SUBMODULE) possui alterações locais; update abortado."; \
+		echo "Resolva, commit ou stash dentro do submodule antes de atualizar."; \
+		exit 1; \
+	fi
+	@git submodule update --remote --recursive -- "$(VAULT_SUBMODULE)"
+	@git submodule status --recursive -- "$(VAULT_SUBMODULE)"
+	@git status --short -- "$(VAULT_SUBMODULE)"
 
 nixos-rebuild:
 	@sudo nixos-rebuild switch --flake $(FLAKE)

@@ -32,9 +32,9 @@
     inputs.nix-flatpak.nixosModules.nix-flatpak
     ../../shared/nixpkgs
 
-    # Branding global (RagOS).
+    # Branding global do Kryonix.
     # Mantemos aqui para que todos os hosts herdem o mesmo "nome do sistema".
-    ../branding/ragos
+    ../branding/kryonix
 
     ../services/tlp
     ../services/snapper
@@ -52,21 +52,21 @@
     name = "nix/path/${name}";
     value.source = value.flake;
   }) config.nix.registry;
-  # `/etc/ragos` é o checkout Git operacional do sistema. Mantemos `/etc/nixos`
+  # `/etc/kryonix` é o checkout Git operacional do sistema. Mantemos `/etc/nixos`
   # apontando para ele por compatibilidade com ferramentas NixOS tradicionais.
-  users.groups.ragos = { };
+  users.groups.kryonix = { };
   systemd.tmpfiles.rules = [
-    "L+ /etc/nixos - - - - /etc/ragos"
+    "L+ /etc/nixos - - - - /etc/kryonix"
   ];
 
-  system.activationScripts.ragosGitRepoPermissions = {
+  system.activationScripts.kryonixGitRepoPermissions = {
     text = ''
-      if [ -L /etc/ragos ]; then
-        ${pkgs.coreutils}/bin/chgrp -h ragos /etc/ragos || true
-      elif [ -d /etc/ragos ]; then
-        ${pkgs.coreutils}/bin/chown -R ${userConfig.name}:ragos /etc/ragos || true
-        ${pkgs.findutils}/bin/find /etc/ragos -type d -exec ${pkgs.coreutils}/bin/chmod 2775 {} +
-        ${pkgs.findutils}/bin/find /etc/ragos -type f -exec ${pkgs.coreutils}/bin/chmod g+rw {} +
+      if [ -L /etc/kryonix ]; then
+        ${pkgs.coreutils}/bin/chgrp -h kryonix /etc/kryonix || true
+      elif [ -d /etc/kryonix ]; then
+        ${pkgs.coreutils}/bin/chown -R ${userConfig.name}:kryonix /etc/kryonix || true
+        ${pkgs.findutils}/bin/find /etc/kryonix -type d -exec ${pkgs.coreutils}/bin/chmod 2775 {} +
+        ${pkgs.findutils}/bin/find /etc/kryonix -type f -exec ${pkgs.coreutils}/bin/chmod g+rw {} +
       fi
     '';
   };
@@ -87,7 +87,7 @@
 
   programs.git = {
     enable = lib.mkDefault true;
-    config.safe.directory = "/etc/ragos";
+    config.safe.directory = "/etc/kryonix";
   };
 
   # Boot: defaults genéricos de silêncio/recovery.
@@ -312,7 +312,7 @@
     description = userConfig.fullName;
     extraGroups = [
       "networkmanager"
-      "ragos"
+      "kryonix"
       "wheel"
     ]
     ++ lib.optionals config.programs.wireshark.enable [ "wireshark" ];
@@ -357,7 +357,7 @@
       nodejs_20
       killall
       mesa
-      (lib.mkIf config.rag.hardware.openrgb.enable openrgb-git)
+      (lib.mkIf config.kryonix.hardware.openrgb.enable openrgb-git)
       podman
       distrobox
 
@@ -447,14 +447,14 @@
   };
 
   # Regras udev para permitir acesso do OpenRGB aos dispositivos.
-  services.udev.packages = lib.optionals config.rag.hardware.openrgb.enable (
+  services.udev.packages = lib.optionals config.kryonix.hardware.openrgb.enable (
     with pkgs; [ openrgb-git ]
   );
 
   # Configuração comum de containers
   # Nota: não habilitamos `podman.dockerCompat` por padrão porque conflita com
   # `virtualisation.docker` quando Docker também está ativo.
-  # Deixe isso ser controlado pelo módulo de features (rag.features.virtualization.*)
+  # Deixe isso ser controlado pelo módulo de features (kryonix.features.virtualization.*)
   # ou por-host.
   virtualisation = {
     containers.enable = true;

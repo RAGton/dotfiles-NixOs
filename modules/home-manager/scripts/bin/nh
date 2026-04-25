@@ -29,7 +29,7 @@ is_kryonix_checkout() {
   local repo_root="$1"
 
   [[ -e "$repo_root/flake.nix" ]] || return 1
-  [[ -e "$repo_root/packages/kryonix-cli.nix" || -e "$repo_root/packages/ragos-cli.nix" ]] || return 1
+  [[ -e "$repo_root/packages/kryonix-cli.nix" ]] || return 1
   [[ -d "$repo_root/hosts" ]] || return 1
 }
 
@@ -64,11 +64,6 @@ resolve_fallback_flake() {
     return 0
   fi
 
-  if [[ -n "${RAGOS_FLAKE:-}" ]]; then
-    printf '%s\n' "$RAGOS_FLAKE"
-    return 0
-  fi
-
   if [[ -n "${NH_OS_FLAKE:-}" ]]; then
     printf '%s\n' "$NH_OS_FLAKE"
     return 0
@@ -81,11 +76,6 @@ resolve_fallback_flake() {
 
   if [[ -e /etc/kryonix/flake.nix ]]; then
     printf '%s\n' '/etc/kryonix'
-    return 0
-  fi
-
-  if [[ -e /etc/ragos/flake.nix ]]; then
-    printf '%s\n' '/etc/ragos'
     return 0
   fi
 

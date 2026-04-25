@@ -8,13 +8,7 @@ with lib;
 let
   iconThemeName = lib.attrByPath [ "gtk" "iconTheme" "name" ] null config;
 
-  # Detecta se tema Bart está habilitado
-  bartEnabled = lib.attrByPath [ "rag" "theme" "bart" "enable" ] false config;
-  kvantumThemeName =
-    if bartEnabled then
-      lib.attrByPath [ "rag" "theme" "bart" "kvantumTheme" ] "Bart" config
-    else
-      "KvLibadwaitaDark";
+  kvantumThemeName = "KvLibadwaitaDark";
 
   qtCtAppearanceConfig = generators.toINI { } {
     Appearance = {
@@ -50,9 +44,7 @@ in
       text = qtCtAppearanceConfig;
     };
 
-    # Kvantum: configuração é gerenciada pelo módulo de tema ativo (ex.: Bart)
-    # Este arquivo só é criado se nenhum tema estiver ativo
-    kvantum = lib.mkIf (!bartEnabled) {
+    kvantum = {
       target = "Kvantum/kvantum.kvconfig";
       text = generators.toINI { } {
         General = {

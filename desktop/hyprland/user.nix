@@ -29,7 +29,7 @@ let
   configuredShellBackend = config.kryonix.shell.backend or null;
   shellBackend = configuredShellBackend;
   shellProvidesChrome = shellBackend != null;
-  runIfOnBattery = pkgs.writeShellScript "rag-run-if-on-battery" ''
+  runIfOnBattery = pkgs.writeShellScript "kryonix-run-if-on-battery" ''
     set -euo pipefail
 
     found_ac=0
@@ -57,6 +57,153 @@ let
       exec "$@"
     fi
   '';
+  kryonixMenu = pkgs.writeShellApplication {
+    name = "kryonix-menu";
+    runtimeInputs = with pkgs; [
+      bash
+      coreutils
+      fuzzel
+      fzf
+      gawk
+    ];
+    text = ''
+      set -euo pipefail
+
+      prompt="> "
+      delimiter=""
+      with_nth=""
+      accept_nth=""
+      only_match=0
+      query_mode=0
+
+      while [ "$#" -gt 0 ]; do
+        case "$1" in
+          --prompt)
+            shift
+            [ "$#" -gt 0 ] || exit 2
+            prompt="$1"
+            ;;
+          --prompt=*)
+            prompt="''${1#--prompt=}"
+            ;;
+          --delimiter)
+            shift
+            [ "$#" -gt 0 ] || exit 2
+            delimiter="$1"
+            ;;
+          --delimiter=*)
+            delimiter="''${1#--delimiter=}"
+            ;;
+          --with-nth)
+            shift
+            [ "$#" -gt 0 ] || exit 2
+            with_nth="$1"
+            ;;
+          --with-nth=*)
+            with_nth="''${1#--with-nth=}"
+            ;;
+          --accept-nth)
+            shift
+            [ "$#" -gt 0 ] || exit 2
+            accept_nth="$1"
+            ;;
+          --accept-nth=*)
+            accept_nth="''${1#--accept-nth=}"
+            ;;
+          --only-match)
+            only_match=1
+            ;;
+          --query)
+            query_mode=1
+            ;;
+          *)
+            echo "kryonix-menu: argumento desconhecido: $1" >&2
+            exit 2
+            ;;
+        esac
+        shift
+      done
+
+      tmp="$(mktemp)"
+      cleanup() { rm -f "$tmp"; }
+      trap cleanup EXIT
+      cat > "$tmp"
+
+      choose_fuzzel() {
+        local -a args
+
+        args=(
+          --dmenu
+          "--prompt=$prompt"
+          --lines=12
+          --width=72
+          --layer=overlay
+          --match-mode=fzf
+          --minimal-lines
+          --no-icons
+        )
+
+        if [ -n "$delimiter" ]; then
+          args+=("--nth-delimiter=$delimiter")
+        fi
+        if [ -n "$with_nth" ]; then
+          args+=("--with-nth=$with_nth")
+        fi
+        if [ -n "$accept_nth" ]; then
+          args+=("--accept-nth=$accept_nth")
+        fi
+        if [ "$only_match" -eq 1 ] && [ "$query_mode" -eq 0 ]; then
+          args+=(--only-match)
+        fi
+
+        fuzzel "''${args[@]}" < "$tmp"
+      }
+
+      choose_fzf() {
+        local selection
+        local fzf_delimiter
+        local -a args
+        args=(
+          "--prompt=$prompt"
+          --layout=reverse
+          --height=100%
+          --border
+        )
+
+        if [ -n "$delimiter" ] && [ -n "$with_nth" ]; then
+          fzf_delimiter="$delimiter"
+          case "$fzf_delimiter" in
+            "|")
+              fzf_delimiter="[|]"
+              ;;
+          esac
+          args+=("--delimiter=$fzf_delimiter" "--with-nth=$with_nth")
+        fi
+        if [ "$query_mode" -eq 1 ]; then
+          args+=(--print-query --phony)
+          selection="$(fzf "''${args[@]}" < "$tmp" | head -n1)" || return 1
+        else
+          selection="$(fzf "''${args[@]}" < "$tmp")" || return 1
+        fi
+
+        if [ -n "$accept_nth" ]; then
+          if [ -n "$delimiter" ] && [ "''${#delimiter}" -eq 1 ]; then
+            printf '%s\n' "$selection" | cut -d "$delimiter" -f "$accept_nth"
+          else
+            printf '%s\n' "$selection"
+          fi
+        else
+          printf '%s\n' "$selection"
+        fi
+      }
+
+      if [ -n "''${WAYLAND_DISPLAY-}" ] && command -v fuzzel >/dev/null 2>&1; then
+        choose_fuzzel
+      else
+        choose_fzf
+      fi
+    '';
+  };
 in
 {
   imports = [
@@ -87,6 +234,7 @@ in
         libqalculate
         brightnessctl
         kdePackages.ark
+        kryonixMenu
 
         (writeShellApplication {
           name = "grimblast";
@@ -204,7 +352,7 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-screenshot";
+          name = "kryonix-screenshot";
           runtimeInputs = [
             bash
             coreutils
@@ -249,7 +397,7 @@ in
                 ;;
 
               *)
-                echo "Uso: rag-screenshot {copy-area|copysave-screen|copysave-active|edit-area|edit-output}" >&2
+                echo "Uso: kryonix-screenshot {copy-area|copysave-screen|copysave-active|edit-area|edit-output}" >&2
                 exit 2
                 ;;
             esac
@@ -257,7 +405,7 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-brightness";
+          name = "kryonix-brightness";
           runtimeInputs = [
             bash
             brightnessctl
@@ -279,7 +427,7 @@ in
                 exec brightnessctl -q set 1%
                 ;;
               *)
-                echo "Uso: rag-brightness {up|down|max|min}" >&2
+                echo "Uso: kryonix-brightness {up|down|max|min}" >&2
                 exit 2
                 ;;
             esac
@@ -287,7 +435,7 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-kbd-brightness";
+          name = "kryonix-kbd-brightness";
           runtimeInputs = [
             bash
             coreutils
@@ -309,7 +457,7 @@ in
                 exec brightnessctl -q -d "$device" set 33%-
                 ;;
               *)
-                echo "Uso: rag-kbd-brightness {up|down}" >&2
+                echo "Uso: kryonix-kbd-brightness {up|down}" >&2
                 exit 2
                 ;;
             esac
@@ -317,34 +465,103 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-clipboard-menu";
+          name = "kryonix-launcher";
+          runtimeInputs = [
+            bash
+            coreutils
+            findutils
+            kryonixMenu
+            gtk3
+            libnotify
+          ];
+          text = ''
+            set -euo pipefail
+            collect_desktop_files() {
+              local data_dir
+              local -a dirs
+              dirs=()
+
+              if [ -n "''${XDG_DATA_HOME-}" ]; then
+                dirs+=("$XDG_DATA_HOME/applications")
+              else
+                dirs+=("$HOME/.local/share/applications")
+              fi
+
+              if [ -n "''${XDG_DATA_DIRS-}" ]; then
+                IFS=: read -r -a xdg_dirs <<< "$XDG_DATA_DIRS"
+                for data_dir in "''${xdg_dirs[@]}"; do
+                  dirs+=("$data_dir/applications")
+                done
+              fi
+
+              dirs+=(
+                "$HOME/.local/share/applications"
+                "$HOME/.nix-profile/share/applications"
+                "/etc/profiles/per-user/''${USER:-''${LOGNAME:-}}/share/applications"
+                "/run/current-system/sw/share/applications"
+                "$HOME/.local/share/flatpak/exports/share/applications"
+                "/var/lib/flatpak/exports/share/applications"
+                "/usr/share/applications"
+              )
+
+              for data_dir in "''${dirs[@]}"; do
+                [ -d "$data_dir" ] || continue
+                find "$data_dir" -type f -name "*.desktop" -printf '%f|%p\n' 2>/dev/null
+              done | sort -u
+            }
+
+            app="$(collect_desktop_files | kryonix-menu --prompt 'Apps> ' --delimiter '|' --with-nth 1 --accept-nth 2 --only-match)" || exit 0
+            [ -n "$app" ] || exit 0
+
+            desktop_id="$(basename "$app")"
+            gtk-launch "$desktop_id" "$@" || gtk-launch "''${desktop_id%.desktop}" "$@"
+          '';
+        })
+
+        (writeShellApplication {
+          name = "kryonix-clipboard-menu";
           runtimeInputs = [
             bash
             coreutils
             cliphist
             wl-clipboard
-            rofi
+            kryonixMenu
+            libnotify
           ];
           text = ''
             set -euo pipefail
-
-            sel="$(cliphist list | rofi -dmenu -i -p 'Clipboard')" || exit 0
+            sel="$(cliphist list | kryonix-menu --prompt 'Clipboard> ' --only-match)" || exit 0
             [ -n "$sel" ] || exit 0
             cliphist decode <<<"$sel" | wl-copy
           '';
         })
 
         (writeShellApplication {
-          name = "rag-caelestia-ipc";
+          name = "kryonix-ipc";
           runtimeInputs = [
             bash
             coreutils
+            gawk
             jq
+            procps
           ];
           text = ''
             set -euo pipefail
 
-            pid="$(caelestia-shell list --all --json | jq -r 'map(select(.config_path | contains("caelestia-shell/shell.qml"))) | first | .pid // empty')"
+            pid="$(
+              caelestia-shell list --all --json 2>/dev/null \
+                | jq -r 'map(select(.config_path | contains("caelestia-shell/shell.qml"))) | first | .pid // empty' \
+                || true
+            )"
+
+            if [ -z "$pid" ]; then
+              pid="$(pidof caelestia-shell 2>/dev/null | awk '{print $1}' || true)"
+            fi
+
+            if [ -z "$pid" ]; then
+              pid="$(pidof quickshell 2>/dev/null | awk '{print $1}' || true)"
+            fi
+
             [ -n "$pid" ] || exit 1
 
             qs_bin="$(readlink -f "/proc/$pid/exe")"
@@ -355,33 +572,20 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-shell-launcher";
+          name = "kryonix-shell-launcher";
           runtimeInputs = [
             bash
             coreutils
-            rofi
           ];
           text = ''
             set -euo pipefail
 
-            backend="${if shellBackend == null then "none" else shellBackend}"
-
-            case "$backend" in
-              caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc drawers toggle launcher; then
-                  exit 0
-                fi
-                ;;
-              *)
-                ;;
-            esac
-
-            exec rofi -show drun
+            exec kryonix-launcher "$@"
           '';
         })
 
         (writeShellApplication {
-          name = "rag-shell-dashboard";
+          name = "kryonix-shell-dashboard";
           runtimeInputs = [
             bash
             coreutils
@@ -393,18 +597,18 @@ in
 
             case "$backend" in
               caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc drawers toggle dashboard; then
+                if command -v kryonix-ipc >/dev/null 2>&1 && kryonix-ipc drawers toggle dashboard; then
                   exit 0
                 fi
                 ;;
             esac
 
-            exec rag-quick-actions
+            exec kryonix-quick-actions
           '';
         })
 
         (writeShellApplication {
-          name = "rag-shell-notifications";
+          name = "kryonix-shell-notifications";
           runtimeInputs = [
             bash
             coreutils
@@ -417,7 +621,7 @@ in
 
             case "$backend" in
               caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc drawers toggle sidebar; then
+                if command -v kryonix-ipc >/dev/null 2>&1 && kryonix-ipc drawers toggle sidebar; then
                   exit 0
                 fi
                 ;;
@@ -432,7 +636,7 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-shell-notifications-clear";
+          name = "kryonix-shell-notifications-clear";
           runtimeInputs = [
             bash
             coreutils
@@ -445,7 +649,7 @@ in
 
             case "$backend" in
               caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc notifs clear; then
+                if command -v kryonix-ipc >/dev/null 2>&1 && kryonix-ipc notifs clear; then
                   exit 0
                 fi
                 ;;
@@ -460,7 +664,7 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-shell-lock";
+          name = "kryonix-shell-lock";
           runtimeInputs = [
             bash
             coreutils
@@ -473,7 +677,7 @@ in
 
             case "$backend" in
               caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc lock lock; then
+                if command -v kryonix-ipc >/dev/null 2>&1 && kryonix-ipc lock lock; then
                   exit 0
                 fi
                 ;;
@@ -484,14 +688,15 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-power-menu";
+          name = "kryonix-power-menu";
           runtimeInputs = [
             bash
             coreutils
-            rofi
+            kryonixMenu
             wlogout
             systemd
             hyprland
+            libnotify
           ];
           text = ''
             set -euo pipefail
@@ -500,7 +705,7 @@ in
 
             case "$backend" in
               caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc drawers toggle session; then
+                if command -v kryonix-ipc >/dev/null 2>&1 && kryonix-ipc drawers toggle session; then
                   exit 0
                 fi
                 ;;
@@ -509,8 +714,7 @@ in
             if command -v wlogout >/dev/null 2>&1; then
               exec wlogout -b 5
             fi
-
-            choice="$(printf '%s\n' 'Lock' 'Logout' 'Suspend' 'Reboot' 'Poweroff' | rofi -dmenu -i -p 'Power')" || exit 0
+            choice="$(printf '%s\n' 'Lock' 'Logout' 'Suspend' 'Reboot' 'Poweroff' | kryonix-menu --prompt 'Power> ' --only-match)" || exit 0
 
             case "$choice" in
               "Lock")
@@ -536,20 +740,21 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-audio-menu";
+          name = "kryonix-audio-menu";
           runtimeInputs = [
             bash
             coreutils
             gnugrep
             gawk
-            rofi
+            kryonixMenu
             wireplumber
             pavucontrol
+            pamixer
             playerctl
+            libnotify
           ];
           text = ''
             set -euo pipefail
-
             menu="$(printf '%s\n' \
               'Abrir pavucontrol' \
               'Saída padrão' \
@@ -559,19 +764,19 @@ in
               'Play/Pause' \
               'Faixa seguinte' \
               'Faixa anterior' \
-              | rofi -dmenu -i -p 'Áudio')" || exit 0
+              | kryonix-menu --prompt 'Áudio> ' --only-match)" || exit 0
 
             case "$menu" in
               "Abrir pavucontrol")
                 exec pavucontrol
                 ;;
               "Saída padrão")
-                out="$(wpctl status | awk '/Sinks:/{f=1;next}/Sources:/{f=0}f && $1 ~ /^[0-9]+\./{gsub("\.","",$1); print $1":"substr($0,index($0,$2))}' | rofi -dmenu -i -p 'Selecionar saída')" || exit 0
+                out="$(wpctl status | awk '/Sinks:/{f=1;next}/Sources:/{f=0}f && $1 ~ /^[0-9]+\./{gsub("\.","",$1); print $1":"substr($0,index($0,$2))}' | kryonix-menu --prompt 'Saída> ' --only-match)" || exit 0
                 [ -n "$out" ] || exit 0
                 wpctl set-default "''${out%%:*}"
                 ;;
               "Entrada padrão")
-                inn="$(wpctl status | awk '/Sources:/{f=1;next}/Filters:/{f=0}f && $1 ~ /^[0-9]+\./{gsub("\.","",$1); print $1":"substr($0,index($0,$2))}' | rofi -dmenu -i -p 'Selecionar entrada')" || exit 0
+                inn="$(wpctl status | awk '/Sources:/{f=1;next}/Filters:/{f=0}f && $1 ~ /^[0-9]+\./{gsub("\.","",$1); print $1":"substr($0,index($0,$2))}' | kryonix-menu --prompt 'Entrada> ' --only-match)" || exit 0
                 [ -n "$inn" ] || exit 0
                 wpctl set-default "''${inn%%:*}"
                 ;;
@@ -598,19 +803,18 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-network-menu";
+          name = "kryonix-network-menu";
           runtimeInputs = [
             bash
             coreutils
-            rofi
-            networkmanager_dmenu
+            kryonixMenu
             networkmanagerapplet
             blueman
             bluez
+            libnotify
           ];
           text = ''
             set -euo pipefail
-
             bt_state="$(bluetoothctl show 2>/dev/null | awk '/Powered:/ {print $2; exit}')"
             if [ "$bt_state" = "yes" ]; then
               bt_action="Bluetooth: desligar"
@@ -619,16 +823,12 @@ in
             fi
 
             choice="$(printf '%s\n' \
-              'Wi-Fi rápido (dmenu)' \
               'Editor de conexões' \
               'Bluetooth manager' \
               "$bt_action" \
-              | rofi -dmenu -i -p 'Rede/Bluetooth')" || exit 0
+              | kryonix-menu --prompt 'Rede/Bluetooth> ' --only-match)" || exit 0
 
             case "$choice" in
-              "Wi-Fi rápido (dmenu)")
-                exec networkmanager_dmenu
-                ;;
               "Editor de conexões")
                 exec nm-connection-editor
                 ;;
@@ -649,11 +849,11 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-record-menu";
+          name = "kryonix-record-menu";
           runtimeInputs = [
             bash
             coreutils
-            rofi
+            kryonixMenu
             jq
             hyprland
             slurp
@@ -666,16 +866,15 @@ in
 
             recordings_dir="''${XDG_VIDEOS_DIR:-$HOME/Videos}/Recordings"
             mkdir -p "$recordings_dir"
-
             if pgrep -x wf-recorder >/dev/null 2>&1; then
-              choice="$(printf '%s\n' 'Parar gravação' 'Cancelar' | rofi -dmenu -i -p 'Screen Recorder')" || exit 0
+              choice="$(printf '%s\n' 'Parar gravação' 'Cancelar' | kryonix-menu --prompt 'Screen Recorder> ' --only-match)" || exit 0
               [ "$choice" = "Parar gravação" ] || exit 0
               pkill -INT -x wf-recorder || true
               notify-send -a "screen-recorder" "Gravação" "Gravação finalizada"
               exit 0
             fi
 
-            mode="$(printf '%s\n' 'Área' 'Janela ativa' 'Monitor atual' | rofi -dmenu -i -p 'Gravar')" || exit 0
+            mode="$(printf '%s\n' 'Área' 'Janela ativa' 'Monitor atual' | kryonix-menu --prompt 'Gravar> ' --only-match)" || exit 0
             [ -n "$mode" ] || exit 0
 
             file="$recordings_dir/Recording_$(date +%F_%H-%M-%S).mp4"
@@ -709,21 +908,21 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-window-menu";
+          name = "kryonix-window-menu";
           runtimeInputs = [
             bash
             coreutils
-            rofi
+            kryonixMenu
             jq
             hyprland
+            libnotify
           ];
           text = ''
             set -euo pipefail
-
             selection="$(
               hyprctl -j clients \
                 | jq -r '.[] | select(.mapped == true) | "[\(.workspace.name)] \(.class) - \(.title) ::: \(.address)"' \
-                | rofi -dmenu -i -p 'Janelas'
+                | kryonix-menu --prompt 'Janelas> ' --only-match
             )" || exit 0
 
             [ -n "$selection" ] || exit 0
@@ -733,19 +932,18 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-calc-menu";
+          name = "kryonix-calc-menu";
           runtimeInputs = [
             bash
             coreutils
-            rofi
+            kryonixMenu
             libqalculate
             wl-clipboard
             libnotify
           ];
           text = ''
             set -euo pipefail
-
-            expr="$(rofi -dmenu -i -p 'qalc')" || exit 0
+            expr="$(printf '\n' | kryonix-menu --prompt 'qalc> ' --query | head -n1)" || exit 0
             [ -n "$expr" ] || exit 0
 
             result="$(qalc -t "$expr" | tail -n 1)" || exit 1
@@ -755,11 +953,12 @@ in
         })
 
         (writeShellApplication {
-          name = "rag-quick-actions";
+          name = "kryonix-quick-actions";
           runtimeInputs = [
             bash
             coreutils
-            rofi
+            kryonixMenu
+            libnotify
           ];
           text = ''
             set -euo pipefail
@@ -768,12 +967,11 @@ in
 
             case "$backend" in
               caelestia)
-                if command -v rag-caelestia-ipc >/dev/null 2>&1 && rag-caelestia-ipc controlCenter open; then
+                if command -v kryonix-ipc >/dev/null 2>&1 && kryonix-ipc controlCenter open; then
                   exit 0
                 fi
                 ;;
             esac
-
             choice="$(printf '%s\n' \
               'Launcher do shell' \
               'Terminal' \
@@ -787,11 +985,11 @@ in
               'Rede/Bluetooth' \
               'Power' \
               'Copiar cor' \
-              | rofi -dmenu -i -p 'Kryonix')" || exit 0
+              | kryonix-menu --prompt 'Kryonix> ' --only-match)" || exit 0
 
             case "$choice" in
               "Launcher do shell")
-                exec rag-shell-launcher
+                exec kryonix-shell-launcher
                 ;;
               "Terminal")
                 exec uwsm app -- kryonix-terminal
@@ -800,28 +998,28 @@ in
                 exec uwsm app -- dolphin
                 ;;
               "Janelas")
-                exec rag-window-menu
+                exec kryonix-window-menu
                 ;;
               "Calculadora")
-                exec rag-calc-menu
+                exec kryonix-calc-menu
                 ;;
               "Captura de tela")
-                exec rag-screenshot edit-area
+                exec kryonix-screenshot edit-area
                 ;;
               "Gravar tela")
-                exec rag-record-menu
+                exec kryonix-record-menu
                 ;;
               "Clipboard")
-                exec rag-clipboard-menu
+                exec kryonix-clipboard-menu
                 ;;
               "Áudio")
-                exec rag-audio-menu
+                exec kryonix-audio-menu
                 ;;
               "Rede/Bluetooth")
-                exec rag-network-menu
+                exec kryonix-network-menu
                 ;;
               "Power")
-                exec rag-power-menu
+                exec kryonix-power-menu
                 ;;
               "Copiar cor")
                 exec hyprpicker -a

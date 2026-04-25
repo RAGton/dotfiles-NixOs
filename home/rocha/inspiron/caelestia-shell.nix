@@ -3,7 +3,7 @@
   # Arquivo canônico do Caelestia no inspiron.
   # Edite aqui quando quiser ajustar manualmente launcher, apps e comportamento do shell.
   kryonix.shell.caelestia.scheme = {
-    name = "rag-atlas";
+    name = "kryonix-atlas";
     flavour = "atlas";
     deformScale = 1.14;
     colours = {
@@ -94,9 +94,9 @@
         size.scale = 0.98;
       };
       transparency = {
-        enabled = true;
-        base = 0.78;
-        layers = 0.42;
+        enabled = false;
+        base = 1.0;
+        layers = 1.0;
       };
     };
     background = {
@@ -107,19 +107,19 @@
         position = "bottom-right";
         invertColors = false;
         shadow = {
-          enabled = true;
-          opacity = 0.48;
-          blur = 0.62;
+          enabled = false;
+          opacity = 0.0;
+          blur = 0.0;
         };
         background = {
-          enabled = true;
-          opacity = 0.16;
-          blur = true;
+          enabled = false;
+          opacity = 0.0;
+          blur = false;
         };
       };
       visualiser = {
-        enabled = true;
-        blur = true;
+        enabled = false;
+        blur = false;
         autoHide = true;
         rounding = 1.35;
         spacing = 1.15;
@@ -179,7 +179,7 @@
       enabled = true;
       showOnHover = false;
       showMedia = true;
-      showPerformance = true;
+      showPerformance = false;
       showWeather = false;
       mediaUpdateInterval = 700;
       resourceUpdateInterval = 1200;
@@ -238,7 +238,7 @@
       maxVolume = 1.0;
       smartScheme = true;
       useTwelveHourClock = false;
-      visualiserBars = 52;
+      visualiserBars = 0;
     };
 
     sidebar.enabled = true;

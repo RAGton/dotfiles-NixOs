@@ -30,4 +30,37 @@
 
   # Configuração condicional para sistemas Darwin.
   home.sessionPath = [ "$HOME/.local/bin" ];
+
+  # Runtime dos entrypoints publicados em ~/.local/bin.
+  # Os scripts continuam versionados como arquivos reais, mas suas dependências
+  # vêm do perfil declarativo do Home Manager.
+  home.packages = lib.optionals pkgs.stdenv.isLinux (
+    with pkgs;
+    [
+      bluez
+      blueman
+      cliphist
+      coreutils
+      findutils
+      fuzzel
+      fzf
+      gawk
+      gnugrep
+      gnused
+      gtk3
+      hyprland
+      jq
+      libnotify
+      libqalculate
+      networkmanagerapplet
+      pamixer
+      playerctl
+      procps
+      slurp
+      systemd
+      uwsm
+      wf-recorder
+      wl-clipboard
+    ]
+  );
 }

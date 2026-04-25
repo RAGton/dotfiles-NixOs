@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+selection="$(cliphist list | kryonix-menu --prompt 'Clipboard: ' --only-match)" || exit 0
+[ -n "$selection" ] || exit 0
+
+cliphist decode <<<"$selection" | wl-copy

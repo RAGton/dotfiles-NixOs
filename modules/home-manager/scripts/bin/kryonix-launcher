@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+collect_desktop_entries() {
+	local data_dir
+	local desktop_file
+	local desktop_id
+	local desktop_name
+	local -a data_dirs
+
+	data_dirs=()
+
+	if [ -n "${XDG_DATA_HOME-}" ]; then
+		data_dirs+=("$XDG_DATA_HOME")
+	else
+		data_dirs+=("$HOME/.local/share")
+	fi
+
+	if [ -n "${XDG_DATA_DIRS-}" ]; then
+		IFS=: read -r -a xdg_data_dirs <<<"$XDG_DATA_DIRS"
+		data_dirs+=("${xdg_data_dirs[@]}")
+	fi
+
+	data_dirs+=(
+		"$HOME/.local/share"
+		"$HOME/.nix-profile/share"
+		"/etc/profiles/per-user/${USER:-${LOGNAME:-}}/share"
+		"/run/current-system/sw/share"
+		"$HOME/.local/share/flatpak/exports/share"
+		"/var/lib/flatpak/exports/share"
+		"/usr/share"
+	)
+
+	for data_dir in "${data_dirs[@]}"; do
+		[ -d "$data_dir/applications" ] || continue
+
+		while IFS= read -r -d '' desktop_file; do
+			grep -q '^Exec=' "$desktop_file" || continue
+			grep -qi '^Hidden=true' "$desktop_file" && continue
+			grep -qi '^NoDisplay=true' "$desktop_file" && continue
+
+			desktop_id="$(basename "$desktop_file")"
+			desktop_name="$(
+				awk -F= '
+					/^Name=/ {
+						sub(/^Name=/, "")
+						print
+						exit
+					}
+				' "$desktop_file"
+			)"
+
+			printf '%s|%s\n' "${desktop_name:-$desktop_id}" "$desktop_id"
+		done < <(find "$data_dir/applications" -type f -name '*.desktop' -print0 2>/dev/null)
+	done | sort -u
+}
+
+selected="$(
+	collect_desktop_entries \
+		| kryonix-menu --prompt 'Apps: ' --delimiter '|' --with-nth 1 --accept-nth 2 --only-match
+)" || exit 0
+
+[ -n "$selected" ] || exit 0
+
+gtk-launch "$selected" "$@" || gtk-launch "${selected%.desktop}" "$@"
