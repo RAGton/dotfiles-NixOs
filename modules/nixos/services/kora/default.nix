@@ -124,6 +124,16 @@ in
       '';
     };
 
+    neo4jEnvironmentFile = mkOption {
+      type = types.str;
+      default = "/etc/kryonix/neo4j.env";
+      description = ''
+        Arquivo com NEO4J_AUTH=user/password para acesso ao grafo Neo4j.
+        Lido pelo systemd durante a ativação do serviço (não pelo processo kora),
+        então funciona mesmo que o arquivo seja root:root 600.
+      '';
+    };
+
     packageDir = mkOption {
       type = types.str;
       default = "/etc/kryonix/packages/kora";
@@ -186,6 +196,7 @@ in
         EnvironmentFile = [
           "-${cfg.environmentFile}"
           "-${cfg.brainEnvironmentFile}"
+          "-${cfg.neo4jEnvironmentFile}"
         ];
         Restart = "on-failure";
         RestartSec = "10";

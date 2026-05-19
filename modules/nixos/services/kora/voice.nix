@@ -51,7 +51,7 @@ in
       };
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.kora}/bin/kora voice daemon run";
+        ExecStart = "${pkgs.kora}/bin/kora /voice daemon run";
         Restart = "on-failure";
         RestartSec = "5";
       };

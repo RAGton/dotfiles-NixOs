@@ -77,6 +77,10 @@
     host = "0.0.0.0";
     port = 8787;
     memory.enable = true;
+    voice = {
+      enable = true;
+      alwaysOn = true;
+    };
   };
 
   # =========================
