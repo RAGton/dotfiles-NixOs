@@ -150,6 +150,7 @@ class WakeWordEngine:
         self.pyaudio = None
         self.active_stream = None
         self.stream = PyAudioStreamWrapper(self)
+        self.device_index = None
         self._last_open_attempt: float = 0.0
         self._open_backoff: float = 2.0  # seconds between failed open attempts
 
@@ -172,21 +173,32 @@ class WakeWordEngine:
     def _find_input_device_index(self) -> int | None:
         """Return the index of the best available soft-mix input device.
 
-        Priority: PipeWire virtual device > PulseAudio compat device > None.
+        Priority: ALSA device whose name is "default" or contains "PipeWire" / "pulse".
         Returning None lets PyAudio fall back to its own default selection.
         """
         if self.pyaudio is None:
             return None
-        for i in range(self.pyaudio.get_device_count()):
+        
+        try:
+            device_count = self.pyaudio.get_device_count()
+            if not isinstance(device_count, int):
+                device_count = 0
+        except Exception:
+            device_count = 0
+
+        for i in range(device_count):
             try:
                 info = self.pyaudio.get_device_info_by_index(i)
             except Exception:
                 continue
-            if info.get("maxInputChannels", 0) < 1:
+            if not isinstance(info, dict):
                 continue
-            name = info.get("name", "").lower()
-            if "pipewire" in name or "pulse" in name:
-                logger.debug("WakeWordEngine: using soft-mix device #%d '%s'", i, info["name"])
+            channels = info.get("maxInputChannels", 0)
+            if not isinstance(channels, int) or channels < 1:
+                continue
+            name = str(info.get("name", "")).lower()
+            if "default" in name or "pipewire" in name or "pulse" in name:
+                logger.debug("WakeWordEngine: using soft-mix device #%d '%s'", i, info.get("name", ""))
                 return i
         return None
 
@@ -200,8 +212,9 @@ class WakeWordEngine:
         self._last_open_attempt = now
 
         self._init_pyaudio()
-        device_index = self._find_input_device_index()
+        self.device_index = self._find_input_device_index()
 
+        # Tente abrir o dispositivo explícito
         try:
             with _suppress_alsa_stderr():
                 self.active_stream = self.pyaudio.open(
@@ -210,19 +223,34 @@ class WakeWordEngine:
                     rate=self.rate,
                     input=True,
                     frames_per_buffer=self.chunk_size,
-                    input_device_index=device_index,
+                    input_device_index=self.device_index,
                 )
             logger.info(
                 "WakeWordEngine: stream opened (device=%s)",
-                device_index if device_index is not None else "default",
+                self.device_index if self.device_index is not None else "default",
             )
             self._open_backoff = 2.0  # reset on success
             return True
         except Exception as e:
-            logger.warning("WakeWordEngine: failed to open stream (device=%s): %s", device_index, e)
-            self.active_stream = None
-            self._open_backoff = min(self._open_backoff * 2, 30.0)  # exponential backoff, max 30s
-            return False
+            logger.warning("WakeWordEngine: failed to open stream (device=%s), trying default fallback: %s", self.device_index, e)
+            try:
+                with _suppress_alsa_stderr():
+                    self.active_stream = self.pyaudio.open(
+                        format=self.format,
+                        channels=self.channels,
+                        rate=self.rate,
+                        input=True,
+                        frames_per_buffer=self.chunk_size,
+                        input_device_index=None,
+                    )
+                logger.info("WakeWordEngine: stream opened with default fallback (device=None)")
+                self._open_backoff = 2.0
+                return True
+            except Exception as fallback_err:
+                logger.error("WakeWordEngine: failed to open default fallback stream: %s", fallback_err)
+                self.active_stream = None
+                self._open_backoff = min(self._open_backoff * 2, 30.0)  # exponential backoff, max 30s
+                return False
 
     def close_stream(self) -> None:
         if self.active_stream is not None:

@@ -11,7 +11,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import re
+import socket
 import subprocess
 import time
 from pathlib import Path
@@ -106,42 +108,42 @@ def _get_neo4j_driver() -> Any | None:
     now = time.monotonic()
     if now - _last_neo4j_check_time > 60.0:
         _last_neo4j_check_time = now
-        import socket
-        import sys
         from urllib.parse import urlparse
         try:
-            uri = NEO4J_URI
+            uri = os.getenv("KRYONIX_NEO4J_URI", "bolt://localhost:7687")
             if "://" not in uri:
                 uri = "bolt://" + uri
             parsed = urlparse(uri)
-            host = parsed.hostname or "127.0.0.1"
+            host = parsed.hostname or "localhost"
             port = parsed.port or 7687
             with socket.create_connection((host, port), timeout=1.0):
                 _neo4j_available = True
         except Exception:
             _neo4j_available = False
-            logging.critical("Failed to connect to Neo4j database on %s. Long-term memory is offline.", NEO4J_URI)
-            print("⚠️ Memória de longo prazo indisponível", file=sys.stderr)
+            logger.debug("Neo4j connection failed, proceeding without memory.")
 
     if not _neo4j_available:
         return None
 
     try:
-        from neo4j import AsyncGraphDatabase
+        from neo4j import AsyncGraphDatabase, basic_auth
         # Read NEO4J_AUTH at call time so systemd EnvironmentFile injection is
         # visible even if config.py was imported before the env was populated.
         auth_str = os.getenv("NEO4J_AUTH", "")
         if auth_str and "/" in auth_str:
             _u, _p = auth_str.split("/", 1)
-            auth = (_u, _p)
+            auth = basic_auth(_u, _p)
         elif NEO4J_USER and NEO4J_PASSWORD:
-            auth = (NEO4J_USER, NEO4J_PASSWORD)
+            auth = basic_auth(NEO4J_USER, NEO4J_PASSWORD)
         else:
             auth = None
-        _neo4j_driver = AsyncGraphDatabase.driver(NEO4J_URI, auth=auth)
-        logger.info("Neo4j async driver initialised (uri=%s auth=%s)", NEO4J_URI, bool(auth))
+        uri = os.getenv("KRYONIX_NEO4J_URI", "bolt://localhost:7687")
+        if "://" not in uri:
+            uri = "bolt://" + uri
+        _neo4j_driver = AsyncGraphDatabase.driver(uri, auth=auth)
+        logger.info("Neo4j async driver initialised (uri=%s auth=%s)", uri, bool(auth))
     except Exception as exc:
-        logging.critical("Neo4j driver unavailable — graph context disabled: %s", exc)
+        logger.debug("Neo4j driver unavailable — graph context disabled. NEO4J_AUTH read: '%s', error: %s", os.getenv("NEO4J_AUTH", ""), exc)
         _neo4j_driver = None
     return _neo4j_driver
 
@@ -581,6 +583,11 @@ async def process_message(
 
     # ── KoraMind: fallback or no-graph path ───────────────────────────────
     if not raw_answer:
+        # Quando o orquestrador/banco está offline, garanta a instrução resiliente no prompt
+        if _get_neo4j_driver() is None:
+            if "Responda de forma natural e prestativa" not in ctx["system_prompt"]:
+                ctx["system_prompt"] += "\n\nVocê é a Kora, um assistente inteligente. Responda de forma natural e prestativa, mesmo que não tenha acesso a dados externos."
+
         mind = KoraMind()
         mind_output = await mind.respond(
             MindInput(

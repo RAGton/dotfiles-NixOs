@@ -140,4 +140,4 @@ class KoraMind:
     def _fallback(self, mind_input: MindInput) -> str:
         if mind_input.intent == "casual_check":
             return GOOD_CASUAL_CHECK_RESPONSE
-        return "Entendi. Vou responder de forma direta, com base no que esta validado no Kryonix."
+        return "Bom dia, Ragton! Estou pronta para ajudar, mesmo sem acesso à minha memória de longo prazo no momento."

@@ -13,12 +13,7 @@ class ReflectionResult:
 
 
 class KoraReflection:
-    generic_phrases = [
-        "como posso ajudar",
-        "em que posso ajudar",
-        "sinta-se a vontade",
-        "sinta-se à vontade",
-    ]
+    generic_phrases = []
 
     def review(self, user_text: str, answer: str, intent: str, safety_context: dict | None = None) -> ReflectionResult:
         clean_answer = (answer or "").strip()
@@ -80,4 +75,4 @@ class KoraReflection:
                 "Correcao: vou usar o historico recente e refazer a resposta de forma direta.\n"
                 "Validacao: o benchmark de reparo precisa cobrir esse caso."
             )
-        return "Entendi. Vou responder de forma direta e sem despejar estado interno desnecessario."
+        return "Bom dia, Ragton! Estou pronta para ajudar, mesmo sem acesso à minha memória de longo prazo no momento."

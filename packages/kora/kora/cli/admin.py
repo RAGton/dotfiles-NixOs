@@ -784,6 +784,26 @@ def handle_config(args: argparse.Namespace) -> None:
         cfg.delete(args.key)
 
 
+def handle_session_reset(args: argparse.Namespace) -> None:
+    from ..core.conversation import VOICE_SESSION_FILE, SESSIONS_DIR, clear_session
+    console = Console()
+    console.print("[yellow]Resetting current Kora conversation session...[/yellow]")
+    
+    # 1. Clear current voice session file
+    clear_session()
+    
+    # 2. Deletar todos os arquivos em SESSIONS_DIR
+    if SESSIONS_DIR.exists():
+        for item in SESSIONS_DIR.iterdir():
+            if item.is_file():
+                try:
+                    item.unlink()
+                except Exception as e:
+                    console.print(f"[bold red]Failed to delete file {item.name}: {e}")
+                    
+    console.print("[bold green]Sessão de voz e histórico resetados com sucesso![/bold green]")
+
+
 def main(args_list: list[str] = None) -> None:
     parser = argparse.ArgumentParser(description="Kora Personal Assistant Admin CLI")
     parser.add_argument("--url", help="Override KORA_API_URL")
@@ -811,6 +831,11 @@ def main(args_list: list[str] = None) -> None:
 
     # version
     subparsers.add_parser("version", help="Get Kora assistant version")
+
+    # session
+    session_parser = subparsers.add_parser("session", help="Manage Kora conversation sessions")
+    session_subparsers = session_parser.add_subparsers(dest="session_command", required=True)
+    session_subparsers.add_parser("reset", help="Reset current conversation session and clean old history files")
 
     # config
     config_parser = subparsers.add_parser("config", help="Manage local agent configurations")
@@ -1037,6 +1062,9 @@ def main(args_list: list[str] = None) -> None:
         print(f"Kora v{__version__}")
     elif args.command == "config":
         handle_config(args)
+    elif args.command == "session":
+        if args.session_command == "reset":
+            handle_session_reset(args)
     elif args.command == "memory":
         if args.memory_command == "search":
             handle_memory_search(args)
