@@ -48,7 +48,19 @@ in
       environment = {
         KORA_VOICE_ALWAYS_ON = "1";
         KORA_WAKE_WORD = cfg.wakeword;
+        # Route PortAudio/ALSA through PipeWire's virtual device instead of
+        # probing raw hardware devices (which PipeWire holds exclusively).
+        # Without this, PortAudio gets -9999 (paUnanticipatedHostError) when
+        # enumerating hw:X,X devices that PipeWire has already locked.
+        ALSA_PCM_PLUGIN = "pipewire";
+        PA_ALSA_PLUGHW = "1";
+        # Explicit PipeWire socket path; %t expands to /run/user/<UID> in
+        # systemd user-service context so the client always finds the server.
+        PIPEWIRE_RUNTIME_DIR = "%t";
       };
+      # Add PipeWire binaries (pw-cli, pw-dump, etc.) to the service PATH so
+      # any runtime PipeWire interaction works without absolute paths.
+      path = [ pkgs.pipewire ];
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.kora}/bin/kora /voice daemon run";
