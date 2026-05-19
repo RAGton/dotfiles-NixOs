@@ -57,7 +57,20 @@
   };
 
   # Importa a configuração Lua a partir deste repositório.
-  xdg.configFile."nvim" = {
-    source = ./lazyvim;
-  };
+  # Para evitar conflitos de symlink e permitir arquivos gravados em runtime (como dankcolors.lua e lazy-lock.json):
+  # 1. Não linkamos o diretório ~/.config/nvim inteiro.
+  # 2. Linkamos individualmente os arquivos na raiz de lazyvim, em lua/config e em lua/plugins.
+  xdg.configFile = {
+    "nvim/init.lua".source = ./lazyvim/init.lua;
+    "nvim/stylua.toml".source = ./lazyvim/stylua.toml;
+    "nvim/.luarc.json".source = ./lazyvim/.luarc.json;
+    "nvim/.neoconf.json".source = ./lazyvim/.neoconf.json;
+  } // (builtins.listToAttrs (map (name: {
+    name = "nvim/lua/config/${name}";
+    value = { source = ./lazyvim/lua/config + "/${name}"; };
+  }) (builtins.attrNames (builtins.readDir ./lazyvim/lua/config))))
+    // (builtins.listToAttrs (map (name: {
+    name = "nvim/lua/plugins/${name}";
+    value = { source = ./lazyvim/lua/plugins + "/${name}"; };
+  }) (builtins.attrNames (builtins.readDir ./lazyvim/lua/plugins))));
 }
