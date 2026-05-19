@@ -100,9 +100,32 @@ def get_wakeword_status():
     }
 
 
+import contextlib
 import os
+import time
 import pyaudio
 from pathlib import Path
+
+
+@contextlib.contextmanager
+def _suppress_alsa_stderr():
+    """Redirect C-level stderr to /dev/null during PortAudio device probe.
+
+    PortAudio's ALSA host API prints Expression-failed messages straight to
+    file-descriptor 2 when probing hardware devices locked by PipeWire.
+    Python-level sys.stderr redirection does not catch these; we need to
+    temporarily replace the fd itself.
+    """
+    devnull_fd = os.open(os.devnull, os.O_WRONLY)
+    saved_fd = os.dup(2)
+    try:
+        os.dup2(devnull_fd, 2)
+        yield
+    finally:
+        os.dup2(saved_fd, 2)
+        os.close(saved_fd)
+        os.close(devnull_fd)
+
 
 class PyAudioStreamWrapper:
     """Wrapper that exposes start() and close() methods to match constraints."""
@@ -127,7 +150,9 @@ class WakeWordEngine:
         self.pyaudio = None
         self.active_stream = None
         self.stream = PyAudioStreamWrapper(self)
-        
+        self._last_open_attempt: float = 0.0
+        self._open_backoff: float = 2.0  # seconds between failed open attempts
+
         # Audio configuration
         self.chunk_size = 1280  # ~80ms at 16kHz
         self.rate = 16000
@@ -137,24 +162,66 @@ class WakeWordEngine:
     def is_locked(self) -> bool:
         return self.lock_path.exists()
 
+    def _init_pyaudio(self) -> None:
+        """Initialise PyAudio, silencing PortAudio's ALSA probe noise."""
+        if self.pyaudio is not None:
+            return
+        with _suppress_alsa_stderr():
+            self.pyaudio = pyaudio.PyAudio()
+
+    def _find_input_device_index(self) -> int | None:
+        """Return the index of the best available soft-mix input device.
+
+        Priority: PipeWire virtual device > PulseAudio compat device > None.
+        Returning None lets PyAudio fall back to its own default selection.
+        """
+        if self.pyaudio is None:
+            return None
+        for i in range(self.pyaudio.get_device_count()):
+            try:
+                info = self.pyaudio.get_device_info_by_index(i)
+            except Exception:
+                continue
+            if info.get("maxInputChannels", 0) < 1:
+                continue
+            name = info.get("name", "").lower()
+            if "pipewire" in name or "pulse" in name:
+                logger.debug("WakeWordEngine: using soft-mix device #%d '%s'", i, info["name"])
+                return i
+        return None
+
     def start_stream(self) -> bool:
         if self.active_stream is not None:
             return True
-        if self.pyaudio is None:
-            self.pyaudio = pyaudio.PyAudio()
+
+        now = time.monotonic()
+        if now - self._last_open_attempt < self._open_backoff:
+            return False
+        self._last_open_attempt = now
+
+        self._init_pyaudio()
+        device_index = self._find_input_device_index()
+
         try:
-            self.active_stream = self.pyaudio.open(
-                format=self.format,
-                channels=self.channels,
-                rate=self.rate,
-                input=True,
-                frames_per_buffer=self.chunk_size
+            with _suppress_alsa_stderr():
+                self.active_stream = self.pyaudio.open(
+                    format=self.format,
+                    channels=self.channels,
+                    rate=self.rate,
+                    input=True,
+                    frames_per_buffer=self.chunk_size,
+                    input_device_index=device_index,
+                )
+            logger.info(
+                "WakeWordEngine: stream opened (device=%s)",
+                device_index if device_index is not None else "default",
             )
-            logger.info("WakeWordEngine: PyAudio stream opened and active.")
+            self._open_backoff = 2.0  # reset on success
             return True
         except Exception as e:
-            logger.warning(f"WakeWordEngine: Device busy or failed to open stream: {e}")
+            logger.warning("WakeWordEngine: failed to open stream (device=%s): %s", device_index, e)
             self.active_stream = None
+            self._open_backoff = min(self._open_backoff * 2, 30.0)  # exponential backoff, max 30s
             return False
 
     def close_stream(self) -> None:
