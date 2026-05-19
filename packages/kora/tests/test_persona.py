@@ -23,7 +23,11 @@ from unittest.mock import AsyncMock, patch
 
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
 
 
 _PLAN_DEBUG_JSON = json.dumps({

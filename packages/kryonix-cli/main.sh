@@ -406,6 +406,17 @@ case "$subcommand" in
     cmd=(nh home switch "$flake_ref" -c "$home_target")
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
     run_flake_command "${cmd[@]}"
+
+    # ── Post-switch: sincroniza grafo Neo4j com o estado atual do NixOS ──
+    # Não-fatal: qualquer falha (kora ausente, Neo4j off, timeout, eval lento)
+    # apenas emite warning. Switch nunca falha por causa do sync.
+    if command -v kora >/dev/null 2>&1; then
+      blue_line "─── Sincronizando grafo (kora brain sync) ───"
+      timeout 15s kora brain sync --host "$flake_host" \
+        || printf '\033[33m[warn]\033[0m kora brain sync falhou (não-fatal) host=%s\n' "$flake_host" >&2
+    else
+      printf '\033[33m[warn]\033[0m kora não encontrado no PATH — pulando brain sync\n' >&2
+    fi
     ;;
 
   test)
