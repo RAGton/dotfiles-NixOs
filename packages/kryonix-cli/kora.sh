@@ -439,29 +439,29 @@ kryonix_kora_voice() {
 
     case "$sub" in
         devices)
-            kora voice devices
+            kora-admin voice devices
             ;;
         test-mic)
-            kora voice test-mic "$@"
+            kora-admin voice test-mic "$@"
             ;;
         transcribe)
-            kora voice transcribe "$@"
+            kora-admin voice transcribe "$@"
             ;;
         speak)
-            kora voice speak "$@"
+            kora-admin voice speak "$@"
             ;;
         identity)
-            kora voice identity "$@"
+            kora-admin voice identity "$@"
             ;;
         daemon)
             shift
-            kora voice daemon "$@"
+            kora-admin voice daemon "$@"
             ;;
         mute)
-            kora voice daemon stop # Fallback for now
+            kora-admin voice daemon stop # Fallback for now
             ;;
         unmute)
-            kora voice daemon start # Fallback for now
+            kora-admin voice daemon start # Fallback for now
             ;;
         *)
             printf 'Uso: kryonix kora voice [devices|test-mic|transcribe|speak|identity|daemon|mute|unmute]\n' >&2
@@ -471,7 +471,7 @@ kryonix_kora_voice() {
 }
 
 kryonix_kora_listen() {
-    kora listen "$@"
+    kora-admin listen "$@"
 }
 
 kryonix_kora_audit() {
@@ -480,10 +480,10 @@ kryonix_kora_audit() {
 
     case "$sub" in
         benchmark)
-            kora benchmark "$@"
+            kora-admin benchmark "$@"
             ;;
         grounding)
-            kora audit grounding "$@"
+            kora-admin audit grounding "$@"
             ;;
         *)
             printf 'Uso: kryonix kora audit [benchmark|grounding]\n' >&2
@@ -658,7 +658,7 @@ kryonix_kora() {
       ;;
     user)
       shift
-      kora user "$@"
+      kora-admin user "$@"
       ;;
     audit|benchmark)
       kryonix_kora_audit "$@"

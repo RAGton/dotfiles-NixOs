@@ -25,6 +25,56 @@ from ..core.conversation import append_turn, detect_followup_complaint
 
 logger = logging.getLogger("kora.voice.pipeline")
 
+
+def is_voice_enabled() -> bool:
+    """
+    Verifica se a síntese de voz (TTS) da Kora está ativada.
+    Ordem de precedência:
+      1. Existência do arquivo /run/kryonix/kora_mute (se existir, voz desativada)
+      2. Variável de ambiente KORA_VOICE_ENABLED
+      3. ~/.config/kryonix/kora.env
+      4. /etc/kryonix/kora.env
+    Retorna True por padrão se não configurado.
+    """
+    if Path("/run/kryonix/kora_mute").exists():
+        return False
+
+    env_val = os.environ.get("KORA_VOICE_ENABLED")
+    if env_val is not None:
+        return env_val.lower() not in ("false", "0", "no", "off", "disable", "disabled")
+
+    def parse_env_file(path: Path) -> str | None:
+        if not path.exists():
+            return None
+        try:
+            with open(path, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if line.startswith("export "):
+                        line = line[7:]
+                    if "=" in line:
+                        k, v = line.split("=", 1)
+                        if k.strip() == "KORA_VOICE_ENABLED":
+                            return v.strip().strip("'\"")
+        except Exception:
+            pass
+        return None
+
+    # ~/.config/kryonix/kora.env
+    user_val = parse_env_file(Path.home() / ".config" / "kryonix" / "kora.env")
+    if user_val is not None:
+        return user_val.lower() not in ("false", "0", "no", "off", "disable", "disabled")
+
+    # /etc/kryonix/kora.env
+    global_val = parse_env_file(Path("/etc/kryonix/kora.env"))
+    if global_val is not None:
+        return global_val.lower() not in ("false", "0", "no", "off", "disable", "disabled")
+
+    return True
+
+
 # ── Terminal UX helpers ──────────────────────────────────────────────────────
 
 import re
@@ -147,7 +197,8 @@ async def listen_and_respond(push_to_talk: bool = True, user: str = "rocha", sin
     if not single_turn:
         greeting = get_natural_greeting(user)
         _box("Kora", greeting, "35")
-        speak_text(greeting)
+        if is_voice_enabled():
+            speak_text(greeting)
 
     try:
         while True:
@@ -180,7 +231,8 @@ async def listen_and_respond(push_to_talk: bool = True, user: str = "rocha", sin
             if not text or text.strip() in ["[Erro na transcrição]", ""] or len(text.strip()) < 3:
                 print("  \033[2m(fala não compreendida)\033[0m")
                 _box("Kora", "Não consegui entender bem. Pode repetir?", "35")
-                speak_text("Não consegui entender bem. Pode repetir?")
+                if is_voice_enabled():
+                    speak_text("Não consegui entender bem. Pode repetir?")
                 if single_turn:
                     break
                 continue
@@ -219,7 +271,8 @@ async def listen_and_respond(push_to_talk: bool = True, user: str = "rocha", sin
             print(f"  \033[2m[{mode_used} | {elapsed:.1f}s]\033[0m")
 
             # Speak
-            speak_text(answer)
+            if is_voice_enabled():
+                speak_text(answer)
 
             if single_turn:
                 break
@@ -285,10 +338,50 @@ async def run_voice_pipeline(user: str = "rocha") -> None:
                 play_done()
 
                 # 6. Synthesize response (TTS)
-                synthesize_text(answer)
+                if is_voice_enabled():
+                    synthesize_text(answer)
             await asyncio.sleep(0.02)
     except KeyboardInterrupt:
         logger.info("Pipeline de voz interrompido pelo usuário.")
     except Exception as e:
         logger.error(f"Erro fatal no pipeline de voz: {e}")
+
+
+def chat(query: str) -> None:
+    """
+    Processa uma consulta em linguagem natural a partir da CLI (NLP-First).
+    Usa animação de pensamento e exibe a resposta de Kora de forma elegante.
+    """
+    user = os.environ.get("USER") or "rocha"
+    _box("Você", query.strip(), "36")
+    
+    play_thinking()
+    spinner = _ThinkingAnimation()
+    spinner.start()
+    
+    try:
+        resp = asyncio.run(process_message(
+            query,
+            session_id="cli-chat",
+            user=user,
+            mode="auto",
+            is_voice=False
+        ))
+    except Exception as e:
+        play_error()
+        spinner.stop()
+        print(f"\033[31mErro ao obter resposta da assistente: {e}\033[0m", file=sys.stderr)
+        return
+    finally:
+        spinner.stop()
+        
+    play_done()
+    
+    answer = resp.get("answer", "Sem resposta.")
+    elapsed = resp.get("elapsed_sec", 0.0)
+    mode_used = resp.get("mode", "auto")
+    
+    _box("Kora", answer, "35")
+    print(f"  \033[2m[{mode_used} | {elapsed:.1f}s]\033[0m")
+
 

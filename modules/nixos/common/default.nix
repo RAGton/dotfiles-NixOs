@@ -58,6 +58,7 @@
   users.groups.ragos = { };
   systemd.tmpfiles.rules = [
     "L+ /etc/nixos - - - - /etc/ragos"
+    "d /run/kryonix 0777 root root - -"
   ];
 
   system.activationScripts.ragosGitRepoPermissions = {

@@ -93,19 +93,45 @@ SESSION_METADATA: Dict[str, Any] = {}
 
 # Shared async Neo4j driver — created lazily, never recreated within the process.
 _neo4j_driver: Any = None
+_last_neo4j_check_time: float = 0.0
+_neo4j_available: bool = False
 
 
 def _get_neo4j_driver() -> Any | None:
     """Return the module-level async Neo4j driver, creating it on first call."""
-    global _neo4j_driver
+    global _neo4j_driver, _last_neo4j_check_time, _neo4j_available
     if _neo4j_driver is not None:
         return _neo4j_driver
+
+    now = time.monotonic()
+    if now - _last_neo4j_check_time > 60.0:
+        _last_neo4j_check_time = now
+        import socket
+        import sys
+        from urllib.parse import urlparse
+        try:
+            uri = NEO4J_URI
+            if "://" not in uri:
+                uri = "bolt://" + uri
+            parsed = urlparse(uri)
+            host = parsed.hostname or "127.0.0.1"
+            port = parsed.port or 7687
+            with socket.create_connection((host, port), timeout=1.0):
+                _neo4j_available = True
+        except Exception:
+            _neo4j_available = False
+            logging.critical("Failed to connect to Neo4j database on %s. Long-term memory is offline.", NEO4J_URI)
+            print("⚠️ Memória de longo prazo indisponível", file=sys.stderr)
+
+    if not _neo4j_available:
+        return None
+
     try:
         from neo4j import AsyncGraphDatabase
         _neo4j_driver = AsyncGraphDatabase.driver(NEO4J_URI)
         logger.info("Neo4j async driver initialised (uri=%s)", NEO4J_URI)
     except Exception as exc:
-        logger.warning("Neo4j driver unavailable — graph context disabled: %s", exc)
+        logging.critical("Neo4j driver unavailable — graph context disabled: %s", exc)
         _neo4j_driver = None
     return _neo4j_driver
 

@@ -23,7 +23,8 @@ dependencies = [
 
 [project.scripts]
 kora-api = "kora.api.server:main"
-kora = "kora.cli:main"
+kora = "kora.cli.main:main"
+kora-admin = "kora.cli.admin:main"
 kora-memory-worker = "kora.memory.worker:main"
 
 [build-system]

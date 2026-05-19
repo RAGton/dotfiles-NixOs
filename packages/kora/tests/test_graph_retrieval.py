@@ -16,7 +16,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_closed():
+            raise RuntimeError("loop closed")
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
 
 
 def _make_fake_record(id_: str, desc: str = "test node") -> MagicMock:

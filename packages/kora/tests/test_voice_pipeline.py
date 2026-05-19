@@ -100,8 +100,8 @@ def test_synthesize_text():
             assert "ffplay" in args[0][0]
 
 
-@pytest.mark.asyncio
-async def test_run_voice_pipeline():
+def test_run_voice_pipeline():
+    import asyncio
     # Setup mocks for one loop iteration
     mock_engine = MagicMock()
     # First call returns True, second raises KeyboardInterrupt to exit loop
@@ -117,11 +117,29 @@ async def test_run_voice_pipeline():
          patch("kora.voice.tts.synthesize_text") as mock_synthesize, \
          patch("kora.utils.lock.HardwareLock") as mock_lock:
         
-        await run_voice_pipeline()
+        asyncio.run(run_voice_pipeline())
         
         # Verify transcription was called
         mock_transcribe.assert_called_once_with("/tmp/dummy.wav", user="rocha")
         # Verify orchestrator process_message was called
         mock_process.assert_called_once()
-        # Verify synthesize_text was called with the reply
+        # Verify transcribe_audio was called with the reply
         mock_synthesize.assert_called_once_with("Atualizando agora.")
+
+
+def test_is_voice_enabled_mute_file():
+    from kora.voice.pipeline import is_voice_enabled
+    
+    # Test when mute file exists
+    with patch("kora.voice.pipeline.Path.exists", return_value=True):
+        assert is_voice_enabled() is False
+
+    # Test when mute file does not exist, fallback to environment
+    with patch("kora.voice.pipeline.Path.exists", return_value=False), \
+         patch.dict(os.environ, {"KORA_VOICE_ENABLED": "false"}):
+        assert is_voice_enabled() is False
+
+    # Test when mute file does not exist, and env is true
+    with patch("kora.voice.pipeline.Path.exists", return_value=False), \
+         patch.dict(os.environ, {"KORA_VOICE_ENABLED": "true"}):
+        assert is_voice_enabled() is True

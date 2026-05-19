@@ -65,12 +65,21 @@
     "nvim/stylua.toml".source = ./lazyvim/stylua.toml;
     "nvim/.luarc.json".source = ./lazyvim/.luarc.json;
     "nvim/.neoconf.json".source = ./lazyvim/.neoconf.json;
-  } // (builtins.listToAttrs (map (name: {
-    name = "nvim/lua/config/${name}";
-    value = { source = ./lazyvim/lua/config + "/${name}"; };
-  }) (builtins.attrNames (builtins.readDir ./lazyvim/lua/config))))
-    // (builtins.listToAttrs (map (name: {
-    name = "nvim/lua/plugins/${name}";
-    value = { source = ./lazyvim/lua/plugins + "/${name}"; };
-  }) (builtins.attrNames (builtins.readDir ./lazyvim/lua/plugins))));
+  }
+  // (builtins.listToAttrs (
+    map (name: {
+      name = "nvim/lua/config/${name}";
+      value = {
+        source = ./lazyvim/lua/config + "/${name}";
+      };
+    }) (builtins.attrNames (builtins.readDir ./lazyvim/lua/config))
+  ))
+  // (builtins.listToAttrs (
+    map (name: {
+      name = "nvim/lua/plugins/${name}";
+      value = {
+        source = ./lazyvim/lua/plugins + "/${name}";
+      };
+    }) (builtins.attrNames (builtins.readDir ./lazyvim/lua/plugins))
+  ));
 }

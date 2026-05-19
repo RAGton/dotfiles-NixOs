@@ -39,7 +39,7 @@ python3Packages.buildPythonApplication {
   ];
 
   postInstall = ''
-    for p in kora kora-api kora-memory-worker; do
+    for p in kora kora-api kora-admin kora-memory-worker; do
       wrapProgram $out/bin/$p \
         --prefix PATH : ${
           lib.makeBinPath [

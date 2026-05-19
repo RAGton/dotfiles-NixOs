@@ -17,6 +17,23 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+# Load environment files
+# Order of priority:
+# 1. Environment variables already set (os.environ)
+# 2. ~/.config/kryonix/kora.env
+# 3. /etc/kryonix/kora.env
+# 4. Standard .env file in CWD
+user_env = Path.home() / ".config" / "kryonix" / "kora.env"
+global_env = Path("/etc/kryonix/kora.env")
+
+if user_env.exists():
+    load_dotenv(user_env)
+elif global_env.exists():
+    try:
+        load_dotenv(global_env)
+    except Exception:
+        pass
+
 load_dotenv()
 
 # ── Kora Service ─────────────────────────────────────────────────
