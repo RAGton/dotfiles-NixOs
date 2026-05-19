@@ -412,7 +412,12 @@ case "$subcommand" in
     # apenas emite warning. Switch nunca falha por causa do sync.
     if command -v kora >/dev/null 2>&1; then
       blue_line "─── Sincronizando grafo (kora brain sync) ───"
-      timeout 15s kora /brain sync --host "$flake_host" \
+      # Inject Neo4j credentials from the root-only neo4j.env so the sync
+      # can authenticate even when running as a non-root user.
+      _n4j_env_line=$(sudo sh -c \
+        'grep "^NEO4J_AUTH=" /etc/kryonix/neo4j.env 2>/dev/null' || true)
+      timeout 15s env ${_n4j_env_line:+"${_n4j_env_line}"} \
+        kora /brain sync --host "$flake_host" \
         || printf '\033[33m[warn]\033[0m kora brain sync falhou (não-fatal) host=%s\n' "$flake_host" >&2
     else
       printf '\033[33m[warn]\033[0m kora não encontrado no PATH — pulando brain sync\n' >&2
