@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from ..audit.events import log_event
-from ..core.config import load_system_prompt, NEO4J_URI
+from ..core.config import load_system_prompt, NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
 from ..core.policy import AUTHORIZED_ADMINS, PolicyContext, RiskLevel, classify_command
 from ..integrations import brain as brain_adapter
 from ..integrations.n8n import N8nClient
@@ -128,8 +128,9 @@ def _get_neo4j_driver() -> Any | None:
 
     try:
         from neo4j import AsyncGraphDatabase
-        _neo4j_driver = AsyncGraphDatabase.driver(NEO4J_URI)
-        logger.info("Neo4j async driver initialised (uri=%s)", NEO4J_URI)
+        auth = (NEO4J_USER, NEO4J_PASSWORD) if NEO4J_USER and NEO4J_PASSWORD else None
+        _neo4j_driver = AsyncGraphDatabase.driver(NEO4J_URI, auth=auth)
+        logger.info("Neo4j async driver initialised (uri=%s auth=%s)", NEO4J_URI, bool(auth))
     except Exception as exc:
         logging.critical("Neo4j driver unavailable — graph context disabled: %s", exc)
         _neo4j_driver = None

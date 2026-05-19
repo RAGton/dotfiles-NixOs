@@ -62,6 +62,18 @@ BRAIN_TIMEOUT = int(os.getenv("KORA_BRAIN_TIMEOUT", "30"))
 # ── Neo4j (graph/memory backend) ─────────────────────────────────
 NEO4J_URI = os.getenv("KORA_NEO4J_URI", "bolt://127.0.0.1:7687")
 
+# Auth: prefer explicit user+password env vars; fall back to parsing NEO4J_AUTH=user/pass
+# (same format used by the Neo4j service's EnvironmentFile in NixOS).
+_neo4j_user = os.getenv("KRYONIX_NEO4J_USER", "")
+_neo4j_pass = os.getenv("KRYONIX_NEO4J_PASSWORD", "")
+if not (_neo4j_user and _neo4j_pass):
+    _auth_raw = os.getenv("NEO4J_AUTH", "")
+    if "/" in _auth_raw:
+        _neo4j_user, _neo4j_pass = _auth_raw.split("/", 1)
+
+NEO4J_USER: str = _neo4j_user
+NEO4J_PASSWORD: str = _neo4j_pass
+
 # ── System Prompt ─────────────────────────────────────────────────
 _PROMPT_FILE = Path(__file__).parent.parent / "llm" / "system_prompt.md"
 
