@@ -9,6 +9,8 @@
 import asyncio
 import logging
 import os
+import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -21,6 +23,35 @@ from .tts import speak_text
 from .vad import record_with_vad
 from .signals import play_wake, play_thinking, play_done, play_error
 from ..core.orchestrator import process_message
+
+
+def play_audio_signal(signal_type: str) -> None:
+    """Play a WAV file via aplay for named signal events.
+
+    Looks for ``kora_<signal_type>.wav`` in KORA_SFX_DIR; falls back to the
+    programmatic tones in .signals when the file is absent or aplay is missing.
+
+    signal_type: 'active'   — wake-word confirmed
+                 'thinking'  — orchestrator starting to process
+    """
+    from .config import KORA_SFX_DIR
+
+    _wav = {"active": "kora_active.wav", "thinking": "kora_thinking.wav"}.get(signal_type)
+    _fallback = {"active": play_wake, "thinking": play_thinking}.get(signal_type)
+
+    if _wav and (KORA_SFX_DIR / _wav).exists() and shutil.which("aplay"):
+        try:
+            subprocess.Popen(
+                ["aplay", "-q", str(KORA_SFX_DIR / _wav)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return
+        except Exception as exc:
+            logger.debug("aplay failed for signal=%s: %s", signal_type, exc)
+
+    if _fallback:
+        _fallback()
 from ..core.conversation import append_turn, detect_followup_complaint
 
 logger = logging.getLogger("kora.voice.pipeline")
@@ -245,7 +276,7 @@ async def listen_and_respond(push_to_talk: bool = True, user: str = "rocha", sin
                 logger.info("Followup complaint detected — injecting recovery context")
 
             # Thinking animation + signal
-            play_thinking()
+            play_audio_signal("thinking")
             spinner = _ThinkingAnimation()
             spinner.start()
 
@@ -316,16 +347,16 @@ async def run_voice_pipeline(user: str = "rocha") -> None:
                 # 4. Exclusividade: Use HardwareLock to protect microphone recording
                 with HardwareLock():
                     engine.stream.close()
-                    play_wake()
+                    play_audio_signal("active")
                     # 2. Record 5 seconds of audio
                     audio_path = recorder.record_to_file("last_input.wav", seconds=5)
-                
+
                 # 3. Transcribe audio (STT)
                 text = transcribe_audio(audio_path, user=user)
                 if not text or len(text.strip()) < 3:
                     continue
 
-                play_thinking()
+                play_audio_signal("thinking")
                 # 4. Send to orchestrator.py (GraphRAG) and 5. Receive response
                 resp = await process_message(
                     text,
@@ -355,10 +386,10 @@ def chat(query: str) -> None:
     user = os.environ.get("USER") or "rocha"
     _box("Você", query.strip(), "36")
     
-    play_thinking()
+    play_audio_signal("thinking")
     spinner = _ThinkingAnimation()
     spinner.start()
-    
+
     try:
         resp = asyncio.run(process_message(
             query,

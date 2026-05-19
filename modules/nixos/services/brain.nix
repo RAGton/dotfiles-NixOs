@@ -497,6 +497,9 @@ in
     users.users.kryonix = {
       isSystemUser = true;
       group = "kryonix";
+      # users group needed: Z /var/lib/kryonix sets rocha:users 0775 recursively;
+      # kryonix must be a member of users to retain write access to data dirs.
+      extraGroups = [ "users" ];
       description = "Kryonix Brain Service User";
       home = "/var/lib/kryonix/brain";
       createHome = true;

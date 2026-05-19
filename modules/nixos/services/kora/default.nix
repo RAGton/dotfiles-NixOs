@@ -207,7 +207,8 @@ in
 
     # ── Diretórios Declarativos (tmpfiles) ──────────────────────
     systemd.tmpfiles.rules = [
-      "d /var/lib/kryonix 0755 root root - -"
+      "d /var/lib/kryonix 0775 rocha users - -"
+      "Z /var/lib/kryonix - rocha users - -"
       "d ${cfg.dataDir} 0770 ${cfg.user} ${cfg.group} - -"
       "d ${cfg.dataDir}/users 0770 ${cfg.user} ${cfg.group} - -"
       "d ${cfg.dataDir}/voice 0770 ${cfg.user} ${cfg.group} - -"

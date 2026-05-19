@@ -128,7 +128,16 @@ def _get_neo4j_driver() -> Any | None:
 
     try:
         from neo4j import AsyncGraphDatabase
-        auth = (NEO4J_USER, NEO4J_PASSWORD) if NEO4J_USER and NEO4J_PASSWORD else None
+        # Read NEO4J_AUTH at call time so systemd EnvironmentFile injection is
+        # visible even if config.py was imported before the env was populated.
+        auth_str = os.getenv("NEO4J_AUTH", "")
+        if auth_str and "/" in auth_str:
+            _u, _p = auth_str.split("/", 1)
+            auth = (_u, _p)
+        elif NEO4J_USER and NEO4J_PASSWORD:
+            auth = (NEO4J_USER, NEO4J_PASSWORD)
+        else:
+            auth = None
         _neo4j_driver = AsyncGraphDatabase.driver(NEO4J_URI, auth=auth)
         logger.info("Neo4j async driver initialised (uri=%s auth=%s)", NEO4J_URI, bool(auth))
     except Exception as exc:
