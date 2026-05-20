@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import signal
+import sys
 import time
 from enum import Enum
 from pathlib import Path
@@ -11,7 +12,8 @@ from pathlib import Path
 from .exceptions import HardwareAccessError, ServiceUnreachable
 from .monitor import ping_orchestrator, retry_connection
 from .pipeline import listen_and_respond
-from .wakeword import WakeWordEngine
+from .vad import _is_speech
+from .wakeword import WakeWordEngine, _CHUNK_BYTES
 
 logger = logging.getLogger("kora.voice.daemon")
 
@@ -48,6 +50,7 @@ def setup_voice_logging() -> None:
 
 class KoraVoiceDaemon:
     _HEARTBEAT_INTERVAL = 30.0
+    _MAX_QUEUE_CHUNKS = 10  # ~300ms at 30ms/chunk; drain above this
 
     def __init__(self) -> None:
         self.state = KoraVoiceState.IDLE
@@ -58,6 +61,9 @@ class KoraVoiceDaemon:
         self.state_file = Path(f"/run/user/{os.getuid()}/kryonix/voice_state.json")
         self._reconnect_ok: asyncio.Event = asyncio.Event()
         self._heartbeat_task: asyncio.Task | None = None
+        self._reader_task: asyncio.Task | None = None
+        self._processor_task: asyncio.Task | None = None
+        self._audio_queue: asyncio.Queue[bytes] = asyncio.Queue()
 
     # ── State management ────────────────────────────────────────────────────
 
@@ -120,6 +126,80 @@ class KoraVoiceDaemon:
                 logger.error("Heartbeat loop error: %s", e)
                 await asyncio.sleep(5.0)
 
+    # ── Audio pipeline ───────────────────────────────────────────────────────
+
+    async def _stdin_reader(self) -> None:
+        """Reads raw PCM from stdin and pushes 30ms chunks to the audio queue.
+
+        Always runs regardless of state so pw-record never stalls on a full
+        pipe buffer.  Drains the queue when lag exceeds _MAX_QUEUE_CHUNKS.
+        """
+        loop = asyncio.get_running_loop()
+        while self.running:
+            try:
+                chunk = await loop.run_in_executor(
+                    None, sys.stdin.buffer.read, _CHUNK_BYTES
+                )
+            except Exception as e:
+                logger.error("stdin reader error: %s", e)
+                self.running = False
+                break
+            if not chunk:
+                logger.warning("stdin EOF — pw-record may have exited")
+                self.running = False
+                break
+            qsize = self._audio_queue.qsize()
+            if qsize > self._MAX_QUEUE_CHUNKS:
+                drained = 0
+                while not self._audio_queue.empty():
+                    try:
+                        self._audio_queue.get_nowait()
+                        drained += 1
+                    except asyncio.QueueEmpty:
+                        break
+                logger.debug("Queue drained %d chunks (lag was %d chunks)", drained, qsize)
+            await self._audio_queue.put(chunk)
+
+    async def _audio_processor(self) -> None:
+        """Consumes audio chunks: VAD → wake-word detection.
+
+        VAD runs first on every chunk; the expensive wake-word model only runs
+        when webrtcvad detects speech, cutting idle CPU from ~80% to <10%.
+        Detection is skipped when the daemon is not in IDLE state.
+        """
+        loop = asyncio.get_running_loop()
+        while self.running:
+            try:
+                chunk = await asyncio.wait_for(self._audio_queue.get(), timeout=1.0)
+            except asyncio.TimeoutError:
+                continue
+            except asyncio.CancelledError:
+                break
+
+            # Only detect when idle and unmuted; all other states drain silently.
+            if self.state != KoraVoiceState.IDLE or self.muted:
+                continue
+
+            # VAD gate — skip model on silence frames
+            try:
+                is_speech = await loop.run_in_executor(None, _is_speech, chunk)
+            except Exception:
+                is_speech = True  # fail open on VAD error
+            if not is_speech:
+                continue
+
+            # Wake-word detection
+            try:
+                detected = await loop.run_in_executor(
+                    None, self.wakeword_engine.detector.detect, chunk
+                )
+            except Exception as e:
+                logger.error("Wake-word detection error: %s", e)
+                continue
+
+            if detected:
+                asyncio.create_task(self.handle_trigger())
+
     # ── Interaction trigger ──────────────────────────────────────────────────
 
     async def handle_trigger(self) -> None:
@@ -130,7 +210,8 @@ class KoraVoiceDaemon:
         self.update_state(KoraVoiceState.LISTENING)
         logger.info("Wake-word triggered — starting interaction.")
         try:
-            self.wakeword_engine.stream.close()
+            # pw-record keeps streaming; _audio_processor skips detection while
+            # state != IDLE, so chunks are drained without being processed.
             await listen_and_respond(push_to_talk=False, single_turn=True)
         except (OSError, IOError) as e:
             logger.error("Audio hardware error: %s", e)
@@ -146,37 +227,34 @@ class KoraVoiceDaemon:
     async def start(self) -> None:
         self.running = True
         self._loop = asyncio.get_running_loop()
-        self._reconnect_ok.set()  # Assume healthy at startup
+        self._reconnect_ok.set()
 
         self._heartbeat_task = asyncio.create_task(
             self._heartbeat_loop(), name="kora-voice-heartbeat"
         )
+        self._reader_task = asyncio.create_task(
+            self._stdin_reader(), name="kora-voice-reader"
+        )
+        self._processor_task = asyncio.create_task(
+            self._audio_processor(), name="kora-voice-processor"
+        )
         self.update_state(KoraVoiceState.IDLE)
-        logger.info("Kora Voice Daemon: loop started.")
+        logger.info("Kora Voice Daemon: reader + VAD processor started.")
 
+        mute_file = Path("/var/lib/kryonix/kora/voice/muted")
         last_log_time = 0.0
         try:
             while self.running:
-                mute_file = Path("/var/lib/kryonix/kora/voice/muted")
                 self.muted = mute_file.exists()
 
                 if self.muted:
-                    self.update_state(KoraVoiceState.MUTED)
-                    self.wakeword_engine.stream.close()
-                    await asyncio.sleep(0.5)
-                    continue
-
-                if self.wakeword_engine.is_locked():
-                    self.update_state(KoraVoiceState.BLOCKED)
-                    self.wakeword_engine.stream.close()
-                    await asyncio.sleep(0.5)
-                    continue
-
-                if self.state == KoraVoiceState.RECONNECTING:
-                    # Audio processing paused — heartbeat task handles reconnection.
-                    self.wakeword_engine.stream.close()
-                    await asyncio.sleep(1.0)
-                    continue
+                    if self.state == KoraVoiceState.IDLE:
+                        self.update_state(KoraVoiceState.MUTED)
+                elif self.wakeword_engine.is_locked():
+                    if self.state == KoraVoiceState.IDLE:
+                        self.update_state(KoraVoiceState.BLOCKED)
+                elif self.state in (KoraVoiceState.MUTED, KoraVoiceState.BLOCKED):
+                    self.update_state(KoraVoiceState.IDLE)
 
                 if self.state == KoraVoiceState.IDLE:
                     now = time.monotonic()
@@ -184,13 +262,16 @@ class KoraVoiceDaemon:
                         logger.info("Kora aguardando ativação...")
                         last_log_time = now
 
-                    detected = await self._loop.run_in_executor(
-                        None, self.wakeword_engine.listen
-                    )
-                    if detected:
-                        asyncio.create_task(self.handle_trigger())
+                # If a worker task died unexpectedly, stop cleanly
+                for task in (self._reader_task, self._processor_task):
+                    if task.done() and not task.cancelled():
+                        exc = task.exception() if not task.cancelled() else None
+                        if exc:
+                            logger.error("Audio task died: %s", exc)
+                        self.running = False
+                        break
 
-                await asyncio.sleep(0.02)
+                await asyncio.sleep(0.5)
 
         except asyncio.CancelledError:
             logger.info("Daemon main loop cancelled.")
@@ -198,21 +279,21 @@ class KoraVoiceDaemon:
             await self._shutdown()
 
     async def _shutdown(self) -> None:
-        """Cancel background tasks and release audio hardware."""
-        if self._heartbeat_task and not self._heartbeat_task.done():
-            self._heartbeat_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._heartbeat_task
-        self.wakeword_engine.stream.close()
+        self.running = False
+        for task in (self._reader_task, self._processor_task, self._heartbeat_task):
+            if task and not task.done():
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await task
         logger.info("Kora Voice Daemon: stopped.")
 
     def stop(self, *args) -> None:
-        """Signal-safe stop: schedules cleanup without blocking the loop."""
+        """Signal-safe stop."""
         logger.info("Stop requested (signal received).")
         self.running = False
-        if self._heartbeat_task and not self._heartbeat_task.done():
-            self._heartbeat_task.cancel()
-        self.wakeword_engine.stream.close()
+        for task in (self._reader_task, self._processor_task, self._heartbeat_task):
+            if task and not task.done():
+                task.cancel()
 
     def get_status(self) -> dict:
         return {

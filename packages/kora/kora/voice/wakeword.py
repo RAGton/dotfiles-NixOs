@@ -193,10 +193,15 @@ import sys
 from pathlib import Path
 
 
-# Chunk size: 1280 samples × 2 bytes (s16) = 2560 bytes ≈ 80ms at 16kHz.
-# pw-record is told to output exactly 16kHz s16 mono raw PCM, so no
-# resampling is needed here — the OS/PipeWire does it in the kernel.
-_CHUNK_BYTES = 2560
+# 960 bytes = 480 samples = 30ms at 16kHz s16 — valid webrtcvad frame size.
+# daemon.py reads this chunk size; wakeword.listen() uses it for the PTT path.
+_CHUNK_BYTES = 960
+
+
+class _NoOpStream:
+    """Backward-compat stub — daemon.py used to call engine.stream.close()."""
+    def close(self) -> None:
+        pass
 
 
 class WakeWordEngine:
@@ -205,11 +210,14 @@ class WakeWordEngine:
 
     Expected invocation (set up by the systemd unit):
         pw-record --channels 1 --rate 16000 --format s16 --raw - \\
-            | kora /voice listener
+            | kora-admin voice daemon run
 
     No PyAudio / PortAudio is used; all hardware interaction lives in
     pw-record, which avoids the GLIBC double-free / SIGABRT bugs that
     plagued the previous PortAudio-under-PipeWire approach.
+
+    The daemon uses the detector directly via detector.detect(chunk).
+    listen() is kept for the pipeline.py PTT/single-turn path.
     """
 
     def __init__(self, model: str = "kora") -> None:
@@ -217,17 +225,18 @@ class WakeWordEngine:
         self.detector.start()
         self.detector.input_rate = 16000
         self.lock_path = Path(f"/run/user/{os.getuid()}/kryonix/voice.lock")
+        self.stream = _NoOpStream()  # backward compat for legacy callers
         logger.info("WakeWordEngine: stdin mode active (pw-record → pipe → kora)")
 
     def is_locked(self) -> bool:
         return self.lock_path.exists()
 
     def listen(self) -> bool:
-        """Read one chunk from stdin and run wake-word detection.
+        """Read one 30ms chunk from stdin and run wake-word detection.
 
-        When the lock file is present (another process owns the mic), the
-        chunk is drained silently to prevent the pipe buffer from filling up
-        and stalling pw-record.  Returns True only on a real detection.
+        Used by the PTT / pipeline.py path.  The daemon no longer calls this;
+        it reads chunks directly and runs VAD + detector.detect() separately.
+        Drains silently when the lock file is present.
         """
         try:
             data = sys.stdin.buffer.read(_CHUNK_BYTES)
