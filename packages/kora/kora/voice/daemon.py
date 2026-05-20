@@ -13,7 +13,7 @@ from .exceptions import HardwareAccessError, ServiceUnreachable
 from .monitor import ping_orchestrator, retry_connection
 from .pipeline import listen_and_respond
 from .vad import _is_speech
-from .wakeword import WakeWordEngine, _CHUNK_BYTES
+from .wakeword import WakeWordEngine, _CHUNK_BYTES, _keyword_detect
 
 logger = logging.getLogger("kora.voice.daemon")
 
@@ -161,44 +161,83 @@ class KoraVoiceDaemon:
             await self._audio_queue.put(chunk)
 
     async def _audio_processor(self) -> None:
-        """Consumes audio chunks: VAD → wake-word detection.
+        """Consumes audio chunks: VAD → speech accumulation → Whisper keyword check.
 
-        VAD runs first on every chunk; the expensive wake-word model only runs
-        when webrtcvad detects speech, cutting idle CPU from ~80% to <10%.
-        Detection is skipped when the daemon is not in IDLE state.
+        Flow:
+          1. VAD filters silence — no CPU spent on quiet frames.
+          2. When speech starts, frames are accumulated into a buffer.
+          3. After ~500ms of post-speech silence the buffer is transcribed
+             by faster-whisper; if the wake word ("kora" / aliases) is found
+             handle_trigger() is scheduled.
+
+        The Whisper-based approach lets the user say "Kora" (or any configured
+        wake word) without a custom neural model.
         """
         loop = asyncio.get_running_loop()
+
+        # ── Speech-accumulation state ────────────────────────────────────────
+        _speech_buf: bytearray = bytearray()
+        _in_speech: bool = False
+        _silence_chunks: int = 0
+        # 17 × 30ms ≈ 500ms of silence → end of utterance
+        _SILENCE_END = 17
+        # 3 seconds of audio max (safety cap)
+        _MAX_BUF = _CHUNK_BYTES * 100
+        # At least 3 chunks before we bother transcribing
+        _MIN_BUF = _CHUNK_BYTES * 3
+
         while self.running:
             try:
                 chunk = await asyncio.wait_for(self._audio_queue.get(), timeout=1.0)
             except asyncio.TimeoutError:
+                # Flush a stale open buffer if we somehow got stuck
+                if _in_speech and _silence_chunks >= _SILENCE_END:
+                    _speech_buf.clear(); _in_speech = False; _silence_chunks = 0
                 continue
             except asyncio.CancelledError:
                 break
 
-            # Only detect when idle and unmuted; all other states drain silently.
+            # Only detect when idle and unmuted; drain silently otherwise.
             if self.state != KoraVoiceState.IDLE or self.muted:
+                _speech_buf.clear(); _in_speech = False; _silence_chunks = 0
                 continue
 
-            # VAD gate — skip model on silence frames
+            # ── VAD gate ────────────────────────────────────────────────────
             try:
                 is_speech = await loop.run_in_executor(None, _is_speech, chunk)
             except Exception:
-                is_speech = True  # fail open on VAD error
-            if not is_speech:
-                continue
+                is_speech = True  # fail open
 
-            # Wake-word detection
-            try:
-                detected = await loop.run_in_executor(
-                    None, self.wakeword_engine.detector.detect, chunk
-                )
-            except Exception as e:
-                logger.error("Wake-word detection error: %s", e)
-                continue
+            if is_speech:
+                _speech_buf.extend(chunk)
+                _in_speech = True
+                _silence_chunks = 0
+                # Safety cap: keep only the last 3 seconds
+                if len(_speech_buf) > _MAX_BUF:
+                    _speech_buf = bytearray(_speech_buf[-_MAX_BUF:])
+            elif _in_speech:
+                # Trailing silence after speech
+                _speech_buf.extend(chunk)
+                _silence_chunks += 1
 
-            if detected:
-                asyncio.create_task(self.handle_trigger())
+                if _silence_chunks >= _SILENCE_END:
+                    audio_snapshot = bytes(_speech_buf)
+                    _speech_buf = bytearray(); _in_speech = False; _silence_chunks = 0
+
+                    if len(audio_snapshot) < _MIN_BUF:
+                        continue  # too short to bother
+
+                    # ── Whisper keyword check ────────────────────────────────
+                    try:
+                        detected = await loop.run_in_executor(
+                            None, _keyword_detect, audio_snapshot
+                        )
+                    except Exception as exc:
+                        logger.error("Keyword detection error: %s", exc)
+                        continue
+
+                    if detected:
+                        asyncio.create_task(self.handle_trigger())
 
     # ── Interaction trigger ──────────────────────────────────────────────────
 

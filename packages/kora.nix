@@ -27,7 +27,6 @@ python3Packages.buildPythonApplication {
     httpx
     pydantic
     python-dotenv
-    pyaudio
     pyopen-wakeword
     numpy
     scipy
