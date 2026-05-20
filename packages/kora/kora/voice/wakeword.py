@@ -243,7 +243,8 @@ class WakeWordEngine:
         self._open_backoff: float = 2.0  # seconds between failed open attempts
 
         # Audio configuration
-        self.chunk_size = 1280  # ~80ms at 16kHz
+        self.chunk_size = 1280      # ~80ms at 16kHz (baseline)
+        self.active_chunk_size = self.chunk_size  # adjusted per actual capture rate
         self.rate = 16000
         self.channels = 1
         self.format = pyaudio.paInt16
@@ -320,6 +321,43 @@ class WakeWordEngine:
             logger.debug("WakeWordEngine: selected device #%d (bt=%s)", chosen, bt_index is not None)
         return chosen
 
+    def _get_device_native_rate(self, device_idx: int | None) -> int:
+        """Return the device's defaultSampleRate from PortAudio info (fallback: 48000)."""
+        if self.pyaudio is None:
+            return 48000
+        if device_idx is None:
+            return 48000  # BT/PipeWire virtual devices typically run at 48kHz
+        try:
+            info = self.pyaudio.get_device_info_by_index(device_idx)
+            rate = int(info.get("defaultSampleRate", 48000))
+            return rate if rate > 0 else 48000
+        except Exception:
+            return 48000
+
+    def _try_open(self, device_idx: int | None, rate: int) -> bool:
+        """Open an input stream at *rate* Hz. Sets active_stream + active_chunk_size on success."""
+        chunk = max(512, int(rate * 0.08))  # ~80ms buffer at given rate
+        with _suppress_alsa_stderr():
+            stream = self.pyaudio.open(
+                format=self.format,
+                channels=self.channels,
+                rate=rate,
+                input=True,
+                frames_per_buffer=chunk,
+                input_device_index=device_idx,
+            )
+        self.active_stream = stream
+        self.active_chunk_size = chunk
+        self.detector.input_rate = rate
+        logger.info(
+            "WakeWordEngine: stream opened — device=%s  capture=%dHz  detect=16kHz%s",
+            device_idx if device_idx is not None else "portaudio-default",
+            rate,
+            "  [resampling active]" if rate != 16000 else "",
+        )
+        self._open_backoff = 2.0
+        return True
+
     def start_stream(self) -> bool:
         if self.active_stream is not None:
             return True
@@ -331,73 +369,34 @@ class WakeWordEngine:
 
         self._init_pyaudio()
         self.device_index = self._find_input_device_index()
-
-        # Tente abrir o dispositivo explícito
-        try:
-            with _suppress_alsa_stderr():
-                self.active_stream = self.pyaudio.open(
-                    format=self.format,
-                    channels=self.channels,
-                    rate=self.rate,
-                    input=True,
-                    frames_per_buffer=self.chunk_size,
-                    input_device_index=self.device_index,
-                )
-            # Query the actual sample rate to detect any divergence
-            actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
-            logger.info(
-                "WakeWordEngine: stream opened (device=%s, rate=%dHz)",
-                self.device_index if self.device_index is not None else "default",
-                actual_rate
-            )
-            self.detector.input_rate = actual_rate
-            self._open_backoff = 2.0  # reset on success
-            return True
-        except Exception as e:
-            logger.warning("WakeWordEngine: failed to open stream (device=%s): %s", self.device_index, e)
-
-        # Fallback 1: device named exactly "default" (ALSA/PipeWire virtual device)
         default_idx = self._find_named_default_index()
-        if default_idx is not None:
-            try:
-                with _suppress_alsa_stderr():
-                    self.active_stream = self.pyaudio.open(
-                        format=self.format,
-                        channels=self.channels,
-                        rate=self.rate,
-                        input=True,
-                        frames_per_buffer=self.chunk_size,
-                        input_device_index=default_idx,
-                    )
-                actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
-                logger.info("WakeWordEngine: stream opened via 'default' device #%d (rate=%dHz)", default_idx, actual_rate)
-                self.detector.input_rate = actual_rate
-                self._open_backoff = 2.0
-                return True
-            except Exception as e2:
-                logger.warning("WakeWordEngine: 'default' device #%d failed: %s", default_idx, e2)
 
-        # Fallback 2: let PortAudio pick (last resort)
-        try:
-            with _suppress_alsa_stderr():
-                self.active_stream = self.pyaudio.open(
-                    format=self.format,
-                    channels=self.channels,
-                    rate=self.rate,
-                    input=True,
-                    frames_per_buffer=self.chunk_size,
-                    input_device_index=None,
-                )
-            actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
-            logger.info("WakeWordEngine: stream opened via PortAudio default (rate=%dHz)", actual_rate)
-            self.detector.input_rate = actual_rate
-            self._open_backoff = 2.0
-            return True
-        except Exception as last_err:
-            logger.error("WakeWordEngine: all fallbacks failed: %s", last_err)
-            self.active_stream = None
-            self._open_backoff = min(self._open_backoff * 2, 30.0)
-            return False
+        # Deduplicated candidate list: BT/best → ALSA "default" → PortAudio None
+        seen: set = set()
+        candidates: list[int | None] = []
+        for dev in (self.device_index, default_idx, None):
+            key = dev if dev is not None else -1
+            if key not in seen:
+                seen.add(key)
+                candidates.append(dev)
+
+        for dev in candidates:
+            native = self._get_device_native_rate(dev)
+            # Try 16kHz first (no resampling overhead); fall back to native rate
+            rates = [16000, native] if native != 16000 else [16000]
+            for rate in rates:
+                try:
+                    return self._try_open(dev, rate)
+                except Exception as e:
+                    logger.warning(
+                        "WakeWordEngine: open failed (device=%s rate=%dHz): %s",
+                        dev if dev is not None else "portaudio-default",
+                        rate, e,
+                    )
+
+        logger.error("WakeWordEngine: all open attempts exhausted")
+        self._open_backoff = min(self._open_backoff * 2, 30.0)
+        return False
 
     def close_stream(self) -> None:
         stream = self.active_stream
@@ -452,7 +451,7 @@ class WakeWordEngine:
                 return False
 
         try:
-            data = self.active_stream.read(self.chunk_size, exception_on_overflow=False)
+            data = self.active_stream.read(self.active_chunk_size, exception_on_overflow=False)
             if self.detector.detect(data):
                 return True
         except Exception as e:
