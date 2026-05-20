@@ -379,6 +379,7 @@
       gnumake
       nodejs_20
       killall
+      ffmpeg
       mesa
       podman
       distrobox
