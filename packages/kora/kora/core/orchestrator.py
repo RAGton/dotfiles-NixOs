@@ -8,6 +8,9 @@
 
 from __future__ import annotations
 
+import warnings
+warnings.filterwarnings("ignore", module="neo4j")
+
 import asyncio
 import json
 import logging

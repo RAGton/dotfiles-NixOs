@@ -314,6 +314,7 @@ class WakeWordEngine:
                 self._open_backoff = 2.0
                 return True
             except Exception as fallback_err:
+                logger.error("WakeWord stream init failed: %s. Tentando reiniciar...", fallback_err)
                 logger.error("WakeWordEngine: failed to open default fallback stream: %s", fallback_err)
                 self.active_stream = None
                 self._open_backoff = min(self._open_backoff * 2, 30.0)  # exponential backoff, max 30s

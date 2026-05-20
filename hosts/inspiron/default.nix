@@ -116,6 +116,9 @@
     alwaysOn = true;
   };
 
+  # Garante que o daemon kora-voice-listener sobrevive ao fechamento do terminal.
+  users.users.rocha.linger = true;
+
   networking.hostName = hostname;
 
   # =========================

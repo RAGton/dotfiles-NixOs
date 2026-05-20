@@ -95,8 +95,8 @@ def get_git_status(repo_path: str = "/etc/kryonix") -> Dict[str, Any]:
             result["status"] = "DIRTY"
             
     except Exception as e:
-        logger.warning(f"Falha ao ler status do Git em {repo_path}: {e}")
-        
+        logger.debug(f"Falha ao ler status do Git em {repo_path}: {e}")
+
     return result
 
 def is_glacier_online(ip: str = "10.0.0.2", port: int = 8000) -> bool:
