@@ -61,7 +61,7 @@ in
         # Explicit PipeWire socket path; %t expands to /run/user/<UID> in
         # systemd user-service context so pw-record always finds the server.
         PIPEWIRE_RUNTIME_DIR = "%t";
-        KORA_DEFAULT_VOICE_PRESET = "kora_ptbr_female";
+        KORA_DEFAULT_VOICE_PRESET = "kora_friday";
       };
       path = [ pkgs.pipewire ];
       serviceConfig = {

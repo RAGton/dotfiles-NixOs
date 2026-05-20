@@ -322,7 +322,11 @@ def speak_text_with_preset(text: str, preset: dict | None = None, tools_called: 
         except Exception:
             preset = {}
 
-    # Force TTS Local (Piper) - removed edge-tts cloud checking as requested
+    if preset.get("provider") == "edge-tts":
+        logger.info(f"Tentando edge-tts com voz {preset.get('voice')}...")
+        if speak_edge_tts(text, preset["voice"]):
+            return
+        logger.warning("Falha ao usar edge-tts, caindo de volta para Piper local offline.")
 
     piper_bin = _find_piper_bin()
     aplay_bin = shutil.which("aplay")

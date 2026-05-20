@@ -22,6 +22,16 @@ VOICE_CONFIG_PATH = Path("/var/lib/kryonix/kora/voice/config.json")
 # Catálogo de presets
 # ---------------------------------------------------------------------------
 VOICE_PRESETS: dict = {
+    "kora_friday": {
+        "provider":     "edge-tts",
+        "voice":        "pt-BR-FranciscaNeural",
+        "model":        "kora_ptbr_female",
+        "length_scale": 1.03,
+        "noise_scale":  0.35,
+        "noise_w":      0.68,
+        "description":  "Kora Friday — elegante, inteligente e sofisticada",
+        "gender_note":  "feminina — estilo Friday/Jarvis premium (fallback local Dii/OVOS)",
+    },
     "kora_ptbr_female": {
         "provider":     "edge-tts",
         "voice":        "pt-BR-FranciscaNeural",
@@ -98,7 +108,7 @@ VOICE_PRESETS: dict = {
     },
 }
 
-DEFAULT_PRESET = os.getenv("KORA_DEFAULT_VOICE_PRESET", "soft")
+DEFAULT_PRESET = os.getenv("KORA_DEFAULT_VOICE_PRESET", "kora_friday")
 
 # ---------------------------------------------------------------------------
 # Persistência
