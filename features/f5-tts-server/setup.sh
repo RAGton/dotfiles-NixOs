@@ -22,9 +22,27 @@ if [ -f "$SENTINEL" ] && [ "$FORCE" = "0" ]; then
 fi
 
 # ── pré-requisitos ────────────────────────────────────────────────────────────
-if ! command -v python3.11 &>/dev/null; then
+
+# Localiza python3.11: PATH → nix store → nix-build
+PYTHON311=""
+if command -v python3.11 &>/dev/null; then
+    PYTHON311=$(command -v python3.11)
+else
+    # Tenta encontrar no nix store (NixOS sem o pacote no PATH)
+    _nixpy=$(find /nix/store -maxdepth 2 -name "python3.11" -path "*/bin/python3.11" 2>/dev/null \
+             | grep -v '\-doc\b\|\-dev\b\|\-man\b' | head -1)
+    if [ -x "$_nixpy" ]; then
+        PYTHON311="$_nixpy"
+    elif command -v nix-build &>/dev/null; then
+        echo "python3.11 não no PATH — construindo via nix-build (aguarde)..."
+        _nixout=$(nix-build --no-out-link '<nixpkgs>' -A python311 2>/dev/null) || true
+        [ -x "$_nixout/bin/python3.11" ] && PYTHON311="$_nixout/bin/python3.11"
+    fi
+fi
+
+if [ -z "$PYTHON311" ]; then
     echo "ERRO: python3.11 não encontrado."
-    echo "  nixos-rebuild switch (habilita kryonix.features.f5tts.enable)"
+    echo "  Execute com nix-shell: nix-shell -p python311 -- bash $0"
     exit 1
 fi
 
@@ -37,7 +55,7 @@ fi
 echo ""
 echo "════════════════════════════════════════"
 echo "  F5-TTS Bootstrap — glacier"
-echo "  Python:  $(python3.11 --version)"
+echo "  Python:  $($PYTHON311 --version)"
 echo "  VRAM:    ${GPU_FREE} MiB livres"
 echo "════════════════════════════════════════"
 echo ""
@@ -47,7 +65,7 @@ mkdir -p "$DATA_DIR"/{venv,models,voices,hf-cache}
 
 # ── venv ─────────────────────────────────────────────────────────────────────
 echo "[1/4] Criando venv Python 3.11..."
-python3.11 -m venv "$VENV" --clear
+"$PYTHON311" -m venv "$VENV" --clear
 "$VENV/bin/pip" install -q --upgrade pip wheel
 
 # ── PyTorch CUDA 12.1 ────────────────────────────────────────────────────────

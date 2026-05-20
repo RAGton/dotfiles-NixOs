@@ -57,8 +57,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    # python3.11 para bootstrap do venv; ffmpeg para conversão de áudio
-    environment.systemPackages = with pkgs; [ python311 ffmpeg ];
 
     users.users.f5tts = {
       isSystemUser = true;
