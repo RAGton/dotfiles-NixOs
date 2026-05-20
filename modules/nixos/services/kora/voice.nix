@@ -59,7 +59,7 @@ in
         ExecStartPre = "${pkgs.coreutils}/bin/sleep 10";
         # pw-record captura o áudio diretamente via PipeWire e envia PCM
         # bruto para a kora via pipe, eliminando PyAudio/PortAudio do processo.
-        ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.pipewire}/bin/pw-record --channels 1 --rate 16000 --format s16 --raw - | ${pkgs.kora}/bin/kora /voice listener'";
+        ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.pipewire}/bin/pw-record --channels 1 --rate 16000 --format s16 --raw - | ${pkgs.kora}/bin/kora voice daemon run'";
         Restart = "on-failure";
         RestartSec = "5";
       };
