@@ -69,6 +69,9 @@ in
         # 0.0.0.0 para acesso remoto via Tailscale (Inspiron → Glacier).
         # Firewall abaixo restringe à rede CGNAT do Tailscale (100.64.0.0/10).
         listenAddress = "0.0.0.0:${toString cfg.portBolt}";
+        # advertisedAddress não pode ser 0.0.0.0 — usar localhost como fallback
+        # (o driver no cliente usa seu próprio URI para conectar, não este valor).
+        advertisedAddress = "localhost:${toString cfg.portBolt}";
       };
 
       https.enable = false;
