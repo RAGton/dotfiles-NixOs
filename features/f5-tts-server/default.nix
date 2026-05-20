@@ -86,8 +86,8 @@ in
           "HOME=${dataDir}"
           "HF_HOME=${dataDir}/hf-cache"
           "PYTHONUNBUFFERED=1"
-          # libcuda.so — necessária para PyTorch CUDA (path padrão NixOS NVIDIA)
-          "LD_LIBRARY_PATH=/run/opengl-driver/lib"
+          # libcuda.so + libstdc++.so.6 — pip packages não encontram estas no NixOS
+          "LD_LIBRARY_PATH=/run/opengl-driver/lib:${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib"
           "F5TTS_PORT=${toString cfg.port}"
         ];
       };

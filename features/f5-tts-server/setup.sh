@@ -75,6 +75,11 @@ echo "[3/4] Instalando F5-TTS, FastAPI, uvicorn, soundfile..."
 
 # ── pré-download do modelo base ───────────────────────────────────────────────
 echo "[4/4] Pré-baixando F5-TTS base model de HuggingFace (~1.3 GB)..."
+
+# libstdc++.so.6 e libcuda.so não estão no PATH padrão do NixOS
+_STDCPP_LIB=$(dirname "$(find /nix/store -maxdepth 3 -name "libstdc++.so.6" 2>/dev/null | head -1)" 2>/dev/null || true)
+export LD_LIBRARY_PATH="/run/opengl-driver/lib${_STDCPP_LIB:+:$_STDCPP_LIB}"
+
 HF_HOME="$DATA_DIR/hf-cache" \
 "$VENV/bin/python" - << 'PYEOF'
 import sys
