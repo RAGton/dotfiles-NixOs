@@ -303,7 +303,7 @@ async def listen_and_respond(push_to_talk: bool = True, user: str = "rocha", sin
 
             # Speak
             if is_voice_enabled():
-                speak_text(answer)
+                speak_text(answer, tools_called=resp.get("tools_called"))
 
             if single_turn:
                 break

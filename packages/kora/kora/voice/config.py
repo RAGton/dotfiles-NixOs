@@ -43,13 +43,14 @@ def _resolve_piper_model() -> str:
         return env
     for candidate in [
         KORA_MODELS_DIR / "piper" / "current.onnx",
+        KORA_MODELS_DIR / "piper" / "pt_BR-edresson-low.onnx",
         KORA_MODELS_DIR / "piper" / "pt_BR-faber-medium.onnx",
         KORA_MODELS_DIR / "piper" / "pt_BR-cadu-medium.onnx",
         Path("/var/lib/kryonix/kora/models/piper-pt_BR.onnx"),
     ]:
         if candidate.exists() and candidate.stat().st_size > 1_000:
             return str(candidate)
-    return str(KORA_MODELS_DIR / "piper" / "pt_BR-faber-medium.onnx")
+    return str(KORA_MODELS_DIR / "piper" / "pt_BR-edresson-low.onnx")
 
 def _resolve_piper_config() -> str:
     env = os.environ.get("KORA_PIPER_CONFIG")
@@ -57,13 +58,14 @@ def _resolve_piper_config() -> str:
         return env
     for candidate in [
         KORA_MODELS_DIR / "piper" / "current.onnx.json",
+        KORA_MODELS_DIR / "piper" / "pt_BR-edresson-low.onnx.json",
         KORA_MODELS_DIR / "piper" / "pt_BR-faber-medium.onnx.json",
         KORA_MODELS_DIR / "piper" / "pt_BR-cadu-medium.onnx.json",
         Path("/var/lib/kryonix/kora/models/piper-pt_BR.onnx.json"),
     ]:
         if candidate.exists():
             return str(candidate)
-    return str(KORA_MODELS_DIR / "piper" / "pt_BR-faber-medium.onnx.json")
+    return str(KORA_MODELS_DIR / "piper" / "pt_BR-edresson-low.onnx.json")
 
 WHISPER_MODEL_PATH = _resolve_whisper_model()
 PIPER_MODEL_PATH   = _resolve_piper_model()

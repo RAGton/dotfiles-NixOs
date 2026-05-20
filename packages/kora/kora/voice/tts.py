@@ -69,12 +69,72 @@ def _find_piper_bin() -> str | None:
     return None
 
 
-def speak_text(text: str) -> None:
+def aplicar_prosodia_artificial(texto: str) -> list[str]:
+    """
+    Divide o texto em blocos/frases para inserir pausas artificiais (prosódia).
+    Adiciona pausas de 200ms em vírgulas, transições de assunto ou pausas dramáticas.
+    """
+    import re
+    if not texto:
+        return []
+
+    # Normalizar reticências
+    texto = texto.replace("...", "…")
+
+    # Inserir [PAUSE] após pontuação (, ; : …)
+    texto = re.sub(r'(\s*(?:,|;|:|…)\s*)', r'\1 [PAUSE] ', texto)
+
+    # Inserir [PAUSE] antes de palavras de transição comuns,
+    # se não houver pontuação ou pausa logo antes.
+    transicoes = r'\b(mas|porém|contudo|entretanto|então|pois|portanto|ou\s+seja)\b'
+    
+    def repl_transicao(match):
+        pre = match.group(1)
+        word = match.group(2)
+        if re.search(r'(?:,|;|:|…|\.|\!|\?|\[PAUSE\])\s*$', pre):
+            return match.group(0)
+        return f"{pre}[PAUSE] {word}"
+
+    texto = re.sub(r'(\s+)\b(mas|porém|contudo|entretanto|então|pois|portanto|ou\s+seja)\b', repl_transicao, texto, flags=re.IGNORECASE)
+
+    # Divide por [PAUSE] e limpa espaços
+    chunks = [c.strip() for c in texto.split("[PAUSE]")]
+    
+    # Filtra chunks vazios ou sem letras
+    result = []
+    for c in chunks:
+        if c and any(char.isalnum() for char in c):
+            result.append(c)
+            
+    return result
+
+
+def humanizar_resposta_ferramentas(texto: str, tools_called: list[str] | None = None) -> str:
+    """Precede a resposta com uma interjeição humanizada se ferramentas foram chamadas."""
+    if not tools_called:
+        return texto
+        
+    # Se qualquer ferramenta de busca/grafo foi acionada:
+    if any("graph" in t or "search" in t for t in tools_called):
+        try:
+            from .daemon import INTERJEICOES_PROCESSAMENTO
+            import random
+            prefixo = random.choice(INTERJEICOES_PROCESSAMENTO)
+            # Previne adicionar se o texto já começar com algo parecido
+            if not texto.strip().startswith(("Deixa eu", "Só um segundo", "Deixe-me", "Vou dar", "Acessando", "Buscando")):
+                return prefixo + texto
+        except Exception:
+            pass
+            
+    return texto
+
+
+def speak_text(text: str, tools_called: list[str] | None = None) -> None:
     """Sintetiza texto com Piper usando o preset ativo."""
-    synthesize_text(text)
+    speak_text_with_preset(text, preset=None, tools_called=tools_called)
 
 
-def synthesize_text(text: str) -> None:
+def synthesize_text(text: str, tools_called: list[str] | None = None) -> None:
     """
     Sintetiza texto usando piper-tts para um arquivo WAV temporário
     e o reproduz usando ffplay ou aplay.
@@ -82,6 +142,7 @@ def synthesize_text(text: str) -> None:
     """
     if not text:
         return
+    text = humanizar_resposta_ferramentas(text, tools_called)
     text = preparar_para_voz(text)
 
     # Import tardio para evitar ciclo
@@ -243,10 +304,11 @@ def speak_edge_tts(text: str, voice: str) -> bool:
         return False
 
 
-def speak_text_with_preset(text: str, preset: dict | None = None) -> None:
+def speak_text_with_preset(text: str, preset: dict | None = None, tools_called: list[str] | None = None) -> None:
     """Sintetiza texto usando parâmetros de um preset de voz."""
     if not text:
         return
+    text = humanizar_resposta_ferramentas(text, tools_called)
     text = preparar_para_voz(text)
 
     # Import tardio para evitar ciclo
@@ -303,30 +365,66 @@ def speak_text_with_preset(text: str, preset: dict | None = None) -> None:
     if preset.get("noise_w"):
         piper_cmd += ["--noise_w", str(preset["noise_w"])]
 
-    try:
-        piper_proc = subprocess.Popen(
-            piper_cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-        )
+    # Aplicar prosódia dividindo o texto em blocos/sentenças
+    chunks = aplicar_prosodia_artificial(text)
+    if not chunks:
+        chunks = [text]
 
+    try:
         if aplay_bin:
+            # Iniciamos um único processo do aplay para tocar toda a sequência continuamente
             aplay_proc = subprocess.Popen(
                 [aplay_bin, "-r", "22050", "-f", "S16_LE", "-t", "raw", "-"],
-                stdin=piper_proc.stdout,
+                stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            piper_proc.stdin.write(text.encode("utf-8"))
-            piper_proc.stdin.close()
+            
+            # Silêncio de 200ms a 22050Hz, S16_LE mono: 22050 * 2 bytes * 0.2 segundos = 8820 bytes de zeros
+            silence_bytes = b"\x00" * 8820
+            
+            for i, chunk in enumerate(chunks):
+                piper_proc = subprocess.Popen(
+                    piper_cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                )
+                pcm_data, _ = piper_proc.communicate(input=chunk.encode("utf-8"))
+                piper_proc.wait()
+                
+                if pcm_data:
+                    try:
+                        aplay_proc.stdin.write(pcm_data)
+                    except BrokenPipeError:
+                        logger.warning("aplay broken pipe durante reprodução de PCM.")
+                        break
+                
+                # Injeta pausa de 200ms entre as sentenças/blocos
+                if i < len(chunks) - 1:
+                    try:
+                        aplay_proc.stdin.write(silence_bytes)
+                    except BrokenPipeError:
+                        logger.warning("aplay broken pipe durante reprodução de silêncio.")
+                        break
+            
+            try:
+                aplay_proc.stdin.close()
+            except Exception:
+                pass
             aplay_proc.wait()
         else:
-            piper_proc.stdin.write(text.encode("utf-8"))
-            piper_proc.stdin.close()
-            piper_proc.wait()
-            logger.warning("aplay não encontrado — áudio não reproduzido.")
+            logger.warning("aplay não encontrado — reproduzindo sequencialmente no terminal (sem áudio real).")
+            for chunk in chunks:
+                piper_proc = subprocess.Popen(
+                    piper_cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                )
+                piper_proc.communicate(input=chunk.encode("utf-8"))
+                piper_proc.wait()
     except Exception as e:
-        logger.error(f"TTS falhou: {e}")
+        logger.error(f"TTS falhou no fluxo prosódico: {e}")
         _fallback_spd_say(text)
 

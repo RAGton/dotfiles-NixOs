@@ -51,6 +51,15 @@ VOICE_PRESETS: dict = {
         "description":  "voz de combate da Kora — feminina PT-BR (Sage/Valorant)",
         "gender_note":  "feminina — modelo local offline da Sage",
     },
+    "edresson": {
+        "provider":     "piper",
+        "model":        "edresson",
+        "length_scale": 1.22,
+        "noise_scale":  0.667,
+        "noise_w":      0.8,
+        "description":  "voz feminina humanizada da Kora (edresson-low)",
+        "gender_note":  "feminina — modelo local offline ultra-realista",
+    },
     "default": {
         "provider":     "piper",
         "model":        "faber",

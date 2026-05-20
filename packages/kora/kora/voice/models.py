@@ -41,6 +41,12 @@ WHISPER_MODELS = {
 HF_PIPER_BASE = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 
 PIPER_VOICES = {
+    "edresson": {
+        "model":  "pt/pt_BR/edresson/low/pt_BR-edresson-low.onnx",
+        "config": "pt/pt_BR/edresson/low/pt_BR-edresson-low.onnx.json",
+        "local_model":  "pt_BR-edresson-low.onnx",
+        "local_config": "pt_BR-edresson-low.onnx.json",
+    },
     "faber": {
         "model":  "pt/pt_BR/faber/medium/pt_BR-faber-medium.onnx",
         "config": "pt/pt_BR/faber/medium/pt_BR-faber-medium.onnx.json",
@@ -144,12 +150,14 @@ def resolve_piper_model() -> tuple[Path | None, Path | None]:
     model_candidates = [
         os.environ.get("KORA_PIPER_MODEL"),
         str(PIPER_DIR / "current.onnx"),
+        str(PIPER_DIR / "pt_BR-edresson-low.onnx"),
         str(PIPER_DIR / "pt_BR-faber-medium.onnx"),
         str(PIPER_DIR / "pt_BR-cadu-medium.onnx"),
     ]
     config_candidates = [
         os.environ.get("KORA_PIPER_CONFIG"),
         str(PIPER_DIR / "current.onnx.json"),
+        str(PIPER_DIR / "pt_BR-edresson-low.onnx.json"),
         str(PIPER_DIR / "pt_BR-faber-medium.onnx.json"),
         str(PIPER_DIR / "pt_BR-cadu-medium.onnx.json"),
     ]

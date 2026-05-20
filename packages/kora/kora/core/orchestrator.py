@@ -347,7 +347,7 @@ async def _agent_loop(
     query: str,
     system_prompt: str,
     history: list[dict[str, str]],
-) -> str:
+) -> tuple[str, list[str]]:
     """
     Agentic ReAct loop: send the query to Ollama with KORA_TOOLS, execute any
     requested tool calls, feed results back, and repeat until the model
@@ -362,13 +362,14 @@ async def _agent_loop(
         {"role": "user", "content": query},
     ]
 
+    tools_called = []
     last_msg: dict = {}
     for iteration in range(MAX_TOOL_ITERS):
         last_msg = await _chat_with_tools(messages, KORA_TOOLS)
         tool_calls: list[dict] | None = last_msg.get("tool_calls")
 
         if not tool_calls:
-            return last_msg.get("content") or "Não obtive uma resposta."
+            return last_msg.get("content") or "Não obtive uma resposta.", tools_called
 
         # Append the assistant turn (must include tool_calls for Ollama history)
         messages.append(last_msg)
@@ -378,11 +379,12 @@ async def _agent_loop(
             tool_name = fn.get("name", "")
             tool_args = fn.get("arguments") or {}
             logger.info("Agent tool call: %s(%s)", tool_name, tool_args)
+            tools_called.append(tool_name)
             result = await execute_tool(tool_name, tool_args)
             logger.info("Agent tool result [%s]: %.120s", tool_name, result)
             messages.append({"role": "tool", "content": result, "name": tool_name})
 
-    return last_msg.get("content") or "Atingi o limite de operações encadeadas. Tente novamente."
+    return last_msg.get("content") or "Atingi o limite de operações encadeadas. Tente novamente.", tools_called
 
 
 async def _handle_action_proposal(answer: str, user: str, session_id: str) -> tuple[str, Optional[dict]]:
@@ -487,7 +489,7 @@ async def process_message(
             history.append({"role": "assistant", "content": k})
 
     # Agentic loop
-    answer = await _agent_loop(query=message, system_prompt=system_prompt, history=history)
+    answer, tools_called = await _agent_loop(query=message, system_prompt=system_prompt, history=history)
 
     asyncio.create_task(_process_background_memory(message, answer, normalized.user_id))
 
@@ -512,6 +514,7 @@ async def process_message(
         "brain_used": False,
         "elapsed_sec": round(time.monotonic() - t0, 2),
         "model": OLLAMA_MODEL,
+        "tools_called": tools_called,
     }
 
 

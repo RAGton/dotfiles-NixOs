@@ -9,6 +9,16 @@ with lib;
 
 let
   cfg = config.kryonix.services.kora.voice;
+
+  edresson-model = pkgs.fetchurl {
+    url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/pt/pt_BR/edresson/low/pt_BR-edresson-low.onnx";
+    sha256 = "116dj64xnw18fnkcc0ppglvhr7ym0pv7lcwa6ykb22xk73pfqk6y";
+  };
+
+  edresson-config = pkgs.fetchurl {
+    url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/pt/pt_BR/edresson/low/pt_BR-edresson-low.onnx.json";
+    sha256 = "0mkca3m3nnvng04z5g618brv01s368nlrcdvl0x1wzbp5qnrjf7i";
+  };
 in
 {
   options.kryonix.services.kora.voice = {
@@ -51,6 +61,10 @@ in
         # Explicit PipeWire socket path; %t expands to /run/user/<UID> in
         # systemd user-service context so pw-record always finds the server.
         PIPEWIRE_RUNTIME_DIR = "%t";
+        # Apontando para o modelo feminino edresson declarativo do Nix store
+        KORA_PIPER_MODEL = "${edresson-model}";
+        KORA_PIPER_CONFIG = "${edresson-config}";
+        KORA_DEFAULT_VOICE_PRESET = "edresson";
       };
       path = [ pkgs.pipewire ];
       serviceConfig = {

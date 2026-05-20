@@ -17,6 +17,16 @@ from .wakeword import WakeWordEngine, _keyword_detect
 
 logger = logging.getLogger("kora.voice.daemon")
 
+# Lista de interjeições de processamento para humanização (usada via tts.py / pipeline)
+INTERJEICOES_PROCESSAMENTO = [
+    "Deixa eu dar uma olhadinha aqui... ah, encontrei: ",
+    "Só um segundo, vou consultar meus registros... pronto: ",
+    "Deixe-me conferir o grafo de conhecimento... aqui está: ",
+    "Vou dar uma olhada rápida nas minhas memórias... achei: ",
+    "Acessando o banco de dados local... encontrei isso: ",
+    "Buscando informações no cérebro da Kryonix... veja: ",
+]
+
 # ── Audio capture constants ──────────────────────────────────────────────────
 # pw-record runs at 48kHz; we downsample to 16kHz for VAD and Whisper.
 _RATE_CAPTURE    = 48_000
