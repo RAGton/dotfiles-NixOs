@@ -23,26 +23,21 @@ fi
 
 # ── pré-requisitos ────────────────────────────────────────────────────────────
 
-# Localiza python3.11: PATH → nix store → nix-build
+# Localiza python3.11: PATH → nix-build → erro
 PYTHON311=""
 if command -v python3.11 &>/dev/null; then
     PYTHON311=$(command -v python3.11)
-else
-    # Tenta encontrar no nix store (NixOS sem o pacote no PATH)
-    _nixpy=$(find /nix/store -maxdepth 2 -name "python3.11" -path "*/bin/python3.11" 2>/dev/null \
-             | grep -v '\-doc\b\|\-dev\b\|\-man\b' | head -1)
-    if [ -x "$_nixpy" ]; then
-        PYTHON311="$_nixpy"
-    elif command -v nix-build &>/dev/null; then
-        echo "python3.11 não no PATH — construindo via nix-build (aguarde)..."
-        _nixout=$(nix-build --no-out-link '<nixpkgs>' -A python311 2>/dev/null) || true
-        [ -x "$_nixout/bin/python3.11" ] && PYTHON311="$_nixout/bin/python3.11"
+elif command -v nix-build &>/dev/null; then
+    echo "python3.11 não no PATH — localizando via nix-build (pode demorar)..."
+    _nixout=$(nix-build --no-out-link '<nixpkgs>' -A python311 2>/dev/null) || true
+    if [ -x "${_nixout:-}/bin/python3.11" ]; then
+        PYTHON311="${_nixout}/bin/python3.11"
     fi
 fi
 
 if [ -z "$PYTHON311" ]; then
     echo "ERRO: python3.11 não encontrado."
-    echo "  Execute com nix-shell: nix-shell -p python311 -- bash $0"
+    echo "  Execute: nix-shell -p python311 -- sudo bash $0"
     exit 1
 fi
 
