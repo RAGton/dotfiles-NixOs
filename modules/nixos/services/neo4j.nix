@@ -82,8 +82,9 @@ in
         server.memory.heap.max_size=2g
         server.memory.pagecache.size=1g
 
-        # Segurança
-        dbms.security.auth_enabled=true
+        # Segurança: auth desabilitada — acesso restrito via firewall Tailscale (100.64.0.0/10).
+        # A porta Bolt só é alcançável por máquinas na rede Tailscale privada.
+        dbms.security.auth_enabled=false
         dbms.security.allow_csv_import_from_file_urls=true
 
         # Logs e Monitoramento

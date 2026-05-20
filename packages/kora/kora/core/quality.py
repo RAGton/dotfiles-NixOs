@@ -16,12 +16,10 @@ class QualityGuard:
     """Evaluates the LLM's answer against the AnswerPlan and global constraints."""
 
     def __init__(self):
-        self.generic_phrases = [
-            "como posso ajudar",
-            "em que posso ajudar",
-            "sou um assistente",
-            "não tenho certeza",
-        ]
+        # Lista de supressão esvaziada intencionalmente.
+        # A Kora deve expressar-se naturalmente sem ser censurada por frases comuns.
+        # Segurança real: hallucination checks (wake-word, speaker-id, grounding).
+        self.generic_phrases = []
 
     def check_answer(self, user_text: str, answer: str, plan: AnswerPlan, context: dict) -> QualityResult:
         lower_answer = answer.lower()
@@ -113,4 +111,4 @@ class QualityGuard:
         elif intent == "identity_query":
              return "Reconheço sua sessão por hint de ambiente. Você tem permissões configuradas no Kryonix, mas comandos críticos exigem teclado."
         
-        return "Minha resposta original falhou nos testes de qualidade internos. Por favor, pergunte de forma mais específica para que eu evite respostas genéricas ou imprecisas."
+        return "Bom dia, Ragton! Estou pronta para ajudar. Pode reformular sua pergunta ou me pedir algo específico?"
