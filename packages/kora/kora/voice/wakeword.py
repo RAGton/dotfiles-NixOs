@@ -258,6 +258,25 @@ class WakeWordEngine:
         with _suppress_alsa_stderr():
             self.pyaudio = pyaudio.PyAudio()
 
+    def _find_named_default_index(self) -> int | None:
+        """Return the index of the device whose ALSA name is exactly 'default'."""
+        if self.pyaudio is None:
+            return None
+        try:
+            count = self.pyaudio.get_device_count()
+        except Exception:
+            return None
+        for i in range(count if isinstance(count, int) else 0):
+            try:
+                info = self.pyaudio.get_device_info_by_index(i)
+            except Exception:
+                continue
+            if not isinstance(info, dict) or info.get("maxInputChannels", 0) < 1:
+                continue
+            if str(info.get("name", "")).lower() == "default":
+                return i
+        return None
+
     def _find_input_device_index(self) -> int | None:
         """Return the index of the best available input device.
 
@@ -335,7 +354,11 @@ class WakeWordEngine:
             self._open_backoff = 2.0  # reset on success
             return True
         except Exception as e:
-            logger.warning("WakeWordEngine: failed to open stream (device=%s), trying default fallback: %s", self.device_index, e)
+            logger.warning("WakeWordEngine: failed to open stream (device=%s): %s", self.device_index, e)
+
+        # Fallback 1: device named exactly "default" (ALSA/PipeWire virtual device)
+        default_idx = self._find_named_default_index()
+        if default_idx is not None:
             try:
                 with _suppress_alsa_stderr():
                     self.active_stream = self.pyaudio.open(
@@ -344,30 +367,55 @@ class WakeWordEngine:
                         rate=self.rate,
                         input=True,
                         frames_per_buffer=self.chunk_size,
-                        input_device_index=None,
+                        input_device_index=default_idx,
                     )
                 actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
-                logger.info("WakeWordEngine: stream opened with default fallback (device=None, rate=%dHz)", actual_rate)
+                logger.info("WakeWordEngine: stream opened via 'default' device #%d (rate=%dHz)", default_idx, actual_rate)
                 self.detector.input_rate = actual_rate
                 self._open_backoff = 2.0
                 return True
-            except Exception as fallback_err:
-                logger.error("WakeWord stream init failed: %s. Tentando reiniciar...", fallback_err)
-                logger.error("WakeWordEngine: failed to open default fallback stream: %s", fallback_err)
-                self.active_stream = None
-                self._open_backoff = min(self._open_backoff * 2, 30.0)  # exponential backoff, max 30s
-                return False
+            except Exception as e2:
+                logger.warning("WakeWordEngine: 'default' device #%d failed: %s", default_idx, e2)
+
+        # Fallback 2: let PortAudio pick (last resort)
+        try:
+            with _suppress_alsa_stderr():
+                self.active_stream = self.pyaudio.open(
+                    format=self.format,
+                    channels=self.channels,
+                    rate=self.rate,
+                    input=True,
+                    frames_per_buffer=self.chunk_size,
+                    input_device_index=None,
+                )
+            actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
+            logger.info("WakeWordEngine: stream opened via PortAudio default (rate=%dHz)", actual_rate)
+            self.detector.input_rate = actual_rate
+            self._open_backoff = 2.0
+            return True
+        except Exception as last_err:
+            logger.error("WakeWordEngine: all fallbacks failed: %s", last_err)
+            self.active_stream = None
+            self._open_backoff = min(self._open_backoff * 2, 30.0)
+            return False
 
     def close_stream(self) -> None:
-        if self.active_stream is not None:
-            try:
-                self.active_stream.stop_stream()
-                self.active_stream.close()
-            except Exception as e:
-                logger.warning(f"WakeWordEngine: Error closing stream: {e}")
-            finally:
-                self.active_stream = None
-                logger.info("WakeWordEngine: PyAudio stream closed.")
+        stream = self.active_stream
+        self.active_stream = None  # clear before any call to prevent re-entry
+        if stream is None:
+            return
+        try:
+            if stream.is_active():
+                stream.stop_stream()
+        except Exception:
+            pass
+        try:
+            stream.close()
+        except OSError:
+            pass
+        except Exception as e:
+            logger.warning("WakeWordEngine: Error closing stream: %s", e)
+        logger.info("WakeWordEngine: PyAudio stream closed.")
 
     def shutdown(self) -> None:
         """Stop stream and terminate PyAudio. Must be called before object is freed."""
