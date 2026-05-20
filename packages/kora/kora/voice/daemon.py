@@ -210,8 +210,8 @@ class KoraVoiceDaemon:
         _SILENCE_END = 17
         # 3 seconds of audio max (safety cap)
         _MAX_BUF = _VAD_BYTES * 100
-        # At least 3 chunks before we bother transcribing
-        _MIN_BUF = _VAD_BYTES * 3
+        # At least 34 chunks (~1 second of audio @30ms per chunk) before we bother transcribing (ignores short clicks/background noise)
+        _MIN_BUF = _VAD_BYTES * 34
 
         while self.running:
             try:

@@ -192,13 +192,14 @@ def synthesize_text(text: str, tools_called: list[str] | None = None) -> None:
             piper_cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
+            stderr=None,
         )
         piper_proc.communicate(input=text.encode("utf-8"))
         piper_proc.wait()
 
         # Check if the temporary WAV file was written successfully
         if os.path.exists(temp_wav_path) and os.path.getsize(temp_wav_path) > 0:
+            logger.info("Enviando áudio para o aplay/ffplay: %s bytes", os.path.getsize(temp_wav_path))
             ffplay_bin = shutil.which("ffplay")
             aplay_bin = shutil.which("aplay")
 
@@ -321,15 +322,7 @@ def speak_text_with_preset(text: str, preset: dict | None = None, tools_called: 
         except Exception:
             preset = {}
 
-    # Cloud TTS is opt-in. Default must remain local-first.
-    if preset.get("provider") == "edge-tts" and preset.get("voice"):
-        if os.getenv("KORA_ENABLE_CLOUD_TTS") == "1":
-            logger.info(f"Tentando síntese neural premium via edge-tts ({preset['voice']})...")
-            if speak_edge_tts(text, preset["voice"]):
-                return
-            logger.info("Falha na síntese neural, recorrendo ao fallback local...")
-        else:
-            logger.info("edge-tts configurado, mas desabilitado por default. Use KORA_ENABLE_CLOUD_TTS=1 para opt-in.")
+    # Force TTS Local (Piper) - removed edge-tts cloud checking as requested
 
     piper_bin = _find_piper_bin()
     aplay_bin = shutil.which("aplay")
@@ -339,20 +332,41 @@ def speak_text_with_preset(text: str, preset: dict | None = None, tools_called: 
         _fallback_spd_say(text)
         return
 
-    model_path = Path(PIPER_MODEL_PATH)
-    if not model_path.exists():
+    # Dynamic model resolution based on preset
+    model_path = None
+    config_path = None
+    preset_model_name = preset.get("model")
+    if preset_model_name:
+        try:
+            from .models import PIPER_VOICES, PIPER_DIR
+            if preset_model_name in PIPER_VOICES:
+                meta = PIPER_VOICES[preset_model_name]
+                p_model = PIPER_DIR / meta["local_model"]
+                p_config = PIPER_DIR / meta["local_config"]
+                if p_model.exists():
+                    model_path = p_model
+                    config_path = p_config
+                    logger.info(f"Usando modelo do preset '{preset_model_name}': {model_path.name}")
+        except Exception as e:
+            logger.debug(f"Erro ao tentar resolver modelo do preset '{preset_model_name}': {e}")
+
+    # Fallback to default PIPER_MODEL_PATH / PIPER_CONFIG_PATH if not resolved or not found
+    if not model_path or not model_path.exists():
+        model_path = Path(PIPER_MODEL_PATH)
+        config_path = Path(PIPER_CONFIG_PATH)
+        logger.info(f"Usando modelo padrão: {model_path.name if model_path else 'Nenhum'}")
+
+    if not model_path or not model_path.exists():
         logger.warning(
             f"Modelo Piper não encontrado: {model_path}\n"
-            "  → Execute: kora voice models install piper faber"
+            "  → Execute: kora voice models install piper edresson"
         )
         _fallback_spd_say(text)
         return
 
     piper_cmd = [piper_bin, "--model", str(model_path), "--output_raw"]
 
-    # Config opcional
-    config_path = Path(PIPER_CONFIG_PATH)
-    if config_path.exists():
+    if config_path and config_path.exists():
         piper_cmd += ["--config", str(config_path)]
 
     # length_scale: >1 = mais lento/pausado, <1 = mais rápido.
@@ -372,28 +386,43 @@ def speak_text_with_preset(text: str, preset: dict | None = None, tools_called: 
 
     try:
         if aplay_bin:
+            # Detect sample rate from config
+            sample_rate = 22050
+            if config_path and config_path.exists():
+                try:
+                    import json
+                    with open(config_path, "r", encoding="utf-8") as f:
+                        cfg_data = json.load(f)
+                        sr = cfg_data.get("audio", {}).get("sample_rate")
+                        if sr:
+                            sample_rate = sr
+                            logger.info(f"Detectado sample_rate do modelo: {sample_rate}Hz")
+                except Exception as e:
+                    logger.warning(f"Falha ao ler sample_rate do config de Piper: {e}")
+
             # Iniciamos um único processo do aplay para tocar toda a sequência continuamente
             aplay_proc = subprocess.Popen(
-                [aplay_bin, "-r", "22050", "-f", "S16_LE", "-t", "raw", "-"],
+                [aplay_bin, "-r", str(sample_rate), "-f", "S16_LE", "-t", "raw", "-"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stderr=None,
             )
             
-            # Silêncio de 200ms a 22050Hz, S16_LE mono: 22050 * 2 bytes * 0.2 segundos = 8820 bytes de zeros
-            silence_bytes = b"\x00" * 8820
+            # Silêncio de 200ms a sample_rate: sample_rate * 2 bytes * 0.2 segundos
+            silence_bytes = b"\x00" * int(sample_rate * 2 * 0.2)
             
             for i, chunk in enumerate(chunks):
                 piper_proc = subprocess.Popen(
                     piper_cmd,
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
+                    stderr=None,
                 )
                 pcm_data, _ = piper_proc.communicate(input=chunk.encode("utf-8"))
                 piper_proc.wait()
                 
                 if pcm_data:
+                    logger.info("Enviando áudio para o aplay/ffplay: %s bytes", len(pcm_data))
                     try:
                         aplay_proc.stdin.write(pcm_data)
                     except BrokenPipeError:
@@ -420,7 +449,7 @@ def speak_text_with_preset(text: str, preset: dict | None = None, tools_called: 
                     piper_cmd,
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
+                    stderr=None,
                 )
                 piper_proc.communicate(input=chunk.encode("utf-8"))
                 piper_proc.wait()

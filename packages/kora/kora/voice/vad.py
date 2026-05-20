@@ -29,8 +29,8 @@ import os
 SILENCE_SECONDS = float(os.environ.get("KORA_VAD_SILENCE", "1.8"))       # Seconds of silence before stopping
 MAX_RECORD_SECONDS = float(os.environ.get("KORA_VAD_MAX_DURATION", "20.0"))   # Safety cap
 MIN_SPEECH_SECONDS = float(os.environ.get("KORA_VAD_MIN_SPEECH", "0.5"))    # Minimum speech before we accept silence
-RMS_THRESHOLD = int(os.environ.get("KORA_VAD_THRESHOLD", "150"))          # RMS threshold for "speech" (adjust per mic)
-NOISE_SUPPRESSION_AGGRESSIVENESS = int(os.environ.get("KORA_VAD_AGGRESSIVENESS", "2"))  # 0=quality, 1=normal, 2=aggressive, 3=very aggressive
+RMS_THRESHOLD = int(os.environ.get("KORA_VAD_THRESHOLD", "300"))          # RMS threshold for "speech" (adjust per mic)
+NOISE_SUPPRESSION_AGGRESSIVENESS = int(os.environ.get("KORA_VAD_AGGRESSIVENESS", "3"))  # 0=quality, 1=normal, 2=aggressive, 3=very aggressive
 SAMPLE_RATE = 16000
 CHANNELS = 1
 SAMPLE_WIDTH = 2             # 16-bit PCM → 2 bytes
@@ -54,7 +54,11 @@ def _rms(data: bytes) -> float:
 
 
 def _is_speech(data: bytes, rms_threshold: float = RMS_THRESHOLD) -> bool:
-    """Detect speech using webrtcvad if available, otherwise fallback to RMS threshold."""
+    """Detect speech using webrtcvad if available AND falling above RMS threshold."""
+    rms = _rms(data)
+    if rms < rms_threshold:
+        return False
+
     if WEBRTCVAD_AVAILABLE:
         try:
             vad = webrtcvad.VAD(NOISE_SUPPRESSION_AGGRESSIVENESS)
@@ -62,9 +66,8 @@ def _is_speech(data: bytes, rms_threshold: float = RMS_THRESHOLD) -> bool:
             return is_speech
         except Exception as e:
             logger.debug(f"webrtcvad detection failed: {e}, falling back to RMS")
-    # Fallback to RMS-based detection
-    rms = _rms(data)
-    return rms >= rms_threshold
+
+    return True
 
 
 def record_with_vad(
