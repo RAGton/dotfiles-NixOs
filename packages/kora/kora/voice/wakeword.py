@@ -85,14 +85,32 @@ class KoraWakeWord:
             try:
                 # Try to use 'kora' model first.
                 self.oww_model = Model(wakeword_models=[self.model_name])
-                logger.info(f"Wake-word engine initialized (models: {self.oww_model.wakeword_models})")
+                loaded = list(getattr(self.oww_model, 'models', {}).keys()) or [self.model_name]
+                logger.info(f"Wake-word engine initialized (models: {loaded})")
                 self.ready = True
+            except TypeError:
+                # openWakeWord 0.5.x changed the constructor signature
+                try:
+                    self.oww_model = Model(model_names=[self.model_name])
+                    loaded = list(getattr(self.oww_model, 'models', {}).keys()) or [self.model_name]
+                    logger.info(f"Wake-word engine initialized via model_names (models: {loaded})")
+                    self.ready = True
+                except Exception as e:
+                    logger.warning(f"Failed to initialize openWakeWord Model '{self.model_name}': {e}. Falling back to 'hey_mycroft'.")
+                    try:
+                        self.model_name = "hey_mycroft"
+                        self.oww_model = Model(model_names=["hey_mycroft"])
+                        logger.info("Wake-word engine initialized with fallback (models: ['hey_mycroft'])")
+                        self.ready = True
+                    except Exception as ex:
+                        logger.error(f"Fallback also failed: {ex}")
+                        logger.info("Wake-word engine falling back to foundation mode (no model found).")
             except Exception as e:
                 logger.warning(f"Failed to initialize openWakeWord Model '{self.model_name}': {e}. Falling back to 'hey_mycroft'.")
                 try:
                     self.model_name = "hey_mycroft"
                     self.oww_model = Model(wakeword_models=["hey_mycroft"])
-                    logger.info(f"Wake-word engine initialized with fallback (models: {self.oww_model.wakeword_models})")
+                    logger.info("Wake-word engine initialized with fallback (models: ['hey_mycroft'])")
                     self.ready = True
                 except Exception as ex:
                     logger.error(f"Fallback also failed: {ex}")
@@ -136,16 +154,25 @@ class KoraWakeWord:
 
         return False
 
+def _try_load_model(model_name: str):
+    """Try both constructor signatures and return the Model or raise."""
+    try:
+        return Model(wakeword_models=[model_name])
+    except TypeError:
+        return Model(model_names=[model_name])
+
+
 def get_wakeword_status():
     custom_model_present = False
     active_model = "kora"
     if OPENWAKEWORD_AVAILABLE:
         try:
-            temp_model = Model(wakeword_models=["kora"])
-            custom_model_present = "kora" in temp_model.wakeword_models
+            temp_model = _try_load_model("kora")
+            loaded = getattr(temp_model, 'models', {})
+            custom_model_present = "kora" in loaded
         except:
             try:
-                temp_model = Model(wakeword_models=["hey_mycroft"])
+                _try_load_model("hey_mycroft")
                 custom_model_present = True
                 active_model = "hey_mycroft"
             except:
@@ -341,6 +368,23 @@ class WakeWordEngine:
             finally:
                 self.active_stream = None
                 logger.info("WakeWordEngine: PyAudio stream closed.")
+
+    def shutdown(self) -> None:
+        """Stop stream and terminate PyAudio. Must be called before object is freed."""
+        self.close_stream()
+        if self.pyaudio is not None:
+            try:
+                self.pyaudio.terminate()
+            except Exception as e:
+                logger.warning("WakeWordEngine: Error terminating PyAudio: %s", e)
+            finally:
+                self.pyaudio = None
+
+    def __del__(self) -> None:
+        try:
+            self.shutdown()
+        except Exception:
+            pass
 
     def listen(self) -> bool:
         """
