@@ -13,6 +13,48 @@ from pathlib import Path
 
 logger = logging.getLogger("kora.voice.tts")
 
+
+def preparar_para_voz(texto: str) -> str:
+    """
+    Normaliza texto para síntese TTS: remove markdown, expande siglas e
+    humaniza termos técnicos para que o piper-tts leia naturalmente.
+    """
+    import re
+
+    # Remove bold / italic (* e **)
+    texto = re.sub(r"\*+([^*\n]+)\*+", r"\1", texto)
+    # Remove headers markdown (##, ###)
+    texto = re.sub(r"^#{1,6}\s+", "", texto, flags=re.MULTILINE)
+    # Remove listas com traço ou asterisco no início da linha
+    texto = re.sub(r"^[-*]\s+", "", texto, flags=re.MULTILINE)
+    # Remove itálico com underscore
+    texto = re.sub(r"_([^_\n]+)_", r"\1", texto)
+    # Remove blocos de código inline
+    texto = re.sub(r"`[^`]+`", lambda m: m.group(0).strip("`"), texto)
+
+    # Expansão de siglas técnicas comuns
+    _SIGLAS = [
+        ("CPU",    "C P U"),
+        ("GPU",    "G P U"),
+        ("RAM",    "memória"),
+        ("SSD",    "disco"),
+        ("HDD",    "disco"),
+        ("API",    "A P I"),
+        ("SSH",    "S S H"),
+        ("URL",    "endereço"),
+        ("IP",     "I P"),
+        ("NixOS",  "nix O S"),
+    ]
+    for sigla, expansao in _SIGLAS:
+        # Só substitui quando isolada (não parte de palavra maior)
+        texto = re.sub(rf"\b{re.escape(sigla)}\b", expansao, texto)
+
+    # Colapsa linhas em branco múltiplas para uma só pausa
+    texto = re.sub(r"\n{3,}", "\n\n", texto)
+
+    return texto.strip()
+
+
 # Binários Piper suportados (injetados via wrapProgram no Nix)
 _PIPER_CANDIDATES = [
     "piper-tts",   # nome real do pacote nixpkgs
@@ -40,6 +82,7 @@ def synthesize_text(text: str) -> None:
     """
     if not text:
         return
+    text = preparar_para_voz(text)
 
     # Import tardio para evitar ciclo
     from .config import PIPER_MODEL_PATH, PIPER_CONFIG_PATH
@@ -77,11 +120,11 @@ def synthesize_text(text: str) -> None:
         if config_path.exists():
             piper_cmd += ["--config", str(config_path)]
 
-        # Parâmetros de naturalidade: length_scale controla a velocidade (1.0 = normal, <1 mais rápido, >1 mais lento)
-        # Usamos 0.95 para uma fala ligeiramente mais rápida e natural
-        piper_cmd += ["--length_scale", "0.95"]
+        # length_scale: >1 = mais lento/pausado, <1 = mais rápido.
+        # 1.1 = ~10% mais lento que o normal — voz natural, sem pressa.
+        piper_cmd += ["--length_scale", "1.1"]
 
-        logger.info(f"TTS: Sintetizando com speed_scale=0.95 em {temp_wav_path}...")
+        logger.info(f"TTS: Sintetizando com length_scale=1.1 em {temp_wav_path}...")
 
         # Execute piper-tts writing text to stdin
         piper_proc = subprocess.Popen(
@@ -204,6 +247,7 @@ def speak_text_with_preset(text: str, preset: dict | None = None) -> None:
     """Sintetiza texto usando parâmetros de um preset de voz."""
     if not text:
         return
+    text = preparar_para_voz(text)
 
     # Import tardio para evitar ciclo
     from .config import PIPER_MODEL_PATH, PIPER_CONFIG_PATH
@@ -249,9 +293,9 @@ def speak_text_with_preset(text: str, preset: dict | None = None) -> None:
     if config_path.exists():
         piper_cmd += ["--config", str(config_path)]
 
-    # Parâmetros de qualidade/naturalidade
-    # length_scale: controla velocidade (padrão 0.95 para fala natural)
-    length_scale = preset.get("length_scale", 0.95)
+    # length_scale: >1 = mais lento/pausado, <1 = mais rápido.
+    # Default 1.1 = ~10% mais lento — voz feminina natural, sem pressa.
+    length_scale = preset.get("length_scale", 1.1)
     piper_cmd += ["--length_scale", str(length_scale)]
 
     if preset.get("noise_scale"):
