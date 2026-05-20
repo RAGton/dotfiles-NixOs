@@ -66,38 +66,27 @@ def test_transcribe_audio_numpy_input():
 
 
 def test_synthesize_text():
-    with patch("kora.voice.tts._find_piper_bin", return_value="/usr/bin/piper-tts"), \
-         patch("kora.voice.tts.Path.exists", return_value=True), \
-         patch("kora.voice.tts.shutil.which") as mock_which, \
-         patch("kora.voice.tts.subprocess.Popen") as mock_popen, \
+    import wave
+
+    async def _fake_synthesize(text: str, out_wav) -> None:
+        with wave.open(str(out_wav), "wb") as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(22050)
+            wf.writeframes(b"\x00" * 4410)
+
+    mock_provider = MagicMock()
+    mock_provider.synthesize = _fake_synthesize
+
+    with patch("kora.voice.providers.build_provider_chain", return_value=mock_provider), \
+         patch("kora.voice.tts.shutil.which", return_value="/usr/bin/ffplay"), \
          patch("kora.voice.tts.subprocess.run") as mock_run:
-        
-        # Setup mocks
-        mock_which.side_effect = lambda x: f"/usr/bin/{x}"
-        
-        mock_proc = MagicMock()
-        mock_proc.communicate.return_value = (b"", b"")
-        mock_proc.wait.return_value = 0
-        mock_popen.return_value = mock_proc
 
-        # Mock the os.path.exists and os.path.getsize within synthesize_text
-        original_exists = os.path.exists
-        def mock_os_exists(p):
-            if ".wav" in str(p):
-                return True
-            return original_exists(p)
+        synthesize_text("Olá")
 
-        with patch("kora.voice.tts.os.path.exists", side_effect=mock_os_exists), \
-             patch("kora.voice.tts.os.path.getsize", return_value=1000):
-            
-            synthesize_text("Olá")
-            
-            # Verify piper process was started and communicate was called
-            mock_popen.assert_called_once()
-            # Verify ffplay was run to play the file
-            mock_run.assert_called_once()
-            args, kwargs = mock_run.call_args
-            assert "ffplay" in args[0][0]
+        mock_run.assert_called_once()
+        args = mock_run.call_args[0][0]
+        assert "ffplay" in args[0]
 
 
 def test_run_voice_pipeline():

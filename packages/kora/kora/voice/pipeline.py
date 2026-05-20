@@ -358,7 +358,7 @@ async def run_voice_pipeline(user: str = "rocha") -> None:
                 while not wav_path.exists():
                     if time.monotonic() - wait_start > max_wait:
                         logger.warning(f"Timeout ao aguardar {wav_path} (exceeded {max_wait}s)")
-                        continue
+                        break
                     await asyncio.sleep(0.05)
 
                 # 3. Transcribe audio (STT)
