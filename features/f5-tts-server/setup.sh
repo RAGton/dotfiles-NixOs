@@ -87,7 +87,7 @@ import sys
 print("  Carregando F5TTS (baixa checkpoint na primeira execução)...")
 try:
     from f5_tts.api import F5TTS
-    tts = F5TTS(model_type="F5-TTS")
+    tts = F5TTS()
     del tts
     print("  Modelo F5-TTS base: OK")
 except Exception as e:

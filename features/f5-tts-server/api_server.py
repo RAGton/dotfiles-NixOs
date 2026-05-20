@@ -41,7 +41,7 @@ def _load_model() -> None:
         logger.info("Carregando F5-TTS base model na GPU...")
         try:
             from f5_tts.api import F5TTS  # type: ignore[import]
-            _tts = F5TTS(model_type="F5-TTS")
+            _tts = F5TTS()
             logger.info("Modelo F5-TTS carregado com sucesso")
         except Exception as exc:
             _tts_error = str(exc)
