@@ -381,26 +381,30 @@ class WakeWordEngine:
                 candidates.append(dev)
 
         for dev in candidates:
+            # Always open at the device's native rate; _resample_to_16khz handles
+            # the downsampling before the wake-word model sees the audio.
+            # Never request 16kHz from PyAudio — BT hardware rejects it (-9997).
             native = self._get_device_native_rate(dev)
-            # Try 16kHz first (no resampling overhead); fall back to native rate
-            rates = [16000, native] if native != 16000 else [16000]
-            for rate in rates:
-                try:
-                    return self._try_open(dev, rate)
-                except Exception as e:
-                    logger.warning(
-                        "WakeWordEngine: open failed (device=%s rate=%dHz): %s",
-                        dev if dev is not None else "portaudio-default",
-                        rate, e,
-                    )
+            try:
+                return self._try_open(dev, native)
+            except Exception as e:
+                logger.warning(
+                    "WakeWordEngine: open failed (device=%s rate=%dHz): %s",
+                    dev if dev is not None else "portaudio-default",
+                    native, e,
+                )
 
         logger.error("WakeWordEngine: all open attempts exhausted")
         self._open_backoff = min(self._open_backoff * 2, 30.0)
         return False
 
     def close_stream(self) -> None:
+        # Only stop the stream (drain the HW buffer); never call .close() or
+        # pyaudio.terminate() — both trigger a double-free in PortAudio/PipeWire
+        # that causes SIGABRT ("corrupted double-linked list").  Let the OS
+        # reclaim the file descriptors when the process exits cleanly.
         stream = self.active_stream
-        self.active_stream = None  # clear before any call to prevent re-entry
+        self.active_stream = None
         if stream is None:
             return
         try:
@@ -408,30 +412,12 @@ class WakeWordEngine:
                 stream.stop_stream()
         except Exception:
             pass
-        try:
-            stream.close()
-        except OSError:
-            pass
-        except Exception as e:
-            logger.warning("WakeWordEngine: Error closing stream: %s", e)
-        logger.info("WakeWordEngine: PyAudio stream closed.")
+        logger.info("WakeWordEngine: stream released (fd left open for OS cleanup).")
 
     def shutdown(self) -> None:
-        """Stop stream and terminate PyAudio. Must be called before object is freed."""
         self.close_stream()
-        if self.pyaudio is not None:
-            try:
-                self.pyaudio.terminate()
-            except Exception as e:
-                logger.warning("WakeWordEngine: Error terminating PyAudio: %s", e)
-            finally:
-                self.pyaudio = None
-
-    def __del__(self) -> None:
-        try:
-            self.shutdown()
-        except Exception:
-            pass
+        # Do NOT call pyaudio.terminate() — see close_stream note above.
+        self.pyaudio = None
 
     def listen(self) -> bool:
         """
