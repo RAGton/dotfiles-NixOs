@@ -15,7 +15,8 @@ class F5TTSProvider(TTSProvider):
     def __init__(self, endpoint: str, ref_audio: str, ref_text: str) -> None:
         self._endpoint  = endpoint.rstrip("/")
         self._ref_audio = ref_audio
-        self._ref_text  = ref_text
+        # Default de texto de referência baseado na gravação kora.wav da Kora
+        self._ref_text  = ref_text or "Minha voz é viva, leve e objetiva. Ideal para aulas, vídeos e anúncios. Eu prendo atenção, explico fácil e passo credibilidade."
 
     def health(self) -> bool:
         try:
@@ -25,6 +26,10 @@ class F5TTSProvider(TTSProvider):
             return False
 
     async def synthesize(self, text: str, out_wav: Path) -> None:
+        # Garante o prefixo [pt-BR] para direcionar o sotaque/fonética do modelo F5-TTS
+        if not text.strip().startswith("[pt-BR]"):
+            text = f"[pt-BR] {text.strip()}"
+
         payload = _json.dumps({
             "text":      text,
             "ref_audio": self._ref_audio,

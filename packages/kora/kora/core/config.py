@@ -39,6 +39,10 @@ load_dotenv()
 # ── Kora Service ─────────────────────────────────────────────────
 KORA_HOST = os.getenv("KORA_HOST", "127.0.0.1")
 KORA_PORT = int(os.getenv("KORA_PORT", "8787"))
+# KORA_API_URL: URL base da Kora API. Permite override para arquitetura
+# distribuída onde a Kora roda no Glacier e o cliente é o Inspiron.
+# Quando KORA_API_URL está em branco, constrói a partir de HOST:PORT.
+KORA_API_URL = os.getenv("KORA_API_URL", "") or f"http://{KORA_HOST}:{KORA_PORT}"
 KORA_DATA_DIR = Path(os.getenv("KORA_DATA_DIR", "/var/lib/kryonix/kora"))
 KORA_SESSIONS_DIR = KORA_DATA_DIR / "sessions"
 KORA_AUDIT_DIR = KORA_DATA_DIR / "audit"

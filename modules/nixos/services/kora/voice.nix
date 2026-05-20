@@ -9,6 +9,22 @@ with lib;
 
 let
   cfg = config.kryonix.services.kora.voice;
+  brainCfg = config.kryonix.features.ai.brain;
+
+  koraOllamaUrl = if brainCfg.enable && brainCfg.role == "client" then
+    "http://${brainCfg.serverHost}:${toString brainCfg.ollamaPort}"
+  else
+    "http://127.0.0.1:11434";
+
+  koraBrainUrl = if brainCfg.enable && brainCfg.role == "client" then
+    "http://${brainCfg.serverHost}:${toString brainCfg.brainPort}"
+  else
+    "http://127.0.0.1:8000";
+
+  koraApiUrl = if brainCfg.enable && brainCfg.role == "client" then
+    "http://${brainCfg.serverHost}:8787"
+  else
+    "http://127.0.0.1:8787";
 
   edresson-model = pkgs.fetchurl {
     url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/pt/pt_BR/edresson/low/pt_BR-edresson-low.onnx";
@@ -62,6 +78,9 @@ in
         # systemd user-service context so pw-record always finds the server.
         PIPEWIRE_RUNTIME_DIR = "%t";
         KORA_DEFAULT_VOICE_PRESET = "kora_friday";
+        KORA_OLLAMA_URL = koraOllamaUrl;
+        KORA_BRAIN_URL = koraBrainUrl;
+        KORA_API_URL = koraApiUrl;
       };
       path = [ pkgs.pipewire ];
       serviceConfig = {

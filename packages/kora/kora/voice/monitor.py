@@ -3,12 +3,14 @@ import logging
 import httpx
 from tenacity import before_sleep_log, retry, stop_never, wait_random_exponential
 
+from ..core.config import OLLAMA_URL, KORA_API_URL
+
 logger = logging.getLogger("kora.voice.monitor")
 
 # Checked in order; True if any responds with status < 500.
 _HEALTH_URLS = [
-    "http://127.0.0.1:11434/api/version",  # Ollama — primary LLM backend
-    "http://127.0.0.1:8787/health",        # Kora API server
+    f"{OLLAMA_URL}/api/version",  # Ollama — primary LLM backend
+    f"{KORA_API_URL}/health",      # Kora API server
 ]
 
 # Exponential backoff: starts at 1s, doubles with jitter, caps at 60s.
