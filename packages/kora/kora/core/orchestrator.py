@@ -453,6 +453,27 @@ async def process_message(
     router = CognitiveRouter()
     route = await router.route(message)
 
+    if route.intent == Intent.TIME_QUERY:
+        from datetime import datetime
+        _DAYS_PT = ["segunda-feira", "terça-feira", "quarta-feira",
+                    "quinta-feira", "sexta-feira", "sábado", "domingo"]
+        now = datetime.now()
+        weekday = _DAYS_PT[now.weekday()]
+        answer = (
+            f"Agora são {now.strftime('%H:%M')} de {weekday}, "
+            f"{now.strftime('%d/%m/%Y')}."
+        )
+        from .conversation import append_turn
+        append_turn(user_text=message, assistant_text=answer, intent=route.intent)
+        return {
+            "answer": answer,
+            "action": None,
+            "mode": "system_tool",
+            "brain_used": False,
+            "elapsed_sec": time.monotonic() - t0,
+            "model": "system-time-tool",
+        }
+
     if route.intent == Intent.IDENTITY_QUERY or is_identity_query(message):
         runtime_info = detect_runtime_identity()
         if user and user != "unknown":

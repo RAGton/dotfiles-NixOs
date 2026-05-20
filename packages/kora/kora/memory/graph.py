@@ -13,26 +13,44 @@ logger = logging.getLogger("kora.memory.graph")
 
 # Cypher executed by retrieve_context.
 # All user-supplied values are bound via $parameters — zero string concatenation.
+# coalesce() guards every property access so nodes with non-standard schemas
+# (missing id / entity_type / description) are still returned gracefully.
 _CYPHER_RETRIEVE = """\
 MATCH (n)
-WHERE toLower(n.description) CONTAINS toLower($query)
-   OR toLower(n.id)          CONTAINS toLower($query)
-   OR toLower(n.name)        CONTAINS toLower($query)
+WHERE  toLower(coalesce(n.description, n.content, n.text, "")) CONTAINS toLower($query)
+   OR  toLower(coalesce(n.id,          n.name,    ""))          CONTAINS toLower($query)
+   OR  toLower(coalesce(n.name,        n.title,   ""))          CONTAINS toLower($query)
 WITH n
 OPTIONAL MATCH (n)-[r]-(neighbor)
 WITH n,
      collect(DISTINCT {
          relation:      type(r),
-         neighbor_id:   neighbor.id,
-         neighbor_desc: neighbor.description
+         neighbor_id:   coalesce(neighbor.id,   neighbor.name,  elementId(neighbor)),
+         neighbor_desc: coalesce(neighbor.description, neighbor.content, neighbor.text, "")
      })[0..5] AS connections
 RETURN
-    n.id          AS id,
-    n.entity_type AS entity_type,
-    n.description AS description,
+    coalesce(n.id,          n.name,  elementId(n))          AS id,
+    coalesce(n.entity_type, n.type,  labels(n)[0], "node")  AS entity_type,
+    coalesce(n.description, n.content, n.text, "")          AS description,
     connections
-ORDER BY size(coalesce(n.description, "")) DESC
+ORDER BY size(coalesce(n.description, n.content, n.text, "")) DESC
 LIMIT $top_k
+"""
+
+# Schema inspection queries — used by the audit/schema endpoint.
+_CYPHER_SCHEMA_NODES = """\
+MATCH (n)
+WITH DISTINCT labels(n) AS node_labels, keys(n) AS node_props
+RETURN node_labels, node_props
+ORDER BY node_labels
+LIMIT 100
+"""
+
+_CYPHER_SCHEMA_RELS = """\
+MATCH ()-[r]-()
+RETURN DISTINCT type(r) AS rel_type, keys(r) AS rel_props
+ORDER BY rel_type
+LIMIT 50
 """
 
 
@@ -86,9 +104,9 @@ class Neo4jGraphProvider:
                 records = await session.run(_CYPHER_RETRIEVE, params)
                 async for record in records:
                     results.append({
-                        "id":          record["id"],
-                        "entity_type": record["entity_type"],
-                        "description": record["description"],
+                        "id":          record["id"] or "",
+                        "entity_type": record["entity_type"] or "node",
+                        "description": record["description"] or "",
                         "connections": record["connections"] or [],
                     })
         except Exception as exc:
@@ -101,6 +119,29 @@ class Neo4jGraphProvider:
             query,
         )
         return results
+
+    async def get_schema(self) -> dict[str, Any]:
+        """Return a snapshot of the actual Neo4j schema (node labels + props, rel types)."""
+        nodes: list[dict[str, Any]] = []
+        rels: list[dict[str, Any]] = []
+        try:
+            async with self._driver.session(database=self._database) as session:
+                result = await session.run(_CYPHER_SCHEMA_NODES)
+                async for r in result:
+                    nodes.append({
+                        "labels": list(r["node_labels"] or []),
+                        "properties": sorted(r["node_props"] or []),
+                    })
+                result = await session.run(_CYPHER_SCHEMA_RELS)
+                async for r in result:
+                    rels.append({
+                        "type": r["rel_type"],
+                        "properties": sorted(r["rel_props"] or []),
+                    })
+        except Exception as exc:
+            logger.error("Schema inspection failed: %s", exc)
+            return {"error": str(exc), "nodes": [], "relationships": []}
+        return {"nodes": nodes, "relationships": rels}
 
     @staticmethod
     def format_for_prompt(nodes: list[dict[str, Any]]) -> str:

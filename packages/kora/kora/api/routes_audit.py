@@ -3,8 +3,9 @@ import asyncio
 import logging
 from typing import Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends
-from ..core.orchestrator import process_message
+from ..core.orchestrator import process_message, _get_neo4j_driver
 from ..core.benchmark import KoraBenchmark, DEFAULT_QUERIES
+from ..memory.graph import Neo4jGraphProvider
 
 logger = logging.getLogger("kora.api.routes_audit")
 router = APIRouter(prefix="/audit", tags=["Audit"])
@@ -22,6 +23,20 @@ async def run_benchmark(iterations: int = 1, user: str = "rocha"):
         "iterations": iterations,
         "results": bench.results
     }
+
+@router.get("/schema")
+async def audit_schema():
+    """
+    Inspeciona o esquema real do Neo4j: labels, propriedades de nós e tipos de relações.
+    Use para diagnosticar mismatches entre queries Cypher e o banco real.
+    """
+    driver = _get_neo4j_driver()
+    if driver is None:
+        raise HTTPException(status_code=503, detail="Neo4j não disponível ou sem conexão.")
+    provider = Neo4jGraphProvider(driver)
+    schema = await provider.get_schema()
+    return schema
+
 
 @router.get("/grounding")
 async def audit_grounding():

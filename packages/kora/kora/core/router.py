@@ -25,6 +25,7 @@ class Intent:
     MEMORY_CAPTURE = "memory_capture"
     VOICE_STATUS = "voice_status"
     AUTOMATION_N8N = "automation_n8n"
+    TIME_QUERY = "time_query"
     GENERAL_CHAT = "general_chat"
 
 @dataclass
@@ -83,6 +84,24 @@ Não inclua texto fora do JSON.
     async def route(self, text: str) -> RouteResult:
         # Trivial deterministic matching for extreme speed on obvious cases
         lower_text = text.lower().strip()
+
+        time_query_patterns = [
+            "que horas", "que hora", "horas são", "hora é",
+            "hora atual", "hora certa", "me diz as horas",
+            "que dia é hoje", "data de hoje", "qual a data",
+            "data atual", "hoje é dia", "que dia é",
+            "que horas são agora", "qual a hora",
+        ]
+        if any(pattern in lower_text for pattern in time_query_patterns):
+            return RouteResult(
+                intent=Intent.TIME_QUERY,
+                confidence=1.0,
+                requires_rag=False,
+                requires_tool=False,
+                requires_status_check=False,
+                risk="read_only",
+                reason="Deterministic match for time/date query — answered by system clock"
+            )
 
         casual_check_patterns = [
             "voce esta me ouvindo",

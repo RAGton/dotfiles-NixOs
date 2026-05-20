@@ -485,8 +485,12 @@ kryonix_kora_audit() {
         grounding)
             kora-admin audit grounding "$@"
             ;;
+        schema)
+            # Inspeciona o esquema real do Neo4j (labels, propriedades, relações)
+            kora_curl GET /audit/schema | jq .
+            ;;
         *)
-            printf 'Uso: kryonix kora audit [benchmark|grounding]\n' >&2
+            printf 'Uso: kryonix kora audit [benchmark|grounding|schema]\n' >&2
             return 1
             ;;
     esac
