@@ -36,6 +36,8 @@ python3Packages.buildPythonApplication {
     neo4j
     tenacity
     pyyaml
+    psutil
+    webrtcvad
   ];
 
   doCheck = false;

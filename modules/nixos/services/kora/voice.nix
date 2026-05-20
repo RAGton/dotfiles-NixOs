@@ -61,7 +61,7 @@ in
         # bruto para o daemon via pipe, eliminando PyAudio/PortAudio do processo.
         # kora-admin é o entrypoint correto para "voice daemon run"
         # (kora.sh usa kora-admin voice daemon, não o wrapper kora).
-        ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.pipewire}/bin/pw-record --channels 1 --rate 16000 --format s16 --raw - | ${pkgs.kora}/bin/kora-admin voice daemon run'";
+        ExecStart = "${pkgs.bash}/bin/bash -c '${pkgs.pipewire}/bin/pw-record --channels 1 --rate 48000 --format s16 --raw - | ${pkgs.kora}/bin/kora-admin voice daemon run'";
         Restart = "on-failure";
         RestartSec = "5";
       };

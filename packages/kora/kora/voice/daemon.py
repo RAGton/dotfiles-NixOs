@@ -13,9 +13,26 @@ from .exceptions import HardwareAccessError, ServiceUnreachable
 from .monitor import ping_orchestrator, retry_connection
 from .pipeline import listen_and_respond
 from .vad import _is_speech
-from .wakeword import WakeWordEngine, _CHUNK_BYTES, _keyword_detect
+from .wakeword import WakeWordEngine, _keyword_detect
 
 logger = logging.getLogger("kora.voice.daemon")
+
+# ── Audio capture constants ──────────────────────────────────────────────────
+# pw-record runs at 48kHz; we downsample to 16kHz for VAD and Whisper.
+_RATE_CAPTURE    = 48_000
+_RATE_PROCESS    = 16_000
+_CHUNK_MS        = 60                                          # ms per stdin read
+_CHUNK_BYTES_IN  = (_RATE_CAPTURE * 2 * _CHUNK_MS) // 1000   # 5760 bytes — 60ms @48kHz s16
+_VAD_BYTES       = (_RATE_PROCESS * 2 * 30) // 1000           # 960 bytes  — 30ms @16kHz s16
+
+
+def _downsample_48k_to_16k(data: bytes) -> bytes:
+    """Resample 48kHz s16 mono PCM to 16kHz via integer ratio (3:1)."""
+    import numpy as np
+    from scipy.signal import resample_poly
+    arr = np.frombuffer(data, dtype=np.int16)
+    resampled = resample_poly(arr, up=1, down=3)
+    return resampled.astype(np.int16).tobytes()
 
 
 class KoraVoiceState(Enum):
@@ -138,7 +155,7 @@ class KoraVoiceDaemon:
         while self.running:
             try:
                 chunk = await loop.run_in_executor(
-                    None, sys.stdin.buffer.read, _CHUNK_BYTES
+                    None, sys.stdin.buffer.read, _CHUNK_BYTES_IN
                 )
             except Exception as e:
                 logger.error("stdin reader error: %s", e)
@@ -175,16 +192,16 @@ class KoraVoiceDaemon:
         """
         loop = asyncio.get_running_loop()
 
-        # ── Speech-accumulation state ────────────────────────────────────────
+        # ── Speech-accumulation state (all sizes in 16kHz s16 bytes) ────────
         _speech_buf: bytearray = bytearray()
         _in_speech: bool = False
         _silence_chunks: int = 0
         # 17 × 30ms ≈ 500ms of silence → end of utterance
         _SILENCE_END = 17
         # 3 seconds of audio max (safety cap)
-        _MAX_BUF = _CHUNK_BYTES * 100
+        _MAX_BUF = _VAD_BYTES * 100
         # At least 3 chunks before we bother transcribing
-        _MIN_BUF = _CHUNK_BYTES * 3
+        _MIN_BUF = _VAD_BYTES * 3
 
         while self.running:
             try:
@@ -202,42 +219,54 @@ class KoraVoiceDaemon:
                 _speech_buf.clear(); _in_speech = False; _silence_chunks = 0
                 continue
 
-            # ── VAD gate ────────────────────────────────────────────────────
+            # ── Downsample 48kHz → 16kHz ────────────────────────────────────
             try:
-                is_speech = await loop.run_in_executor(None, _is_speech, chunk)
-            except Exception:
-                is_speech = True  # fail open
+                downsampled = await loop.run_in_executor(None, _downsample_48k_to_16k, chunk)
+            except Exception as exc:
+                logger.error("Downsample error: %s", exc)
+                continue
 
-            if is_speech:
-                _speech_buf.extend(chunk)
-                _in_speech = True
-                _silence_chunks = 0
-                # Safety cap: keep only the last 3 seconds
-                if len(_speech_buf) > _MAX_BUF:
-                    _speech_buf = bytearray(_speech_buf[-_MAX_BUF:])
-            elif _in_speech:
-                # Trailing silence after speech
-                _speech_buf.extend(chunk)
-                _silence_chunks += 1
+            # ── VAD + accumulation over 30ms sub-chunks ──────────────────────
+            for i in range(0, len(downsampled), _VAD_BYTES):
+                sub = downsampled[i:i + _VAD_BYTES]
+                if len(sub) < _VAD_BYTES:
+                    continue  # skip incomplete trailing frame
 
-                if _silence_chunks >= _SILENCE_END:
-                    audio_snapshot = bytes(_speech_buf)
-                    _speech_buf = bytearray(); _in_speech = False; _silence_chunks = 0
+                try:
+                    is_speech = await loop.run_in_executor(None, _is_speech, sub)
+                except Exception:
+                    is_speech = True  # fail open
 
-                    if len(audio_snapshot) < _MIN_BUF:
-                        continue  # too short to bother
+                if is_speech:
+                    _speech_buf.extend(sub)
+                    _in_speech = True
+                    _silence_chunks = 0
+                    # Safety cap: keep only the last 3 seconds
+                    if len(_speech_buf) > _MAX_BUF:
+                        _speech_buf = bytearray(_speech_buf[-_MAX_BUF:])
+                elif _in_speech:
+                    # Trailing silence after speech
+                    _speech_buf.extend(sub)
+                    _silence_chunks += 1
 
-                    # ── Whisper keyword check ────────────────────────────────
-                    try:
-                        detected = await loop.run_in_executor(
-                            None, _keyword_detect, audio_snapshot
-                        )
-                    except Exception as exc:
-                        logger.error("Keyword detection error: %s", exc)
-                        continue
+                    if _silence_chunks >= _SILENCE_END:
+                        audio_snapshot = bytes(_speech_buf)
+                        _speech_buf = bytearray(); _in_speech = False; _silence_chunks = 0
 
-                    if detected:
-                        asyncio.create_task(self.handle_trigger())
+                        if len(audio_snapshot) < _MIN_BUF:
+                            continue  # too short to bother
+
+                        # ── Whisper keyword check ────────────────────────────
+                        try:
+                            detected = await loop.run_in_executor(
+                                None, _keyword_detect, audio_snapshot
+                            )
+                        except Exception as exc:
+                            logger.error("Keyword detection error: %s", exc)
+                            continue
+
+                        if detected:
+                            asyncio.create_task(self.handle_trigger())
 
     # ── Interaction trigger ──────────────────────────────────────────────────
 

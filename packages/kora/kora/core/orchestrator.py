@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
 from ..audit.events import log_event
-from ..core.config import load_system_prompt, NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
+from ..core.config import load_system_prompt, NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, OLLAMA_MODEL
 from ..core.policy import AUTHORIZED_ADMINS, PolicyContext, RiskLevel, classify_command
 from ..integrations import brain as brain_adapter
 from ..integrations.n8n import N8nClient
@@ -96,6 +96,9 @@ def _check_and_invalidate_cache():
 ACTION_PROPOSAL_RE = re.compile(r"```json\s*(\{.*?" + re.escape('"type": "action_proposal"') + r".*?\})\s*```", re.DOTALL)
 SESSION_METADATA: Dict[str, Any] = {}
 
+# Max tool-call iterations in the agentic loop (safety guard)
+MAX_TOOL_ITERS = 5
+
 # Shared async Neo4j driver — created lazily, never recreated within the process.
 _neo4j_driver: Any = None
 _last_neo4j_check_time: float = 0.0
@@ -112,11 +115,11 @@ def _get_neo4j_driver() -> Any | None:
     if now - _last_neo4j_check_time > 60.0:
         _last_neo4j_check_time = now
         from urllib.parse import urlparse
+        # Priority: KRYONIX_NEO4J_URI env override → config NEO4J_URI → localhost
+        uri = os.getenv("KRYONIX_NEO4J_URI") or NEO4J_URI
+        if "://" not in uri:
+            uri = "bolt://" + uri
         try:
-            # Priority: KRYONIX_NEO4J_URI env override → KORA_NEO4J_URI (config.py) → localhost
-            uri = os.getenv("KRYONIX_NEO4J_URI") or NEO4J_URI
-            if "://" not in uri:
-                uri = "bolt://" + uri
             parsed = urlparse(uri)
             host = parsed.hostname or "localhost"
             port = parsed.port or 7687
@@ -124,7 +127,7 @@ def _get_neo4j_driver() -> Any | None:
                 _neo4j_available = True
         except Exception:
             _neo4j_available = False
-            logger.debug("Neo4j connection failed (host=%s), proceeding without memory.", uri if 'uri' in dir() else "unknown")
+            logger.debug("Neo4j connection failed (host=%s), proceeding without memory.", uri)
 
     if not _neo4j_available:
         return None
@@ -313,44 +316,12 @@ async def _prepare_session_and_context(
     registry_summary = get_registry_summary()
     system_prompt += f"\n\n## Ferramentas Disponíveis (Tool Registry)\n{registry_summary}"
 
-
-
-    active_mode = mode
-    if mode == "auto":
-        active_mode = "rag" if (requires_rag(message) or intent == Intent.PROJECT_KNOWLEDGE) else "direct"
-
-    context_text = ""
-    brain_used = False
-    searched_files = []
-    if active_mode == "rag":
-        brain_result = await brain_adapter.search(query=message)
-        status = brain_result.get("status")
-        answer_text = brain_result.get("answer", "")
-        
-        is_no_grounding = (
-            status in ["no_grounding", "low_confidence"]
-            or "não encontrei grounding suficiente" in answer_text.lower()
-            or "grounding recuperado, mas" in answer_text.lower()
-        )
-        
-        sources = brain_result.get("sources", [])
-        if sources:
-            searched_files = list(dict.fromkeys(s.get("file") for s in sources if s.get("file")))
-            
-        if not is_no_grounding and answer_text:
-            context_text = answer_text
-            brain_used = True
-
-    # Injecting capabilities/status awareness to avoid hallucination
-    # Wake-word false
-    system_prompt += "\n\n## Wake-Word Status\nO wake-word está INATIVO/PENDENTE. Não diga que você já acorda ouvindo seu nome."
-
     return {
         "system_prompt": system_prompt,
-        "context_text": context_text,
-        "active_mode": active_mode,
-        "brain_used": brain_used,
-        "searched_files": searched_files,
+        "context_text": "",
+        "active_mode": "agent",
+        "brain_used": False,
+        "searched_files": [],
         "start_time": t0,
         "trust_level": identity_trust,
         "wake_word_ready": False,
@@ -359,8 +330,8 @@ async def _prepare_session_and_context(
         "profile_context": profile_context,
         "identity_trust": identity_trust,
         "system_state": {
-            "active_mode": active_mode,
-            "brain_used": brain_used,
+            "active_mode": "agent",
+            "brain_used": False,
             "wake_word_ready": False,
             "speaker_id_ready": False,
         },
@@ -371,6 +342,48 @@ async def _prepare_session_and_context(
             "identity_trust": identity_trust,
         },
     }
+
+async def _agent_loop(
+    query: str,
+    system_prompt: str,
+    history: list[dict[str, str]],
+) -> str:
+    """
+    Agentic ReAct loop: send the query to Ollama with KORA_TOOLS, execute any
+    requested tool calls, feed results back, and repeat until the model
+    returns a final text answer (no tool_calls) or MAX_TOOL_ITERS is reached.
+    """
+    from ..llm.tools import KORA_TOOLS, execute_tool
+    from ..llm.ollama import chat_with_tools as _chat_with_tools
+
+    messages: list[dict] = [
+        {"role": "system", "content": system_prompt},
+        *history,
+        {"role": "user", "content": query},
+    ]
+
+    last_msg: dict = {}
+    for iteration in range(MAX_TOOL_ITERS):
+        last_msg = await _chat_with_tools(messages, KORA_TOOLS)
+        tool_calls: list[dict] | None = last_msg.get("tool_calls")
+
+        if not tool_calls:
+            return last_msg.get("content") or "Não obtive uma resposta."
+
+        # Append the assistant turn (must include tool_calls for Ollama history)
+        messages.append(last_msg)
+
+        for call in tool_calls:
+            fn = call.get("function", {})
+            tool_name = fn.get("name", "")
+            tool_args = fn.get("arguments") or {}
+            logger.info("Agent tool call: %s(%s)", tool_name, tool_args)
+            result = await execute_tool(tool_name, tool_args)
+            logger.info("Agent tool result [%s]: %.120s", tool_name, result)
+            messages.append({"role": "tool", "content": result, "name": tool_name})
+
+    return last_msg.get("content") or "Atingi o limite de operações encadeadas. Tente novamente."
+
 
 async def _handle_action_proposal(answer: str, user: str, session_id: str) -> tuple[str, Optional[dict]]:
     match = ACTION_PROPOSAL_RE.search(answer)
@@ -432,251 +445,74 @@ async def process_message(
     is_voice: bool = False,
     mode: str = "auto",
 ) -> dict[str, Any]:
+    """
+    Main entry point. Routes every message through the agentic loop:
+      LLM + KORA_TOOLS (graph_search, get_system_time, get_system_status)
+    The LLM decides which tools to call; no intent-based if/else routing.
+    """
     t0 = time.monotonic()
     original_message = message
 
     normalized = normalize_text(message, user)
     message = normalized.normalized
 
-    # Cache Augmented Generation (CAG) Lookup
-    _check_and_invalidate_cache()
-    cache_key = hashlib.sha256(message.encode()).hexdigest()
-
-    cached_entry = _CAG_CACHE.get(cache_key)
-    if cached_entry:
-        logger.info(f"CAG Cache HIT for query: '{message}'")
-        cached_result = dict(cached_entry)
-        cached_result["elapsed_sec"] = time.monotonic() - t0
-        cached_result["model"] = "kora-cag-cache"
-        return cached_result
-
-    router = CognitiveRouter()
-    route = await router.route(message)
-
-    if route.intent == Intent.TIME_QUERY:
-        from datetime import datetime
-        _DAYS_PT = ["segunda-feira", "terça-feira", "quarta-feira",
-                    "quinta-feira", "sexta-feira", "sábado", "domingo"]
-        now = datetime.now()
-        weekday = _DAYS_PT[now.weekday()]
-        answer = (
-            f"Agora são {now.strftime('%H:%M')} de {weekday}, "
-            f"{now.strftime('%d/%m/%Y')}."
-        )
-        from .conversation import append_turn
-        append_turn(user_text=message, assistant_text=answer, intent=route.intent)
-        return {
-            "answer": answer,
-            "action": None,
-            "mode": "system_tool",
-            "brain_used": False,
-            "elapsed_sec": time.monotonic() - t0,
-            "model": "system-time-tool",
-        }
-
-    if route.intent == Intent.IDENTITY_QUERY or is_identity_query(message):
-        runtime_info = detect_runtime_identity()
-        if user and user != "unknown":
-            runtime_info["user"] = user
-        identity_ctx = resolve_identity(runtime_info)
-        profile = identity_ctx["resolved_identity"]
-        if profile:
-            answer = get_identity_response(profile)
-            asyncio.create_task(_process_background_memory(message, answer, normalized.user_id))
-            from .conversation import append_turn
-            append_turn(user_text=message, assistant_text=answer, intent=route.intent)
-            _record_training_event(
-                user=normalized.user_id,
-                source="voice" if is_voice else "text",
-                original_message=original_message,
-                normalized_message=message,
-                intent=route.intent,
-                answer=answer,
-                brain_used=False,
-                used_tool=False,
-            )
-            return {
-                "answer": answer,
-                "action": None,
-                "mode": "deterministic",
-                "brain_used": False,
-                "elapsed_sec": time.monotonic() - t0,
-                "model": "identity-module"
-            }
-
-    ctx = await _prepare_session_and_context(message, session_id, normalized.user_id, speaker, is_voice, mode, intent=route.intent)
-
-    if ctx["active_mode"] == "rag" and not ctx["brain_used"]:
-        from kora.core.grounding import requires_rag
-        if requires_rag(message) or route.intent == Intent.PROJECT_KNOWLEDGE:
-            files_str = ""
-            if ctx.get("searched_files"):
-                files_str = "\n\nArquivos consultados no índice:\n" + "\n".join(f"- {f}" for f in ctx["searched_files"][:5])
-            
-            refusal_msg = (
-                "Não encontrei informações suficientes no meu cérebro técnico (GraphRAG/Vault) para responder sobre isso com segurança.\n\n"
-                "Por favor, ingira a documentação ou notas correspondentes no meu Obsidian Vault ou registre uma proposta de aprendizado para que eu possa aprender."
-                f"{files_str}"
-            )
-            
-            return {
-                "answer": refusal_msg,
-                "action": None,
-                "mode": "rag",
-                "brain_used": False,
-                "elapsed_sec": time.monotonic() - t0,
-                "model": "kora-anti-hallucination",
-            }
-    planner = AnswerPlanner()
-    plan = await planner.plan(message, route.intent, ctx["trust_level"])
-
-    if plan.must_answer:
-        ctx["system_prompt"] += "\n\n## Plano de Resposta Obrigatório\nVocê deve obrigatoriamente abordar:\n- " + "\n- ".join(plan.must_answer)
-
-    if normalized.corrections_applied:
-        ctx["system_prompt"] += (
-            "\n\n## Normalizacao aplicada\n"
-            f"- original: {original_message}\n"
-            f"- normalizado: {message}\n"
-            f"- correcoes: {normalized.corrections_applied}\n"
-        )
-    if normalized.aliases_detected:
-        ctx["system_prompt"] += f"\n\n## Aliases detectados\n{json.dumps(normalized.aliases_detected, ensure_ascii=False)}\n"
-
-    system_state = dict(ctx.get("system_state", {}))
-    if route.intent == Intent.CAPABILITIES_QUERY:
-        runtime_info = detect_runtime_identity()
-        if user and user != "unknown":
-            runtime_info["user"] = user
-        identity_ctx = resolve_identity(runtime_info)
-        profile = identity_ctx["resolved_identity"]
-        system_state["capabilities_summary"] = get_deterministic_capabilities_response(normalized.user_id, profile)
-
-    # ── GraphRAG: query Neo4j knowledge graph ─────────────────────────────
-    graph_prompt_block, graph_raw_json, graph_node_id = await _query_graph_context(
-        message, top_k=3
+    # Build rich system prompt (user profile, style, operational context)
+    ctx = await _prepare_session_and_context(
+        message, session_id, normalized.user_id, speaker, is_voice, mode
     )
 
-    # Keep the base prompt so fallback can restore it (no RAG on failure).
-    system_prompt_base = ctx["system_prompt"]
-    raw_answer = ""
-    mind_result: MindResult | None = None
-
-    # ── MindConstructor: Plan → Critique → Synthesize ─────────────────────
-    if graph_raw_json:
-        ctx["system_prompt"] = system_prompt_base + graph_prompt_block
-        log_event(
-            event_type="graph_retrieval",
-            description="GraphRAG context retrieved for MindConstructor",
-            metadata={
-                "session_id": session_id,
-                "user": user,
-                "query": message[:200],
-                "graph_node_id": graph_node_id,
-            },
-            risk="read_only",
+    system_prompt = ctx["system_prompt"]
+    if normalized.corrections_applied:
+        system_prompt += (
+            "\n\n## Normalização aplicada\n"
+            f"- original: {original_message}\n"
+            f"- normalizado: {message}\n"
+            f"- correções: {normalized.corrections_applied}\n"
         )
-        try:
-            constructor = MindConstructor(session_id=session_id)
-            mind_result = await constructor.execute(
-                query=message,
-                graph_context=graph_raw_json,
-                system_prompt=ctx["system_prompt"],
-            )
-            raw_answer = mind_result.answer
-            logger.info(
-                "MindConstructor chain completed | session=%s confidence=%.2f approved=%s",
-                session_id,
-                mind_result.confidence,
-                mind_result.critique_approved,
-            )
-        except Exception as exc:
-            logger.warning(
-                "MindConstructor failed, falling back to KoraMind (no RAG): %s",
-                exc,
-            )
-            log_event(
-                event_type="mind_constructor_fallback",
-                description="MindConstructor failed; KoraMind will answer without RAG",
-                metadata={
-                    "session_id": session_id,
-                    "user": user,
-                    "reason": str(exc)[:300],
-                },
-                risk="read_only",
-            )
-            # Restore original prompt — fallback must NOT include RAG context.
-            ctx["system_prompt"] = system_prompt_base
-            raw_answer = ""
-
-    # ── KoraMind: fallback or no-graph path ───────────────────────────────
-    if not raw_answer:
-        # Quando o orquestrador/banco está offline, garanta a instrução resiliente no prompt
-        if _get_neo4j_driver() is None:
-            if "Responda de forma natural e prestativa" not in ctx["system_prompt"]:
-                ctx["system_prompt"] += "\n\nVocê é a Kora, um assistente inteligente. Responda de forma natural e prestativa, mesmo que não tenha acesso a dados externos."
-
-        mind = KoraMind()
-        mind_output = await mind.respond(
-            MindInput(
-                user_text=original_message,
-                normalized_text=message,
-                user_id=normalized.user_id,
-                identity_trust=ctx["identity_trust"],
-                source="voice" if is_voice else "text",
-                intent=route.intent,
-                conversation_history=get_recent_turns(limit=6),
-                profile_context=ctx.get("profile_context", ""),
-                system_state=system_state,
-                safety_context=ctx.get("safety_context", {}),
-            ),
-            system_prompt=ctx["system_prompt"],
-            rag_context=ctx["context_text"],
+    if normalized.aliases_detected:
+        system_prompt += (
+            f"\n\n## Aliases detectados\n"
+            f"{json.dumps(normalized.aliases_detected, ensure_ascii=False)}\n"
         )
-        raw_answer = mind_output.answer
-    answer, action = await _handle_action_proposal(raw_answer, user, session_id)
 
-    guard = QualityGuard()
-    q_result = guard.check_answer(message, answer, plan, ctx)
-    if not q_result.passed:
-        logger.warning(f"Quality guard failed: {q_result.reason}. Using repaired answer.")
-        answer = q_result.repaired_answer
+    # Convert stored turns to message format for agent loop
+    recent_turns = get_recent_turns(limit=6)
+    history: list[dict[str, str]] = []
+    for turn in recent_turns:
+        u = str(turn.get("user") or "").strip()
+        k = str(turn.get("kora") or "").strip()
+        if u:
+            history.append({"role": "user", "content": u})
+        if k:
+            history.append({"role": "assistant", "content": k})
+
+    # Agentic loop
+    answer = await _agent_loop(query=message, system_prompt=system_prompt, history=history)
 
     asyncio.create_task(_process_background_memory(message, answer, normalized.user_id))
 
-    # ── Self-heal: trigger knowledge audit when MindConstructor was uncertain ──
-    if mind_result is not None and (
-        mind_result.is_low_confidence or not mind_result.critique_approved
-    ):
-        asyncio.create_task(_background_self_heal(session_id, message, mind_result))
-
     from .conversation import append_turn
-    append_turn(user_text=message, assistant_text=answer, intent=route.intent)
+    append_turn(user_text=message, assistant_text=answer, intent="agent")
 
     _record_training_event(
         user=normalized.user_id,
         source="voice" if is_voice else "text",
         original_message=original_message,
         normalized_message=message,
-        intent=route.intent,
+        intent="agent",
         answer=answer,
-        brain_used=ctx["brain_used"],
-        used_tool=bool(action),
+        brain_used=False,
+        used_tool=True,
     )
 
-    response_dict = {
+    return {
         "answer": answer.strip(),
-        "action": action,
-        "mode": ctx["active_mode"],
-        "brain_used": ctx["brain_used"],
-        "elapsed_sec": time.monotonic() - t0,
-        "model": "kora-mind",
+        "action": None,
+        "mode": "agent",
+        "brain_used": False,
+        "elapsed_sec": round(time.monotonic() - t0, 2),
+        "model": OLLAMA_MODEL,
     }
-
-    if response_dict["brain_used"]:
-        _CAG_CACHE.put(cache_key, response_dict)
-
-    return response_dict
 
 
 def _record_training_event(

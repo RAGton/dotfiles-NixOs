@@ -237,6 +237,47 @@ async def chat_with_turns(
     return await chat(messages=messages, model=model, temperature=temperature)
 
 
+async def chat_with_tools(
+    messages: list[dict],
+    tools: list[dict],
+    model: str | None = None,
+    temperature: float = 0.45,
+) -> dict[str, Any]:
+    """
+    POST /api/chat with Ollama tool-calling support.
+
+    Returns the raw message dict:
+      - {"role": "assistant", "content": "...", "tool_calls": None}  — final answer
+      - {"role": "assistant", "content": "", "tool_calls": [...]}     — tool call(s)
+
+    tool_calls items have shape: {"function": {"name": "...", "arguments": {...}}}
+    """
+    model = model or OLLAMA_MODEL
+    payload = {
+        "model": model,
+        "messages": messages,
+        "tools": tools,
+        "stream": False,
+        "options": {"temperature": temperature},
+    }
+    try:
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(connect=10.0, read=None, write=60.0, pool=10.0)
+        ) as client:
+            resp = await client.post(f"{OLLAMA_URL}/api/chat", json=payload)
+            resp.raise_for_status()
+            return resp.json()["message"]
+    except httpx.ConnectError:
+        logger.warning("Ollama offline — cannot complete tool chat")
+        return {"role": "assistant", "content": "Ollama está offline.", "tool_calls": None}
+    except httpx.TimeoutException:
+        logger.warning("Ollama timeout on tool chat")
+        return {"role": "assistant", "content": "Ollama não respondeu a tempo.", "tool_calls": None}
+    except Exception as exc:
+        logger.error("chat_with_tools error: %s", exc)
+        return {"role": "assistant", "content": f"Erro: {exc}", "tool_calls": None}
+
+
 class OllamaAdapter:
     """Class-based interface for Ollama provider."""
 
@@ -260,3 +301,17 @@ class OllamaAdapter:
             model=self.model
         ):
             yield chunk
+
+    async def chat_with_tools(
+        self,
+        messages: list[dict],
+        tools: list[dict],
+        model: str | None = None,
+        temperature: float = 0.45,
+    ) -> dict[str, Any]:
+        return await chat_with_tools(
+            messages=messages,
+            tools=tools,
+            model=model or self.model,
+            temperature=temperature,
+        )
