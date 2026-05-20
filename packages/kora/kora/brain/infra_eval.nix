@@ -16,15 +16,19 @@
 #   signal of "what runs on this host" than the raw enable flags.
 cfg:
 let
-  tryOr = expr: default:
-    let r = builtins.tryEval expr;
-    in if r.success then r.value else default;
+  tryOr =
+    expr: default:
+    let
+      r = builtins.tryEval expr;
+    in
+    if r.success then r.value else default;
 
   attrNamesSafe = v: tryOr (builtins.attrNames v) [ ];
 
   systemdUnits = attrNamesSafe cfg.systemd.services;
-in {
-  name     = tryOr cfg.networking.hostName "unknown";
+in
+{
+  name = tryOr cfg.networking.hostName "unknown";
   timezone = tryOr cfg.time.timeZone null;
   services = systemdUnits;
 }

@@ -39,9 +39,17 @@
           {
             matches = [ { "device.name" = "~bluez_card.*"; } ];
             actions."update-props" = {
-              "bluez5.auto-connect" = [ "hfp_hf" "hsp_hs" "a2dp_sink" ];
-              "bluez5.roles"        = [ "hfp_hf" "hsp_hs" "a2dp_sink" ];
-              "bluez5.profile"      = "headset-head-unit-msbc";
+              "bluez5.auto-connect" = [
+                "hfp_hf"
+                "hsp_hs"
+                "a2dp_sink"
+              ];
+              "bluez5.roles" = [
+                "hfp_hf"
+                "hsp_hs"
+                "a2dp_sink"
+              ];
+              "bluez5.profile" = "headset-head-unit-msbc";
             };
           }
         ];
