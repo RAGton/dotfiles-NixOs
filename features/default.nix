@@ -29,6 +29,7 @@
     ./development.nix
     ./ai.nix
     ./remote-desktop.nix
+    ./f5-tts-server
   ];
 
   # Configuração base comum a todas as features

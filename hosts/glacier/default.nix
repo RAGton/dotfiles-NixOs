@@ -51,6 +51,9 @@
   kryonix.profiles.ti.enable = true;
   kryonix.features.remoteDesktop.server.enable = true;
 
+  # F5-TTS — síntese de voz zero-shot (provider primário da Kora)
+  kryonix.features.f5tts.enable = true;
+
   # =========================
   # EXPERIMENTAL — llama.cpp CUDA Sidecar (A/B Benchmark)
   # Issue: #48 — Backend experimental llama.cpp/provider auto/fallback
