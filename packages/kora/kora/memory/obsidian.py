@@ -80,6 +80,7 @@ source: {candidate.source}
 created: {candidate.created_at.isoformat()}
 user: {candidate.user}
 confidence: {candidate.confidence}
+verified: {str(getattr(candidate, 'verified', False)).lower()}
 {tags_str}
 status: active
 ---

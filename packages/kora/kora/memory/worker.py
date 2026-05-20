@@ -21,6 +21,9 @@ class MemoryWorker:
 
         if candidates:
             for candidate in candidates:
+                if not getattr(candidate, "verified", False):
+                    logger.warning("Skipping unverified memory candidate: %s", candidate.title)
+                    continue
                 try:
                     self.writer.write(candidate)
                     processed_count += 1

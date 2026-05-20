@@ -458,6 +458,22 @@ async def process_message(
     normalized = normalize_text(message, user)
     message = normalized.normalized
 
+    # 1. Handle confirmation/cancellation of pending staged facts
+    pending_interaction_resp = await handle_pending_fact_interaction(message, normalized.user_id)
+    if pending_interaction_resp is not None:
+        pending_interaction_resp["elapsed_sec"] = round(time.monotonic() - t0, 2)
+        from .conversation import append_turn
+        append_turn(user_text=message, assistant_text=pending_interaction_resp["answer"], intent="agent")
+        return pending_interaction_resp
+
+    # 2. Check for reflective validation (factual corrections/learnings)
+    reflective_resp = await run_reflective_validation(message, normalized.user_id)
+    if reflective_resp is not None:
+        reflective_resp["elapsed_sec"] = round(time.monotonic() - t0, 2)
+        from .conversation import append_turn
+        append_turn(user_text=message, assistant_text=reflective_resp["answer"], intent="agent")
+        return reflective_resp
+
     # Build rich system prompt (user profile, style, operational context)
     ctx = await _prepare_session_and_context(
         message, session_id, normalized.user_id, speaker, is_voice, mode
@@ -586,6 +602,10 @@ async def _process_background_memory(message: str, answer: str, user: str):
         if candidates:
             queue = MemoryQueue()
             for c in candidates:
+                if c.type in [MemoryType.PREFERENCE, MemoryType.SESSION_SUMMARY, MemoryType.USER_PROFILE]:
+                    c.verified = True
+                else:
+                    c.verified = False
                 queue.push(c)
     except Exception as e:
         logger.error("Background memory processing failed: %s", e)
@@ -671,3 +691,282 @@ async def confirm_pending_action(session_id: str = "default") -> dict[str, Any]:
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+async def handle_pending_fact_interaction(message: str, user_id: str) -> dict | None:
+    pending_file = Path("/var/lib/kryonix/kora/memory/pending_fact.json")
+    if not pending_file.exists():
+        return None
+
+    msg_lower = message.lower().strip().strip("!").strip(".").strip("?")
+
+    confirm_words = ["sim", "tenho", "tenho certeza", "confirmo", "pode salvar", "grava", "gravar", "salvar", "pode gravar", "com certeza"]
+    cancel_words = ["não", "nao", "cancela", "cancelar", "esquece", "deixa pra lá", "deixa pra la", "descarte", "descartar"]
+
+    is_confirm = any(word == msg_lower or f" {word} " in f" {msg_lower} " for word in confirm_words)
+    is_cancel = any(word == msg_lower or f" {word} " in f" {msg_lower} " for word in cancel_words)
+
+    if not (is_confirm or is_cancel):
+        # Unrelated message, but we should clean the staged fact so we don't block subsequent messages!
+        logger.info("Unrelated message received while fact was pending. Cleaning up staged fact.")
+        try:
+            pending_file.unlink()
+        except Exception:
+            pass
+        return None
+
+    if is_cancel:
+        try:
+            pending_file.unlink()
+        except Exception:
+            pass
+        return {
+            "answer": "Tudo bem, Ragton. Cancelei a operação e descartei a informação.",
+            "action": None,
+            "mode": "agent",
+            "brain_used": False,
+            "elapsed_sec": 0.0,
+            "model": OLLAMA_MODEL,
+            "tools_called": [],
+        }
+
+    if is_confirm:
+        try:
+            with open(pending_file, "r", encoding="utf-8") as f:
+                pending_data = json.load(f)
+            pending_file.unlink()
+
+            # Save staged candidates
+            from kora.memory.queue import MemoryQueue
+            from kora.memory.models import MemoryCandidate
+            queue = MemoryQueue()
+            for c_data in pending_data.get("candidates", []):
+                c = MemoryCandidate(**c_data)
+                c.verified = True
+                queue.push(c)
+
+            # Apply staged profile learning
+            from kora.core.learning import LearningEngine
+            learning_engine = LearningEngine()
+            profile = learning_engine.get_profile(user_id)
+            modified = False
+            learning_data = pending_data.get("profile_data", {})
+            for wrong, right in learning_data.get("spelling_mappings", {}).items():
+                key = str(wrong).strip().lower()
+                value = str(right).strip()
+                if key and value and profile.setdefault("spelling_mappings", {}).get(key) != value:
+                    profile["spelling_mappings"][key] = value
+                    learning_engine.corrections_store.add_correction(user_id, key, value)
+                    modified = True
+
+            for source_key, target_key in [
+                ("new_vocabulary", "technical_vocabulary"),
+                ("active_projects", "active_projects"),
+                ("preferences", "user_preferences"),
+            ]:
+                for item in learning_data.get(source_key, []):
+                    item = str(item).strip()
+                    if item and item not in profile.setdefault(target_key, []):
+                        profile[target_key].append(item)
+                        modified = True
+            if modified:
+                learning_engine.save_profile(user_id, profile)
+
+            return {
+                "answer": "Perfeito, Ragton! Anotei e gravei essa informação na minha memória de longo prazo.",
+                "action": None,
+                "mode": "agent",
+                "brain_used": False,
+                "elapsed_sec": 0.0,
+                "model": OLLAMA_MODEL,
+                "tools_called": [],
+            }
+        except Exception as e:
+            logger.error("Error saving pending fact: %s", e)
+            return {
+                "answer": f"Houve um problema ao salvar a informação na memória, Ragton: {e}",
+                "action": None,
+                "mode": "agent",
+                "brain_used": False,
+                "elapsed_sec": 0.0,
+                "model": OLLAMA_MODEL,
+                "tools_called": [],
+            }
+
+
+async def run_reflective_validation(message: str, user_id: str) -> dict | None:
+    msg_lower = message.lower()
+    learning_triggers = [
+        "você está errado", "voce esta errado", "isso está errado", "isso esta errado",
+        "está errado", "esta errado", "isso está incorreto", "isso esta incorreto",
+        "você errou", "voce errou", "aprenda isso", "aprenda", "aprender",
+        "correto é", "correto e", "o correto é", "o correto e", "quis dizer",
+        "na verdade", "na verdade é", "na verdade e", "está incorreto", "esta incorreto",
+        "transcreveu errado", "digitou errado", "escreveu errado", "não é isso", "nao e isso",
+        "eu disse"
+    ]
+    is_correction = any(trig in msg_lower for trig in learning_triggers)
+
+    if not is_correction:
+        return None
+
+    logger.info("Reflective Validation triggered by message: %r", message)
+
+    from kora.llm.ollama import OllamaAdapter
+    llm = OllamaAdapter()
+
+    query_extraction_prompt = f"""Extraia uma única frase curta e otimizada para pesquisa no DuckDuckGo a partir da mensagem abaixo. O objetivo é validar o fato afirmado pelo usuário.
+Mensagem: "{message}"
+
+Retorne APENAS a frase da pesquisa, sem explicações, aspas ou textos adicionais."""
+
+    try:
+        search_query = await llm.generate(
+            prompt=query_extraction_prompt,
+            system_prompt="Você é um assistente de extração de termos de busca."
+        )
+        search_query = search_query.strip().strip('"').strip("'").strip()
+        logger.info("Extracted search query for verification: %r", search_query)
+
+        from kora.llm.tools import _exec_google_search
+        search_results = await _exec_google_search(search_query)
+        logger.info("Google Search results obtained (len=%d)", len(search_results))
+
+        eval_prompt = f"""Analise se a afirmação do usuário é confirmada pelos resultados da busca web.
+
+Afirmação do Usuário: "{message}"
+
+Resultados da Busca:
+{search_results}
+
+Retorne um JSON no formato exato abaixo, sem comentários adicionais:
+{{
+  "verified": true,
+  "has_conflict": false,
+  "factual_explanation": "Breve explicação do que a internet diz sobre o assunto.",
+  "warning_message": "Sua mensagem cética e meiga para o usuário se houver conflito."
+}}
+"""
+        eval_resp = await llm.generate(
+            prompt=eval_prompt,
+            system_prompt="Você é um validador de fatos imparcial. Retorne apenas JSON válido."
+        )
+
+        clean_resp = eval_resp.strip()
+        if "```" in clean_resp:
+            clean_resp = re.sub(r"```json\s*", "", clean_resp)
+            clean_resp = re.sub(r"```\s*", "", clean_resp)
+        clean_resp = clean_resp.strip()
+
+        eval_data = json.loads(clean_resp)
+
+        from kora.memory import MemoryClassifier
+        classifier = MemoryClassifier(llm_provider=llm)
+        candidates = await classifier.classify(message, "Confirmado pelo usuário.", user=user_id)
+
+        from kora.core.learning import LearningEngine
+        learning_engine = LearningEngine()
+        learning_prompt = f"""Analise a troca abaixo e extraia aprendizados úteis em formato JSON.
+
+Usuario: {message}
+Kora: Confirmado pelo usuário.
+
+Retorne somente JSON:
+{{
+  "spelling_mappings": {{}},
+  "new_vocabulary": [],
+  "active_projects": [],
+  "preferences": []
+}}
+"""
+        learning_raw = await llm.generate(
+            prompt=learning_prompt,
+            system_prompt="Você extrai dados de aprendizado de texto em JSON.",
+        )
+
+        clean_learning = learning_raw.strip()
+        if "```" in clean_learning:
+            clean_learning = re.sub(r"```json\s*", "", clean_learning)
+            clean_learning = re.sub(r"```\s*", "", clean_learning)
+        clean_learning = clean_learning.strip()
+
+        learning_data = json.loads(clean_learning)
+
+        # Stage the pending fact
+        pending_data = {
+            "user_id": user_id,
+            "claim": message,
+            "search_query": search_query,
+            "search_results": search_results,
+            "eval": eval_data,
+            "candidates": [c.model_dump() for c in candidates] if candidates else [],
+            "profile_data": learning_data,
+            "timestamp": time.time()
+        }
+
+        pending_file = Path("/var/lib/kryonix/kora/memory/pending_fact.json")
+        pending_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(pending_file, "w", encoding="utf-8") as f:
+            json.dump(pending_data, f, indent=2, ensure_ascii=False)
+
+        logger.info("Pending fact staged for verification at %s", pending_file)
+
+        if eval_data.get("has_conflict") or not eval_data.get("verified"):
+            warning_msg = eval_data.get("warning_message") or f"Ragton, verifiquei na internet e não consegui confirmar com certeza absoluta. Você tem certeza sobre isso?"
+            return {
+                "answer": warning_msg,
+                "action": None,
+                "mode": "agent",
+                "brain_used": False,
+                "elapsed_sec": 0.0,
+                "model": OLLAMA_MODEL,
+                "tools_called": ["google_search"],
+            }
+        else:
+            if pending_file.exists():
+                pending_file.unlink()
+
+            if candidates:
+                from kora.memory.queue import MemoryQueue
+                queue = MemoryQueue()
+                for c in candidates:
+                    c.verified = True
+                    queue.push(c)
+
+            profile = learning_engine.get_profile(user_id)
+            modified = False
+            for wrong, right in learning_data.get("spelling_mappings", {}).items():
+                key = str(wrong).strip().lower()
+                value = str(right).strip()
+                if key and value and profile.setdefault("spelling_mappings", {}).get(key) != value:
+                    profile["spelling_mappings"][key] = value
+                    learning_engine.corrections_store.add_correction(user_id, key, value)
+                    modified = True
+
+            for source_key, target_key in [
+                ("new_vocabulary", "technical_vocabulary"),
+                ("active_projects", "active_projects"),
+                ("preferences", "user_preferences"),
+            ]:
+                for item in learning_data.get(source_key, []):
+                    item = str(item).strip()
+                    if item and item not in profile.setdefault(target_key, []):
+                        profile[target_key].append(item)
+                        modified = True
+            if modified:
+                learning_engine.save_profile(user_id, profile)
+
+            confirm_msg = f"Entendi, Ragton! Verifiquei na internet e confirmei que essa informação é factual. Já atualizei minha memória de longo prazo."
+            return {
+                "answer": confirm_msg,
+                "action": None,
+                "mode": "agent",
+                "brain_used": False,
+                "elapsed_sec": 0.0,
+                "model": OLLAMA_MODEL,
+                "tools_called": ["google_search"],
+            }
+
+    except Exception as e:
+        logger.error("Error running reflective validation: %s", e)
+        return None

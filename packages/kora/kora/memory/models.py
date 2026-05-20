@@ -25,6 +25,7 @@ class MemoryCandidate(BaseModel):
     sensitivity: str = "low" # low, medium, high
     should_save: bool = False
     requires_confirmation: bool = False
+    verified: bool = False
     created_at: datetime = Field(default_factory=datetime.now)
 
 class MemoryItem(BaseModel):

@@ -44,6 +44,27 @@ KORA_TOOLS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "google_search",
+            "description": (
+                "Pesquisa na web por informações atuais, novidades técnicas, verificação de fatos ou resoluções de dúvidas. "
+                "SEMPRE use esta ferramenta quando o usuário fizer perguntas que exijam dados externos atualizados "
+                "ou quando houver um conflito ou correção de conhecimento."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Termo ou frase de busca na web",
+                    }
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_system_time",
             "description": (
                 "Retorna a hora e data exatas do sistema. "
@@ -75,6 +96,8 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> str:
     """Route a tool call to its executor and return the result as a string."""
     if name == "graph_search":
         return await _exec_graph_search(arguments.get("query", ""))
+    if name == "google_search":
+        return await _exec_google_search(arguments.get("query", ""))
     if name == "get_system_time":
         return _exec_get_system_time()
     if name == "get_system_status":
@@ -156,3 +179,39 @@ async def _exec_get_system_status() -> str:
         lines.append(f"Serviços: erro ao verificar — {exc}")
 
     return "\n".join(lines)
+
+
+async def _exec_google_search(query: str) -> str:
+    import urllib.parse
+    import httpx
+    import re
+
+    url = f"https://html.duckduckgo.com/html/?q={urllib.parse.quote(query)}"
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        )
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, headers=headers)
+            if resp.status_code != 200:
+                return f"Erro de conexão com o buscador: HTTP {resp.status_code}"
+
+            html = resp.text
+            # Regex to find links and snippets
+            snippets = re.findall(
+                r'<a class="result__snippet"[^>]*>(.*?)</a>', html, re.DOTALL
+            )
+            results = []
+            for i, snip in enumerate(snippets[:4], 1):
+                clean_snip = re.sub(r"<[^>]+>", "", snip).strip()
+                results.append(f"[{i}] {clean_snip}")
+
+            if not results:
+                return "Nenhum resultado relevante encontrado na busca web."
+            return "\n\n".join(results)
+    except Exception as e:
+        return f"Falha na busca web: {str(e)}"
