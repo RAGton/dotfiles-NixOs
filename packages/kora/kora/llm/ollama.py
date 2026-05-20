@@ -258,7 +258,9 @@ async def chat_with_tools(
         "messages": messages,
         "tools": tools,
         "stream": False,
-        "options": {"temperature": temperature},
+        # think:false — disables qwen3's CoT scratchpad so the model returns
+        # structured tool_calls instead of embedding them in text content.
+        "options": {"temperature": temperature, "think": False},
     }
     try:
         async with httpx.AsyncClient(

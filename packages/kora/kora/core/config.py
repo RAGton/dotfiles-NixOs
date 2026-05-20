@@ -51,7 +51,7 @@ BRAIN_API_KEY = os.getenv("KRYONIX_BRAIN_API_KEY", "")
 
 # ── Ollama (model runtime) ───────────────────────────────────────
 OLLAMA_URL = os.getenv("KORA_OLLAMA_URL", "http://127.0.0.1:11434")
-OLLAMA_MODEL = os.getenv("KORA_MODEL", "qwen2.5-coder:7b")
+OLLAMA_MODEL = os.getenv("KORA_MODEL", "qwen3:8b")
 OLLAMA_TIMEOUT_CHAT = int(os.getenv("KORA_OLLAMA_TIMEOUT_CHAT", "120"))
 OLLAMA_TIMEOUT_HEALTH = int(os.getenv("KORA_OLLAMA_TIMEOUT_HEALTH", "5"))
 
