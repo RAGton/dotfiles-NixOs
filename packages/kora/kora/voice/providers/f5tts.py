@@ -26,10 +26,6 @@ class F5TTSProvider(TTSProvider):
             return False
 
     async def synthesize(self, text: str, out_wav: Path) -> None:
-        # Garante o prefixo [pt-BR] para direcionar o sotaque/fonética do modelo F5-TTS
-        if not text.strip().startswith("[pt-BR]"):
-            text = f"[pt-BR] {text.strip()}"
-
         payload = _json.dumps({
             "text":      text,
             "ref_audio": self._ref_audio,

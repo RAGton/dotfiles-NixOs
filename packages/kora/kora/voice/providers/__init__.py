@@ -22,6 +22,8 @@ def build_provider_chain(config: dict) -> TTSProvider:
     from .fallback import FallbackProvider
     from ..config import KORA_VOICE_TTS_BACKEND
 
+    from .cache import CacheProvider
+
     provider_name = config.get("provider") or KORA_VOICE_TTS_BACKEND
 
     spd   = SPDSayProvider()
@@ -29,12 +31,20 @@ def build_provider_chain(config: dict) -> TTSProvider:
     piper = PiperProvider(config)
 
     if provider_name == "piper":
-        return FallbackProvider([piper, edge, spd])
+        chain = FallbackProvider([piper, edge, spd])
+    else:
+        f5 = F5TTSProvider(
+            endpoint  = config.get("f5tts_endpoint",       "http://rve-glacier:7860"),
+            ref_audio = config.get("voice_reference",      "/var/lib/f5-tts/voices/kora.wav"),
+            ref_text  = config.get("voice_reference_text", ""),
+        )
+        # "f5tts" e "auto" têm o mesmo chain; "auto" é o padrão futuro via voice.nix
+        chain = FallbackProvider([f5, piper, edge, spd])
 
-    f5 = F5TTSProvider(
-        endpoint  = config.get("f5tts_endpoint",       "http://rve-glacier:7860"),
-        ref_audio = config.get("voice_reference",      "/var/lib/f5-tts/voices/kora.wav"),
-        ref_text  = config.get("voice_reference_text", ""),
-    )
-    # "f5tts" e "auto" têm o mesmo chain; "auto" é o padrão futuro via voice.nix
-    return FallbackProvider([f5, piper, edge, spd])
+    if config.get("cacheEnabled", True):
+        cache_dir = config.get("cacheDir", "/var/cache/kora/tts")
+        limit_mb = config.get("cacheLimitMB", 500)
+        return CacheProvider(chain, cache_dir=cache_dir, limit_mb=limit_mb)
+
+    return chain
+

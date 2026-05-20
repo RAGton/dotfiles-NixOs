@@ -58,6 +58,11 @@ in
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d /var/cache/kora 0775 rocha users - -"
+      "d /var/cache/kora/tts 0775 rocha users - -"
+    ];
+
     # ── systemd --user unit for Kora Voice Listener ──────────────────────────
     # Manage via:
     #   kora voice service enable|disable|start|stop|status|logs
