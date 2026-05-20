@@ -520,6 +520,61 @@ def handle_unmute(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
+def handle_voice_benchmark(args: argparse.Namespace) -> None:
+    import asyncio
+    import statistics
+    import tempfile
+    import time
+    from ..voice.voices import get_active_preset, get_active_preset_name
+    from ..voice.providers import build_provider_chain
+
+    frases = [
+        "Boa noite, como posso ajudar?",
+        "O sistema está operacional.",
+        "Iniciando diagnóstico de voz.",
+        "Kora online e pronta.",
+        "Teste de latência concluído.",
+    ]
+
+    preset = get_active_preset()
+    preset_name = get_active_preset_name()
+    provider = build_provider_chain(preset)
+    latencias: list[float] = []
+    cache_hits = 0
+
+    print(f"Benchmark TTS — preset: {preset_name}")
+    print(f"{'─' * 52}")
+
+    async def _run() -> None:
+        nonlocal cache_hits
+        with tempfile.TemporaryDirectory() as tmpdir:
+            for i, frase in enumerate(frases, 1):
+                out = Path(tmpdir) / f"bench_{i}.wav"
+                t0 = time.monotonic()
+                await provider.synthesize(frase, out)
+                elapsed = time.monotonic() - t0
+                latencias.append(elapsed)
+                hit = elapsed < 0.05
+                if hit:
+                    cache_hits += 1
+                tag = " [cache]" if hit else ""
+                print(f"  [{i}/{len(frases)}] {elapsed:.3f}s{tag}  {frase[:50]}")
+
+    asyncio.run(_run())
+
+    if not latencias:
+        print("Nenhuma frase sintetizada.")
+        return
+
+    media = statistics.mean(latencias)
+    p95 = sorted(latencias)[int(len(latencias) * 0.95) - 1]
+    print(f"{'─' * 52}")
+    print(f"Provider : {getattr(provider, 'name', type(provider).__name__)}")
+    print(f"Média    : {media:.3f}s")
+    print(f"P95      : {p95:.3f}s")
+    print(f"Cache    : {cache_hits}/{len(frases)} hits")
+
+
 def handle_voice_status(args: argparse.Namespace) -> None:
     import shutil
     muted = Path("/var/lib/kryonix/kora/voice/muted").exists()
@@ -965,6 +1020,8 @@ def main(args_list: list[str] = None) -> None:
     subparsers_vad = vad_parser.add_subparsers(dest="voice_vad_command", required=True)
     subparsers_vad.add_parser("test", help="Test VAD (record until silence)")
 
+    voice_subparsers.add_parser("benchmark", help="Benchmark TTS latency across 5 phrases")
+
     # voice signal
     signal_parser = voice_subparsers.add_parser("signal", help="Play a signal sound")
     signal_parser.add_argument("signal_name", choices=["wake", "thinking", "error", "done"], help="Signal to play")
@@ -1110,6 +1167,8 @@ def main(args_list: list[str] = None) -> None:
         elif args.voice_command == "vad":
             if args.voice_vad_command == "test":
                 voice_vad.cmd_test()
+        elif args.voice_command == "benchmark":
+            handle_voice_benchmark(args)
         elif args.voice_command == "signal":
             voice_signals.cmd_signal(args.signal_name)
         elif args.voice_command == "wake-word":

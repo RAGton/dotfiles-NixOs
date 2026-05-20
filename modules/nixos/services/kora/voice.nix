@@ -55,6 +55,24 @@ in
       default = "kora";
       description = "Target wake-word (requires custom model for real activation).";
     };
+
+    defaultPreset = mkOption {
+      type    = types.str;
+      default = "kora_f5tts";
+      description = "Active voice preset passed as KORA_DEFAULT_VOICE_PRESET.";
+    };
+
+    f5ttsEndpoint = mkOption {
+      type    = types.str;
+      default = "http://rve-glacier:7860";
+      description = "F5-TTS server endpoint (passed as KORA_F5TTS_ENDPOINT).";
+    };
+
+    voiceReference = mkOption {
+      type    = types.str;
+      default = "/var/lib/f5-tts/voices/kora.wav";
+      description = "Path to reference WAV on the F5-TTS server (KORA_VOICE_REFERENCE).";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -82,7 +100,9 @@ in
         # Explicit PipeWire socket path; %t expands to /run/user/<UID> in
         # systemd user-service context so pw-record always finds the server.
         PIPEWIRE_RUNTIME_DIR = "%t";
-        KORA_DEFAULT_VOICE_PRESET = "kora_friday";
+        KORA_DEFAULT_VOICE_PRESET = cfg.defaultPreset;
+        KORA_F5TTS_ENDPOINT       = cfg.f5ttsEndpoint;
+        KORA_VOICE_REFERENCE      = cfg.voiceReference;
         KORA_OLLAMA_URL = koraOllamaUrl;
         KORA_BRAIN_URL = koraBrainUrl;
         KORA_API_URL = koraApiUrl;

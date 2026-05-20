@@ -52,6 +52,14 @@ VOICE_PRESETS: dict = {
         "description":  "voz doce da Kora — feminina Neural Doce (Thalita)",
         "gender_note":  "feminina — voz neural extremamente suave e delicada (fallback local Dii/OVOS)",
     },
+    "kora_f5tts": {
+        "provider":             "f5tts",
+        "f5tts_endpoint":       "http://rve-glacier:7860",
+        "voice_reference":      "/var/lib/f5-tts/voices/kora.wav",
+        "voice_reference_text": "",
+        "length_scale":         1.1,
+        "description":          "F5-TTS zero-shot — voz feminina PT-BR local",
+    },
     "kora_sage": {
         "provider":     "piper",
         "model":        "kora_sage",

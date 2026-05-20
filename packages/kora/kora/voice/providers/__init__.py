@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -34,8 +35,12 @@ def build_provider_chain(config: dict) -> TTSProvider:
         chain = FallbackProvider([piper, edge, spd])
     else:
         f5 = F5TTSProvider(
-            endpoint  = config.get("f5tts_endpoint",       "http://rve-glacier:7860"),
-            ref_audio = config.get("voice_reference",      "/var/lib/f5-tts/voices/kora.wav"),
+            endpoint  = (os.environ.get("KORA_F5TTS_ENDPOINT")
+                         or config.get("f5tts_endpoint",  "http://rve-glacier:7860")
+                         or "http://rve-glacier:7860"),
+            ref_audio = (os.environ.get("KORA_VOICE_REFERENCE")
+                         or config.get("voice_reference", "/var/lib/f5-tts/voices/kora.wav")
+                         or "/var/lib/f5-tts/voices/kora.wav"),
             ref_text  = config.get("voice_reference_text", ""),
         )
         # "f5tts" e "auto" têm o mesmo chain; "auto" é o padrão futuro via voice.nix
