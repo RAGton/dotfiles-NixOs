@@ -36,6 +36,7 @@ def synthesize_text(text: str) -> None:
     """
     Sintetiza texto usando piper-tts para um arquivo WAV temporário
     e o reproduz usando ffplay ou aplay.
+    Aplica parâmetros de qualidade para voz mais natural.
     """
     if not text:
         return
@@ -76,8 +77,12 @@ def synthesize_text(text: str) -> None:
         if config_path.exists():
             piper_cmd += ["--config", str(config_path)]
 
-        logger.info(f"TTS: Sintetizando em {temp_wav_path}...")
-        
+        # Parâmetros de naturalidade: length_scale controla a velocidade (1.0 = normal, <1 mais rápido, >1 mais lento)
+        # Usamos 0.95 para uma fala ligeiramente mais rápida e natural
+        piper_cmd += ["--length_scale", "0.95"]
+
+        logger.info(f"TTS: Sintetizando com speed_scale=0.95 em {temp_wav_path}...")
+
         # Execute piper-tts writing text to stdin
         piper_proc = subprocess.Popen(
             piper_cmd,
@@ -245,8 +250,10 @@ def speak_text_with_preset(text: str, preset: dict | None = None) -> None:
         piper_cmd += ["--config", str(config_path)]
 
     # Parâmetros de qualidade/naturalidade
-    if preset.get("length_scale"):
-        piper_cmd += ["--length_scale", str(preset["length_scale"])]
+    # length_scale: controla velocidade (padrão 0.95 para fala natural)
+    length_scale = preset.get("length_scale", 0.95)
+    piper_cmd += ["--length_scale", str(length_scale)]
+
     if preset.get("noise_scale"):
         piper_cmd += ["--noise_scale", str(preset["noise_scale"])]
     if preset.get("noise_w"):

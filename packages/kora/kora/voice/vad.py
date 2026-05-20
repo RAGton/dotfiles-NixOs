@@ -13,6 +13,13 @@ import time
 import wave
 from pathlib import Path
 
+try:
+    import webrtcvad
+    WEBRTCVAD_AVAILABLE = True
+except ImportError:
+    WEBRTCVAD_AVAILABLE = False
+    webrtcvad = None
+
 logger = logging.getLogger("kora.voice.vad")
 
 # ── Configuration ────────────────────────────────────────────────────────────
@@ -23,11 +30,12 @@ SILENCE_SECONDS = float(os.environ.get("KORA_VAD_SILENCE", "1.8"))       # Secon
 MAX_RECORD_SECONDS = float(os.environ.get("KORA_VAD_MAX_DURATION", "20.0"))   # Safety cap
 MIN_SPEECH_SECONDS = float(os.environ.get("KORA_VAD_MIN_SPEECH", "0.5"))    # Minimum speech before we accept silence
 RMS_THRESHOLD = int(os.environ.get("KORA_VAD_THRESHOLD", "150"))          # RMS threshold for "speech" (adjust per mic)
+NOISE_SUPPRESSION_AGGRESSIVENESS = int(os.environ.get("KORA_VAD_AGGRESSIVENESS", "2"))  # 0=quality, 1=normal, 2=aggressive, 3=very aggressive
 SAMPLE_RATE = 16000
 CHANNELS = 1
 SAMPLE_WIDTH = 2             # 16-bit PCM → 2 bytes
 
-# Chunk size: 20ms at 16kHz = 320 samples
+# Chunk size: 20ms at 16kHz = 320 samples (required by webrtcvad)
 CHUNK_SAMPLES = 320
 CHUNK_BYTES = CHUNK_SAMPLES * SAMPLE_WIDTH
 
@@ -45,6 +53,20 @@ def _rms(data: bytes) -> float:
         return 0.0
 
 
+def _is_speech(data: bytes, rms_threshold: float = RMS_THRESHOLD) -> bool:
+    """Detect speech using webrtcvad if available, otherwise fallback to RMS threshold."""
+    if WEBRTCVAD_AVAILABLE:
+        try:
+            vad = webrtcvad.VAD(NOISE_SUPPRESSION_AGGRESSIVENESS)
+            is_speech = vad.is_speech(data, SAMPLE_RATE)
+            return is_speech
+        except Exception as e:
+            logger.debug(f"webrtcvad detection failed: {e}, falling back to RMS")
+    # Fallback to RMS-based detection
+    rms = _rms(data)
+    return rms >= rms_threshold
+
+
 def record_with_vad(
     output_path: Path,
     silence_seconds: float = SILENCE_SECONDS,
@@ -54,6 +76,7 @@ def record_with_vad(
 ) -> tuple[Path, float]:
     """
     Record audio until speech + silence pattern detected.
+    Uses webrtcvad for robust speech detection if available, otherwise falls back to RMS.
 
     Returns (path, duration_seconds).
     Raises RuntimeError if audio can't be opened.
@@ -79,6 +102,8 @@ def record_with_vad(
     speech_start = 0.0
     silence_start = 0.0
     total_start = time.monotonic()
+    vad_method = "webrtcvad" if WEBRTCVAD_AVAILABLE else "RMS threshold"
+    logger.debug(f"VAD: usando método de detecção: {vad_method}")
 
     try:
         while True:
@@ -89,9 +114,11 @@ def record_with_vad(
 
             data = stream.read(CHUNK_SAMPLES, exception_on_overflow=False)
             frames.append(data)
-            energy = _rms(data)
 
-            if energy >= rms_threshold:
+            # Use enhanced speech detection with webrtcvad
+            is_voice = _is_speech(data, rms_threshold)
+
+            if is_voice:
                 # Speech detected
                 if not started_speech:
                     started_speech = True
@@ -109,7 +136,7 @@ def record_with_vad(
                         if silence_elapsed >= silence_seconds:
                             logger.info(
                                 f"VAD: silêncio detectado por {silence_seconds}s "
-                                f"após {speech_duration:.1f}s de fala"
+                                f"após {speech_duration:.1f}s de fala (método: {vad_method})"
                             )
                             break
     finally:
@@ -126,7 +153,7 @@ def record_with_vad(
         wf.setframerate(SAMPLE_RATE)
         wf.writeframes(b"".join(frames))
 
-    logger.info(f"VAD: gravou {duration:.1f}s → {output_path}")
+    logger.info(f"VAD: gravou {duration:.1f}s → {output_path} (método: {vad_method})")
     return output_path, duration
 
 

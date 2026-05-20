@@ -4,6 +4,11 @@
 
 import logging
 import numpy as np
+try:
+    from scipy import signal
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
 
 try:
     from openwakeword.model import Model
@@ -17,12 +22,64 @@ except ImportError:
 
 logger = logging.getLogger("kora.voice.wakeword")
 
+def _resample_to_16khz(audio_data: bytes, input_rate: int) -> bytes:
+    """Resample audio data to 16kHz if needed.
+
+    Args:
+        audio_data: Raw 16-bit PCM audio bytes
+        input_rate: Sample rate of input audio (Hz)
+
+    Returns:
+        Resampled audio as bytes (always 16kHz)
+    """
+    if input_rate == 16000:
+        return audio_data
+
+    if not SCIPY_AVAILABLE:
+        logger.warning(f"scipy not available, cannot resample from {input_rate}Hz to 16kHz. Using as-is.")
+        return audio_data
+
+    try:
+        # Convert bytes to numpy array (16-bit signed integers)
+        audio_np = np.frombuffer(audio_data, dtype=np.int16)
+
+        # Compute resampling ratio
+        ratio = 16000 / input_rate
+        num_samples = int(len(audio_np) * ratio)
+
+        # Use scipy's resample_poly for high-quality resampling
+        if SCIPY_AVAILABLE:
+            from scipy.signal import resample_poly
+            # Find simple ratios for integer resampling when possible
+            gcd_val = np.gcd(16000, input_rate)
+            up = 16000 // gcd_val
+            down = input_rate // gcd_val
+
+            if up < 100 and down < 100:  # Only use polyphase if ratios are reasonable
+                resampled = resample_poly(audio_np, up, down)
+            else:
+                # Fallback to linear interpolation
+                resampled = signal.resample(audio_np, num_samples)
+        else:
+            # Fallback: simple linear interpolation if scipy unavailable
+            indices = np.linspace(0, len(audio_np) - 1, num_samples)
+            resampled = np.interp(indices, np.arange(len(audio_np)), audio_np)
+
+        # Convert back to 16-bit signed integers
+        resampled = np.clip(resampled, -32768, 32767).astype(np.int16)
+        return resampled.tobytes()
+    except Exception as e:
+        logger.error(f"Error resampling audio from {input_rate}Hz to 16kHz: {e}")
+        return audio_data
+
+
 class KoraWakeWord:
     def __init__(self, model="kora"):
         self.model_name = model
         self.active = False
         self.oww_model = None
         self.ready = False
+        self.input_rate = 16000  # Will be updated if needed
 
         if OPENWAKEWORD_AVAILABLE:
             try:
@@ -54,12 +111,16 @@ class KoraWakeWord:
     def detect(self, audio_data: bytes) -> bool:
         """
         Detect wake-word in audio data (expecting 16kHz mono 16-bit PCM).
+        Automatically resamples to 16kHz if input is in different sample rate.
         Returns True if detected.
         """
         if not self.ready or not self.active or not self.oww_model:
             return False
 
         try:
+            # Resample to 16kHz if needed (ensures robustness against frame rate divergence)
+            audio_data = _resample_to_16khz(audio_data, self.input_rate)
+
             # Convert bytes to numpy array
             audio_np = np.frombuffer(audio_data, dtype=np.int16)
 
@@ -225,10 +286,14 @@ class WakeWordEngine:
                     frames_per_buffer=self.chunk_size,
                     input_device_index=self.device_index,
                 )
+            # Query the actual sample rate to detect any divergence
+            actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
             logger.info(
-                "WakeWordEngine: stream opened (device=%s)",
+                "WakeWordEngine: stream opened (device=%s, rate=%dHz)",
                 self.device_index if self.device_index is not None else "default",
+                actual_rate
             )
+            self.detector.input_rate = actual_rate
             self._open_backoff = 2.0  # reset on success
             return True
         except Exception as e:
@@ -243,7 +308,9 @@ class WakeWordEngine:
                         frames_per_buffer=self.chunk_size,
                         input_device_index=None,
                     )
-                logger.info("WakeWordEngine: stream opened with default fallback (device=None)")
+                actual_rate = self.active_stream.get_sample_rate() if hasattr(self.active_stream, 'get_sample_rate') else self.rate
+                logger.info("WakeWordEngine: stream opened with default fallback (device=None, rate=%dHz)", actual_rate)
+                self.detector.input_rate = actual_rate
                 self._open_backoff = 2.0
                 return True
             except Exception as fallback_err:

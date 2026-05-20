@@ -351,6 +351,16 @@ async def run_voice_pipeline(user: str = "rocha") -> None:
                     # 2. Record 5 seconds of audio
                     audio_path = recorder.record_to_file("last_input.wav", seconds=5)
 
+                # Aguardar arquivo com timeout de 2 segundos para garantir flush do buffer
+                wav_path = Path(audio_path) if isinstance(audio_path, str) else audio_path
+                max_wait = 2.0
+                wait_start = time.monotonic()
+                while not wav_path.exists():
+                    if time.monotonic() - wait_start > max_wait:
+                        logger.warning(f"Timeout ao aguardar {wav_path} (exceeded {max_wait}s)")
+                        continue
+                    await asyncio.sleep(0.05)
+
                 # 3. Transcribe audio (STT)
                 text = transcribe_audio(audio_path, user=user)
                 if not text or len(text.strip()) < 3:
