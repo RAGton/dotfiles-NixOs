@@ -31,6 +31,21 @@
           ];
         };
       };
+
+      # JBL Wave Buds — força perfil headset (mSBC) para ativar microfone.
+      # Sem essa regra o WirePlumber seleciona A2DP (só saída) por padrão.
+      # MAC: 50:5E:5C:97:6A:61 → nome do dispositivo com underscores.
+      extraConfig.jblWaveBuds = {
+        "monitor.bluez.rules" = [
+          {
+            matches = [ { "device.name" = "bluez_card.50_5E_5C_97_6A_61"; } ];
+            actions."update-props" = {
+              "bluez5.auto-connect" = [ "hfp_hf" "hsp_hs" "a2dp_sink" ];
+              "bluez5.profile" = "headset-head-unit-msbc";
+            };
+          }
+        ];
+      };
     };
 
     extraConfig = {

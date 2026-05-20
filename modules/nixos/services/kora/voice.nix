@@ -63,6 +63,8 @@ in
       path = [ pkgs.pipewire ];
       serviceConfig = {
         Type = "simple";
+        # Aguarda handshake Bluetooth antes de abrir o microfone.
+        ExecStartPre = "${pkgs.coreutils}/bin/sleep 10";
         ExecStart = "${pkgs.kora}/bin/kora /voice daemon run";
         Restart = "on-failure";
         RestartSec = "5";
