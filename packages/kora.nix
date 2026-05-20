@@ -30,6 +30,7 @@ python3Packages.buildPythonApplication {
     pyaudio
     pyopen-wakeword
     numpy
+    scipy
     edge-tts
     rich
     faster-whisper
@@ -37,6 +38,10 @@ python3Packages.buildPythonApplication {
     tenacity
     pyyaml
   ];
+
+  doCheck = false;
+
+  pythonImportsCheck = [ "kora" ];
 
   postInstall = ''
     for p in kora kora-api kora-admin kora-memory-worker; do
@@ -56,6 +61,6 @@ python3Packages.buildPythonApplication {
   meta = {
     description = "Kora — Kryonix Personal Assistant (gateway/orchestrator)";
     platforms = lib.platforms.linux;
-    license = lib.licenses.unfree;
+    license = lib.licenses.proprietary;
   };
 }

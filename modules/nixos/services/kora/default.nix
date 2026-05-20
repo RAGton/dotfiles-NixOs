@@ -18,7 +18,6 @@
 #
 # Riscos:
 # - EnvironmentFile deve existir antes do switch (ou usar prefixo '-' para opcional).
-# - packageDir aponta para /etc/kryonix/packages/kora (requer repo instalado).
 # =============================================================================
 {
   config,
@@ -132,12 +131,6 @@ in
         Lido pelo systemd durante a ativação do serviço (não pelo processo kora),
         então funciona mesmo que o arquivo seja root:root 600.
       '';
-    };
-
-    packageDir = mkOption {
-      type = types.str;
-      default = "/etc/kryonix/packages/kora";
-      description = "Diretório do pacote Python kora (usado pelo uv run).";
     };
 
     memory = {
