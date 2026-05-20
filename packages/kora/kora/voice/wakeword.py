@@ -188,261 +188,59 @@ def get_wakeword_status():
     }
 
 
-import contextlib
 import os
-import time
-import pyaudio
+import sys
 from pathlib import Path
 
 
-@contextlib.contextmanager
-def _suppress_alsa_stderr():
-    """Redirect C-level stderr to /dev/null during PortAudio device probe.
-
-    PortAudio's ALSA host API prints Expression-failed messages straight to
-    file-descriptor 2 when probing hardware devices locked by PipeWire.
-    Python-level sys.stderr redirection does not catch these; we need to
-    temporarily replace the fd itself.
-    """
-    devnull_fd = os.open(os.devnull, os.O_WRONLY)
-    saved_fd = os.dup(2)
-    try:
-        os.dup2(devnull_fd, 2)
-        yield
-    finally:
-        os.dup2(saved_fd, 2)
-        os.close(saved_fd)
-        os.close(devnull_fd)
-
-
-class PyAudioStreamWrapper:
-    """Wrapper that exposes start() and close() methods to match constraints."""
-    def __init__(self, engine: "WakeWordEngine") -> None:
-        self.engine = engine
-
-    def start(self) -> bool:
-        return self.engine.start_stream()
-
-    def close(self) -> None:
-        self.engine.close_stream()
+# Chunk size: 1280 samples × 2 bytes (s16) = 2560 bytes ≈ 80ms at 16kHz.
+# pw-record is told to output exactly 16kHz s16 mono raw PCM, so no
+# resampling is needed here — the OS/PipeWire does it in the kernel.
+_CHUNK_BYTES = 2560
 
 
 class WakeWordEngine:
     """
-    Wake-word engine that reads from PyAudio and handles hardware lock checks.
+    Wake-word engine that reads raw 16kHz s16 mono PCM from stdin.
+
+    Expected invocation (set up by the systemd unit):
+        pw-record --channels 1 --rate 16000 --format s16 --raw - \\
+            | kora /voice listener
+
+    No PyAudio / PortAudio is used; all hardware interaction lives in
+    pw-record, which avoids the GLIBC double-free / SIGABRT bugs that
+    plagued the previous PortAudio-under-PipeWire approach.
     """
+
     def __init__(self, model: str = "kora") -> None:
         self.detector = KoraWakeWord(model)
         self.detector.start()
+        self.detector.input_rate = 16000
         self.lock_path = Path(f"/run/user/{os.getuid()}/kryonix/voice.lock")
-        self.pyaudio = None
-        self.active_stream = None
-        self.stream = PyAudioStreamWrapper(self)
-        self.device_index = None
-        self._last_open_attempt: float = 0.0
-        self._open_backoff: float = 2.0  # seconds between failed open attempts
-
-        # Audio configuration
-        self.chunk_size = 1280      # ~80ms at 16kHz (baseline)
-        self.active_chunk_size = self.chunk_size  # adjusted per actual capture rate
-        self.rate = 16000
-        self.channels = 1
-        self.format = pyaudio.paInt16
+        logger.info("WakeWordEngine: stdin mode active (pw-record → pipe → kora)")
 
     def is_locked(self) -> bool:
         return self.lock_path.exists()
 
-    def _init_pyaudio(self) -> None:
-        """Initialise PyAudio, silencing PortAudio's ALSA probe noise."""
-        if self.pyaudio is not None:
-            return
-        with _suppress_alsa_stderr():
-            self.pyaudio = pyaudio.PyAudio()
-
-    def _find_named_default_index(self) -> int | None:
-        """Return the index of the device whose ALSA name is exactly 'default'."""
-        if self.pyaudio is None:
-            return None
-        try:
-            count = self.pyaudio.get_device_count()
-        except Exception:
-            return None
-        for i in range(count if isinstance(count, int) else 0):
-            try:
-                info = self.pyaudio.get_device_info_by_index(i)
-            except Exception:
-                continue
-            if not isinstance(info, dict) or info.get("maxInputChannels", 0) < 1:
-                continue
-            if str(info.get("name", "")).lower() == "default":
-                return i
-        return None
-
-    def _find_input_device_index(self) -> int | None:
-        """Return the index of the best available input device.
-
-        Priority (strict):
-          1. Bluetooth device — name contains "bluez" or "jbl"
-          2. PipeWire/PulseAudio soft-mix — name contains "default", "pipewire" or "pulse"
-          3. None → PyAudio picks its own default
-        """
-        if self.pyaudio is None:
-            return None
-
-        try:
-            device_count = self.pyaudio.get_device_count()
-            if not isinstance(device_count, int):
-                device_count = 0
-        except Exception:
-            device_count = 0
-
-        bt_index: int | None = None
-        fallback_index: int | None = None
-
-        for i in range(device_count):
-            try:
-                info = self.pyaudio.get_device_info_by_index(i)
-            except Exception:
-                continue
-            if not isinstance(info, dict):
-                continue
-            channels = info.get("maxInputChannels", 0)
-            if not isinstance(channels, int) or channels < 1:
-                continue
-            name = str(info.get("name", "")).lower()
-            if bt_index is None and ("bluez" in name or "jbl" in name):
-                bt_index = i
-                logger.info("WakeWordEngine: found BT device #%d '%s'", i, info.get("name", ""))
-            elif fallback_index is None and ("default" in name or "pipewire" in name or "pulse" in name):
-                fallback_index = i
-
-        chosen = bt_index if bt_index is not None else fallback_index
-        if chosen is not None:
-            logger.debug("WakeWordEngine: selected device #%d (bt=%s)", chosen, bt_index is not None)
-        return chosen
-
-    def _get_device_native_rate(self, device_idx: int | None) -> int:
-        """Return the device's defaultSampleRate from PortAudio info (fallback: 48000)."""
-        if self.pyaudio is None:
-            return 48000
-        if device_idx is None:
-            return 48000  # BT/PipeWire virtual devices typically run at 48kHz
-        try:
-            info = self.pyaudio.get_device_info_by_index(device_idx)
-            rate = int(info.get("defaultSampleRate", 48000))
-            return rate if rate > 0 else 48000
-        except Exception:
-            return 48000
-
-    def _try_open(self, device_idx: int | None, rate: int) -> bool:
-        """Open an input stream at *rate* Hz. Sets active_stream + active_chunk_size on success."""
-        chunk = max(512, int(rate * 0.08))  # ~80ms buffer at given rate
-        with _suppress_alsa_stderr():
-            stream = self.pyaudio.open(
-                format=self.format,
-                channels=self.channels,
-                rate=rate,
-                input=True,
-                frames_per_buffer=chunk,
-                input_device_index=device_idx,
-            )
-        self.active_stream = stream
-        self.active_chunk_size = chunk
-        self.detector.input_rate = rate
-        logger.info(
-            "WakeWordEngine: stream opened — device=%s  capture=%dHz  detect=16kHz%s",
-            device_idx if device_idx is not None else "portaudio-default",
-            rate,
-            "  [resampling active]" if rate != 16000 else "",
-        )
-        self._open_backoff = 2.0
-        return True
-
-    def start_stream(self) -> bool:
-        if self.active_stream is not None:
-            return True
-
-        now = time.monotonic()
-        if now - self._last_open_attempt < self._open_backoff:
-            return False
-        self._last_open_attempt = now
-
-        self._init_pyaudio()
-        self.device_index = self._find_input_device_index()
-        default_idx = self._find_named_default_index()
-
-        # Deduplicated candidate list: BT/best → ALSA "default" → PortAudio None
-        seen: set = set()
-        candidates: list[int | None] = []
-        for dev in (self.device_index, default_idx, None):
-            key = dev if dev is not None else -1
-            if key not in seen:
-                seen.add(key)
-                candidates.append(dev)
-
-        for dev in candidates:
-            # Always open at the device's native rate; _resample_to_16khz handles
-            # the downsampling before the wake-word model sees the audio.
-            # Never request 16kHz from PyAudio — BT hardware rejects it (-9997).
-            native = self._get_device_native_rate(dev)
-            try:
-                return self._try_open(dev, native)
-            except Exception as e:
-                logger.warning(
-                    "WakeWordEngine: open failed (device=%s rate=%dHz): %s",
-                    dev if dev is not None else "portaudio-default",
-                    native, e,
-                )
-
-        logger.error("WakeWordEngine: all open attempts exhausted")
-        self._open_backoff = min(self._open_backoff * 2, 30.0)
-        return False
-
-    def close_stream(self) -> None:
-        # Only stop the stream (drain the HW buffer); never call .close() or
-        # pyaudio.terminate() — both trigger a double-free in PortAudio/PipeWire
-        # that causes SIGABRT ("corrupted double-linked list").  Let the OS
-        # reclaim the file descriptors when the process exits cleanly.
-        stream = self.active_stream
-        self.active_stream = None
-        if stream is None:
-            return
-        try:
-            if stream.is_active():
-                stream.stop_stream()
-        except Exception:
-            pass
-        logger.info("WakeWordEngine: stream released (fd left open for OS cleanup).")
-
-    def shutdown(self) -> None:
-        self.close_stream()
-        # Do NOT call pyaudio.terminate() — see close_stream note above.
-        self.pyaudio = None
-
     def listen(self) -> bool:
+        """Read one chunk from stdin and run wake-word detection.
+
+        When the lock file is present (another process owns the mic), the
+        chunk is drained silently to prevent the pipe buffer from filling up
+        and stalling pw-record.  Returns True only on a real detection.
         """
-        Periodically check lock file.
-        If file exists, call stream.close() if stream is open.
-        If it does not exist, call stream.start().
-        Processes PyAudio chunks and returns True if 'Kora' is detected.
-        """
-        if self.is_locked():
-            if self.active_stream is not None:
-                self.stream.close()
+        try:
+            data = sys.stdin.buffer.read(_CHUNK_BYTES)
+        except Exception as e:
+            logger.error("WakeWordEngine: stdin read error: %s", e)
             return False
 
-        if self.active_stream is None:
-            success = self.stream.start()
-            if not success:
-                return False
+        if not data:
+            logger.warning("WakeWordEngine: stdin EOF — pw-record may have exited")
+            return False
 
-        try:
-            data = self.active_stream.read(self.active_chunk_size, exception_on_overflow=False)
-            if self.detector.detect(data):
-                return True
-        except Exception as e:
-            logger.error(f"WakeWordEngine: Error reading chunk: {e}")
-            self.stream.close()
+        if self.is_locked():
+            return False  # drain done, mic owned by another process
 
-        return False
+        return self.detector.detect(data)
 
