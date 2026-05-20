@@ -110,7 +110,8 @@ def _get_neo4j_driver() -> Any | None:
         _last_neo4j_check_time = now
         from urllib.parse import urlparse
         try:
-            uri = os.getenv("KRYONIX_NEO4J_URI", "bolt://localhost:7687")
+            # Priority: KRYONIX_NEO4J_URI env override → KORA_NEO4J_URI (config.py) → localhost
+            uri = os.getenv("KRYONIX_NEO4J_URI") or NEO4J_URI
             if "://" not in uri:
                 uri = "bolt://" + uri
             parsed = urlparse(uri)
@@ -120,7 +121,7 @@ def _get_neo4j_driver() -> Any | None:
                 _neo4j_available = True
         except Exception:
             _neo4j_available = False
-            logger.debug("Neo4j connection failed, proceeding without memory.")
+            logger.debug("Neo4j connection failed (host=%s), proceeding without memory.", uri if 'uri' in dir() else "unknown")
 
     if not _neo4j_available:
         return None
@@ -137,13 +138,16 @@ def _get_neo4j_driver() -> Any | None:
             auth = basic_auth(NEO4J_USER, NEO4J_PASSWORD)
         else:
             auth = None
-        uri = os.getenv("KRYONIX_NEO4J_URI", "bolt://localhost:7687")
+        uri = os.getenv("KRYONIX_NEO4J_URI") or NEO4J_URI
         if "://" not in uri:
             uri = "bolt://" + uri
         _neo4j_driver = AsyncGraphDatabase.driver(uri, auth=auth)
         logger.info("Neo4j async driver initialised (uri=%s auth=%s)", uri, bool(auth))
     except Exception as exc:
-        logger.debug("Neo4j driver unavailable — graph context disabled. NEO4J_AUTH read: '%s', error: %s", os.getenv("NEO4J_AUTH", ""), exc)
+        # Debug log: show URI and user (never password) for SRE diagnostics
+        _debug_user = os.getenv("KRYONIX_NEO4J_USER", NEO4J_USER) or "(none)"
+        _debug_uri = os.getenv("KRYONIX_NEO4J_URI") or NEO4J_URI
+        logger.debug("Neo4j driver unavailable — uri=%s user=%s error: %s", _debug_uri, _debug_user, exc)
         _neo4j_driver = None
     return _neo4j_driver
 

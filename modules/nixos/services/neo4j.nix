@@ -47,6 +47,9 @@ in
   config = mkIf cfg.enable {
     services.neo4j = {
       enable = true;
+      # Bolt escuta em todas as interfaces para permitir acesso via Tailscale.
+      # HTTP (painel admin) permanece restrito a localhost.
+      # Segurança garantida por: auth habilitada + firewall Tailscale-only.
       defaultListenAddress = "127.0.0.1";
 
       directories = {
@@ -63,7 +66,9 @@ in
 
       bolt = {
         enable = true;
-        listenAddress = "127.0.0.1:${toString cfg.portBolt}";
+        # 0.0.0.0 para acesso remoto via Tailscale (Inspiron → Glacier).
+        # Firewall abaixo restringe à rede CGNAT do Tailscale (100.64.0.0/10).
+        listenAddress = "0.0.0.0:${toString cfg.portBolt}";
       };
 
       https.enable = false;
@@ -83,6 +88,13 @@ in
         dbms.logs.query.threshold=500ms
       '';
     };
+
+    # Firewall: permitir Bolt APENAS da rede Tailscale (CGNAT 100.64.0.0/10).
+    # Bloqueia qualquer acesso externo à porta Bolt fora do Tailscale.
+    networking.firewall.extraCommands = ''
+      iptables -A nixos-fw -p tcp --dport ${toString cfg.portBolt} -s 100.64.0.0/10 -j nixos-fw-accept
+      iptables -A nixos-fw -p tcp --dport ${toString cfg.portBolt} -j nixos-fw-refuse
+    '';
 
     # Injetar variáveis de ambiente para criptografia e autenticação inicial do Neo4j
     # O prefixo '-' torna o arquivo opcional (não impede o boot se ausente).
