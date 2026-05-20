@@ -60,7 +60,10 @@ mkdir -p "$DATA_DIR"/{venv,models,voices,hf-cache}
 
 # ── venv ─────────────────────────────────────────────────────────────────────
 echo "[1/4] Criando venv Python 3.11..."
-"$PYTHON311" -m venv "$VENV" --clear
+# --without-pip: evita ensurepip que trava no Python 3.11 do nix store
+"$PYTHON311" -m venv "$VENV" --clear --without-pip
+echo "  Bootstrapando pip via get-pip.py..."
+curl -fsSL https://bootstrap.pypa.io/get-pip.py | "$VENV/bin/python"
 "$VENV/bin/pip" install -q --upgrade pip wheel
 
 # ── PyTorch CUDA 12.1 ────────────────────────────────────────────────────────
