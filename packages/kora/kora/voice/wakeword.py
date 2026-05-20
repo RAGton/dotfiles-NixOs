@@ -128,7 +128,7 @@ class KoraWakeWord:
             prediction = self.oww_model.predict(audio_np)
 
             for mdl, score in prediction.items():
-                if score > 0.5:
+                if score > 0.75:
                     logger.info(f"Wake-word detected: {mdl} (score: {score:.2f})")
                     return True
         except Exception as e:
@@ -232,20 +232,25 @@ class WakeWordEngine:
             self.pyaudio = pyaudio.PyAudio()
 
     def _find_input_device_index(self) -> int | None:
-        """Return the index of the best available soft-mix input device.
+        """Return the index of the best available input device.
 
-        Priority: ALSA device whose name is "default" or contains "PipeWire" / "pulse".
-        Returning None lets PyAudio fall back to its own default selection.
+        Priority (strict):
+          1. Bluetooth device — name contains "bluez" or "jbl"
+          2. PipeWire/PulseAudio soft-mix — name contains "default", "pipewire" or "pulse"
+          3. None → PyAudio picks its own default
         """
         if self.pyaudio is None:
             return None
-        
+
         try:
             device_count = self.pyaudio.get_device_count()
             if not isinstance(device_count, int):
                 device_count = 0
         except Exception:
             device_count = 0
+
+        bt_index: int | None = None
+        fallback_index: int | None = None
 
         for i in range(device_count):
             try:
@@ -258,10 +263,16 @@ class WakeWordEngine:
             if not isinstance(channels, int) or channels < 1:
                 continue
             name = str(info.get("name", "")).lower()
-            if "default" in name or "pipewire" in name or "pulse" in name:
-                logger.debug("WakeWordEngine: using soft-mix device #%d '%s'", i, info.get("name", ""))
-                return i
-        return None
+            if bt_index is None and ("bluez" in name or "jbl" in name):
+                bt_index = i
+                logger.info("WakeWordEngine: found BT device #%d '%s'", i, info.get("name", ""))
+            elif fallback_index is None and ("default" in name or "pipewire" in name or "pulse" in name):
+                fallback_index = i
+
+        chosen = bt_index if bt_index is not None else fallback_index
+        if chosen is not None:
+            logger.debug("WakeWordEngine: selected device #%d (bt=%s)", chosen, bt_index is not None)
+        return chosen
 
     def start_stream(self) -> bool:
         if self.active_stream is not None:
