@@ -6,13 +6,18 @@
 #   bash /etc/kryonix/scripts/record_voice_reference.sh
 #
 # O que faz:
-#   1. Grava 5 frases PT-BR (5s cada) via arecord
+#   1. Grava 5 frases PT-BR (5s cada)
 #   2. Transcreve cada uma com whisper (fallback: Python/kora)
 #   3. Concatena em kora.wav com 200ms silêncio entre frases
 #   4. Reproduz o resultado para aprovação
 #   5. Salva em /var/lib/f5-tts/voices/kora.wav + kora.txt
 #
-# Requisitos: arecord, aplay, python3
+# Gravadores (em ordem de preferência):
+#   1. pw-record  (PipeWire — padrão no inspiron)
+#   2. arecord    (ALSA)
+#   3. ffmpeg -f pulse
+#
+# Requisitos: pw-record | arecord | ffmpeg, python3
 # Opcional:   whisper-cli (faster-whisper) para transcrição automática
 # =============================================================================
 set -euo pipefail
@@ -54,10 +59,81 @@ warn()  { echo -e "${YLW}[WARN]${RST} $*"; }
 error() { echo -e "${RED}[ERR ]${RST} $*" >&2; }
 die()   { error "$*"; exit 1; }
 
+# ── Detecção de gravador e player ─────────────────────────────────────────────
+
+RECORDER=""
+detect_recorder() {
+    if command -v pw-record &>/dev/null; then
+        RECORDER="pw-record"
+    elif command -v arecord &>/dev/null; then
+        RECORDER="arecord"
+    elif command -v ffmpeg &>/dev/null; then
+        RECORDER="ffmpeg-pulse"
+    else
+        die "Nenhum gravador encontrado. Instale pw-record, arecord ou ffmpeg."
+    fi
+}
+
+PLAYER=""
+detect_player() {
+    if command -v aplay   &>/dev/null; then PLAYER="aplay"
+    elif command -v ffplay  &>/dev/null; then PLAYER="ffplay"
+    elif command -v paplay  &>/dev/null; then PLAYER="paplay"
+    elif command -v pw-play &>/dev/null; then PLAYER="pw-play"
+    else warn "Nenhum player encontrado — playback desabilitado"; PLAYER="none"
+    fi
+}
+
+do_record() {
+    local outfile="$1"
+    local seconds="$2"
+    case "$RECORDER" in
+        pw-record)
+            pw-record \
+                --rate "$SAMPLE_RATE" \
+                --channels "$CHANNELS" \
+                --format s16 \
+                "$outfile" &
+            local pid=$!
+            sleep "$seconds"
+            kill "$pid" 2>/dev/null
+            wait "$pid" 2>/dev/null || true
+            ;;
+        arecord)
+            arecord -q \
+                -f "$FORMAT" \
+                -r "$SAMPLE_RATE" \
+                -c "$CHANNELS" \
+                -d "$seconds" \
+                "$outfile" 2>/dev/null
+            ;;
+        ffmpeg-pulse)
+            ffmpeg -y -f pulse -i default \
+                -t "$seconds" \
+                -ar "$SAMPLE_RATE" \
+                -ac "$CHANNELS" \
+                -sample_fmt s16 \
+                "$outfile" 2>/dev/null
+            ;;
+    esac
+}
+
+do_play() {
+    local wavfile="$1"
+    case "$PLAYER" in
+        aplay)   aplay   -q "$wavfile" 2>/dev/null ;;
+        ffplay)  ffplay  -nodisp -autoexit "$wavfile" 2>/dev/null ;;
+        paplay)  paplay     "$wavfile" 2>/dev/null ;;
+        pw-play) pw-play    "$wavfile" 2>/dev/null ;;
+        none)    warn "playback indisponível" ;;
+    esac
+}
+
 check_deps() {
-    command -v arecord &>/dev/null || die "arecord não encontrado (pacote alsa-utils)"
-    command -v aplay   &>/dev/null || die "aplay não encontrado (pacote alsa-utils)"
     command -v python3 &>/dev/null || die "python3 não encontrado"
+    detect_recorder
+    detect_player
+    info "Gravador: $RECORDER | Player: $PLAYER"
 }
 
 record_phrase() {
@@ -74,18 +150,13 @@ record_phrase() {
     read -r
 
     echo -e "  ${RED}● GRAVANDO...${RST} fale a frase agora"
-    arecord -q \
-        -f "$FORMAT" \
-        -r "$SAMPLE_RATE" \
-        -c "$CHANNELS" \
-        -d "$RECORD_SEC" \
-        "$outfile" 2>/dev/null
+    do_record "$outfile" "$RECORD_SEC"
 
     echo -e "  ${GRN}■ Gravação concluída${RST}"
     echo -n "  Ouvir a gravação? [S/n] "
     read -r confirm
     if [[ "${confirm,,}" != "n" ]]; then
-        aplay -q "$outfile" 2>/dev/null || warn "aplay falhou na reprodução"
+        do_play "$outfile" || warn "playback falhou"
     fi
 
     echo -n "  Gravar novamente? [s/N] "
@@ -227,9 +298,13 @@ else
     }
 fi
 
-# Detecta dispositivo de entrada disponível
-info "Dispositivos de gravação disponíveis:"
-arecord -l 2>/dev/null | grep -E "^card" | head -5 || warn "nenhum dispositivo listado"
+# Lista fontes de áudio disponíveis (informativo)
+info "Fontes de áudio disponíveis:"
+if command -v pactl &>/dev/null; then
+    pactl list short sources 2>/dev/null | grep -i input | head -5 || warn "nenhuma fonte listada"
+elif command -v arecord &>/dev/null; then
+    arecord -l 2>/dev/null | grep -E "^card" | head -5 || warn "nenhum dispositivo listado"
+fi
 echo ""
 
 # Grava cada frase
@@ -264,7 +339,7 @@ info "Duração total: ${total_sec}s"
 # Reproduz para aprovação
 echo ""
 echo -e "  Reproduzindo áudio combinado para aprovação..."
-aplay -q "$combined_wav" 2>/dev/null || warn "aplay falhou"
+do_play "$combined_wav"
 
 echo ""
 echo -n "  Salvar como referência de voz da Kora? [S/n] "
@@ -306,4 +381,4 @@ echo "    curl http://localhost:7860/health"
 echo "    curl -s -X POST http://localhost:7860/synthesize \\"
 echo "      -H 'Content-Type: application/json' \\"
 echo "      -d '{\"text\":\"Olá, estou funcionando.\"}' \\"
-echo "      --output /tmp/test.wav && aplay /tmp/test.wav"
+echo "      --output /tmp/test.wav && aplay /tmp/test.wav  # ou: pw-play /tmp/test.wav"
