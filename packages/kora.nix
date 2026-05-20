@@ -61,6 +61,6 @@ python3Packages.buildPythonApplication {
   meta = {
     description = "Kora — Kryonix Personal Assistant (gateway/orchestrator)";
     platforms = lib.platforms.linux;
-    license = lib.licenses.proprietary;
+    license = lib.licenses.unfree;
   };
 }
