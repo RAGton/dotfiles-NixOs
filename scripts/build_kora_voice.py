@@ -123,7 +123,7 @@ def make_silence(ffmpeg: str, dst: Path, ms: int) -> None:
 
 
 def concat_wavs(ffmpeg: str, wav_files: list[Path], out: Path) -> None:
-    list_file = out.parent / "filelist.txt"
+    list_file = Path(tempfile.mktemp(suffix="_filelist.txt"))
     with open(list_file, "w") as f:
         for w in wav_files:
             f.write(f"file '{w}'\n")
