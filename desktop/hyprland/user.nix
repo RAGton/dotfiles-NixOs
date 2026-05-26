@@ -97,6 +97,11 @@ in
       wayland.windowManager.hyprland = {
         enable = true;
 
+        # CRÍTICO: "hyprlang" gera hyprland.conf (formato conf nativo).
+        # "lua" (padrão no stateVersion atual) gera hyprland.lua e exige que
+        # extraConfig seja código Lua, incompatível com o hyprland.conf versionado.
+        configType = "hyprlang";
+
         # CRÍTICO: variables = ["--all"] exporta WAYLAND_DISPLAY, DISPLAY e todas as
         # variáveis de ambiente do Hyprland para o systemd-user e o D-Bus.
         # Sem isso, serviços como waybar/cliphist/swaync esperam indefinidamente

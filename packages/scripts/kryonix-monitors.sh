@@ -25,7 +25,6 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/kryonix"
 STATE_FILE="$STATE_DIR/monitor-mode"
-MODES=(extend duplicate internal external)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -362,7 +361,7 @@ cmd_menu_resolution() {
   # Gera submenu de resoluções disponíveis por monitor
   local entries=""
   while IFS= read -r mon; do
-    local modes current_res
+    local current_res
     current_res=$(get_monitors | jq -r --arg n "$mon" '.[] | select(.name==$n) | "\(.width)x\(.height)@\(.refreshRate|floor)Hz"')
     # availableModes vem como array de strings no hyprctl monitors -j
     while IFS= read -r mode; do
