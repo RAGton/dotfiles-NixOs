@@ -55,6 +55,21 @@ in
       sddm = {
         wayland.enable = true;
         # compositor padrão é "weston" (standalone). NÃO definir "kwin" (exige plasma6).
+        theme = "sddm-astronaut-theme";
+
+        settings = {
+          Theme = {
+            Background = "/var/lib/sddm/current-wallpaper";
+            ThemeDir = "/run/current-system/sw/share/sddm/themes";
+            CursorTheme = "Bibata-Modern-Ice";
+            CursorSize = 24;
+            ThemeConfig = "/etc/kryonix/files/sddm/astronaut-theme.conf";
+          };
+          General = {
+            Font = "JetBrains Mono";
+            FontSize = 12;
+          };
+        };
       };
 
       defaultSession = "hyprland-uwsm";
@@ -64,6 +79,26 @@ in
       autoLogin.enable = lib.mkIf (config.kryonix.desktop.directLogin.enable or false) (
         lib.mkForce false
       );
+    };
+
+    systemd.tmpfiles.rules = [
+      "d /var/lib/sddm 0755 sddm sddm -"
+    ];
+
+    systemd.services.sddm-random-wallpaper = {
+      description = "Sorteia wallpaper aleatório para o SDDM";
+      before   = [ "display-manager.service" ];
+      wantedBy = [ "display-manager.service" ];
+      path = [ pkgs.coreutils ];
+      serviceConfig = {
+        Type      = "oneshot";
+        ExecStart = pkgs.writeShellScript "sddm-random-wallpaper" ''
+          WALL_DIR="/etc/kryonix/files/wallpaper"
+          LINK="/var/lib/sddm/current-wallpaper"
+          img=$(ls "$WALL_DIR"/*.{png,jpg,webp} 2>/dev/null | shuf -n1)
+          [ -n "$img" ] && ln -sf "$img" "$LINK" && echo "SDDM wallpaper: $img"
+        '';
+      };
     };
 
     # Hyprland
@@ -93,6 +128,9 @@ in
 
     # Screenshot stack (Wayland nativo) + wrapper estável para binds.
     environment.systemPackages = with pkgs; [
+      sddm-astronaut
+      bibata-cursors
+      nerd-fonts.jetbrains-mono
       grim
       slurp
       wl-clipboard
