@@ -119,9 +119,6 @@ in
       enabled = true
     }
 
-    misc {
-      vfr = true
-    }
   '';
 
 }
