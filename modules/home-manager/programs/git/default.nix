@@ -108,47 +108,39 @@
     enable = true;
     enableDefaultConfig = false;
 
-    matchBlocks."github.com" = {
-      hostname = "github.com";
-      user = "git";
-      identitiesOnly = true;
-      identityFile =
-        if userConfig ? gitSigningKeyPath then "~/${userConfig.gitSigningKeyPath}" else "~/.ssh/id_ed25519";
-    };
-
-    matchBlocks."glacier-publico" = {
-      hostname = "168.227.127.73";
-      user = "rocha";
-      port = 2224;
-      identityFile = [
-        "~/.ssh/id_ed25519"
-        "~/.ssh/ragos-ve"
-      ];
-      identitiesOnly = true;
-    };
-
-    matchBlocks."glacier-public" = {
-      hostname = "168.227.127.73";
-      user = "rocha";
-      port = 2224;
-      identityFile = [
-        "~/.ssh/id_ed25519"
-        "~/.ssh/ragos-ve"
-      ];
-      identitiesOnly = true;
-    };
-
-    # Opções SSH por host — nova API HM (substitui extraOptions deprecated)
     settings = {
       "github.com" = {
+        Hostname = "github.com";
+        User = "git";
+        IdentitiesOnly = "yes";
+        IdentityFile =
+          if userConfig ? gitSigningKeyPath then "~/${userConfig.gitSigningKeyPath}" else "~/.ssh/id_ed25519";
         AddKeysToAgent = "yes";
         PreferredAuthentications = "publickey";
       };
+
       "glacier-publico" = {
+        Hostname = "168.227.127.73";
+        User = "rocha";
+        Port = 2224;
+        IdentityFile = [
+          "~/.ssh/id_ed25519"
+          "~/.ssh/ragos-ve"
+        ];
+        IdentitiesOnly = "yes";
         ServerAliveInterval = 30;
         ServerAliveCountMax = 3;
       };
+
       "glacier-public" = {
+        Hostname = "168.227.127.73";
+        User = "rocha";
+        Port = 2224;
+        IdentityFile = [
+          "~/.ssh/id_ed25519"
+          "~/.ssh/ragos-ve"
+        ];
+        IdentitiesOnly = "yes";
         ServerAliveInterval = 30;
         ServerAliveCountMax = 3;
       };

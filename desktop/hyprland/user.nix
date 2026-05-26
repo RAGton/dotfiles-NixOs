@@ -67,6 +67,7 @@ in
     "${nhModules}/programs/swappy"
     ./monitors.nix
     ./wrappers.nix
+    ./theme
   ];
 
   config = lib.mkMerge [
@@ -125,124 +126,6 @@ in
             wallpaper = , ${config.wallpaper}
           '';
         })
-        {
-          "hypr/hypridle.conf".text = ''
-            general {
-              # Usa hyprlock (não um script customizado) como comando de lock.
-              # `pidof hyprlock ||` evita iniciar duas instâncias.
-              lock_cmd = pidof hyprlock || hyprlock
-              # Bloqueia VIA LOGIND antes de dormir (integração correta com systemd).
-              before_sleep_cmd = loginctl lock-session
-              # Re-liga displays após wakeup.
-              after_sleep_cmd = hyprctl dispatch dpms on
-              # Ignora idle ao reproduzir mídia fullscreen
-              ignore_dbus_inhibit = false
-            }
-
-            # 3 min: dim displays
-            listener {
-              timeout = 150
-              on-timeout = brightnessctl -s set 20%
-              on-resume  = brightnessctl -r
-            }
-
-            # 5 min: bloquear tela
-            listener {
-              timeout = 300
-              on-timeout = loginctl lock-session
-              on-resume  = hyprctl dispatch dpms on
-            }
-
-            # 10 min: desligar displays (economiza bateria)
-            listener {
-              timeout = 600
-              on-timeout = ${runIfOnBattery} hyprctl dispatch dpms off
-              on-resume  = hyprctl dispatch dpms on
-            }
-
-            # 30 min: suspender sistema
-            listener {
-              timeout = 1800
-              on-timeout = ${runIfOnBattery} systemctl suspend
-            }
-          '';
-
-          # hyprlock: tela de bloqueio completa com blur + relógio
-          "hypr/hyprlock.conf".text = ''
-            general {
-              grace     = 2       # segundos de grace period (teclado visível)
-              hide_cursor = true
-              no_fade_in  = false
-              no_fade_out = false
-              pam_module  = hyprlock
-            }
-
-            # Fundo com blur
-            background {
-              monitor =
-              path    = screenshot
-              blur_passes  = 3
-              blur_size    = 7
-              noise        = 0.0117
-              contrast     = 0.8916
-              brightness   = 0.8172
-              vibrancy     = 0.1696
-              vibrancy_darkness = 0.0
-            }
-
-            # Relógio grande centralizado
-            label {
-              monitor =
-              text     = cmd[update:1000] echo "$(date +"%-H:%M:%S")"
-              color    = rgba(207, 213, 245, 1.0)
-              font_size   = 90
-              font_family = Monocraft
-              position    = 0, 80
-              halign      = center
-              valign      = center
-              shadow_passes = 2
-              shadow_size   = 4
-            }
-
-            # Data
-            label {
-              monitor =
-              text     = cmd[update:10000] echo "$(date +"%A, %d de %B")"
-              color    = rgba(166, 173, 200, 0.8)
-              font_size   = 18
-              font_family = Monocraft
-              position    = 0, -15
-              halign      = center
-              valign      = center
-              shadow_passes = 2
-              shadow_size   = 2
-            }
-
-            # Campo de senha
-            input-field {
-              monitor =
-              size     = 250, 50
-              outline_thickness = 2
-              dots_size    = 0.26
-              dots_spacing = 0.64
-              dots_center  = true
-              outer_color  = rgba(138, 133, 193, 1.0)
-              inner_color  = rgba(26, 27, 38, 0.85)
-              font_color   = rgba(207, 213, 245, 1.0)
-              fade_on_empty = true
-              placeholder_text = <span foreground="##a9b1d6" font_size="small">Senha...</span>
-              rounding     = 12
-              check_color  = rgba(115, 218, 202, 1.0)
-              fail_color   = rgba(247, 118, 142, 1.0)
-              fail_text    = <i>Senha incorreta :(</i>
-              fail_timeout = 2000
-              capslock_color = rgba(255, 158, 100, 1.0)
-              position = 0, -200
-              halign   = center
-              valign   = center
-            }
-          '';
-        }
       ];
 
       dconf.settings = {
