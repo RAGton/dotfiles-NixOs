@@ -23,9 +23,17 @@
   # Inputs (flakes externos)
   # =============================
   inputs = {
+    # ===========================================================================
+    # VERSION PINS — altere aqui para mudar versões
+    # ===========================================================================
+    # nixpkgs (rolling/unstable)  → nixos-unstable  (sempre o mais recente)
+    # nixpkgs-stable               → nixos-25.05     (última LTS estável)
+    # nix-flatpak                  → v0.7.0          (última tag)
+    # ===========================================================================
+
     # Nixpkgs
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";          # rolling release
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";      # LTS estável
 
     # Home Manager
     home-manager = {
@@ -37,7 +45,7 @@
     hardware.url = "github:nixos/nixos-hardware";
 
     # Gerenciador declarativo de Flatpak
-    nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
+    nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.7.0";   # pin de tag
 
     # Nix Darwin (para máquinas macOS)
     darwin = {

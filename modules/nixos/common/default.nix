@@ -377,7 +377,7 @@
       gcc
       glib
       gnumake
-      nodejs_20
+      nodejs_22
       killall
       ffmpeg
       mesa

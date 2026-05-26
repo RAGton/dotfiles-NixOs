@@ -229,20 +229,8 @@
     };
   };
 
-  # Wireshark: workaround para hash mismatch na versão 4.6.5
-  # Ocorre no nixpkgs unstable (2026-05-02) devido a mudança no tarball do GitLab.
-  wireshark-hash-fix = _final: prev: {
-    wireshark-cli = prev.wireshark-cli.overrideAttrs (old: {
-      src = old.src.overrideAttrs (_srcOld: {
-        outputHash = "sha256-Zvrwxjp4LK2J3QnxmPxKKrU01YHQvPyp54UWzeGNCjA=";
-      });
-    });
-    wireshark = prev.wireshark.overrideAttrs (old: {
-      src = old.src.overrideAttrs (_srcOld: {
-        outputHash = "sha256-Zvrwxjp4LK2J3QnxmPxKKrU01YHQvPyp54UWzeGNCjA=";
-      });
-    });
-  };
+  # wireshark-hash-fix: removido 2026-05-25 — nixpkgs unstable já contém o hash correto.
+  # (hash upstream confirmado igual ao do overlay no commit 64c08a7)
 
   # OpenAI Codex: adiciona o pacote corrigido do Codex
   #

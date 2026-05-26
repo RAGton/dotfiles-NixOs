@@ -88,7 +88,6 @@ in
       sddm.enable = lib.mkForce false;
       gdm = {
         enable = lib.mkForce (!config.kryonix.desktop.directLogin.enable);
-        wayland = true;
       };
 
       defaultSession = "hyprland-uwsm";
@@ -99,8 +98,6 @@ in
         lib.mkForce false
       );
     };
-
-    services.xserver.displayManager.lightdm.enable = lib.mkForce false;
 
     # Hyprland
     programs.hyprland = {
