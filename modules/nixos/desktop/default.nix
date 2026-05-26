@@ -12,8 +12,8 @@ in
     (lib.mkIf (env == "hyprland") {
       kryonix.desktop.directLogin.enable = lib.mkForce false;
 
-      services.displayManager.gdm.enable = lib.mkForce true;
-      services.displayManager.sddm.enable = lib.mkForce false;
+      services.displayManager.gdm.enable = lib.mkForce false;
+      services.displayManager.sddm.enable = lib.mkForce true;
       services.desktopManager.plasma6.enable = lib.mkForce false;
       services.desktopManager.gnome.enable = lib.mkForce false;
       services.greetd.enable = lib.mkForce false;

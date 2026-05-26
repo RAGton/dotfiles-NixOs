@@ -85,9 +85,10 @@ in
     services.xserver.enable = true;
 
     services.displayManager = {
-      sddm.enable = lib.mkForce false;
-      gdm = {
+      sddm = {
         enable = lib.mkForce (!config.kryonix.desktop.directLogin.enable);
+        wayland.enable = true;
+        wayland.compositor = "kwin";
       };
 
       defaultSession = "hyprland-uwsm";

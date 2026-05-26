@@ -17,7 +17,7 @@
 
     # Restaura o último modo de monitor salvo ao iniciar a sessão.
     wayland.windowManager.hyprland.extraConfig = lib.mkAfter ''
-      exec-once = kryonix-monitors restore
+      exec-once = ${pkgs.kryonix-monitors}/bin/kryonix-monitors restore
     '';
   };
 }
