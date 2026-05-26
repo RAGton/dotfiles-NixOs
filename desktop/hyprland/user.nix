@@ -65,6 +65,7 @@ in
     "${nhModules}/misc/wallpaper"
     "${nhModules}/misc/xdg"
     "${nhModules}/programs/swappy"
+    ./monitors.nix
     ./wrappers.nix
   ];
 

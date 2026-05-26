@@ -97,3 +97,39 @@ A tecla principal (**$mainMod**) é definida como a tecla **SUPER** (Windows/Com
 | `Mic Mute` | Alternar mudo (Microfone) |
 | `Brilho +` / `Brilho -` | Aumentar/Diminuir brilho da tela |
 | `SHIFT + Brilho` | Controle de brilho do teclado |
+
+## 🖥️ Multi-Monitor
+
+Requer `kryonix-monitors` instalado (disponível em hosts Hyprland automaticamente).
+
+| Atalho | Ação |
+| :--- | :--- |
+| `Super + P` | Abrir menu interativo de monitores (rofi) |
+| `Super + Alt + P` | Ciclar modos: Estender → Duplicar → Interno → Externo |
+| `Super + .` | Mover foco para o próximo monitor |
+| `Super + ,` | Mover foco para o monitor anterior |
+| `Super + SHIFT + .` | Mover janela ativa para o próximo monitor |
+| `Super + SHIFT + ,` | Mover janela ativa para o monitor anterior |
+| `Super + CTRL + .` | Mover workspace inteiro para o próximo monitor |
+| `Super + CTRL + ,` | Mover workspace inteiro para o monitor anterior |
+| `Super + Alt + S` | Trocar posição entre os 2 monitores |
+
+### Subcomandos CLI `kryonix-monitors`
+
+```bash
+kryonix-monitors                          # Lista monitores ativos e modo salvo
+kryonix-monitors mode extend              # Estender lado a lado
+kryonix-monitors mode duplicate           # Espelhar todos no monitor interno
+kryonix-monitors mode internal            # Só tela interna (desliga externos)
+kryonix-monitors mode external            # Só monitor externo (desliga interno)
+kryonix-monitors mode toggle              # Cicla entre os modos acima
+kryonix-monitors primary <output>         # Define monitor primário
+kryonix-monitors resolution <out> <res>   # Muda resolução em runtime (ex: 2560x1440@144)
+kryonix-monitors position <out> <pos>     # Reposiciona monitor (ex: 1920x0)
+kryonix-monitors scale <out> <fator>      # Muda escala (ex: 1.25)
+kryonix-monitors swap                     # Troca posição entre 2 monitores
+kryonix-monitors menu                     # Menu rofi interativo
+kryonix-monitors restore                  # Restaura último modo salvo (exec-once automático)
+```
+
+Estado persistente salvo em `~/.local/state/kryonix/monitor-mode`.
