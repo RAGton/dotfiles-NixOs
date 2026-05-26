@@ -45,6 +45,19 @@ in
   services.kryonix-glacier-vnc-tunnel.enable = true;
   services.kryonix-ollama-tunnel.enable = true;
 
+  programs.jupyter = {
+    enable = true;
+    kernels = {
+      python = true;
+      c = true;
+      rust = true;
+      cpp = true;
+      bash = true;
+      dotnet = false;
+      node = false;
+    };
+  };
+
   home.stateVersion = "26.05";
 
   home.packages = with pkgs; [
