@@ -57,6 +57,9 @@ in
         # compositor padrão é "weston" (standalone). NÃO definir "kwin" (exige plasma6).
         theme = "sddm-astronaut-theme";
 
+        # Main.qml:10 importa QtMultimedia — necessário para o tema astronaut (Qt6)
+        extraPackages = [ pkgs.kdePackages.qtmultimedia ];
+
         settings = {
           Theme = {
             Background = "/var/lib/sddm/current-wallpaper";
