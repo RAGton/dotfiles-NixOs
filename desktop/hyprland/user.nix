@@ -122,6 +122,12 @@ in
             wallpaper = , ${config.wallpaper}
           '';
         })
+        {
+          "kdeglobals".text = ''
+            [KDE]
+            SingleClick=false
+          '';
+        }
       ];
 
       dconf.settings = {

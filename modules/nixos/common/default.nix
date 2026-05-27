@@ -428,7 +428,13 @@
       # Ferramentas KDE úteis sem precisar do Plasma completo.
       kdePackages.dolphin
       kdePackages.dolphin-plugins
+      kdePackages.kio
+      kdePackages.kdeglobals
+      
       kdePackages.kio-extras
+      kdePackages.kservice
+      kdePackages.kde-cli-tools
+      shared-mime-info
       kdePackages.ark
       kdePackages.filelight
 
