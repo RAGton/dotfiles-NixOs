@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nix *)",
+      "Bash(nix-instantiate *)",
+      "Bash(nixos-rebuild *)",
+      "Bash(home-manager *)",
+      "Bash(caelestia *)",
+      "Bash(kryonix *)",
+      "Bash(kryonix-kora-status *)",
+      "Bash(git *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(rg *)",
+      "Bash(echo *)",
+      "Bash(rm *)",
+      "Bash(systemctl *)",
+      "Bash(journalctl *)",
+      "Read(//etc/kryonix/**)",
+      "Read(//home/rocha/.config/**)",
+      "Read(//home/rocha/.local/state/caelestia/**)",
+      "Read(//home/rocha/.local/share/**)"
+    ],
+    "additionalDirectories": [
+      "/tmp",
+      "/home/rocha/.config",
+      "/home/rocha/.local/state/caelestia",
+      "/home/rocha/.local/share"
+    ]
+  }
+}
