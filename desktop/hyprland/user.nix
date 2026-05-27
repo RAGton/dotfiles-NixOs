@@ -149,6 +149,10 @@ in
           "kdeglobals".text = ''
             [KDE]
             SingleClick=false
+
+            [PreviewSettings]
+            EnableRemoteFolderThumbnail=false
+            MaximumRemoteSize=0
           '';
         }
       ];
