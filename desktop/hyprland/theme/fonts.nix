@@ -4,10 +4,10 @@
 
   home.packages = with pkgs; [
     # Display — títulos HUD
-    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+    nerd-fonts.jetbrains-mono
 
     # Body / UI — leitura
-    ibm-plex-mono
+    ibm-plex
 
     # Fallback sem-serif limpo
     inter
