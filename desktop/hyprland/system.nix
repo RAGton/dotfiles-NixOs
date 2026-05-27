@@ -54,6 +54,7 @@ in
     services.displayManager = {
       sddm = {
         wayland.enable = true;
+        autoNumlock = true;
         # compositor padrão é "weston" (standalone). NÃO definir "kwin" (exige plasma6).
         theme = "sddm-astronaut-theme";
 

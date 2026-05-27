@@ -103,14 +103,10 @@ in
         # extraConfig seja código Lua, incompatível com o hyprland.conf versionado.
         configType = "hyprlang";
 
-        # CRÍTICO: variables = ["--all"] exporta WAYLAND_DISPLAY, DISPLAY e todas as
-        # variáveis de ambiente do Hyprland para o systemd-user e o D-Bus.
-        # Sem isso, serviços como waybar/cliphist/swaync esperam indefinidamente
-        # até o timeout de 60s do systemd antes de continuar.
-        systemd = {
-          enable = true;
-          variables = [ "--all" ];
-        };
+        # CRÍTICO: Com o UWSM ativo, o gerenciamento do systemd (variáveis, targets)
+        # é feito nativamente por ele. Deixar a integração do Home Manager ligada
+        # causa conflitos e um atraso absurdo (timeout) na inicialização após o SDDM.
+        systemd.enable = false;
 
         # Reaproveita o config versionado no repo.
         # O keyring é inicializado via PAM/NixOS, não manualmente por `exec-once`.
