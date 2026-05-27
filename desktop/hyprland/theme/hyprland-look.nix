@@ -60,12 +60,7 @@ in
       force_default_wallpaper = 0;
       disable_hyprland_logo = true;
       disable_splash_rendering = true;
-      vfr = true;
       disable_autoreload = true;
-    };
-
-    render = {
-      explicit_sync = 2;
     };
 
     cursor = {
