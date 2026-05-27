@@ -85,6 +85,29 @@ in
         kdePackages.ark
       ];
 
+      xdg.mimeApps = {
+        enable = true;
+        defaultApplications = {
+          "inode/directory"               = [ "org.kde.dolphin.desktop" ];
+          "image/jpeg"                    = [ "org.kde.gwenview.desktop" ];
+          "image/png"                     = [ "org.kde.gwenview.desktop" ];
+          "image/gif"                     = [ "org.kde.gwenview.desktop" ];
+          "image/webp"                    = [ "org.kde.gwenview.desktop" ];
+          "image/bmp"                     = [ "org.kde.gwenview.desktop" ];
+          "image/tiff"                    = [ "org.kde.gwenview.desktop" ];
+          "image/svg+xml"                 = [ "org.kde.gwenview.desktop" ];
+          "text/plain"                    = [ "org.kde.kate.desktop" ];
+          "text/markdown"                 = [ "org.kde.kate.desktop" ];
+          "application/pdf"               = [ "org.kde.okular.desktop" ];
+          "application/zip"               = [ "org.kde.ark.desktop" ];
+          "application/x-tar"             = [ "org.kde.ark.desktop" ];
+          "application/x-compressed-tar"  = [ "org.kde.ark.desktop" ];
+          "application/x-7z-compressed"   = [ "org.kde.ark.desktop" ];
+          "application/gzip"              = [ "org.kde.ark.desktop" ];
+          "application/x-rar"             = [ "org.kde.ark.desktop" ];
+        };
+      };
+
       # Tema de cursor consistente em todos os aplicativos.
       home.pointerCursor = {
         gtk.enable = true;

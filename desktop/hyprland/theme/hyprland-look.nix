@@ -60,11 +60,14 @@ in
       force_default_wallpaper = 0;
       disable_hyprland_logo = true;
       disable_splash_rendering = true;
-      vfr = true; # Variable Frame Rate — economiza GPU quando parado
-      vrr = 1; # Variable Refresh Rate — ativa se o monitor suportar
+      vfr = true;
+      disable_autoreload = true;
     };
 
-    # Cursor
+    render = {
+      explicit_sync = 2;
+    };
+
     cursor = {
       no_hardware_cursors = false;
     };

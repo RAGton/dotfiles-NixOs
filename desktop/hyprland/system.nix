@@ -70,8 +70,9 @@ in
             ThemeConfig = "/etc/kryonix/files/sddm/astronaut-theme.conf";
           };
           General = {
-            Font = "JetBrains Mono";
+            Font = "CaskaydiaCove Nerd Font";
             FontSize = 12;
+            Numlock = "on";
           };
         };
       };

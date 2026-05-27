@@ -1,34 +1,34 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   gtk = {
     enable = true;
 
     theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
+      name    = lib.mkForce "adw-gtk3-dark";
+      package = lib.mkForce pkgs.adw-gtk3;
     };
 
     iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
+      name    = lib.mkForce "Papirus-Dark";
+      package = lib.mkForce pkgs.papirus-icon-theme;
     };
 
     cursorTheme = {
-      name = "Bibata-Modern-Ice"; # cursor branco/ciano — combina com HUD
-      package = pkgs.bibata-cursors;
-      size = 24;
+      name    = lib.mkForce "Bibata-Modern-Ice";   # cursor branco/ciano — combina com HUD
+      package = lib.mkForce pkgs.bibata-cursors;
+      size    = lib.mkForce 24;
     };
 
     font = {
-      name = "Inter";
-      size = 10;
+      name    = lib.mkForce "CaskaydiaCove Nerd Font";
+      size    = lib.mkForce 11;
     };
   };
 
   qt = {
     enable = true;
-    platformTheme.name = "gtk";
-    style.name = "adwaita-dark";
+    platformTheme.name = lib.mkForce "gtk";
+    style.name = lib.mkForce "adwaita-dark";
   };
 
   # Variáveis de ambiente para cursor e escala

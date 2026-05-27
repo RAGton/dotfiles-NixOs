@@ -279,6 +279,7 @@
   # Define tamanho do cursor
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
     XCURSOR_SIZE = "24";
   };
 
@@ -429,14 +430,18 @@
       kdePackages.dolphin
       kdePackages.dolphin-plugins
       kdePackages.kio
-      kdePackages.kdeglobals
-      
       kdePackages.kio-extras
       kdePackages.kservice
       kdePackages.kde-cli-tools
       shared-mime-info
       kdePackages.ark
       kdePackages.filelight
+      kdePackages.gwenview
+      kdePackages.kate
+      kdePackages.okular
+      kdePackages.kdegraphics-thumbnailers
+      kdePackages.ffmpegthumbs
+      xdg-utils
 
       (writeShellApplication {
         name = "keditfiletype";
@@ -525,9 +530,9 @@
     ];
 
     fontconfig.defaultFonts = {
-      serif = [ "Monocraft" ];
-      sansSerif = [ "Monocraft" ];
-      monospace = [ "Monocraft" ];
+      serif = [ "Roboto" "Noto Color Emoji" ];
+      sansSerif = [ "CaskaydiaCove Nerd Font" "Roboto" "Noto Color Emoji" ];
+      monospace = [ "CaskaydiaCove Nerd Font Mono" "JetBrainsMono Nerd Font Mono" "Noto Color Emoji" ];
       emoji = [ "Noto Color Emoji" ];
     };
   };
