@@ -95,11 +95,13 @@
   # Boot: defaults genéricos de silêncio/recovery.
   # Flags de hardware ficam nos hosts; flags do Zen ficam no módulo do kernel.
   boot = {
-    consoleLogLevel = lib.mkDefault 3;
+    consoleLogLevel = lib.mkDefault 0;
     initrd.verbose = lib.mkDefault false;
     kernelParams = lib.mkBefore [
       "quiet"
+      "splash"
       "rd.udev.log_level=3"
+      "udev.log_priority=3"
       "systemd.show_status=auto"
       "rd.systemd.show_status=auto"
       "vt.global_cursor_default=0"
@@ -107,28 +109,11 @@
     loader = {
       timeout = lib.mkDefault 3;
       efi.canTouchEfiVariables = lib.mkDefault true;
+      grub.splashImage = lib.mkForce null;
     };
-    # loader.systemd-boot.enable = false;
-    #    loader.systemd-boot.extraFiles =
-    #     let
-    #      splashSrc = ../../../files/wallpaper/wallpaper.png;
-    #     splashBmp = pkgs.runCommand "systemd-boot-splash.bmp" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''
-    #      convert "${splashSrc}" \
-    #       -alpha off \
-    #      -resize 1920x1080^ \
-    #     -gravity center \
-    #    -extent 1920x1080 \
-    #   BMP3:"$out"
-    # '';
-    #in
-    # {
-    #   "loader/splash.bmp" = splashBmp;
-    # };
-    #loader.timeout = 0;
     plymouth = {
       enable = lib.mkDefault true;
-      theme = lib.mkDefault "nixos-bgrt";
-      themePackages = lib.mkDefault [ pkgs.nixos-bgrt-plymouth ];
+      theme = lib.mkDefault "spinner";
     };
 
     # Ajustes do módulo v4l (câmera virtual)

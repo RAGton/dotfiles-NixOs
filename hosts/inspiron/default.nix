@@ -169,8 +169,6 @@
 
     # Usa systemd dentro do initrd para um boot inicial mais consistente.
     initrd.systemd.enable = true;
-
-    plymouth.enable = lib.mkForce true;
   };
 
   # =========================

@@ -232,13 +232,12 @@ in
 
     boot = {
       plymouth = {
-        enable = lib.mkDefault true;
-        theme = lib.mkForce "kryonix";
-        themePackages = lib.mkForce [ plymouthTheme ];
+        enable = true;
+        theme = "kryonix";
+        themePackages = [ plymouthTheme ];
       };
 
       loader.grub = {
-        splashImage = lib.mkForce grubSplash;
         gfxmodeEfi = lib.mkDefault "1920x1080";
         gfxmodeBios = lib.mkDefault "1920x1080";
         extraConfig = lib.mkAfter ''
