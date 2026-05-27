@@ -1,82 +1,150 @@
-{ ... }:
+{ pkgs, ... }:
+let
+  koraStatusPkg = pkgs.writeShellApplication {
+    name = "kryonix-kora-status";
+    runtimeInputs = with pkgs; [ curl gnugrep coreutils ];
+    text = ''
+      KORA_URL="''${KORA_API_URL:-http://glacier:8787}"
+      TIMEOUT=2
+      HEALTH_FILE=$(mktemp)
+      trap 'rm -f "$HEALTH_FILE"' EXIT
+
+      if curl -sf --max-time "$TIMEOUT" "$KORA_URL/health" > "$HEALTH_FILE" 2>/dev/null; then
+        brain=$(grep -o '"brain":[^,}]*' "$HEALTH_FILE" | grep -o 'true\|ok\|healthy' || true)
+        if [ -n "$brain" ]; then
+          echo "⟡ KORA ONLINE"
+        else
+          echo "⟡ KORA ◈ BRAIN OFF"
+        fi
+      else
+        echo "◈ KORA OFFLINE"
+      fi
+    '';
+  };
+
+  koraMonitorPkg = pkgs.writeShellApplication {
+    name = "kryonix-kora-monitor";
+    runtimeInputs = with pkgs; [ curl libnotify coreutils ];
+    text = ''
+      STATE_DIR="''${XDG_STATE_HOME:-$HOME/.local/state}/kryonix"
+      STATE_FILE="$STATE_DIR/kora-state"
+      KORA_URL="''${KORA_API_URL:-http://glacier:8787}"
+
+      mkdir -p "$STATE_DIR"
+      PREV_STATE="$(cat "$STATE_FILE" 2>/dev/null || echo 'unknown')"
+
+      if curl -sf --max-time 2 "$KORA_URL/health" >/dev/null 2>&1; then
+        CURR_STATE="online"
+      else
+        CURR_STATE="offline"
+      fi
+
+      if [ "$CURR_STATE" != "$PREV_STATE" ]; then
+        printf '%s' "$CURR_STATE" > "$STATE_FILE"
+        if [ "$CURR_STATE" = "online" ]; then
+          notify-send "⟡ Kora Online" "API disponível em $KORA_URL" \
+            --icon "network-transmit-receive" --expire-time 4000
+        else
+          notify-send "◈ Kora Offline" "API indisponível" \
+            --icon "network-error" --expire-time 6000
+        fi
+      fi
+    '';
+  };
+in
 {
   # Arquivo canônico do Caelestia no inspiron.
   # Edite aqui quando quiser ajustar manualmente launcher, apps e comportamento do shell.
   kryonix.shell.caelestia.scheme = {
-    name = "rag-atlas";
-    flavour = "atlas";
+    name = "kryonix-hud";
+    flavour = "hud";
+    mode = "dark";
+    variant = "vibrant";
     deformScale = 1.14;
     colours = {
-      primary_paletteKeyColor = "d2ab72";
-      secondary_paletteKeyColor = "8fc3bc";
-      tertiary_paletteKeyColor = "aebcff";
-      neutral_paletteKeyColor = "101419";
-      neutral_variant_paletteKeyColor = "31404a";
-      background = "101419";
-      onBackground = "edf2f7";
-      surfaceDim = "0b0e12";
-      surfaceBright = "28303a";
-      surfaceContainerLowest = "080a0d";
-      surfaceContainerLow = "14191f";
-      surfaceContainer = "1a2027";
-      surfaceContainerHigh = "232b33";
-      surfaceContainerHighest = "2d3640";
-      onSurface = "edf2f7";
-      surfaceVariant = "31404a";
-      onSurfaceVariant = "c0cfda";
-      inverseSurface = "edf2f7";
-      inverseOnSurface = "171c22";
-      outline = "82929e";
-      outlineVariant = "44535d";
-      shadow = "000000";
-      scrim = "000000";
-      surfaceTint = "d2ab72";
-      primary = "f0c78b";
-      onPrimary = "332008";
-      primaryContainer = "523916";
-      onPrimaryContainer = "ffe0bb";
-      inversePrimary = "7d5a28";
-      secondary = "9fd8d0";
-      onSecondary = "08211d";
-      secondaryContainer = "213a36";
-      onSecondaryContainer = "bbf4eb";
-      tertiary = "c3cbff";
-      onTertiary = "1b2555";
-      tertiaryContainer = "323d72";
-      onTertiaryContainer = "e0e4ff";
-      error = "ffb4ab";
-      onErrorContainer = "ffdad6";
-      success = "9ed8aa";
-      onSuccess = "072112";
-      successContainer = "214934";
-      onSuccessContainer = "bbf5c6";
-      primaryFixed = "ffe0bb";
-      primaryFixedDim = "f0c78b";
-      onPrimaryFixed = "332008";
-      onPrimaryFixedVariant = "6a4a1f";
-      secondaryFixed = "bbf4eb";
-      secondaryFixedDim = "9fd8d0";
-      onSecondaryFixed = "08211d";
-      onSecondaryFixedVariant = "32514b";
-      tertiaryFixed = "e0e4ff";
-      tertiaryFixedDim = "c3cbff";
-      onTertiaryFixed = "051142";
-      onTertiaryFixedVariant = "323d72";
-      term0 = "101419";
-      term1 = "ef8b8f";
-      term2 = "9ed8aa";
-      term3 = "f0c78b";
-      term4 = "8cbff5";
-      term5 = "c4b5ff";
-      term6 = "92d8d4";
-      term7 = "edf2f7";
-      term8 = "596672";
-      term10 = "bbf5c6";
-      term11 = "ffe3b8";
-      term12 = "b9daff";
-      term13 = "e2d8ff";
-      term14 = "b5f2ee";
-      term15 = "ffffff";
+      # Chaves de paleta
+      primary_paletteKeyColor           = "0099cc"; # hud2
+      secondary_paletteKeyColor         = "00cc00"; # term2
+      tertiary_paletteKeyColor          = "8b6ee0";
+      neutral_paletteKeyColor           = "1e2d3d"; # border
+      neutral_variant_paletteKeyColor   = "2a3f50";
+
+      # Background / Surface
+      background                = "0a0d12"; # bg0 — espaço profundo
+      onBackground              = "e8f4f8"; # fg0
+      surfaceDim                = "080b0f";
+      surfaceBright             = "1a2232";
+      surfaceContainerLowest    = "060810";
+      surfaceContainerLow       = "0c1018";
+      surfaceContainer          = "0f1419"; # bg1 — painéis
+      surfaceContainerHigh      = "151b24"; # bg2
+      surfaceContainerHighest   = "1e2432";
+      onSurface                 = "e8f4f8";
+      surfaceVariant            = "1e2d3d"; # border
+      onSurfaceVariant          = "8badbf"; # fg1
+      inverseSurface            = "e8f4f8";
+      inverseOnSurface          = "0a0d12";
+      outline                   = "4a6b7a"; # fg2
+      outlineVariant            = "1e2d3d";
+      shadow                    = "000000";
+      scrim                     = "000000";
+      surfaceTint               = "00d4ff"; # hud1
+
+      # Primary — ciano elétrico (#00d4ff)
+      primary                   = "00d4ff"; # hud1
+      onPrimary                 = "001f26";
+      primaryContainer          = "003340";
+      onPrimaryContainer        = "a8eeff";
+      inversePrimary            = "006880";
+      primaryFixed              = "a8eeff";
+      primaryFixedDim           = "00d4ff";
+      onPrimaryFixed            = "001f26";
+      onPrimaryFixedVariant     = "003340";
+
+      # Secondary — verde neon (#39ff14)
+      secondary                 = "39ff14"; # term1
+      onSecondary               = "003900";
+      secondaryContainer        = "003a00";
+      onSecondaryContainer      = "9bff77";
+      secondaryFixed            = "9bff77";
+      secondaryFixedDim         = "39ff14";
+      onSecondaryFixed          = "003900";
+      onSecondaryFixedVariant   = "003a00";
+
+      # Tertiary — roxo (#b48eff)
+      tertiary                  = "b48eff"; # purple
+      onTertiary                = "1e0066";
+      tertiaryContainer         = "2e1a7a";
+      onTertiaryContainer       = "e9dbff";
+      tertiaryFixed             = "e9dbff";
+      tertiaryFixedDim          = "b48eff";
+      onTertiaryFixed           = "1e0066";
+      onTertiaryFixedVariant    = "2e1a7a";
+
+      # Estados
+      error                     = "ff4455"; # red
+      onErrorContainer          = "ffb3bd";
+      success                   = "9bff77";
+      onSuccess                 = "003900";
+      successContainer          = "003a00";
+      onSuccessContainer        = "9bff77";
+
+      # Terminal ANSI 16
+      term0  = "0a0d12"; # black (bg)
+      term1  = "ff4455"; # red
+      term2  = "39ff14"; # green neon
+      term3  = "ffcc00"; # yellow
+      term4  = "00d4ff"; # blue (hud1)
+      term5  = "b48eff"; # magenta (purple)
+      term6  = "00ccff"; # cyan
+      term7  = "e8f4f8"; # white (fg)
+      term8  = "4a6b7a"; # bright black (fg2)
+      term10 = "7dff50"; # bright green
+      term11 = "ffe066"; # bright yellow
+      term12 = "66ddff"; # bright blue
+      term13 = "c8aaff"; # bright magenta
+      term14 = "66eeff"; # bright cyan
+      term15 = "ffffff"; # bright white
     };
   };
 
@@ -241,7 +309,7 @@
       audioIncrement = 0.05;
       brightnessIncrement = 0.1;
       maxVolume = 1.0;
-      smartScheme = true;
+      smartScheme = false; # paleta HUD fixa — não sobrescrever via wallpaper dinâmico
       useTwelveHourClock = false;
       visualiserBars = 52;
     };
@@ -264,6 +332,34 @@
         numLockChanged = true;
         vpnChanged = true;
       };
+    };
+  };
+
+  # Kora status — script e monitor de API
+  home.packages = [ koraStatusPkg koraMonitorPkg ];
+
+  systemd.user.services.kryonix-kora-monitor = {
+    Unit = {
+      Description = "Kryonix Kora API monitor (oneshot)";
+      After = [ "network.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${koraMonitorPkg}/bin/kryonix-kora-monitor";
+    };
+  };
+
+  systemd.user.timers.kryonix-kora-monitor = {
+    Unit = {
+      Description = "Timer para monitor da Kora API";
+    };
+    Timer = {
+      OnBootSec = "30s";
+      OnUnitActiveSec = "30s";
+      Unit = "kryonix-kora-monitor.service";
+    };
+    Install = {
+      WantedBy = [ "timers.target" ];
     };
   };
 }
