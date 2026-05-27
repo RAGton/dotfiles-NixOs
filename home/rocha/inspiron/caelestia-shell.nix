@@ -64,7 +64,7 @@ in
     colours = {
       # Chaves de paleta
       primary_paletteKeyColor           = "0099cc"; # hud2
-      secondary_paletteKeyColor         = "00cc00"; # term2
+      secondary_paletteKeyColor         = "4d80cc"; # azul médio
       tertiary_paletteKeyColor          = "8b6ee0";
       neutral_paletteKeyColor           = "1e2d3d"; # border
       neutral_variant_paletteKeyColor   = "2a3f50";
@@ -101,15 +101,15 @@ in
       onPrimaryFixed            = "001f26";
       onPrimaryFixedVariant     = "003340";
 
-      # Secondary — verde neon (#39ff14)
-      secondary                 = "39ff14"; # term1
-      onSecondary               = "003900";
-      secondaryContainer        = "003a00";
-      onSecondaryContainer      = "9bff77";
-      secondaryFixed            = "9bff77";
-      secondaryFixedDim         = "39ff14";
-      onSecondaryFixed          = "003900";
-      onSecondaryFixedVariant   = "003a00";
+      # Secondary — azul (#82aaff)
+      secondary                 = "82aaff";
+      onSecondary               = "001d3d";
+      secondaryContainer        = "003566";
+      onSecondaryContainer      = "d5e3ff";
+      secondaryFixed            = "d5e3ff";
+      secondaryFixedDim         = "82aaff";
+      onSecondaryFixed          = "001d3d";
+      onSecondaryFixedVariant   = "003566";
 
       # Tertiary — roxo (#b48eff)
       tertiary                  = "b48eff"; # purple
@@ -124,26 +124,26 @@ in
       # Estados
       error                     = "ff4455"; # red
       onErrorContainer          = "ffb3bd";
-      success                   = "9bff77";
-      onSuccess                 = "003900";
-      successContainer          = "003a00";
-      onSuccessContainer        = "9bff77";
+      success                   = "82ddff"; # ciano-azul (sem verde)
+      onSuccess                 = "001f30";
+      successContainer          = "003348";
+      onSuccessContainer        = "b8eeff";
 
       # Terminal ANSI 16
       term0  = "0a0d12"; # black (bg)
       term1  = "ff4455"; # red
-      term2  = "39ff14"; # green neon
+      term2  = "82aaff"; # blue (secondary)
       term3  = "ffcc00"; # yellow
-      term4  = "00d4ff"; # blue (hud1)
+      term4  = "00d4ff"; # blue ciano (hud1)
       term5  = "b48eff"; # magenta (purple)
       term6  = "00ccff"; # cyan
       term7  = "e8f4f8"; # white (fg)
       term8  = "4a6b7a"; # bright black (fg2)
-      term10 = "7dff50"; # bright green
+      term10 = "aac4ff"; # bright blue
       term11 = "ffe066"; # bright yellow
-      term12 = "66ddff"; # bright blue
+      term12 = "66ddff"; # bright cyan
       term13 = "c8aaff"; # bright magenta
-      term14 = "66eeff"; # bright cyan
+      term14 = "88eeff"; # bright cyan 2
       term15 = "ffffff"; # bright white
     };
   };
