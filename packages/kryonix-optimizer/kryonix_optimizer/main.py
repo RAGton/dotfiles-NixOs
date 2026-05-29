@@ -5,28 +5,22 @@ import sys
 import json
 import httpx
 import psutil
+from .context_binder import update_os_context
 
-# Configurações globais do Daemon
 MEMORY_THRESHOLD_PCT = 90.0
-CHECK_INTERVAL_SECS = 60
-GLACIER_URL = os.environ.get("KRYONIX_BRAIN_URL", "http://glacier:8000")
-API_KEY = os.environ.get("KRYONIX_BRAIN_API_KEY", "")
+CHECK_INTERVAL_SECS = 30  # Reduzido para 30s para tornar o context binder mais responsivo
+LOCAL_OLLAMA_URL = "http://localhost:11434/api/generate"
 
-async def get_active_window_context() -> str:
-    """Detecta qual aplicação o usuário está usando ativamente usando xdotool ou hyprctl."""
+async def get_hyprland_active_window() -> bytes:
     try:
         proc = await asyncio.create_subprocess_exec(
             "hyprctl", "activewindow", "-j",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
         stdout, _ = await proc.communicate()
-        if proc.returncode == 0:
-            data = json.loads(stdout.decode())
-            return f"{data.get('class', 'unknown')} (Título: {data.get('title', 'unknown')})"
+        return stdout if proc.returncode == 0 else b""
     except Exception:
-        pass
-    return "Ambiente de Trabalho Hyprland"
+        return b""
 
 async def collect_top_processes():
     """Coleta os 5 processos em background mais pesados excluindo o foco e ferramentas essenciais."""
@@ -55,34 +49,34 @@ async def collect_top_processes():
     processes.sort(key=lambda x: x["ram_usage_gb"], reverse=True)
     return processes[:5]
 
-async def ask_brain_optimizer(focus: str, bg_procs: list) -> list:
-    """Consulta o LLM no Glacier para obter os comandos seguros de otimização."""
-    payload = {
-        "focus_app": focus,
-        "background_processes": bg_procs
-    }
-    
-    # Prompt de sistema embutido para guiar o modelo local qwen2.5-coder
-    system_prompt = (
-        "Você é o otimizador de tempo de execução do Kryonix OS. "
-        "Seu objetivo é liberar RAM suspendendo processos ociosos secundários. "
-        "Regra Absoluta: É proibido gerar comandos 'kill -9'. Use apenas 'kill -STOP' "
-        "para pausar na RAM ou 'renice' para diminuir prioridade de CPU. "
-        "Retorne APENAS um JSON puro no formato: "
+async def ask_local_slm_optimizer(focus_app: str, processes: list) -> list:
+    """Usa a SLM local de 1.5B com instruções estritas para controle de RAM."""
+    prompt = (
+        f"Contexto do SO: Usuário focado em {focus_app}.\n"
+        f"Processos pesados: {json.dumps(processes)}.\n"
+        "Gere uma ação de otimização de RAM segura. Regras:\n"
+        "1. Nunca encerre processos ativamente. Use apenas 'kill -STOP <pid>'.\n"
+        "2. Responda apenas com o JSON estruturado abaixo. Proibido introduzir explicações textuais.\n"
         '{"actions": [{"pid": 123, "command": "kill -STOP 123", "reason": "..."}]}'
     )
     
-    headers = {"X-API-Key": API_KEY} if API_KEY else {}
-    
-    async with httpx.AsyncClient(timeout=4.0) as client:
-        # Envia a requisição para o endpoint de chat/generation do seu ecossistema
-        response = await client.post(
-            f"{GLACIER_URL}/api/v1/optimize-resource",
-            json={"system": system_prompt, "data": payload},
-            headers=headers
-        )
-        if response.status_code == 200:
-            return response.json().get("actions", [])
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.post(
+                LOCAL_OLLAMA_URL,
+                json={
+                    "model": "qwen2.5-coder:1.5b",
+                    "prompt": prompt,
+                    "stream": False,
+                    "format": "json" # Força o Ollama a validar a saída como JSON nativo
+                }
+            )
+            if response.status_code == 200:
+                res_data = response.json()
+                raw_response = res_data.get("response", "{}")
+                return json.loads(raw_response).get("actions", [])
+    except Exception:
+        pass
     return []
 
 async def execute_safely(command: str):
@@ -109,23 +103,33 @@ async def execute_safely(command: str):
         print(f"[ERROR] Falha ao rodar otimização: {e}", file=sys.stderr)
 
 async def main():
-    print("[INFO] Inicializando Kryonix RAM Optimizer Daemon...")
+    print("[INFO] Inicializando Kryonix RAM Optimizer & Context Binder Daemon...")
     while True:
         try:
+            focus_data = await get_hyprland_active_window()
+            await update_os_context(focus_data)
+
             mem = psutil.virtual_memory()
             if mem.percent >= MEMORY_THRESHOLD_PCT:
-                print(f"[WARN] Alerta de RAM: {mem.percent}% em uso. Consultando Brain API...")
+                print(f"[WARN] Alerta de RAM: {mem.percent}% em uso. Otimizando...")
                 
-                focus = await get_active_window_context()
+                # Para compor o foco, tentamos extrair o título
+                focus_title = "Desconhecido"
+                try:
+                    if focus_data:
+                        focus_json = json.loads(focus_data.decode())
+                        focus_title = focus_json.get('title', 'Desconhecido')
+                except Exception:
+                    pass
+
                 bg_procs = await collect_top_processes()
                 
                 try:
-                    actions = await ask_brain_optimizer(focus, bg_procs)
+                    actions = await ask_local_slm_optimizer(focus_title, bg_procs)
                     for action in actions:
                         await execute_safely(action.get("command", ""))
-                except (httpx.ConnectError, httpx.TimeoutException):
-                    # REGRA DE RESILIÊNCIA: Modo degradado, apenas emite aviso sem estourar o daemon
-                    print("[WARN] Servidor Glacier (IA) offline ou inacessível. Pulando ciclo de otimização.")
+                except Exception as ollama_err:
+                    print(f"[WARN] SLM Local offline ou falha: {ollama_err}")
             
         except Exception as global_err:
             print(f"[CRITICAL] Erro inesperado no loop do daemon: {global_err}", file=sys.stderr)

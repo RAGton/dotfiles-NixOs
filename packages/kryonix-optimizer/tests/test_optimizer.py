@@ -3,7 +3,7 @@ import asyncio
 import httpx
 from unittest.mock import patch, MagicMock
 
-from kryonix_optimizer.main import execute_safely, ask_brain_optimizer
+from kryonix_optimizer.main import execute_safely, ask_local_slm_optimizer
 
 @pytest.mark.asyncio
 async def test_execute_safely_blocks_kill_9():
@@ -27,15 +27,17 @@ async def test_execute_safely_blocks_kill_9():
         )
 
 @pytest.mark.asyncio
-async def test_ask_brain_optimizer_offline():
+async def test_ask_local_slm_optimizer_offline():
     # Simulates httpx.ConnectError
     with patch('httpx.AsyncClient.post', side_effect=httpx.ConnectError("Connection refused")):
-        with pytest.raises(httpx.ConnectError):
-            await ask_brain_optimizer("vscodium", [])
+        # Retorna lista vazia e suprime exceção internamente
+        result = await ask_local_slm_optimizer("vscodium", [])
+        assert result == []
 
 @pytest.mark.asyncio
-async def test_ask_brain_optimizer_timeout():
+async def test_ask_local_slm_optimizer_timeout():
     # Simulates httpx.TimeoutException
     with patch('httpx.AsyncClient.post', side_effect=httpx.TimeoutException("Timeout")):
-        with pytest.raises(httpx.TimeoutException):
-            await ask_brain_optimizer("vscodium", [])
+        # Retorna lista vazia e suprime exceção internamente
+        result = await ask_local_slm_optimizer("vscodium", [])
+        assert result == []
