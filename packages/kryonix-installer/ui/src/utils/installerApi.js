@@ -65,6 +65,10 @@ function buildKryonixInstallPlan(planPayload, mode = 'install') {
       target: planPayload.disk?.sysDisk || '',
       layout,
       boot_mode: 'uefi',
+      profile: planPayload.disk?.profile || 'single',
+      selectedDisks: planPayload.disk?.selectedDisks || [],
+      raidLevel: planPayload.disk?.raidLevel,
+      manualPartitions: planPayload.disk?.manualPartitions,
     },
     user: {
       name: planPayload.admin?.user || 'admin',

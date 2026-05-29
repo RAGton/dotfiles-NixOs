@@ -44,10 +44,74 @@ pub async fn run_disko(
 }
 
 fn generate_disko_config(plan: &InstallPlan) -> String {
+    if plan.disk.profile == "manual" {
+        return generate_disko_config_manual(plan);
+    }
+    
     match plan.disk.layout.as_str() {
         "lvm-simple" => generate_lvm_simple(&plan.disk.target, &plan.disk.boot_mode),
         _ => generate_btrfs_simple(&plan.disk.target, &plan.disk.boot_mode),
     }
+}
+
+fn generate_disko_config_manual(plan: &InstallPlan) -> String {
+    use std::collections::HashMap;
+    let parts = plan.disk.manual_partitions.as_ref().cloned().unwrap_or_default();
+    
+    let mut disks: HashMap<String, Vec<crate::PartitionSpec>> = HashMap::new();
+    for p in parts {
+        disks.entry(p.device.clone()).or_default().push(p);
+    }
+
+    let mut disk_configs = Vec::new();
+    for (device, p_list) in disks {
+        let name = device.split('/').last().unwrap_or("disk").replace('.', "_");
+        let mut part_configs = Vec::new();
+        
+        for (idx, p) in p_list.iter().enumerate() {
+            let part_name = format!("p{}", idx + 1);
+            let content = if p.format {
+                format!(
+                    r#"content = {{ type = "filesystem"; format = "{}"; mountpoint = "{}"; }};"#,
+                    p.fstype, p.mountpoint
+                )
+            } else {
+                format!(r#"content = {{ type = "filesystem"; mountpoint = "{}"; }};"#, p.mountpoint)
+            };
+
+            part_configs.push(format!(
+                r#"          {} = {{
+            size = "{}";
+            {}
+          }};"#,
+                part_name, p.size, content
+            ));
+        }
+
+        disk_configs.push(format!(
+            r#"    {} = {{
+      type = "disk";
+      device = "{}";
+      content = {{
+        type = "gpt";
+        partitions = {{
+{}
+        }};
+      }};
+    }};"#,
+            name, device, part_configs.join("\n")
+        ));
+    }
+
+    format!(
+        r#"{{
+  disko.devices.disk = {{
+{}
+  }};
+}}
+"#,
+        disk_configs.join("\n")
+    )
 }
 
 fn generate_btrfs_simple(target: &str, boot_mode: &str) -> String {

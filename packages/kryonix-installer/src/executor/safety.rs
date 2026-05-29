@@ -20,14 +20,59 @@ impl SafetyCheck {
 }
 
 pub fn run_safety_checks(plan: &InstallPlan) -> Vec<SafetyCheck> {
-    vec![
-        check_disk_not_system(&plan.disk.target),
-        check_disk_not_mounted(&plan.disk.target),
-        check_disk_has_space(&plan.disk.target),
+    let mut checks = vec![
         check_nixos_install_available(),
         check_disko_available(),
         check_network_for_nix(),
-    ]
+    ];
+
+    if plan.disk.profile == "manual" {
+        checks.push(check_manual_layout(plan));
+    } else if plan.disk.profile == "raid" {
+        checks.push(check_raid_layout(plan));
+    } else {
+        checks.push(check_disk_not_system(&plan.disk.target));
+        checks.push(check_disk_not_mounted(&plan.disk.target));
+        checks.push(check_disk_has_space(&plan.disk.target));
+    }
+
+    checks
+}
+
+fn check_manual_layout(plan: &InstallPlan) -> SafetyCheck {
+    let name = "layout_manual_valido";
+    let parts = plan.disk.manual_partitions.as_ref().cloned().unwrap_or_default();
+    
+    let has_root = parts.iter().any(|p| p.mountpoint == "/");
+    let has_efi = parts.iter().any(|p| p.mountpoint == "/boot/efi" || p.mountpoint == "/efi");
+
+    if !has_root {
+        return SafetyCheck::fail(name, "Modo manual exige partição raiz (/)");
+    }
+    if !has_efi {
+        return SafetyCheck::fail(name, "Modo manual exige partição EFI (/boot/efi ou /efi)");
+    }
+
+    SafetyCheck::pass(name, "Layout manual contém partições obrigatórias")
+}
+
+fn check_raid_layout(plan: &InstallPlan) -> SafetyCheck {
+    let name = "layout_raid_valido";
+    let level = plan.disk.raid_level.as_deref().unwrap_or("raid1");
+    let count = plan.disk.selected_disks.len();
+    
+    let min_required = match level {
+        "raid0" | "raid1" => 2,
+        "raid5" => 3,
+        "raid10" => 4,
+        _ => 2,
+    };
+
+    if count < min_required {
+        return SafetyCheck::fail(name, format!("{} exige {} discos (selecionados: {})", level.to_uppercase(), min_required, count));
+    }
+
+    SafetyCheck::pass(name, format!("Configuração {} válida com {} discos", level.to_uppercase(), count))
 }
 
 // CRÍTICO — nunca remover. Impede particionar o disco onde o sistema está rodando.
@@ -234,6 +279,10 @@ mod tests {
                 target: "/dev/null".into(),
                 layout: "btrfs-simple".into(),
                 boot_mode: "uefi".into(),
+                profile: "single".into(),
+                selected_disks: vec![],
+                raid_level: None,
+                manual_partitions: None,
             },
             user: PlanUser { name: "admin".into(), admin: true },
             features: serde_json::json!({}),

@@ -89,6 +89,23 @@ pub struct PlanDisk {
     pub target: String,
     pub layout: String,
     pub boot_mode: String,
+    #[serde(default)]
+    pub profile: String,
+    #[serde(rename = "selectedDisks", default)]
+    pub selected_disks: Vec<String>,
+    #[serde(rename = "raidLevel")]
+    pub raid_level: Option<String>,
+    #[serde(rename = "manualPartitions")]
+    pub manual_partitions: Option<Vec<PartitionSpec>>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PartitionSpec {
+    pub device: String,
+    pub mountpoint: String,
+    pub fstype: String,
+    pub size: String,
+    pub format: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -211,6 +228,10 @@ async fn plan(Json(req): Json<PlanRequest>) -> Json<InstallPlan> {
             target: req.disk.target,
             layout: req.disk.layout.unwrap_or_else(|| "btrfs-simple".into()),
             boot_mode: req.disk.boot_mode.unwrap_or_else(|| "uefi".into()),
+            profile: "single".into(),
+            selected_disks: vec![],
+            raid_level: None,
+            manual_partitions: None,
         },
         user: PlanUser {
             name: req.user.name,
@@ -230,11 +251,61 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
     let mut checks = vec![];
     let mut ok = true;
 
-    if std::path::Path::new(&plan.disk.target).exists() {
-        checks.push(Check::pass(format!("Disco {} encontrado", plan.disk.target)));
+    if plan.disk.profile == "manual" {
+        let parts = plan.disk.manual_partitions.as_ref().cloned().unwrap_or_default();
+        let has_root = parts.iter().any(|p| p.mountpoint == "/");
+        let has_efi = parts.iter().any(|p| p.mountpoint == "/boot/efi" || p.mountpoint == "/efi");
+
+        if has_root {
+            checks.push(Check::pass("Partição raiz (/) definida"));
+        } else {
+            checks.push(Check::fail("Modo manual exige partição raiz (/)"));
+            ok = false;
+        }
+
+        if has_efi {
+            checks.push(Check::pass("Partição EFI definida"));
+        } else {
+            checks.push(Check::fail("Modo manual exige partição EFI (/boot/efi ou /efi)"));
+            ok = false;
+        }
+
+        // Check for duplicate mountpoints
+        let mut mnts = std::collections::HashSet::new();
+        for p in &parts {
+            if !mnts.insert(&p.mountpoint) {
+                checks.push(Check::fail(format!("Ponto de montagem duplicado: {}", p.mountpoint)));
+                ok = false;
+            }
+        }
+    } else if plan.disk.profile == "raid" {
+        let level = plan.disk.raid_level.as_deref().unwrap_or("raid1");
+        let count = plan.disk.selected_disks.len();
+        let min_required = match level {
+            "raid0" | "raid1" => 2,
+            "raid5" => 3,
+            "raid10" => 4,
+            _ => 2,
+        };
+
+        if count >= min_required {
+            checks.push(Check::pass(format!("Configuração {} com {} discos", level.to_uppercase(), count)));
+        } else {
+            checks.push(Check::fail(format!("{} exige pelo menos {} discos (selecionados: {})", level.to_uppercase(), min_required, count)));
+            ok = false;
+        }
+
+        if level == "raid10" && count % 2 != 0 {
+            checks.push(Check::fail("RAID 10 exige número par de discos"));
+            ok = false;
+        }
     } else {
-        checks.push(Check::fail(format!("Disco {} não encontrado", plan.disk.target)));
-        ok = false;
+        if std::path::Path::new(&plan.disk.target).exists() {
+            checks.push(Check::pass(format!("Disco {} encontrado", plan.disk.target)));
+        } else {
+            checks.push(Check::fail(format!("Disco {} não encontrado", plan.disk.target)));
+            ok = false;
+        }
     }
 
     if !plan.hostname.trim().is_empty() {
@@ -386,6 +457,10 @@ mod tests {
                 target: disk.into(),
                 layout: "btrfs-simple".into(),
                 boot_mode: "uefi".into(),
+                profile: "single".into(),
+                selected_disks: vec![],
+                raid_level: None,
+                manual_partitions: None,
             },
             user: PlanUser {
                 name: user.into(),
@@ -409,6 +484,53 @@ mod tests {
         let result = validate_plan(&make_plan("/dev/null", "", "admin"));
         assert!(!result.ok);
         assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("Hostname")));
+    }
+
+    #[test]
+    fn test_dry_run_manual_requires_root_and_efi() {
+        let mut plan = make_plan("/dev/null", "kryonix", "admin");
+        plan.disk.profile = "manual".into();
+        plan.disk.manual_partitions = Some(vec![
+            PartitionSpec {
+                device: "/dev/sda".into(),
+                mountpoint: "/home".into(),
+                fstype: "ext4".into(),
+                size: "100%".into(),
+                format: true,
+            }
+        ]);
+
+        let result = validate_plan(&plan);
+        assert!(!result.ok);
+        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("raiz (/)")));
+        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("EFI")));
+    }
+
+    #[test]
+    fn test_dry_run_manual_rejects_duplicate_mountpoints() {
+        let mut plan = make_plan("/dev/null", "kryonix", "admin");
+        plan.disk.profile = "manual".into();
+        plan.disk.manual_partitions = Some(vec![
+            PartitionSpec { device: "/dev/sda".into(), mountpoint: "/".into(), fstype: "ext4".into(), size: "10G".into(), format: true },
+            PartitionSpec { device: "/dev/sda".into(), mountpoint: "/boot/efi".into(), fstype: "vfat".into(), size: "512M".into(), format: true },
+            PartitionSpec { device: "/dev/sda".into(), mountpoint: "/".into(), fstype: "ext4".into(), size: "10G".into(), format: true },
+        ]);
+
+        let result = validate_plan(&plan);
+        assert!(!result.ok);
+        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("duplicado")));
+    }
+
+    #[test]
+    fn test_dry_run_raid_requires_min_disks() {
+        let mut plan = make_plan("/dev/null", "kryonix", "admin");
+        plan.disk.profile = "raid".into();
+        plan.disk.raid_level = Some("raid5".into());
+        plan.disk.selected_disks = vec!["/dev/sda".into(), "/dev/sdb".into()]; // RAID 5 needs 3
+
+        let result = validate_plan(&plan);
+        assert!(!result.ok);
+        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("RAID5 exige pelo menos 3")));
     }
 
     #[test]
