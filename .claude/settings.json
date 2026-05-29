@@ -21,13 +21,37 @@
       "Read(//etc/kryonix/**)",
       "Read(//home/rocha/.config/**)",
       "Read(//home/rocha/.local/state/caelestia/**)",
-      "Read(//home/rocha/.local/share/**)"
+      "Read(//home/rocha/.local/share/**)",
+      "Bash(hyprctl version *)",
+      "Bash(hyprctl windowrules *)",
+      "Bash(xargs -I{} sed -n '148,185p' {})",
+      "Bash(hyprctl getoption *)",
+      "Bash(hyprctl hyprlandversion *)",
+      "Bash(plymouth-set-default-theme)",
+      "Read(//etc/plymouth/**)",
+      "Read(//run/current-system/sw/share/plymouth/**)",
+      "Read(//run/current-system/sw/share/plymouth/themes/**)",
+      "Bash(sudo plymouthd --debug --no-daemon --attach-to-session)",
+      "Bash(sudo plymouth show-splash)",
+      "Bash(sudo plymouth quit)",
+      "Bash(wait)",
+      "Bash(# Ver debug log do plymouth se existir *)",
+      "Read(//var/log/plymouth/**)",
+      "Read(//var/log/**)",
+      "Bash(lsinitrd /run/current-system/initrd)",
+      "Bash(lsinitrd)",
+      "Bash(zstd -d /run/current-system/initrd --stdout)",
+      "Bash(cpio -t)",
+      "Bash(xxd /run/current-system/initrd)"
     ],
     "additionalDirectories": [
       "/tmp",
       "/home/rocha/.config",
       "/home/rocha/.local/state/caelestia",
-      "/home/rocha/.local/share"
+      "/home/rocha/.local/share",
+      "/etc/systemd",
+      "/home/rocha/.config/hyprland",
+      "/home/rocha/"
     ]
   }
 }
