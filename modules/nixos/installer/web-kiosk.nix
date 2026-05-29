@@ -98,7 +98,7 @@ in
     # Suprimir cursor piscante no TTY
     boot.kernelParams = [ "vt.global_cursor_default=0" ];
 
-    environment.systemPackages = with pkgs; [ cage chromium curl ];
+    environment.systemPackages = with pkgs; [ cage chromium curl kryonix-hardware-probe kryonix-installer ];
 
     hardware.opengl.enable = lib.mkDefault true;
   });

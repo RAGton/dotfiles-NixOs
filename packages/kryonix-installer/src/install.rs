@@ -1,8 +1,10 @@
-use std::process::Stdio;
-use tokio::process::Command;
-use tokio::io::{AsyncBufReadExt, BufReader};
+#![allow(dead_code)] // Phase 2 — used by PROMPT_04 executor
+
 use serde::{Deserialize, Serialize};
+use std::process::Stdio;
 use std::sync::Arc;
+use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::process::Command;
 use tokio::sync::broadcast;
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -31,7 +33,9 @@ pub async fn generate_configs(config: &InstallConfig) -> Result<(), String> {
         config.locale, config.keyboard, config.network, config.user
     );
 
-    tokio::fs::create_dir_all("/mnt/etc/kryonix").await.unwrap_or(());
+    tokio::fs::create_dir_all("/mnt/etc/kryonix")
+        .await
+        .unwrap_or(());
 
     tokio::fs::write("/mnt/etc/kryonix/installer-config.nix", nix_content)
         .await
@@ -39,7 +43,7 @@ pub async fn generate_configs(config: &InstallConfig) -> Result<(), String> {
 
     // Hardware config Generation
     let output = Command::new("nixos-generate-config")
-        .args(&["--root", "/mnt", "--dir", "/mnt/etc/kryonix"])
+        .args(["--root", "/mnt", "--dir", "/mnt/etc/kryonix"])
         .output()
         .await
         .map_err(|e| format!("nixos-generate-config failed: {}", e))?;
@@ -53,7 +57,13 @@ pub async fn generate_configs(config: &InstallConfig) -> Result<(), String> {
 
 pub async fn execute_nixos_install(sender: Arc<broadcast::Sender<String>>) -> Result<(), String> {
     let mut child = Command::new("nixos-install")
-        .args(&["--flake", "/mnt/etc/kryonix#target-host", "--no-root-passwd", "--root", "/mnt"])
+        .args([
+            "--flake",
+            "/mnt/etc/kryonix#target-host",
+            "--no-root-passwd",
+            "--root",
+            "/mnt",
+        ])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
