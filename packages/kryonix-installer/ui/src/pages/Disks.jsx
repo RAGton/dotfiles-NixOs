@@ -179,6 +179,7 @@ function TabLayout({ layoutMode, onLayoutChange, wizard, diskInventory, splitSum
     { id: 'single', label: 'Apagar tudo', desc: 'Um disco · EFI + / BTRFS · subvolumes @, @home, @nix, @log' },
     { id: 'split',  label: 'Dois discos', desc: 'Sistema em disco 1 · dados em /srv/data no disco 2' },
     { id: 'raid',   label: 'RAID / LVM',  desc: 'Múltiplos discos · redundância ou expansão de capacidade' },
+    { id: 'manual', label: 'Manual',      desc: 'Particionamento customizado · controle total de montagem' },
   ];
 
   return (
@@ -199,8 +200,206 @@ function TabLayout({ layoutMode, onLayoutChange, wizard, diskInventory, splitSum
               {m.id === 'raid' ? raidSummary?.description : splitSummary?.description}
             </div>
           )}
+          {layoutMode === m.id && m.id === 'manual' && (
+            <div style={{ fontSize: 11, color: 'var(--primary)', marginTop: 6 }}>
+              ✓ Modo manual ativado. Configure as partições na aba Manual.
+            </div>
+          )}
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ── aba Manual ── */
+
+function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
+  const [formData, setFormData] = useState(initialData || {
+    device: eligibleDisks[0]?.path || '',
+    mountpoint: '',
+    fstype: 'ext4',
+    size: '10G',
+    format: true
+  });
+
+  const isValid = formData.device && formData.mountpoint && formData.size;
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content glass-panel" style={{ width: 420 }} onClick={e => e.stopPropagation()}>
+        <h3 className="modal-title">{initialData ? 'Editar Partição' : 'Nova Partição'}</h3>
+        
+        <div className="form-group">
+          <label>Disco Alvo</label>
+          <select 
+            value={formData.device} 
+            onChange={e => setFormData({...formData, device: e.target.value})}
+            className="input-shell"
+            style={{ width: '100%' }}
+          >
+            {eligibleDisks.map(d => (
+              <option key={d.path} value={d.path}>{d.path} ({bytesToGb(d.size_bytes)} GB)</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Ponto de Montagem</label>
+          <input 
+            type="text" 
+            placeholder="Ex: /, /home, /boot/efi"
+            value={formData.mountpoint}
+            onChange={e => setFormData({...formData, mountpoint: e.target.value})}
+            className="input-shell"
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div className="form-grid">
+          <div className="form-group">
+            <label>Filesystem</label>
+            <select 
+              value={formData.fstype}
+              onChange={e => setFormData({...formData, fstype: e.target.value})}
+              className="input-shell"
+              style={{ width: '100%' }}
+            >
+              <option value="ext4">ext4</option>
+              <option value="btrfs">btrfs</option>
+              <option value="vfat">vfat (EFI)</option>
+              <option value="xfs">xfs</option>
+              <option value="swap">swap</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Tamanho</label>
+            <input 
+              type="text" 
+              placeholder="Ex: 512M, 20G, 100%"
+              value={formData.size}
+              onChange={e => setFormData({...formData, size: e.target.value})}
+              className="input-shell"
+              style={{ width: '100%' }}
+            />
+          </div>
+        </div>
+
+        <label className="flex-row gap-8" style={{ marginTop: 8, cursor: 'pointer', userSelect: 'none' }}>
+          <input 
+            type="checkbox" 
+            checked={formData.format}
+            onChange={e => setFormData({...formData, format: e.target.checked})}
+          />
+          <span style={{ fontSize: 13, color: 'var(--text2)' }}>Formatar partição (cria novo FS)</span>
+        </label>
+
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button 
+            className="btn-primary" 
+            disabled={!isValid} 
+            onClick={() => onSave(formData)}
+          >
+            {initialData ? 'Atualizar' : 'Adicionar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabManual({ wizard, onChange, eligibleDisks }) {
+  const [showModal, setShowModal] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(-1);
+  const manualParts = wizard.manualPartitions || [];
+
+  const handleAdd = () => {
+    setEditingIndex(-1);
+    setShowModal(true);
+  };
+
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+    setShowModal(true);
+  };
+
+  const handleRemove = (index) => {
+    const next = [...manualParts];
+    next.splice(index, 1);
+    onChange({ manualPartitions: next });
+  };
+
+  const handleSave = (part) => {
+    const next = [...manualParts];
+    if (editingIndex >= 0) {
+      next[editingIndex] = part;
+    } else {
+      next.push(part);
+    }
+    onChange({ manualPartitions: next });
+    setShowModal(false);
+  };
+
+  return (
+    <div className="manual-partition-container">
+      <div className="flex-between" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>Plano de Particionamento</div>
+        <button className="btn-primary" style={{ padding: '6px 12px', fontSize: 12 }} onClick={handleAdd}>
+          + Nova Partição
+        </button>
+      </div>
+
+      <div className="manual-table-wrapper">
+        <table className="manual-table">
+          <thead>
+            <tr>
+              <th>Disco</th>
+              <th>Montagem</th>
+              <th>FS</th>
+              <th>Tamanho</th>
+              <th>Fmt</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {manualParts.length === 0 ? (
+              <tr>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--text3)', padding: '32px 16px' }}>
+                  Nenhuma partição customizada definida. <br/>
+                  <span style={{ fontSize: 11, marginTop: 8, display: 'block' }}>
+                    Adicione pelo menos / e /boot/efi para prosseguir.
+                  </span>
+                </td>
+              </tr>
+            ) : (
+              manualParts.map((p, i) => (
+                <tr key={i}>
+                  <td style={{ fontSize: 11 }}>{p.device.split('/').pop()}</td>
+                  <td><code className="code-pill">{p.mountpoint}</code></td>
+                  <td>{p.fstype}</td>
+                  <td>{p.size}</td>
+                  <td>{p.format ? '✓' : '✗'}</td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn-icon" title="Editar" onClick={() => handleEdit(i)}>✎</button>
+                      <button className="btn-icon danger" title="Remover" onClick={() => handleRemove(i)}>✕</button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {showModal && (
+        <PartitionModal
+          onClose={() => setShowModal(false)}
+          onSave={handleSave}
+          initialData={editingIndex >= 0 ? manualParts[editingIndex] : null}
+          eligibleDisks={eligibleDisks}
+        />
+      )}
     </div>
   );
 }
@@ -211,7 +410,7 @@ function TabPlaceholder({ name }) {
   return (
     <div className="tab-placeholder">
       <span style={{ fontSize: 22, color: 'var(--border2)' }}>◈</span>
-      <span>{name} — em desenvolvimento (Commit 4)</span>
+      <span>{name} — em desenvolvimento (RAID advanced UI)</span>
     </div>
   );
 }
@@ -275,7 +474,7 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
   /* ── derived state (preservado da versão original) ── */
   const eligibleDisks  = useMemo(() => diskInventory.filter(d => d.eligible), [diskInventory]);
   const eligiblePaths  = useMemo(() => new Set(eligibleDisks.map(d => d.path)), [eligibleDisks]);
-  const layoutMode     = wizard.diskProfile === 'raid' ? 'raid' : wizard.diskMode === 'two' ? 'split' : 'single';
+  const layoutMode     = wizard.diskProfile === 'raid' ? 'raid' : wizard.diskProfile === 'manual' ? 'manual' : wizard.diskMode === 'two' ? 'split' : 'single';
   const raidMembers    = useMemo(() => getSelectedDiskRecords(diskInventory, wizard.selectedDisks), [diskInventory, wizard.selectedDisks]);
   const raidMemberPaths = useMemo(() => raidMembers.map(d => d.path), [raidMembers]);
   const raidOptions    = useMemo(() => getRaidOptionsForSelection(raidMembers), [raidMembers]);
@@ -292,9 +491,13 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
   const splitSummary     = useMemo(() => buildSplitPlanSummary(diskInventory, wizard.sysDisk, wizard.dataDisk), [diskInventory, wizard.sysDisk, wizard.dataDisk]);
 
   const storageIssues   = layoutMode === 'raid' ? raidValidation.blockingReasons
-    : layoutMode === 'split' ? splitValidation.blockingReasons : singleValidation.blockingReasons;
+    : layoutMode === 'split' ? splitValidation.blockingReasons
+    : layoutMode === 'manual' ? [] // Validação específica via validateStep
+    : singleValidation.blockingReasons;
   const storageWarnings = layoutMode === 'raid' ? raidValidation.warnings
-    : layoutMode === 'split' ? splitValidation.warnings : singleValidation.warnings;
+    : layoutMode === 'split' ? splitValidation.warnings
+    : layoutMode === 'manual' ? []
+    : singleValidation.warnings;
 
   /* sync state → wizard */
   useEffect(() => {
@@ -337,6 +540,9 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
     } else if (nextMode === 'raid') {
       const members = eligibleDisks.slice(0, 2).map(d => d.path);
       onChange({ diskProfile: 'raid', diskMode: 'one', sysDisk: members[0] || '', dataDisk: '', selectedDisks: members, rootFs: 'btrfs', dataFs: 'btrfs', raidLevel: resolvedRaidLevel });
+    } else if (nextMode === 'manual') {
+      onChange({ diskProfile: 'manual', diskMode: 'one', sysDisk: wizard.sysDisk || firstEligible, dataDisk: '', selectedDisks: [wizard.sysDisk || firstEligible] });
+      setActiveTab(2); // Jump to Manual tab
     }
   }
 
@@ -383,10 +589,17 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
             raidOptions={raidOptions}
           />
         )}
-        {activeTab === 2 && <TabPlaceholder name="Manual" />}
+        {activeTab === 2 && (
+          <TabManual
+            wizard={wizard}
+            onChange={onChange}
+            eligibleDisks={eligibleDisks}
+          />
+        )}
         {activeTab === 3 && <TabPlaceholder name="RAID" />}
       </div>
 
     </div>
   );
 }
+

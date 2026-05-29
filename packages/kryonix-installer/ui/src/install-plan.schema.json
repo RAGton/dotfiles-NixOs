@@ -60,6 +60,20 @@
         "dataFs": {
           "type": "string",
           "enum": ["btrfs", "ext4", "xfs"]
+        },
+        "manualPartitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["device", "mountpoint", "fstype", "size", "format"],
+            "properties": {
+              "device": { "type": "string" },
+              "mountpoint": { "type": "string" },
+              "fstype": { "type": "string" },
+              "size": { "type": "string" },
+              "format": { "type": "boolean" }
+            }
+          }
         }
       }
     },

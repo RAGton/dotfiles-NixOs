@@ -133,15 +133,19 @@ function formatAjvErrors(errors) {
 
 export function buildInstallPlanPayload(draftInput) {
   const draft = createInstallPlanDraft(draftInput);
-  const diskProfile = sanitizeString(draft.diskProfile) === 'raid' ? 'raid' : 'single';
+  const diskProfile = sanitizeString(draft.diskProfile);
   const requestedDiskMode = sanitizeString(draft.diskMode) === 'two' ? 'two' : 'one';
   const sysDisk = sanitizeString(draft.sysDisk);
   const dataDiskCandidate = sanitizeString(draft.dataDisk);
   const raidMembers = uniqueStrings(draft.selectedDisks);
-  const diskMode = diskProfile === 'raid' ? 'one' : requestedDiskMode;
+  const diskMode = (diskProfile === 'raid' || diskProfile === 'manual') ? 'one' : requestedDiskMode;
+  
   const selectedDisks = diskProfile === 'raid'
     ? uniqueStrings([sysDisk, ...raidMembers].filter(Boolean))
-    : uniqueStrings([sysDisk, ...(diskMode === 'two' ? [dataDiskCandidate] : [])].filter(Boolean));
+    : diskProfile === 'manual'
+      ? uniqueStrings([sysDisk, ...(draft.manualPartitions || []).map(p => p.device)].filter(Boolean))
+      : uniqueStrings([sysDisk, ...(diskMode === 'two' ? [dataDiskCandidate] : [])].filter(Boolean));
+
   const dataDisk = diskProfile === 'single' && diskMode === 'two' ? dataDiskCandidate || undefined : undefined;
   const mgmtPrefix = netmaskToPrefix(draft.mgmtNetmask) ?? 0;
   const wanPrefix = netmaskToPrefix(draft.wanNetmask);
@@ -153,16 +157,17 @@ export function buildInstallPlanPayload(draftInput) {
     version: INSTALL_PLAN_VERSION,
     disk: {
       mode: diskMode,
-      profile: diskProfile,
+      profile: (diskProfile === 'raid' || diskProfile === 'manual') ? diskProfile : 'single',
       selectedDisks,
       raidLevel: diskProfile === 'raid' ? sanitizeString(draft.raidLevel) || 'raid1' : undefined,
       luksEnabled: Boolean(draft.luksEnabled),
       sysDisk,
-      dataDisk: diskMode === 'two' && diskProfile !== 'raid' ? dataDisk : undefined,
-      rootFs: diskProfile === 'raid' || diskMode === 'one'
+      dataDisk: diskMode === 'two' && diskProfile !== 'raid' && diskProfile !== 'manual' ? dataDisk : undefined,
+      manualPartitions: diskProfile === 'manual' ? (draft.manualPartitions || []) : undefined,
+      rootFs: (diskProfile === 'raid' || diskProfile === 'manual' || diskMode === 'one')
         ? 'btrfs'
         : sanitizeString(draft.rootFs) || 'btrfs',
-      dataFs: diskProfile === 'raid'
+      dataFs: (diskProfile === 'raid' || diskProfile === 'manual')
         ? 'btrfs'
         : diskMode === 'two'
           ? sanitizeString(draft.dataFs) || 'btrfs'
@@ -416,6 +421,12 @@ export function validateStep(stepId, draftInput, uiInput = {}) {
         if (payload.disk.dataDisk) {
           addFieldError(result, 'dataDisk', 'RAID não usa disk.dataDisk no contrato atual.');
         }
+      } else if (payload.disk.profile === 'manual') {
+        const manual = payload.disk.manualPartitions || [];
+        const hasRoot = manual.some(p => p.mountpoint === '/');
+        const hasEfi = manual.some(p => p.mountpoint === '/boot/efi' || p.mountpoint === '/efi');
+        if (!hasRoot) addBlockingIssue(result, 'Partição raiz (/) é obrigatória no modo manual.');
+        if (!hasEfi) addBlockingIssue(result, 'Partição EFI (/boot/efi ou /efi) é obrigatória.');
       } else if (payload.disk.mode === 'two') {
         if (selectedDisks.length !== 2) {
           addFieldError(result, 'selectedDisks', 'O layout split exige exatamente 2 discos distintos.');
