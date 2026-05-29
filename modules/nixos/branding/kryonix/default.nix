@@ -26,6 +26,7 @@
   lib,
   config,
   pkgs,
+  options,
   ...
 }:
 let
@@ -61,8 +62,7 @@ let
       }
       ''
         themeDir="$out/share/plymouth/themes/kryonix"
-        imageDir="$themeDir/images"
-        mkdir -p "$imageDir"
+        mkdir -p "$themeDir"
 
         magick "${kryonixWallpaper}" \
           -resize 1920x1080^ \
@@ -72,71 +72,117 @@ let
           -modulate 60,75,100 \
           -fill '#081018aa' \
           -colorize 45 \
-          PNG32:"$imageDir/background.png"
+          PNG32:"$themeDir/background.png"
 
         magick "${kryonixAvatar}" \
           -background none \
           -resize 120x120 \
           -gravity center \
           -extent 120x120 \
-          PNG32:"$imageDir/logo.png"
-
-        for i in $(seq 0 47); do
-          frame="$(printf '%04d' "$((i + 1))")"
-
-          if [ "$i" -le 23 ]; then
-            pulse="$i"
-          else
-            pulse="$((47 - i))"
-          fi
-
-          size="$((100 + pulse))"
-          glow_size="$((128 + pulse * 2))"
-          glow_alpha="0.$((30 + pulse))"
-
-          magick -size 176x176 xc:none \
-            \( "$imageDir/logo.png" -resize "''${glow_size}x''${glow_size}" -alpha set -channel A -evaluate multiply "''${glow_alpha}" +channel -fill '#f0c78b' -colorize 100 -blur 0x18 \) \
-            -gravity center -compose over -composite \
-            \( "$imageDir/logo.png" -resize "''${size}x''${size}" \) \
-            -gravity center -compose over -composite \
-            PNG32:"$imageDir/throbber-''${frame}.png"
-        done
+          PNG32:"$themeDir/logo.png"
 
         cat > "$themeDir/kryonix.plymouth" <<EOF
         [Plymouth Theme]
         Name=Kryonix
-        Description=Tema de boot do Kryonix
-        ModuleName=two-step
+        Description=Tema animado de splash do Kryonix (Script Engine)
+        ModuleName=script
 
-        [two-step]
-        Font=Cantarell 20
-        ImageDir=$imageDir
-        BackgroundStartColor=0x081018
-        BackgroundEndColor=0x081018
-        ProgressBarBackgroundColor=0x1b2a36
-        ProgressBarForegroundColor=0xf0c78b
-        DialogHorizontalAlignment=.5
-        DialogVerticalAlignment=.82
-        HorizontalAlignment=.5
-        VerticalAlignment=.72
-        Transition=fade-over
-        TransitionDuration=0.45
-        MessageBelowAnimation=true
-        UseEndAnimation=false
+        [script]
+        ImageDir=$themeDir
+        ScriptFile=$themeDir/kryonix.script
+        EOF
 
-        [boot-up]
-        UseEndAnimation=false
-        UseFirmwareBackground=false
+        cat > "$themeDir/kryonix.script" <<'EOF'
+        # ====== Configuracoes Base ======
+        screen_width = Window.GetWidth();
+        screen_height = Window.GetHeight();
 
-        [shutdown]
-        UseEndAnimation=false
-        UseFirmwareBackground=false
+        # ====== Assets ======
+        bg_image = Image("background.png");
+        logo_image = Image("logo.png");
 
-        [reboot]
-        UseEndAnimation=false
-        UseFirmwareBackground=false
+        # ====== Background (Preserva aspecto e Fill) ======
+        window_ratio = screen_width / screen_height;
+        bg_ratio = bg_image.GetWidth() / bg_image.GetHeight();
+
+        if (window_ratio > bg_ratio) {
+            bg_scale = screen_width / bg_image.GetWidth();
+        } else {
+            bg_scale = screen_height / bg_image.GetHeight();
+        }
+
+        scaled_bg = bg_image.Scale(bg_image.GetWidth() * bg_scale, bg_image.GetHeight() * bg_scale);
+        bg_sprite = Sprite(scaled_bg);
+        bg_sprite.SetX(screen_width / 2 - bg_sprite.GetImage().GetWidth() / 2);
+        bg_sprite.SetY(screen_height / 2 - bg_sprite.GetImage().GetHeight() / 2);
+        bg_sprite.SetZ(-10);
+
+        # ====== Logo ======
+        logo_sprite = Sprite(logo_image);
+        logo_sprite.SetX(screen_width / 2 - logo_image.GetWidth() / 2);
+        logo_sprite.SetY(screen_height / 2 - logo_image.GetHeight() / 2);
+        logo_sprite.SetZ(10);
+
+        # ====== Animacao ======
+        progress = 0;
+
+        fun refresh_callback () {
+            progress++;
+            mod = progress % 100;
+            
+            # Pulso linear de fade in e fade out
+            if (mod < 50) {
+               op = (50 + mod) / 100.0;
+            } else {
+               op = (150 - mod) / 100.0;
+            }
+            logo_sprite.SetOpacity(op);
+        }
+        Plymouth.SetRefreshFunction(refresh_callback);
+
+        # ====== Handlers de Sistema (LUKS, Quit) ======
+        status = "normal";
+
+        fun display_password_callback(prompt, bullets) {
+            status = "password";
+            logo_sprite.SetOpacity(0);
+        }
+        Plymouth.SetDisplayPasswordFunction(display_password_callback);
+
+        fun display_normal_callback() {
+            status = "normal";
+        }
+        Plymouth.SetDisplayNormalFunction(display_normal_callback);
         EOF
       '';
+  grubTheme = pkgs.stdenv.mkDerivation {
+    name = "kryonix-grub-theme";
+    nativeBuildInputs = [ pkgs.imagemagick ];
+    buildCommand = ''
+      themeDir="$out/kryonix"
+      mkdir -p "$themeDir"
+
+      magick "${kryonixWallpaper}" \
+        -resize 1920x1080^ \
+        -gravity center \
+        -extent 1920x1080 \
+        -brightness-contrast -20x0 \
+        -fill '#081018' \
+        -colorize 40 \
+        PNG32:"$themeDir/background.png"
+
+      cp ${./grub-theme/theme.txt} "$themeDir/theme.txt"
+
+      magick -size 10x32 xc:'#00d4ff22' \
+        -fill none \
+        -stroke '#00d4ff' \
+        -strokewidth 1 \
+        -draw "rectangle 0,0 9,31" \
+        PNG32:"$themeDir/select_c.png"
+      cp "$themeDir/select_c.png" "$themeDir/select_w.png"
+      magick -size 5x32 xc:'#00d4ff22' PNG32:"$themeDir/select_e.png"
+    '';
+  };
   # Conteúdo do /etc/os-release.
   # Usamos um conjunto pequeno e compatível (muitas ferramentas só precisam disso).
   osReleaseText = ''
@@ -191,62 +237,71 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    # Substitui o /etc/os-release padrão do NixOS.
-    # Se não for mkForce, pode acontecer de ficar duplicado/mesclado.
-    environment.etc."os-release".text = lib.mkForce osReleaseText;
+  config = lib.mkMerge [
+    (lib.mkIf cfg.enable {
+      # Substitui o /etc/os-release padrão do NixOS.
+      # Se não for mkForce, pode acontecer de ficar duplicado/mesclado.
+      environment.etc."os-release".text = lib.mkForce osReleaseText;
 
-    # Texto exibido em TTY/getty.
-    environment.etc."issue".text =
-      if cfg.issueText != null then
-        cfg.issueText
-      else
-        ''
-          ${displayName}
-          Kernel: \r \m
-          Host: \n
-        '';
+      # Texto exibido em TTY/getty.
+      environment.etc."issue".text =
+        if cfg.issueText != null then
+          cfg.issueText
+        else
+          ''
+            ${displayName}
+            Kernel: \r \m
+            Host: \n
+          '';
 
-    programs.dconf.profiles.gdm.databases = [
-      {
-        settings = {
-          "org/gnome/desktop/background" = {
-            picture-uri = "file://${kryonixGdmWallpaper}";
-            picture-uri-dark = "file://${kryonixGdmWallpaper}";
-            picture-options = "zoom";
-            primary-color = "#05070c";
-            secondary-color = "#05070c";
-            color-shading-type = "solid";
+      programs.dconf.profiles.gdm.databases = [
+        {
+          settings = {
+            "org/gnome/desktop/background" = {
+              picture-uri = "file://${kryonixGdmWallpaper}";
+              picture-uri-dark = "file://${kryonixGdmWallpaper}";
+              picture-options = "zoom";
+              primary-color = "#05070c";
+              secondary-color = "#05070c";
+              color-shading-type = "solid";
+            };
+            "org/gnome/desktop/screensaver" = {
+              picture-uri = "file://${kryonixGdmWallpaper}";
+              picture-uri-dark = "file://${kryonixGdmWallpaper}";
+              picture-options = "zoom";
+              primary-color = "#05070c";
+              secondary-color = "#05070c";
+              color-shading-type = "solid";
+            };
           };
-          "org/gnome/desktop/screensaver" = {
-            picture-uri = "file://${kryonixGdmWallpaper}";
-            picture-uri-dark = "file://${kryonixGdmWallpaper}";
-            picture-options = "zoom";
-            primary-color = "#05070c";
-            secondary-color = "#05070c";
-            color-shading-type = "solid";
-          };
+        }
+      ];
+
+      boot = {
+        plymouth = {
+          enable = true;
+          theme = "kryonix";
+          themePackages = [ plymouthTheme ];
         };
-      }
-    ];
 
-    boot = {
-      plymouth = {
-        enable = true;
-        theme = "kryonix";
-        themePackages = [ plymouthTheme ];
+        loader.grub = {
+          splashImage = grubSplash;
+          theme = lib.mkDefault "${grubTheme}/kryonix";
+          splashMode = lib.mkDefault "stretch";
+          backgroundColor = lib.mkDefault "#081018";
+          gfxmodeEfi = lib.mkDefault "1920x1080";
+          gfxmodeBios = lib.mkDefault "1920x1080";
+          extraConfig = lib.mkAfter ''
+            set color_normal=light-cyan/black
+            set color_highlight=black/light-cyan
+            set menu_color_normal=white/black
+            set menu_color_highlight=black/cyan
+          '';
+        };
       };
-
-      loader.grub = {
-        gfxmodeEfi = lib.mkDefault "1920x1080";
-        gfxmodeBios = lib.mkDefault "1920x1080";
-        extraConfig = lib.mkAfter ''
-          set menu_color_normal=light-gray/black
-          set menu_color_highlight=white/dark-gray
-          set color_normal=light-gray/black
-          set color_highlight=white/dark-gray
-        '';
-      };
-    };
-  };
+    })
+    (lib.mkIf (cfg.enable && options ? isoImage) {
+      isoImage.grubTheme = lib.mkForce "${grubTheme}/kryonix";
+    })
+  ];
 }

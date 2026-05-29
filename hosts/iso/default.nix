@@ -18,10 +18,33 @@
 
     # Nosso módulo de instalador automatizado
     ../../modules/nixos/installer
+    ../../modules/nixos/installer/web-kiosk.nix
     ../../modules/shared/nixpkgs
+
+    # Branding Kryonix (GRUB tema + Plymouth + os-release)
+    ../../modules/nixos/branding/kryonix/default.nix
   ];
 
-  networking.hostName = hostname;
+  networking.hostName = "kryonix-installer";
+  kryonix.installer.kiosk.enable = true;
+  kryonix.branding.enable = true;
+
+  # ISO identity
+  isoImage.volumeID = "KRYONIX-INSTALLER";
+  system.nixos.label = lib.mkForce "Kryonix-Installer";
+
+  # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
+  boot.plymouth.enable = lib.mkForce true;
+
+  # Boot silencioso para Plymouth aparecer corretamente
+  boot.initrd.verbose = lib.mkForce false;
+  boot.consoleLogLevel = lib.mkForce 0;
+  boot.kernelParams = lib.mkAfter [
+    "quiet"
+    "splash"
+    "loglevel=0"
+    "systemd.show_status=false"
+  ];
 
   # ISO deve ser estável e pequena: evita trazer desktop completo.
   documentation.enable = lib.mkDefault false;

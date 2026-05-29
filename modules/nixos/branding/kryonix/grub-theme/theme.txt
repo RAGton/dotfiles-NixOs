@@ -1,0 +1,47 @@
+# Kryonix GRUB Theme — HUD Palette
+# Fundo: #081018 (espaco profundo)
+# Primario: #00d4ff (ciano)
+# Texto: #cdd6f4
+
+desktop-image: "background.png"
+desktop-color: "#081018"
+
+title-text: "⟡ KRYONIX"
+title-font: "Unifont Regular 20"
+title-color: "#00d4ff"
+
++ boot_menu {
+  left   = 15%
+  top    = 20%
+  width  = 70%
+  height = 50%
+  item_font             = "Unifont Regular 16"
+  item_color            = "#cdd6f4"
+  selected_item_color   = "#081018"
+  selected_item_pixmap_style = "select_*.png"
+  item_height    = 32
+  item_padding   = 12
+  item_spacing   = 4
+  scrollbar      = false
+}
+
++ progress_bar {
+  id           = "__timeout__"
+  left         = 15%
+  top          = 73%
+  width        = 70%
+  height       = 3px
+  fg_color     = "#00d4ff"
+  bg_color     = "#1b2a36"
+  border_color = "#1b2a36"
+}
+
++ label {
+  left   = 0
+  top    = 80%
+  width  = 100%
+  align  = "center"
+  text   = "↑↓ selecionar  ↵ confirmar  Tab editar"
+  font   = "Unifont Regular 12"
+  color  = "#45475a"
+}
