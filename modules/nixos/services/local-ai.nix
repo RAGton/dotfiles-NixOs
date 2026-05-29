@@ -4,8 +4,9 @@
   # Ativa o Ollama Local apenas para modelos de utilidade de sistema
   services.ollama = {
     enable = true;
-    # Desativa carregamento persistente em background para poupar bateria do notebook
-    acceleration = null; # Deixa rodar leve na CPU/iGPU se não houver dGPU ativa
+    host = "127.0.0.1";
+    port = 11434;
+    loadModels = [ "qwen2.5-coder:1.5b" ];
   };
 
   # Script de ativação do sistema para garantir que os modelos leves existam localmente

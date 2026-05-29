@@ -43,7 +43,7 @@
     # Kernel e rede
     ../../modules/kernel/zen.nix
     ../../modules/virtualization/net-ragthink.nix
-
+    ../../modules/nixos/services/local-ai.nix
   ];
 
   # =========================

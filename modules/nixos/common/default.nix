@@ -100,16 +100,17 @@
     kernelParams = lib.mkBefore [
       "quiet"
       "splash"
+      "loglevel=0"
       "rd.udev.log_level=3"
       "udev.log_priority=3"
-      "systemd.show_status=auto"
-      "rd.systemd.show_status=auto"
+      "systemd.show_status=false"
+      "rd.systemd.show_status=false"
       "vt.global_cursor_default=0"
     ];
     loader = {
       timeout = lib.mkDefault 3;
       efi.canTouchEfiVariables = lib.mkDefault true;
-      grub.splashImage = lib.mkForce null;
+      grub.splashImage = lib.mkDefault null;
     };
     plymouth = {
       enable = lib.mkDefault true;
