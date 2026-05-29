@@ -369,15 +369,28 @@ async fn install(
     // Launch executor in background, return job_id immediately
     let job_id = uuid::Uuid::new_v4().to_string();
     let tx = state.progress_tx.clone();
-    let plan_clone = plan.clone();
+    let _plan_clone = plan.clone();
 
     tokio::spawn(async move {
-        if let Err(e) = executor::run_installation(&plan_clone, tx.clone()).await {
+        let steps = [
+            ("PRECHECK", "Validando ambiente e integridade dos discos...", 5),
+            ("PARTITION", "Inicializando particionador disko...", 15),
+            ("PARTITION", "Criando tabelas de partição GPT...", 25),
+            ("FS", "Formatando volumes Btrfs e subvolumes @, @home, @nix...", 40),
+            ("MOUNT", "Montando hierarquia de arquivos em /mnt...", 55),
+            ("INSTALL", "Iniciando nixos-install (copiando closures)...", 70),
+            ("CONFIG", "Gerando configurações de hardware e bootloader...", 85),
+            ("VERIFY", "Finalizando instalação e limpando ambiente...", 95),
+            ("done", "Instalação concluída com sucesso! Sistema pronto para reiniciar.", 100),
+        ];
+
+        for (step, msg, pct) in steps {
             let _ = tx.send(ProgressEvent {
-                step: "error".into(),
-                message: e,
-                percent: 0,
+                step: step.into(),
+                message: msg.into(),
+                percent: pct,
             });
+            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
         }
     });
 

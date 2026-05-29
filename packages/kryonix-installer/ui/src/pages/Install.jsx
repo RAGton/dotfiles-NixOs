@@ -22,6 +22,9 @@ function stageTone(state) {
 export default function Install({ draft, uiState, validation }) {
   const logRef = useRef(null);
   const [rebootBusy, setRebootBusy] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [safetyChecked, setSafetyChecked] = useState(false);
+
   const {
     executionState,
     planPayload,
@@ -41,6 +44,8 @@ export default function Install({ draft, uiState, validation }) {
   const installSucceeded = phase === INSTALL_EXECUTION_PHASES.COMPLETED;
   const installFailed = phase === INSTALL_EXECUTION_PHASES.FAILED;
   const installRunning = phase === INSTALL_EXECUTION_PHASES.RUNNING || phase === INSTALL_EXECUTION_PHASES.VALIDATING;
+  const installStarted = executionState.planSubmitted || installRunning || installSucceeded || installFailed;
+
   const stages = useMemo(() => buildInstallStageList(executionState.status), [executionState.status]);
 
   const visibleIssues = useMemo(() => {
@@ -79,6 +84,15 @@ export default function Install({ draft, uiState, validation }) {
     }
   }
 
+  const handleStartRequest = () => {
+    setShowSafetyModal(true);
+  };
+
+  const handleFinalConfirm = () => {
+    setShowSafetyModal(false);
+    startInstallation();
+  };
+
   return (
     <div className="grid h-full min-h-0 gap-5 lg:grid-cols-[0.4fr_1fr]">
       <section className="section-panel flex min-h-0 flex-col border border-emerald-400/10 bg-slate-950/95">
@@ -91,18 +105,30 @@ export default function Install({ draft, uiState, validation }) {
         </div>
 
         <div className="mt-5 space-y-4 overflow-y-auto pr-1">
-          <button
-            type="button"
-            className="btn-primary"
-            disabled={installRunning || !uiState.destructiveConfirmed || installValidation.blockingIssues.length > 0}
-            onClick={startInstallation}
-          >
-            {phase === INSTALL_EXECUTION_PHASES.VALIDATING
-              ? 'Validando pipeline...'
-              : phase === INSTALL_EXECUTION_PHASES.RUNNING
-                ? 'Instalacao em execucao'
-                : 'Instalar agora'}
-          </button>
+          {!installStarted ? (
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={!uiState.destructiveConfirmed || installValidation.blockingIssues.length > 0}
+              onClick={handleStartRequest}
+            >
+              Instalar agora
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={true}
+            >
+              {phase === INSTALL_EXECUTION_PHASES.VALIDATING
+                ? 'Validando pipeline...'
+                : phase === INSTALL_EXECUTION_PHASES.RUNNING
+                  ? 'Instalacao em execucao'
+                  : installSucceeded 
+                    ? 'Instalacao concluida'
+                    : 'Falha na instalacao'}
+            </button>
+          )}
 
           <button type="button" className="btn-secondary" disabled={!installSucceeded || rebootBusy} onClick={handleReboot}>
             {rebootBusy ? 'Reiniciando...' : 'Reiniciar sistema'}
@@ -206,6 +232,50 @@ export default function Install({ draft, uiState, validation }) {
           {executionState.logTail}
         </pre>
       </section>
+
+      {showSafetyModal && (
+        <div className="modal-overlay" onClick={() => setShowSafetyModal(false)}>
+          <div 
+            className="modal-content glass-panel modal-danger" 
+            style={{ width: 480 }} 
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 className="modal-title">Aviso Crítico de Segurança</h3>
+            
+            <div className="warning-box">
+              <div className="warning-text">
+                Você está prestes a iniciar a instalação do Kryonix OS. Esta ação é <b>irreversível</b> e resultará na perda total de dados nos seguintes dispositivos:
+                <ul className="mt-2 list-disc pl-5 opacity-80">
+                  <li>{planPayload.disk.target} (Sistema)</li>
+                  {planPayload.disk.selectedDisks?.filter(d => d !== planPayload.disk.target).map(d => (
+                    <li key={d}>{d} (Dados/RAID)</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <label className="danger-checkbox">
+              <input 
+                type="checkbox" 
+                checked={safetyChecked}
+                onChange={e => setSafetyChecked(e.target.checked)}
+              />
+              <span>Entendo que <b>TODOS</b> os dados nos discos selecionados serão permanentemente apagados.</span>
+            </label>
+
+            <div className="modal-actions mt-8">
+              <button className="btn-secondary" onClick={() => setShowSafetyModal(false)}>Cancelar</button>
+              <button 
+                className="btn-primary bg-red-600 border-red-500 hover:bg-red-500 disabled:opacity-30" 
+                disabled={!safetyChecked} 
+                onClick={handleFinalConfirm}
+              >
+                Confirmar e Instalar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
