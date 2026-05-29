@@ -4,7 +4,7 @@ mod install;
 
 use axum::{
     Json, Router,
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, sse::{Event, Sse}},
     routing::{get, post},
@@ -147,6 +147,7 @@ async fn main() {
         .route("/install", post(install))
         .route("/install/progress", get(install_progress))
         .route("/api/disks", get(get_disks))
+        .route("/api/disks/:device/partitions", get(get_partitions_handler))
         .route("/api/partition", post(partition_endpoint))
         .route("/api/stream", get(stream_logs))
         .layer(CorsLayer::permissive())
@@ -332,6 +333,14 @@ async fn install_progress(
 }
 
 // ── Legacy routes ─────────────────────────────────────────────────────────────
+
+async fn get_partitions_handler(
+    Path(device): Path<String>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    disk::get_partitions(&device)
+        .map(Json)
+        .map_err(|e| err500("FAILED_TO_GET_PARTITIONS", Some(e)))
+}
 
 async fn get_disks() -> Result<Json<Vec<disk::DiskInfo>>, ApiError> {
     disk::list_disks()

@@ -46,6 +46,38 @@ pub fn is_valid_disk_path(path: &str) -> bool {
     re.is_match(path)
 }
 
+/// Retorna o layout de partições de um disco via lsblk.
+/// O `device` é sanitizado: apenas alfanuméricos, `-` e `_` são permitidos.
+pub fn get_partitions(device: &str) -> Result<serde_json::Value, String> {
+    // Sanitização: rejeita qualquer char que não seja alphanum, hífen ou underscore
+    let safe: String = device
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect();
+
+    if safe.is_empty() || safe != device {
+        return Err(format!("Device name inválido ou rejeitado: '{}'", device));
+    }
+
+    let target = format!("/dev/{}", safe);
+
+    let output = Command::new("lsblk")
+        .args([
+            "-J", "-b",
+            "-o", "NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,LABEL,PARTFLAGS",
+            &target,
+        ])
+        .output()
+        .map_err(|e| format!("lsblk falhou: {}", e))?;
+
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).to_string());
+    }
+
+    serde_json::from_slice(&output.stdout)
+        .map_err(|e| format!("Parse JSON lsblk: {}", e))
+}
+
 pub fn partition_disk(disk_path: &str) -> Result<(), String> {
     if !is_valid_disk_path(disk_path) {
         return Err(format!("Invalid disk path: {}", disk_path));
