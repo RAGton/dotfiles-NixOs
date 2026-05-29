@@ -2,35 +2,410 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html,
-  body,
-  #root {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
+/* ── HUD Design System ─────────────────────────────────────────────────── */
 
-  body {
-    @apply bg-slate-950 text-slate-50 antialiased;
-    font-family: 'Departure Mono', ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
-  }
-
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
-  }
-
-  *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.3);
-    border-radius: 999px;
-  }
+:root {
+  --bg:       #0a0d12;
+  --bg2:      #0f1318;
+  --bg3:      #131820;
+  --bg4:      #181f28;
+  --border:   #1e2d3d;
+  --border2:  #253545;
+  --primary:  #00d4ff;
+  --secondary:#82aaff;
+  --accent:   #b48eff;
+  --text:     #cdd6f4;
+  --text2:    #7f8ea3;
+  --text3:    #45566a;
+  --success:  #a6e3a1;
+  --danger:   #f38ba8;
+  --warning:  #f9e2af;
+  --r:        8px;
+  --rlg:      12px;
+  --font:     'JetBrains Mono', 'Courier New', monospace;
 }
+
+/* Unlayered = prioridade sobre @layer base do Tailwind */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* ── Shell (100vw × 100vh, flex column) ────────────────────────────────── */
+
+.shell {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+
+.hdr {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 20px;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+.hdr .logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hdr .logo span {
+  color: var(--text2);
+  font-weight: 400;
+}
+
+/* ── Breadcrumb pills ──────────────────────────────────────────────────── */
+
+.breadcrumb {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  overflow-x: auto;
+  align-items: center;
+  scrollbar-width: none;
+}
+.breadcrumb::-webkit-scrollbar { display: none; }
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.crumb:disabled { cursor: default; }
+
+.crumb.done            { color: var(--success); }
+.crumb.done:not(:disabled):hover { background: #a6e3a108; border-color: #a6e3a120; }
+
+.crumb.current {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #00d4ff0d;
+}
+
+.crumb-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg4);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.crumb.done    .crumb-num { background: transparent; font-size: 12px; }
+.crumb.current .crumb-num { background: var(--primary); color: var(--bg); }
+
+/* ── Content — scrollável, espelha o original ─────────────────────────── */
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+/* Seção interna que preenche o espaço disponível (substitui glass-panel) */
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--rlg);
+  overflow: hidden;
+  padding: 20px 24px;
+}
+
+/* Título/subtítulo da página */
+.page-header { flex-shrink: 0; margin-bottom: 16px; }
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Área de conteúdo que dá altura definida para os filhos (flex:1 = h-full funciona) */
+.page-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
+
+.ftr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 20px;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+}
+
+.step-info {
+  font-size: 12px;
+  color: var(--text2);
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Botões HUD — escopo .btn para não colidir com .btn-primary Tailwind ─ */
+
+.btn {
+  padding: 8px 20px;
+  border-radius: var(--r);
+  border: 1px solid;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+/* Apenas elementos que têm as DUAS classes (.btn e .btn-primary) */
+.btn.btn-primary {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.btn.btn-primary:hover:not(:disabled) {
+  background: #00d4ff14;
+}
+
+.btn.btn-ghost {
+  border-color: var(--border);
+  color: var(--text2);
+}
+.btn.btn-ghost:hover:not(:disabled) {
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Cards ─────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--rlg);
+  padding: 14px 16px;
+}
+.card.selected {
+  border-color: var(--primary);
+  background: #091820;
+}
+
+/* ── Inputs sem classe explícita (não afeta .input-shell do Tailwind) ──── */
+
+input:not([class]),
+select:not([class]) {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:not([class]):focus,
+select:not([class]):focus { border-color: var(--primary); }
+input.valid { border-color: #2a5a2a; }
+input.error { border-color: var(--danger); }
+
+/* ── Layout split 50/50 (Fix 2) ────────────────────────────────────────── */
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+.left {
+  padding: 22px 20px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.right {
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+/* ── Hardware cards grid ────────────────────────────────────────────────── */
+
+.hw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.hw-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.hw-card-label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+
+.hw-card-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hw-card-sub {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+/* ── Status rows ────────────────────────────────────────────────────────── */
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg3);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+.status-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Scanning indicator (Fix 3) ─────────────────────────────────────────── */
+
+.scanning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.scan-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Fix 1: containers sem margin manual ────────────────────────────────── */
+
+/* Garante que section-panel não vaza para fora do border-radius do page-shell */
+.page-shell > * { box-sizing: border-box; }
+
+/* ── Timezone map (preservado) ─────────────────────────────────────────── */
+
+.timezone-map svg { width: 100%; height: 100%; display: block; }
+
+.timezone-map svg path,
+.timezone-map svg polygon,
+.timezone-map svg rect,
+.timezone-map svg ellipse,
+.timezone-map svg circle,
+.timezone-map svg polyline,
+.timezone-map svg line,
+.timezone-map svg [fill]:not([fill='none']) {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.timezone-map button { z-index: 2; }
+
+/* ── Tailwind component aliases (preservados para as páginas internas) ─── */
 
 @layer components {
   .glass-panel {
@@ -41,6 +416,7 @@
     @apply rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-xl;
   }
 
+  /* btn-primary Tailwind permanece intacto para as páginas internas */
   .btn-primary {
     @apply px-6 py-3 rounded-lg font-bold transition-all focus:ring-2 focus:ring-accent-400/60 bg-accent-600 text-white hover:bg-accent-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:opacity-80;
   }
@@ -68,29 +444,4 @@
   .metric-chip {
     @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200;
   }
-}
-
-.timezone-map svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.timezone-map svg path,
-.timezone-map svg polygon,
-.timezone-map svg rect,
-.timezone-map svg ellipse,
-.timezone-map svg circle,
-.timezone-map svg polyline,
-.timezone-map svg line,
-.timezone-map svg [fill]:not([fill='none']) {
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.timezone-map button {
-  z-index: 2;
 }
