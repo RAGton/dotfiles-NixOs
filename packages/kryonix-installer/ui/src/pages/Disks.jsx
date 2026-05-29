@@ -404,6 +404,111 @@ function TabManual({ wizard, onChange, eligibleDisks }) {
   );
 }
 
+/* ── aba RAID ── */
+
+function TabRAID({ wizard, onChange, eligibleDisks }) {
+  const selectedDisks = wizard.selectedDisks || [];
+  const raidLevel = wizard.raidLevel || 'raid1';
+
+  const toggleDisk = (path) => {
+    let next;
+    if (selectedDisks.includes(path)) {
+      next = selectedDisks.filter(p => p !== path);
+    } else {
+      next = [...selectedDisks, path];
+    }
+    onChange({ selectedDisks: next });
+  };
+
+  const calculateCapacity = () => {
+    const disks = eligibleDisks.filter(d => selectedDisks.includes(d.path));
+    if (disks.length === 0) return 0;
+
+    const sizes = disks.map(d => Number(d.size_bytes || 0));
+    const minSize = Math.min(...sizes);
+
+    switch (raidLevel) {
+      case 'raid0':
+        return sizes.reduce((a, b) => a + b, 0);
+      case 'raid1':
+        return minSize;
+      case 'raid5':
+        return minSize * (disks.length - 1);
+      case 'raid10':
+        return (minSize * disks.length) / 2;
+      default:
+        return 0;
+    }
+  };
+
+  const capacity = calculateCapacity();
+  const raidLevels = [
+    { id: 'raid0', label: 'RAID 0', desc: 'Performance (Striping) · Sem redundância' },
+    { id: 'raid1', label: 'RAID 1', desc: 'Segurança (Mirroring) · Redundância de 1 disco' },
+    { id: 'raid5', label: 'RAID 5', desc: 'Equilíbrio · Redundância de 1 disco · Mínimo 3 discos' },
+  ];
+
+  return (
+    <div style={{ padding: 16 }}>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, textTransform: 'uppercase' }}>Nível de RAID</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginTop: 8 }}>
+          {raidLevels.map(lvl => (
+            <div
+              key={lvl.id}
+              className={`disk-card${raidLevel === lvl.id ? ' selected' : ''}`}
+              style={{ padding: '12px', textAlign: 'center' }}
+              onClick={() => onChange({ raidLevel: lvl.id })}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onChange({ raidLevel: lvl.id })}
+            >
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{lvl.label}</div>
+              <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 4 }}>{lvl.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, textTransform: 'uppercase' }}>Selecionar Discos</label>
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {eligibleDisks.map(d => (
+            <label 
+              key={d.path} 
+              className={`flex-between glass-panel${selectedDisks.includes(d.path) ? ' border-primary' : ''}`}
+              style={{ padding: '10px 16px', cursor: 'pointer', border: '1px solid var(--border1)' }}
+            >
+              <div className="flex-row gap-8">
+                <input 
+                  type="checkbox" 
+                  checked={selectedDisks.includes(d.path)}
+                  onChange={() => toggleDisk(d.path)}
+                />
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{d.path}</span>
+                <span style={{ fontSize: 11, color: 'var(--text3)' }}>{d.model}</span>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 700 }}>{bytesToGb(d.size_bytes)} GB</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-panel" style={{ padding: 16, border: '1px solid var(--primary-low)' }}>
+        <div className="flex-between">
+          <span style={{ color: 'var(--text2)', fontSize: 13 }}>Capacidade Efetiva Resultante:</span>
+          <span style={{ color: 'var(--primary)', fontSize: 18, fontWeight: 900 }}>
+            {formatBytes(capacity)}
+          </span>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>
+          * Cálculo baseado no menor disco do array ({raidLevel.toUpperCase()}).
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── abas placeholder ── */
 
 function TabPlaceholder({ name }) {
@@ -414,6 +519,7 @@ function TabPlaceholder({ name }) {
     </div>
   );
 }
+
 
 /* ══════════════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
@@ -540,6 +646,7 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
     } else if (nextMode === 'raid') {
       const members = eligibleDisks.slice(0, 2).map(d => d.path);
       onChange({ diskProfile: 'raid', diskMode: 'one', sysDisk: members[0] || '', dataDisk: '', selectedDisks: members, rootFs: 'btrfs', dataFs: 'btrfs', raidLevel: resolvedRaidLevel });
+      setActiveTab(3); // Jump to RAID tab
     } else if (nextMode === 'manual') {
       onChange({ diskProfile: 'manual', diskMode: 'one', sysDisk: wizard.sysDisk || firstEligible, dataDisk: '', selectedDisks: [wizard.sysDisk || firstEligible] });
       setActiveTab(2); // Jump to Manual tab
@@ -596,7 +703,13 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
             eligibleDisks={eligibleDisks}
           />
         )}
-        {activeTab === 3 && <TabPlaceholder name="RAID" />}
+        {activeTab === 3 && (
+          <TabRAID
+            wizard={wizard}
+            onChange={onChange}
+            eligibleDisks={eligibleDisks}
+          />
+        )}
       </div>
 
     </div>
