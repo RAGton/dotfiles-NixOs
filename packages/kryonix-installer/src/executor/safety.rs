@@ -203,6 +203,10 @@ mod tests {
 
     #[test]
     fn test_check_disk_not_system_null_is_not_system() {
+        // Skip if findmnt is not available (e.g., Nix build sandbox)
+        if std::process::Command::new("findmnt").arg("--help").output().is_err() {
+            return;
+        }
         // /dev/null is never the root disk
         let check = check_disk_not_system("/dev/null");
         assert!(check.passed, "expected /dev/null to not be system disk: {}", check.reason);
