@@ -353,7 +353,7 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <h3 className="text-xl font-bold text-white">Storage do instalador</h3>
-            <p className="mt-1 text-sm text-slate-400">Inventario, layout, papeis e validacao alinhados ao executor real do RAGOS.</p>
+            <p className="mt-1 text-sm text-slate-400">Inventario, layout, papeis e validacao alinhados ao executor real do Kryonix.</p>
           </div>
           <button type="button" className="btn-secondary !px-3 !py-2" onClick={() => setShowHelp((previous) => !previous)}>
             {showHelp ? 'Ocultar ajuda' : 'Ajuda tecnica'}

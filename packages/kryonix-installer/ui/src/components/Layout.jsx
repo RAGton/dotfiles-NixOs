@@ -22,10 +22,10 @@ export default function Layout({
         <header className="flex h-16 shrink-0 items-center justify-between gap-4 px-4 sm:px-5 lg:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-xl">
-              <img src="/imgs/ragton.png" alt="RAGos" className="h-8 w-auto" />
+              <img src="/imgs/kryonix.png" alt="Kryonix" className="h-8 w-auto" />
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">RAGos Think</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">Kryonix</div>
               <div className="truncate text-xs text-slate-400 sm:text-sm">Installer UI • React + Vite + Tailwind</div>
             </div>
           </div>

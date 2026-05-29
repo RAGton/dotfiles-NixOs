@@ -39,7 +39,7 @@ function HelpBlock() {
     <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-50">
       <div className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Ajuda tecnica</div>
       <div className="mt-3 space-y-3 text-cyan-100">
-        <p><b className="text-white">IP do servidor</b>: endereco IPv4 fixo do RAGOS na interface LAN/PXE. E esse IP que o backend grava em `network.serverIp`.</p>
+        <p><b className="text-white">IP do servidor</b>: endereco IPv4 fixo do Kryonix na interface LAN/PXE. E esse IP que o backend grava em `network.serverIp`.</p>
         <p><b className="text-white">Gateway</b>: rota padrao usada pelo servidor. Se nao houver WAN dedicada, o gateway continua sendo o da LAN configurada.</p>
         <p><b className="text-white">DNS</b>: lista de resolvedores IPv4. Valores errados quebram update, fetch do repositorio e resolucao de nomes depois da instalacao.</p>
         <p><b className="text-white">Interface</b>: nome da placa detectada pelo backend. O preenchimento automatico so sugere a primeira interface valida para LAN/PXE; IP, gateway, DNS e porta HTTP continuam revisados manualmente.</p>

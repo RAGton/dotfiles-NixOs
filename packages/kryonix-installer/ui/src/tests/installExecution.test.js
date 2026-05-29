@@ -42,7 +42,7 @@ test('reidratacao a partir do backend preserva logs e fase atual', () => {
 test('appendInstallLog concatena chunks sem perder o banner novo', () => {
   const log = appendInstallLog(createInstallLog(), '[FS] mkfs.ext4 concluido\n');
 
-  assert.match(log, /RAGOS Installer Console/);
+  assert.match(log, /Kryonix Installer Console/);
   assert.match(log, /\[FS\] mkfs\.ext4 concluido/);
 });
 

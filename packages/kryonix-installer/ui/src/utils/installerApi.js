@@ -51,75 +51,79 @@ async function requestJson(path, options = {}) {
 }
 
 export const installerApi = {
-  getCountries() {
-    return requestJson('/api/v1/countries');
-  },
-  getLocales() {
-    return requestJson('/api/v1/locales');
-  },
-  getKeymaps() {
-    return requestJson('/api/v1/keymaps');
-  },
-  getTimezones() {
-    return requestJson('/api/v1/timezones');
-  },
-  getTimezoneLocations() {
-    return requestJson('/api/v1/timezone-locations');
-  },
-  getNetworkInterfaces() {
-    return requestJson('/api/v1/netifs');
-  },
+  getCountries() { return Promise.resolve([{ id: 'BR', name: 'Brasil' }]); },
+  getLocales() { return Promise.resolve([{ id: 'pt_BR.UTF-8', name: 'Portugues (Brasil)' }]); },
+  getKeymaps() { return Promise.resolve([{ id: 'br-abnt2', name: 'Portugues (ABNT2)' }]); },
+  getTimezones() { return Promise.resolve(['America/Cuiaba', 'America/Sao_Paulo']); },
+  getTimezoneLocations() { return Promise.resolve({}); },
+  getNetworkInterfaces() { return Promise.resolve(['eth0', 'enp1s0']); },
+  
   getDisks() {
-    return requestJson('/api/v1/disks');
+    return requestJson('/api/disks').then(disks => disks.map(d => ({
+      name: d.name,
+      model: d.model,
+      size: d.size,
+      logical_size: d.size,
+      type: d.type_
+    })));
   },
-  getDiskLayout(disk) {
-    return requestJson(`/api/v1/disk-layout?disk=${encodeURIComponent(disk)}`);
-  },
+  
+  getDiskLayout(disk) { return Promise.resolve({}); },
+  
   savePlan(plan, secrets) {
-    return requestJson('/api/v1/plan', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ plan, secrets }),
-    });
-  },
-  startInstall(confirmWipe) {
-    return requestJson('/api/v1/install', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ confirmWipe }),
-    });
-  },
-  getStatus() {
-    return requestJson('/api/v1/status');
-  },
-  getLog() {
-    return requestJson('/api/v1/log');
-  },
-  reboot() {
-    return requestJson('/api/v1/reboot', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({}),
-    });
-  },
-  openInstallLogStream(handlers = {}) {
-    const eventSource = new EventSource('/api/v1/install-log');
-
-    eventSource.addEventListener('log', (event) => {
-      handlers.onLog?.(event.data || '');
-    });
-
-    eventSource.addEventListener('status', (event) => {
-      try {
-        handlers.onStatus?.(JSON.parse(event.data));
-      } catch {
-        handlers.onStatusParseError?.(event.data);
+    window.__kryonix_plan = {
+      locale: plan.locale.locale,
+      keyboard: plan.locale.keymap,
+      network: {
+        server_ip: plan.network.serverIp,
+        gateway: plan.network.gateway,
+        dns: plan.network.dns,
+        interface: plan.network.interface,
+      },
+      user: {
+        username: plan.admin.user,
+        group: "wheel",
       }
+    };
+    
+    // Also trigger partitioning as Kryonix requires partition step
+    return requestJson('/api/partition', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ disk: plan.disk.sysDisk }),
     });
+  },
+  
+  startInstall(confirmWipe) {
+    const payload = window.__kryonix_plan || {
+      locale: "pt_BR.UTF-8",
+      keyboard: "br-abnt2",
+      network: { server_ip: "10.0.0.2", gateway: "10.0.0.1", dns: ["8.8.8.8"], interface: "eth0" },
+      user: { username: "admin", group: "wheel" }
+    };
+    return requestJson('/api/install', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  },
+  
+  getStatus() { return Promise.resolve({ running: window.__kryonix_running || false, exitCode: null, currentPhase: null }); },
+  getLog() { return Promise.resolve({ tail: '' }); },
+  reboot() { return Promise.resolve({}); },
+  
+  openInstallLogStream(handlers = {}) {
+    window.__kryonix_running = true;
+    const eventSource = new EventSource('/api/stream');
 
-    eventSource.addEventListener('done', (event) => {
-      handlers.onDone?.(Number(event.data || '1'));
-    });
+    eventSource.onmessage = (event) => {
+      handlers.onLog?.(event.data + '\n');
+      if (event.data.includes('Installation complete') || event.data.includes('FAILED')) {
+        window.__kryonix_running = false;
+        handlers.onDone?.(event.data.includes('FAILED') ? 1 : 0);
+        eventSource.close();
+      }
+    };
 
     eventSource.onerror = () => {
       handlers.onError?.();

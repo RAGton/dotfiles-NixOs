@@ -28,7 +28,7 @@ export default function Welcome() {
 
       <section className="section-panel flex min-h-0 flex-col justify-center overflow-hidden">
         <div className="mx-auto flex h-full max-h-[420px] w-full max-w-[520px] items-center justify-center rounded-[28px] border border-white/10 bg-black/20 p-8">
-          <img src="/imgs/ragton.png" alt="RAGos" className="max-h-full w-auto object-contain opacity-95" />
+          <img src="/imgs/kryonix.png" alt="Kryonix" className="max-h-full w-auto object-contain opacity-95" />
         </div>
       </section>
     </div>

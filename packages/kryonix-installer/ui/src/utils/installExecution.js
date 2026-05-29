@@ -21,7 +21,7 @@ export const INSTALL_RUNTIME_PHASE_LABELS = {
   ERROR: 'Falha',
 };
 
-export const INSTALL_LOG_BANNER = 'RAGOS Installer Console\n\n';
+export const INSTALL_LOG_BANNER = 'Kryonix Installer Console\n\n';
 
 export function createInstallLog(message = 'Aguardando inicio da esteira de instalacao...\n') {
   return `${INSTALL_LOG_BANNER}${message}`;

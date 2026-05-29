@@ -1,4 +1,4 @@
-export const WIZARD_STORAGE_KEY = 'ragos.installer.wizard.v1';
+export const WIZARD_STORAGE_KEY = 'kryonix.installer.wizard.v1';
 
 export const DRAFT_FIELD_NAMES = [
   'country',

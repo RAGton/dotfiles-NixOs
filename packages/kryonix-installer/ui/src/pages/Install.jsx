@@ -83,7 +83,7 @@ export default function Install({ draft, uiState, validation }) {
     <div className="grid h-full min-h-0 gap-5 lg:grid-cols-[0.4fr_1fr]">
       <section className="section-panel flex min-h-0 flex-col border border-emerald-400/10 bg-slate-950/95">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-400/80">RAGOS installer</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-400/80">Kryonix installer</div>
           <h2 className="mt-3 text-2xl font-black text-white">Execucao operacional</h2>
           <p className="mt-2 text-sm text-slate-400">
             Esta tela acompanha o que o backend e o shell realmente executam no alvo. Sem confirmacao destrutiva, o wipe nao inicia.

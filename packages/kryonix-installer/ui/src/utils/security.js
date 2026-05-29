@@ -1,6 +1,23 @@
 // Regras de endurecimento compartilhadas pelo instalador.
 // A ideia é bloquear entradas perigosas cedo, antes de qualquer ida ao backend.
 
+const BLOCKED_KEYS = new Set(['F5', 'F11']);
+const BLOCKED_CTRL = new Set(['r', 'l', 'w', 't', 'n', 'R', 'L', 'W', 'T', 'N']);
+
+export function initKioskLockdown() {
+  document.addEventListener('keydown', (e) => {
+    if (BLOCKED_KEYS.has(e.key)) { e.preventDefault(); return; }
+    if (e.key === 'Backspace' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault(); return;
+    }
+    if ((e.ctrlKey || e.metaKey) && BLOCKED_CTRL.has(e.key)) {
+      e.preventDefault();
+    }
+  }, { capture: true });
+
+  document.addEventListener('contextmenu', (e) => e.preventDefault(), { capture: true });
+}
+
 export const SHELL_META_CHARS = /[;&|$`<>\\!]/g;
 export const LINUX_USERNAME_RE = /^[a-z_][a-z0-9_-]*$/;
 export const RFC1123_HOSTNAME_RE = /^(?=.{1,63}$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;

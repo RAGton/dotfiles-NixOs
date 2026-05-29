@@ -25,7 +25,7 @@ import {
 const STEPS = [
   {
     id: 'welcome',
-    title: 'RAGos Think Installer',
+    title: 'Kryonix Installer',
     subtitle: 'Fluxo imersivo, fullscreen, sem rolagem global e com foco em robustez operacional.',
   },
   {
