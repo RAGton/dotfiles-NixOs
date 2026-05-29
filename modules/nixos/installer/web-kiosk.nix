@@ -31,8 +31,13 @@ in
             --disable-dev-shm-usage \
             --disable-gpu-sandbox \
             --no-first-run \
+            --noerrdialogs \
+            --disable-infobars \
             --disable-translate \
             --disable-extensions \
+            --disable-pinch \
+            --overscroll-history-navigation=0 \
+            --disable-features=TranslateUI,OverscrollHistoryNavigation \
             --disable-background-networking \
             --disable-sync \
             "${cfg.url}"
@@ -81,6 +86,17 @@ in
         ];
       }
     ];
+
+    # Ignorar power/suspend/lid para não interromper o kiosk
+    services.logind.settings.Login = {
+      HandlePowerKey              = "ignore";
+      HandleSuspendKey            = "ignore";
+      HandleLidSwitch             = "ignore";
+      HandleLidSwitchExternalPower = "ignore";
+    };
+
+    # Suprimir cursor piscante no TTY
+    boot.kernelParams = [ "vt.global_cursor_default=0" ];
 
     environment.systemPackages = with pkgs; [ cage chromium curl ];
 
