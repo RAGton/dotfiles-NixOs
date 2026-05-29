@@ -50,6 +50,38 @@ async function requestJson(path, options = {}) {
   return body;
 }
 
+// Maps frontend planPayload + mode → backend InstallPlan type
+function buildKryonixInstallPlan(planPayload, mode = 'install') {
+  const layout = (planPayload.disk?.rootFs === 'btrfs') ? 'btrfs-simple' : 'lvm-simple';
+
+  return {
+    version: 1,
+    hostname: planPayload.network?.hostname || 'kryonix',
+    timezone: planPayload.locale?.timezone || 'America/Cuiaba',
+    locale: planPayload.locale?.locale || 'pt_BR.UTF-8',
+    keyboard: planPayload.locale?.keymap || 'br-abnt2',
+    disk: {
+      mode,
+      target: planPayload.disk?.sysDisk || '',
+      layout,
+      boot_mode: 'uefi',
+    },
+    user: {
+      name: planPayload.admin?.user || 'admin',
+      admin: true,
+    },
+    features: {},
+  };
+}
+
+// Maps ProgressEvent.step → INSTALL_RUNTIME_PHASE label
+const STEP_TO_PHASE = {
+  partition: 'PARTITION',
+  'nixos-install': 'INSTALL',
+  done: 'VERIFY',
+  error: 'ERROR',
+};
+
 export const installerApi = {
   getCountries() { return Promise.resolve([{ id: 'BR', name: 'Brasil' }]); },
   getLocales() { return Promise.resolve([{ id: 'pt_BR.UTF-8', name: 'Portugues (Brasil)' }]); },
@@ -57,81 +89,121 @@ export const installerApi = {
   getTimezones() { return Promise.resolve(['America/Cuiaba', 'America/Sao_Paulo']); },
   getTimezoneLocations() { return Promise.resolve({}); },
   getNetworkInterfaces() { return Promise.resolve(['eth0', 'enp1s0']); },
-  
+
   getDisks() {
     return requestJson('/api/disks').then(disks => disks.map(d => ({
       name: d.name,
       model: d.model,
       size: d.size,
       logical_size: d.size,
-      type: d.type_
+      type: d.type_,
     })));
   },
-  
+
   getDiskLayout(disk) { return Promise.resolve({}); },
-  
-  savePlan(plan, secrets) {
-    window.__kryonix_plan = {
-      locale: plan.locale.locale,
-      keyboard: plan.locale.keymap,
-      network: {
-        server_ip: plan.network.serverIp,
-        gateway: plan.network.gateway,
-        dns: plan.network.dns,
-        interface: plan.network.interface,
-      },
-      user: {
-        username: plan.admin.user,
-        group: "wheel",
-      }
-    };
-    
-    // Also trigger partitioning as Kryonix requires partition step
-    return requestJson('/api/partition', {
+
+  // Validate the plan via backend dry-run before committing to install.
+  // Throws InstallerApiError if any check fails so the hook surfaces the error.
+  async savePlan(planPayload, _secrets) {
+    const kryonixPlan = buildKryonixInstallPlan(planPayload, 'dry-run');
+    window.__kryonix_install_plan = kryonixPlan;
+
+    const result = await requestJson('/dry-run', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ disk: plan.disk.sysDisk }),
+      body: JSON.stringify(kryonixPlan),
     });
+
+    if (result && !result.ok) {
+      const failedCheck = result.checks?.find(c => !c.ok);
+      throw new InstallerApiError(
+        failedCheck?.message || 'Validação do plano falhou no backend.',
+        { status: 422, body: result },
+      );
+    }
   },
-  
-  startInstall(confirmWipe) {
-    const payload = window.__kryonix_plan || {
-      locale: "pt_BR.UTF-8",
-      keyboard: "br-abnt2",
-      network: { server_ip: "10.0.0.2", gateway: "10.0.0.1", dns: ["8.8.8.8"], interface: "eth0" },
-      user: { username: "admin", group: "wheel" }
-    };
-    return requestJson('/api/install', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-  },
-  
-  getStatus() { return Promise.resolve({ running: window.__kryonix_running || false, exitCode: null, currentPhase: null }); },
-  getLog() { return Promise.resolve({ tail: '' }); },
-  reboot() { return Promise.resolve({}); },
-  
-  openInstallLogStream(handlers = {}) {
+
+  // POST /install with disk.mode="install". Backend runs safety checks first.
+  // Returns 202 + { job_id } on success, throws 403 if safety checks fail.
+  startInstall(_confirmWipe) {
+    const kryonixPlan = window.__kryonix_install_plan
+      ? { ...window.__kryonix_install_plan, disk: { ...window.__kryonix_install_plan.disk, mode: 'install' } }
+      : null;
+
+    if (!kryonixPlan) {
+      return Promise.reject(new InstallerApiError('Plano não encontrado. Execute savePlan primeiro.'));
+    }
+
     window.__kryonix_running = true;
-    const eventSource = new EventSource('/api/stream');
+    return requestJson('/install', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(kryonixPlan),
+    });
+  },
 
-    eventSource.onmessage = (event) => {
-      handlers.onLog?.(event.data + '\n');
-      if (event.data.includes('Installation complete') || event.data.includes('FAILED')) {
+  getStatus() {
+    return Promise.resolve({
+      running: window.__kryonix_running || false,
+      exitCode: null,
+      currentPhase: null,
+    });
+  },
+
+  getLog() { return Promise.resolve({ tail: '' }); },
+
+  reboot() {
+    return fetch('/api/reboot', { method: 'POST', cache: 'no-store' })
+      .then(() => ({}))
+      .catch(() => ({}));
+  },
+
+  // Connect to /install/progress SSE and map ProgressEvent → hook handlers.
+  openInstallLogStream(handlers = {}) {
+    const source = new EventSource('/install/progress');
+
+    source.onmessage = (event) => {
+      let evt;
+      try {
+        evt = JSON.parse(event.data);
+      } catch {
+        handlers.onLog?.(`${event.data}\n`);
+        return;
+      }
+
+      const { step, message, percent } = evt;
+      const phase = STEP_TO_PHASE[step] || 'INSTALL';
+
+      // Always emit the raw line to the terminal
+      handlers.onLog?.(`[${step.toUpperCase()}] ${message}\n`);
+
+      // Update phase display
+      handlers.onStatus?.({
+        running: step !== 'done' && step !== 'error',
+        exitCode: step === 'done' ? 0 : step === 'error' ? 1 : null,
+        currentPhase: phase,
+        lastLogLine: message,
+        lastError: step === 'error' ? message : '',
+        percent,
+      });
+
+      if (step === 'done') {
         window.__kryonix_running = false;
-        handlers.onDone?.(event.data.includes('FAILED') ? 1 : 0);
-        eventSource.close();
+        handlers.onDone?.(0);
+        source.close();
+      } else if (step === 'error') {
+        window.__kryonix_running = false;
+        handlers.onDone?.(1);
+        source.close();
       }
     };
 
-    eventSource.onerror = () => {
+    source.onerror = () => {
+      source.close();
       handlers.onError?.();
     };
 
-    return () => {
-      eventSource.close();
-    };
+    return () => source.close();
   },
 };
 

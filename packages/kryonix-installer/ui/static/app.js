@@ -40,6 +40,10 @@ var state = {
   plan: null,
   dryRun: null,
   installStatus: null,
+  installPercent: 0,
+  installLog: [],
+  installDone: false,
+  installFailed: false,
 };
 
 var STEPS = [
@@ -345,29 +349,165 @@ async function doDryRun() {
 
 // ── Step 6: Install ──────────────────────────────────────────────
 function renderInstall() {
-  var msg = state.installStatus
-    ? esc(JSON.stringify(state.installStatus, null, 2))
-    : '';
+  var dryOk     = state.dryRun && state.dryRun.ok;
+  var isRunning = state.installPercent > 0 && state.installPercent < 100 && !state.installFailed && !state.installDone;
+  var canStart  = dryOk && !isRunning && !state.installDone;
+  var btnLabel  = isRunning ? '⏳ Instalando…' : '⚡ Iniciar Instalação';
+
+  var bannerClass, bannerText;
+  if (state.installDone) {
+    bannerClass = 'banner-success'; bannerText = '✓ Instalação concluída! Reinicie o sistema.';
+  } else if (state.installFailed) {
+    bannerClass = 'banner-error';   bannerText = '✗ Instalação falhou — veja o log abaixo.';
+  } else if (dryOk) {
+    bannerClass = 'banner-success'; bannerText = '✓ Dry run passou — pronto para instalar.';
+  } else {
+    bannerClass = 'banner-warning'; bannerText = '⚠ Execute o Dry Run antes de instalar.';
+  }
+
+  var progressHtml = '';
+  if (state.installPercent > 0) {
+    progressHtml =
+      '<div style="margin:12px 0;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden">' +
+        '<div id="install-progress-bar" style="height:8px;width:' + state.installPercent + '%;' +
+        'background:#4ade80;transition:width .4s ease"></div>' +
+      '</div>' +
+      '<div id="install-progress-pct" style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px">' +
+      state.installPercent + '%</div>';
+  } else {
+    progressHtml =
+      '<div style="margin:12px 0;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden">' +
+        '<div id="install-progress-bar" style="height:8px;width:0%;background:#4ade80;transition:width .4s ease"></div>' +
+      '</div>' +
+      '<div id="install-progress-pct" style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px">0%</div>';
+  }
+
+  var logHtml = state.installLog.length
+    ? '<div id="install-log" class="install-log">' + esc(state.installLog.join('\n')) + '</div>'
+    : '<div id="install-log" class="install-log" style="display:none"></div>';
 
   return '<h1 class="step-title">Instalação</h1>' +
-    '<p class="step-sub">Esta etapa requer confirmação explícita. O disco será apagado.</p>' +
-    (state.dryRun && state.dryRun.ok
-      ? '<div class="banner banner-success">✓ Dry run passou — plano válido.</div>'
-      : '<div class="banner banner-warning">⚠ Execute o Dry Run antes de instalar.</div>') +
-    '<button id="btn-start-install" class="btn btn-danger"' +
-    (state.dryRun && state.dryRun.ok ? '' : ' disabled') +
-    '>⚡ Iniciar Instalação</button>' +
-    (msg ? '<h2 style="font-size:.9rem;color:var(--text-dim);margin:20px 0 8px">Resposta da API</h2>' +
-           '<div class="install-log">' + msg + '</div>' : '');
+    '<p class="step-sub">Esta etapa apaga o disco selecionado. Ação irreversível.</p>' +
+    '<div id="install-banner" class="banner ' + bannerClass + '">' + bannerText + '</div>' +
+    '<button id="btn-start-install" class="btn btn-danger"' + (canStart ? '' : ' disabled') + '>' + btnLabel + '</button>' +
+    progressHtml + logHtml;
+}
+
+// Update install UI elements in-place — no full re-render needed.
+function updateInstallUI() {
+  var bar    = el('install-progress-bar');
+  var pct    = el('install-progress-pct');
+  var log    = el('install-log');
+  var banner = el('install-banner');
+  var btn    = el('btn-start-install');
+
+  if (bar) bar.style.width = state.installPercent + '%';
+  if (pct) pct.textContent = state.installPercent + '%';
+  if (log) {
+    log.style.display = state.installLog.length ? '' : 'none';
+    log.textContent = state.installLog.join('\n');
+    log.scrollTop = log.scrollHeight;
+  }
+  if (banner) {
+    if (state.installDone) {
+      banner.className = 'banner banner-success';
+      banner.textContent = '✓ Instalação concluída! Reinicie o sistema.';
+    } else if (state.installFailed) {
+      banner.className = 'banner banner-error';
+      banner.textContent = '✗ Instalação falhou — veja o log abaixo.';
+    }
+  }
+  if (btn && (state.installDone || state.installFailed)) {
+    btn.disabled = true;
+    btn.textContent = state.installDone ? '✓ Concluído' : '✗ Falhou';
+  }
 }
 
 async function doInstall() {
   if (!state.plan) return;
-  el('btn-start-install').disabled = true;
-  el('btn-start-install').textContent = 'Enviando…';
 
-  state.installStatus = await apiPost('/install', state.plan);
-  goTo(6);
+  // Override mode — plan from /plan always returns "dry-run"
+  var installPlan = Object.assign({}, state.plan, {
+    disk: Object.assign({}, state.plan.disk, { mode: 'install' }),
+  });
+
+  el('btn-start-install').disabled = true;
+  el('btn-start-install').textContent = '⏳ Enviando…';
+
+  var res;
+  try {
+    res = await fetch('/install', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(installPlan),
+      cache: 'no-store',
+    });
+  } catch (err) {
+    state.installFailed = true;
+    state.installLog = ['[ERRO] Falha de rede: ' + err.message];
+    updateInstallUI();
+    return;
+  }
+
+  var body;
+  try { body = JSON.parse(await res.clone().text()); } catch (_) { body = null; }
+
+  if (res.status === 403) {
+    // Safety checks failed — show which checks failed
+    state.installFailed = true;
+    var checks = (body && body.checks) ? body.checks : [];
+    state.installLog = ['[ERRO] Safety checks falharam:']
+      .concat(checks.map(function (c) {
+        return (c.passed ? '  ✓ ' : '  ✗ ') + c.name + ': ' + c.reason;
+      }));
+    if (!checks.length && body && body.error) state.installLog.push('  ' + body.error);
+    updateInstallUI();
+    return;
+  }
+
+  if (!res.ok || !body || !body.job_id) {
+    state.installFailed = true;
+    state.installLog = ['[ERRO] Resposta inesperada do backend:', JSON.stringify(body)];
+    updateInstallUI();
+    return;
+  }
+
+  // 202 Accepted — connect SSE progress stream
+  state.installPercent = 5;
+  state.installLog = ['[INFO] Instalação iniciada (job: ' + body.job_id + ')'];
+  updateInstallUI();
+
+  var source = new EventSource('/install/progress');
+
+  source.onmessage = function (event) {
+    var evt;
+    try { evt = JSON.parse(event.data); } catch (_) {
+      state.installLog.push(event.data);
+      updateInstallUI();
+      return;
+    }
+    state.installPercent = evt.percent || state.installPercent;
+    state.installLog.push('[' + evt.step.toUpperCase() + '] ' + evt.message);
+
+    if (evt.step === 'done') {
+      state.installDone = true;
+      state.installPercent = 100;
+      source.close();
+    } else if (evt.step === 'error') {
+      state.installFailed = true;
+      source.close();
+    }
+    updateInstallUI();
+  };
+
+  source.onerror = function () {
+    if (!state.installDone) {
+      state.installLog.push('[ERRO] Conexão SSE perdida');
+      state.installFailed = true;
+      source.close();
+      updateInstallUI();
+    }
+  };
 }
 
 // ── Utility ──────────────────────────────────────────────────────
