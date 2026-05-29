@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kryonix_optimizer"
+version = "0.1.0"
+description = "Kryonix RAM Optimizer AI Daemon"
+authors = [
+    {name = "Kryonix Team", email = "dev@kryonix.local"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "psutil",
+    "httpx"
+]
+
+[project.scripts]
+kryonix-optimizer = "kryonix_optimizer.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "responses"
+]

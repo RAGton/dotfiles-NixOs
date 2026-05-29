@@ -1,10 +1,18 @@
+mod disk;
+mod install;
+
 use axum::{
+    extract::State,
+    response::sse::{Event, Sse},
     routing::{get, post},
     Json, Router,
 };
+use futures_util::stream::{self, Stream};
 use serde::{Deserialize, Serialize};
-use std::process::Command;
+use std::sync::Arc;
+use tokio::sync::broadcast;
 use tower_http::cors::CorsLayer;
+use std::convert::Infallible;
 
 #[derive(Serialize, Deserialize)]
 struct Status {
@@ -16,21 +24,35 @@ struct Status {
 #[derive(Serialize, Deserialize)]
 struct ErrorResponse {
     error: String,
+    details: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct PartitionRequest {
+    disk: String,
+}
+
+struct AppState {
+    log_sender: Arc<broadcast::Sender<String>>,
 }
 
 #[tokio::main]
 async fn main() {
+    let (tx, _) = broadcast::channel(100);
+    let state = Arc::new(AppState {
+        log_sender: Arc::new(tx),
+    });
+
     let app = Router::new()
         .route("/health", get(health))
-        .route("/version", get(version))
-        .route("/probe", get(probe))
-        .route("/plan", post(generate_plan))
-        .route("/plan/validate", post(validate_plan))
-        .route("/dry-run", post(dry_run))
-        .route("/apply", post(apply_blocked))
-        .layer(CorsLayer::permissive());
+        .route("/api/disks", get(get_disks))
+        .route("/api/partition", post(partition_endpoint))
+        .route("/api/install", post(install_endpoint))
+        .route("/api/stream", get(stream_logs))
+        .layer(CorsLayer::permissive())
+        .with_state(state);
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
     println!("Kryonix Installer API listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
@@ -39,65 +61,75 @@ async fn health() -> Json<Status> {
     Json(Status {
         status: "ok".to_string(),
         version: "0.1.0".to_string(),
-        phase: "1".to_string(),
+        phase: "2".to_string(),
     })
 }
 
-async fn version() -> Json<serde_json::Value> {
-    Json(serde_json::json!({
-        "installer": "0.1.0",
-        "api_version": 1,
-        "supported_hosts": ["inspiron", "glacier"]
-    }))
-}
-
-async fn probe() -> Json<serde_json::Value> {
-    let output = Command::new("kryonix-hardware-probe").output();
-    match output {
-        Ok(o) => {
-            let json: serde_json::Value = serde_json::from_slice(&o.stdout).unwrap_or(serde_json::json!({"error": "Parse error"}));
-            Json(json)
-        }
-        Err(e) => Json(serde_json::json!({"error": format!("Failed to run probe: {}", e)})),
+async fn get_disks() -> Result<Json<Vec<disk::DiskInfo>>, (axum::http::StatusCode, Json<ErrorResponse>)> {
+    match disk::list_disks() {
+        Ok(disks) => Ok(Json(disks)),
+        Err(e) => Err((
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse {
+                error: "FAILED_TO_LIST_DISKS".to_string(),
+                details: Some(e),
+            }),
+        )),
     }
 }
 
-async fn generate_plan(Json(payload): Json<serde_json::Value>) -> Json<serde_json::Value> {
-    // Em uma implementação real, isso passaria o payload para o disk-planner
-    let output = Command::new("kryonix-disk-planner").output();
-    match output {
-        Ok(o) => {
-            let json: serde_json::Value = serde_json::from_slice(&o.stdout).unwrap_or(serde_json::json!({"error": "Parse error"}));
-            Json(json)
-        }
-        Err(e) => Json(serde_json::json!({"error": format!("Failed to run planner: {}", e)})),
+async fn partition_endpoint(Json(payload): Json<PartitionRequest>) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, Json<ErrorResponse>)> {
+    match disk::partition_disk(&payload.disk) {
+        Ok(_) => Ok(Json(serde_json::json!({
+            "status": "success",
+            "message": "Disk partitioned and mounted successfully"
+        }))),
+        Err(e) => Err((
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse {
+                error: "PARTITION_FAILED".to_string(),
+                details: Some(e),
+            }),
+        )),
     }
 }
 
-async fn validate_plan(Json(payload): Json<serde_json::Value>) -> Json<serde_json::Value> {
-    // Stub de validação
-    Json(serde_json::json!({
-        "valid": true,
-        "warnings": [],
-        "message": "Plan matches schema (stub)"
-    }))
+async fn install_endpoint(
+    State(state): State<Arc<AppState>>,
+    Json(payload): Json<install::InstallConfig>
+) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, Json<ErrorResponse>)> {
+    
+    if let Err(e) = install::generate_configs(&payload).await {
+        return Err((
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse {
+                error: "CONFIG_GENERATION_FAILED".to_string(),
+                details: Some(e),
+            }),
+        ));
+    }
+
+    let sender = state.log_sender.clone();
+    
+    // Roda a instalação de forma assíncrona para não bloquear o endpoint
+    tokio::spawn(async move {
+        let _ = install::execute_nixos_install(sender).await;
+    });
+
+    Ok(Json(serde_json::json!({
+        "status": "success",
+        "message": "Installation started. Connect to /api/stream for logs."
+    })))
 }
 
-async fn dry_run(Json(payload): Json<serde_json::Value>) -> Json<serde_json::Value> {
-    Json(serde_json::json!({
-        "simulation": "ok",
-        "steps": [
-            "Detecting hardware...",
-            "Validating install-plan.json...",
-            "Simulating disk partitioning (dry-run)...",
-            "Simulating NixOS install (dry-run)..."
-        ],
-        "message": "Dry-run completed successfully. No changes were made."
-    }))
-}
-
-async fn apply_blocked() -> Json<ErrorResponse> {
-    Json(ErrorResponse {
-        error: "destructive_action_disabled_in_phase_1".to_string(),
-    })
+async fn stream_logs(State(state): State<Arc<AppState>>) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
+    let mut rx = state.log_sender.subscribe();
+    
+    let stream = async_stream::stream! {
+        while let Ok(msg) = rx.recv().await {
+            yield Ok(Event::default().data(msg));
+        }
+    };
+    
+    Sse::new(stream).keep_alive(axum::response::sse::KeepAlive::new())
 }

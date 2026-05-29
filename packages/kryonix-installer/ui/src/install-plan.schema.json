@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RAGOS Install Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "disk",
+    "network",
+    "locale",
+    "admin"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "disk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "profile",
+        "sysDisk"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["one", "two"]
+        },
+        "profile": {
+          "type": "string",
+          "enum": ["single", "raid"]
+        },
+        "selectedDisks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "minItems": 0
+        },
+        "raidLevel": {
+          "type": "string",
+          "enum": ["raid0", "raid1", "raid5", "raid10"]
+        },
+        "luksEnabled": {
+          "type": "boolean"
+        },
+        "sysDisk": {
+          "type": "string",
+          "pattern": "^/dev/.+"
+        },
+        "dataDisk": {
+          "type": "string",
+          "pattern": "^/dev/.+"
+        },
+        "rootFs": {
+          "type": "string",
+          "enum": ["btrfs", "ext4", "xfs"]
+        },
+        "dataFs": {
+          "type": "string",
+          "enum": ["btrfs", "ext4", "xfs"]
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostname",
+        "interface",
+        "serverIp",
+        "prefixLength",
+        "gateway",
+        "dns",
+        "httpPort",
+        "wan"
+      ],
+      "properties": {
+        "hostname": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interface": {
+          "type": "string",
+          "minLength": 1
+        },
+        "serverIp": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "prefixLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "gateway": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "dns": {
+          "type": "array",
+          "items": { "type": "string", "format": "ipv4" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "httpPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "wan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["interface", "mode"],
+          "properties": {
+            "interface": { "type": "string" },
+            "mode": {
+              "type": "string",
+              "enum": ["dhcp", "static", "pppoe"]
+            },
+            "address": { "type": "string", "format": "ipv4" },
+            "prefixLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32
+            },
+            "gateway": { "type": "string", "format": "ipv4" },
+            "dns": {
+              "type": "array",
+              "items": { "type": "string", "format": "ipv4" },
+              "minItems": 0,
+              "uniqueItems": true
+            },
+            "pppoeUser": { "type": "string" }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": { "mode": { "const": "static" } },
+                "required": ["mode"]
+              },
+              "then": {
+                "required": ["address", "prefixLength", "gateway", "dns"],
+                "properties": {
+                  "dns": { "minItems": 1 }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": { "mode": { "const": "pppoe" } },
+                "required": ["mode"]
+              },
+              "then": {
+                "required": ["pppoeUser"]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "locale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "country",
+        "timezone",
+        "locale",
+        "keymap"
+      ],
+      "properties": {
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "timezone": { "type": "string", "minLength": 1 },
+        "locale": { "type": "string", "minLength": 1 },
+        "keymap": { "type": "string", "minLength": 1 }
+      }
+    },
+    "admin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user",
+        "uid",
+        "email"
+      ],
+      "properties": {
+        "user": { "type": "string", "minLength": 1 },
+        "uid": { "type": "integer", "minimum": 1000 },
+        "email": { "type": "string", "format": "email" },
+        "authorizedKeys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "disk": {
+            "properties": { "profile": { "const": "raid" } },
+            "required": ["profile"]
+          }
+        },
+        "required": ["disk"]
+      },
+      "then": {
+        "properties": {
+          "disk": {
+            "required": ["selectedDisks", "raidLevel", "rootFs", "dataFs"],
+            "properties": {
+              "rootFs": { "const": "btrfs" },
+              "dataFs": { "const": "btrfs" }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": { "raidLevel": { "const": "raid0" } },
+                  "required": ["raidLevel"]
+                },
+                "then": {
+                  "properties": { "selectedDisks": { "minItems": 2 } }
+                }
+              },
+              {
+                "if": {
+                  "properties": { "raidLevel": { "const": "raid1" } },
+                  "required": ["raidLevel"]
+                },
+                "then": {
+                  "properties": { "selectedDisks": { "minItems": 2 } }
+                }
+              },
+              {
+                "if": {
+                  "properties": { "raidLevel": { "const": "raid5" } },
+                  "required": ["raidLevel"]
+                },
+                "then": {
+                  "properties": { "selectedDisks": { "minItems": 3 } }
+                }
+              },
+              {
+                "if": {
+                  "properties": { "raidLevel": { "const": "raid10" } },
+                  "required": ["raidLevel"]
+                },
+                "then": {
+                  "properties": { "selectedDisks": { "minItems": 4 } }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "disk": {
+            "properties": {
+              "mode": { "const": "one" },
+              "profile": { "not": { "const": "raid" } }
+            },
+            "required": ["mode", "profile"]
+          }
+        },
+        "required": ["disk"]
+      },
+      "then": {
+        "properties": {
+          "disk": {
+            "required": ["selectedDisks"],
+            "properties": {
+              "selectedDisks": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "disk": {
+            "properties": {
+              "mode": { "const": "two" },
+              "profile": { "not": { "const": "raid" } }
+            },
+            "required": ["mode", "profile"]
+          }
+        },
+        "required": ["disk"]
+      },
+      "then": {
+        "properties": {
+          "disk": {
+            "required": ["selectedDisks", "dataDisk", "rootFs", "dataFs"],
+            "properties": {
+              "selectedDisks": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
