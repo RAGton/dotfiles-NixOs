@@ -1,0 +1,57 @@
+# Kryonix GRUB2 Theme
+desktop-color: "#081018"
+
++ boot_menu {
+  left = 12%
+  top = 20%
+  width = 76%
+  height = 50%
+  item_font      = "Unifont Regular 14"
+  item_color     = "#7f8ea3"
+  selected_item_color = "#00d4ff"
+  item_height    = 30
+  item_padding   = 12
+  item_spacing   = 3
+  scrollbar      = false
+}
+
++ label {
+  left    = 0
+  top     = 6%
+  width   = 100%
+  align   = "center"
+  text    = "K R Y O N I X"
+  font    = "Unifont Regular 24"
+  color   = "#00d4ff"
+}
+
++ label {
+  left    = 0
+  top     = 12%
+  width   = 100%
+  align   = "center"
+  text    = "installer"
+  font    = "Unifont Regular 12"
+  color   = "#45566a"
+}
+
++ label {
+  left    = 0
+  top     = 73%
+  width   = 100%
+  align   = "center"
+  text    = "ENTER iniciar    e editar    c console"
+  font    = "Unifont Regular 11"
+  color   = "#253545"
+}
+
++ progress_bar {
+  id           = "__timeout__"
+  left         = 25%
+  top          = 86%
+  width        = 50%
+  height       = 2
+  fg_color     = "#00d4ff"
+  bg_color     = "#1e2d3d"
+  border_color = "#1e2d3d"
+}
