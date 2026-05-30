@@ -1,4 +1,3 @@
-desktop-image: "background.png"
 desktop-color: "#081018"
 title-text: ""
 

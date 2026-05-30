@@ -22,13 +22,18 @@ in
         chmod 0700 "$XDG_RUNTIME_DIR"
 
         # Required in QEMU/VM: virtio-gpu does not expose hardware cursors
+        # pixman renderer is slower but much more compatible with virtual GPUs
         export WLR_NO_HARDWARE_CURSORS=1
+        export WLR_RENDERER=pixman
         export LIBSEAT_BACKEND=seatd
+        export XDG_SESSION_TYPE=wayland
 
-        # Wait up to 60s for the backend (/health) before opening the browser.
+        # Wait up to 90s for the backend (/health) before opening the browser.
         # Full store path avoids relying on PATH being set up during autologin.
-        for i in $(seq 1 60); do
+        echo "Waiting for installer backend on port ${toString cfg.port}..."
+        for i in $(seq 1 90); do
           if ${pkgs.curl}/bin/curl -sf "http://127.0.0.1:${toString cfg.port}/health" >/dev/null 2>&1; then
+            echo "Backend is UP"
             break
           fi
           sleep 1
@@ -36,14 +41,17 @@ in
 
         # --app=URL forces app mode: no tab bar, no address bar, no browser chrome.
         # --kiosk alone is insufficient on many Chromium builds inside Cage.
-        exec ${pkgs.cage}/bin/cage -- \
+        echo "Starting cage + chromium..."
+        exec ${pkgs.cage}/bin/cage -s -- \
           ${pkgs.chromium}/bin/chromium \
             --app="${cfg.url}" \
             --no-sandbox \
-            --disable-dev-shm-usage \
-            --disable-gpu-sandbox \
+            --test-type \
+            --autoplay-policy=no-user-gesture-required \
             --no-first-run \
             --noerrdialogs \
+            --disable-dev-shm-usage \
+            --disable-gpu-sandbox \
             --disable-infobars \
             --disable-translate \
             --disable-extensions \
@@ -51,7 +59,9 @@ in
             --overscroll-history-navigation=0 \
             --disable-features=TranslateUI,OverscrollHistoryNavigation \
             --disable-background-networking \
-            --disable-sync
+            --disable-sync \
+            --window-position=0,0 \
+            --window-size=1280,720
       '').overrideAttrs (_: { passthru.shellPath = "/bin/start-kiosk"; });
     in
     {

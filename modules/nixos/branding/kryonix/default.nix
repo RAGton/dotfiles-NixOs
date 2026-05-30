@@ -155,24 +155,16 @@ let
         Plymouth.SetDisplayNormalFunction(display_normal_callback);
         EOF
       '';
-  grubTheme = pkgs.stdenv.mkDerivation {
-    name = "kryonix-grub-theme";
-    nativeBuildInputs = [ pkgs.imagemagick ];
-    buildCommand = ''
-      themeDir="$out/kryonix"
-      mkdir -p "$themeDir"
+  grubTheme = pkgs.runCommand "kryonix-grub-theme" {} ''
+    themeDir="$out/kryonix"
+    mkdir -p "$themeDir"
+    cp ${./../../../../files/grub-theme/theme.txt} "$themeDir/theme.txt"
+  '';
 
-      magick "${kryonixWallpaper}" \
-        -resize 1920x1080^ \
-        -gravity center \
-        -extent 1920x1080 \
-        -fill '#081018' \
-        -colorize 55 \
-        PNG32:"$themeDir/background.png"
+  blackPixel = pkgs.runCommand "black-pixel.png" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''
+    magick -size 1x1 xc:"#081018" PNG32:$out
+  '';
 
-      cp ${./grub-theme/theme.txt} "$themeDir/theme.txt"
-    '';
-  };
   # Conteúdo do /etc/os-release.
   # Usamos um conjunto pequeno e compatível (muitas ferramentas só precisam disso).
   osReleaseText = ''
@@ -275,7 +267,7 @@ in
         };
 
         loader.grub = {
-          splashImage = grubSplash;
+          splashImage = lib.mkForce null;
           theme = lib.mkForce "${grubTheme}/kryonix";
           splashMode = lib.mkDefault "stretch";
           backgroundColor = lib.mkDefault "#081018";
@@ -292,6 +284,8 @@ in
     })
     (lib.mkIf (cfg.enable && options ? isoImage) {
       isoImage.grubTheme = lib.mkForce "${grubTheme}/kryonix";
+      isoImage.splashImage = lib.mkForce blackPixel;
+      isoImage.efiSplashImage = lib.mkForce blackPixel;
     })
   ];
 }

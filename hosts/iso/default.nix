@@ -34,12 +34,7 @@
   system.nixos.label         = lib.mkForce "Kryonix-Installer";
   isoImage.isoBaseName       = lib.mkForce "kryonix";
   isoImage.volumeID          = lib.mkForce "KRYONIX";
-  # appendToMenuLabel controls the GRUB entry: "<distroName> <appendToMenuLabel>"
-  # Without override: "Kryonix Kryonix-Installer Installer" (distroName + label + "Installer")
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
-  # Remove NixOS blue splash — our grubTheme's background.png replaces it
-  isoImage.splashImage    = lib.mkForce null;
-  isoImage.efiSplashImage = lib.mkForce null;
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
   boot.plymouth.enable = lib.mkForce true;
@@ -47,11 +42,13 @@
   # Boot silencioso para Plymouth aparecer corretamente
   boot.initrd.verbose = lib.mkForce false;
   boot.consoleLogLevel = lib.mkForce 0;
-  boot.kernelParams = lib.mkAfter [
+  boot.kernelParams = lib.mkForce [
     "quiet"
     "splash"
     "loglevel=0"
     "systemd.show_status=false"
+    "rd.systemd.show_status=false"
+    "rd.udev.log_level=3"
   ];
 
   # ISO deve ser estável e pequena: evita trazer desktop completo.
