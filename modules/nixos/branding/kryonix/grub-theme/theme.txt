@@ -7,7 +7,6 @@ title-text: ""
   top = 18%
   width = 76%
   height = 52%
-  item_font = "Unifont Regular 14"
   item_color = "#7f8ea3"
   selected_item_color = "#00d4ff"
   item_height = 30
@@ -21,8 +20,7 @@ title-text: ""
   top = 5%
   width = 100%
   align = "center"
-  text = "⟡  K R Y O N I X"
-  font = "Unifont Regular 22"
+  text = "KRYONIX"
   color = "#00d4ff"
 }
 
@@ -32,7 +30,6 @@ title-text: ""
   width = 100%
   align = "center"
   text = "installer"
-  font = "Unifont Regular 12"
   color = "#45566a"
 }
 
@@ -41,8 +38,7 @@ title-text: ""
   top = 73%
   width = 100%
   align = "center"
-  text = "↑↓ selecionar   ↵ iniciar   e editar   c console"
-  font = "Unifont Regular 11"
+  text = "up/down   enter   e   c"
   color = "#45566a"
 }
 

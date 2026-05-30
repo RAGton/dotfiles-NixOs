@@ -30,10 +30,15 @@
   kryonix.branding.enable = true;
 
   # ISO identity
-  system.nixos.distroName = lib.mkForce "Kryonix";
-  system.nixos.label      = lib.mkForce "Kryonix-Installer";
-  isoImage.isoBaseName    = lib.mkForce "kryonix";
-  isoImage.volumeID       = lib.mkForce "KRYONIX";
+  system.nixos.distroName    = lib.mkForce "Kryonix";
+  system.nixos.label         = lib.mkForce "Kryonix-Installer";
+  isoImage.isoBaseName       = lib.mkForce "kryonix";
+  isoImage.volumeID          = lib.mkForce "KRYONIX";
+  # appendToMenuLabel controls the GRUB entry: "<distroName> <appendToMenuLabel>"
+  # Without override: "Kryonix Kryonix-Installer Installer" (distroName + label + "Installer")
+  isoImage.appendToMenuLabel = lib.mkForce "Installer";
+  # Remove NixOS blue splash — our grubTheme's background.png replaces it
+  isoImage.grubSplashImage   = lib.mkForce null;
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
   boot.plymouth.enable = lib.mkForce true;
