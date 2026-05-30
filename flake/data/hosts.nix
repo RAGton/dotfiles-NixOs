@@ -22,6 +22,6 @@
       isDarwin = false;
       nixosModules = "${inputs.self}/modules/nixos";
     };
-    modules = [ ../hosts/iso ];
+    modules = [ ../../hosts/iso ];
   };
 }

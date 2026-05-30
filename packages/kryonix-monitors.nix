@@ -32,7 +32,7 @@ writeShellApplication {
   ];
 
   # Script em arquivo externo — não inline — para melhor manutenibilidade.
-  text = builtins.readFile ./scripts/kryonix-monitors.sh;
+  text = builtins.readFile ../scripts/kryonix-monitors.sh;
 
   # Verificação mínima de sintaxe via shellcheck (automático no writeShellApplication)
   meta = {

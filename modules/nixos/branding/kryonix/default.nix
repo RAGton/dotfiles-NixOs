@@ -282,10 +282,12 @@ in
         };
       };
     })
-    (lib.mkIf (cfg.enable && options ? isoImage) {
-      isoImage.grubTheme = lib.mkForce "${grubTheme}/kryonix";
-      isoImage.splashImage = lib.mkForce blackPixel;
-      isoImage.efiSplashImage = lib.mkForce blackPixel;
-    })
+    (lib.mkIf cfg.enable (lib.optionalAttrs (options ? isoImage) {
+      isoImage = {
+        grubTheme = lib.mkForce "${grubTheme}/kryonix";
+        splashImage = lib.mkForce blackPixel;
+        efiSplashImage = lib.mkForce blackPixel;
+      };
+    }))
   ];
 }

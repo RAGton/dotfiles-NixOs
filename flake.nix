@@ -105,16 +105,20 @@
     }@inputs:
     let
       inherit (self) outputs;
-      users = import ./flake/users.nix;
+      users = import ./flake/data/users.nix;
       lib = import ./flake/lib.nix { inherit inputs users; };
     in
     {
-      nixosConfigurations = import ./flake/hosts.nix { inherit inputs lib; };
+      nixosConfigurations = import ./flake/data/hosts.nix { inherit inputs lib; };
       homeConfigurations = import ./flake/home.nix { inherit inputs lib; };
       packages = import ./flake/packages.nix { inherit inputs lib; };
       devShells = import ./flake/shells.nix { inherit inputs lib; };
       formatter = import ./flake/formatter.nix { inherit inputs lib; };
       checks = import ./flake/checks.nix { inherit inputs lib; };
       overlays = import ./overlays { inherit inputs; };
+
+      # Exports upstream
+      nixosModules = (import ./flake/modules.nix { inherit self inputs; }).nixosModules;
+      homeManagerModules = (import ./flake/modules.nix { inherit self inputs; }).homeManagerModules;
     };
 }
