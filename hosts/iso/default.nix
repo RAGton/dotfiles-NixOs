@@ -25,13 +25,15 @@
     ../../modules/nixos/branding/kryonix/default.nix
   ];
 
-  networking.hostName = "kryonix-installer";
+  networking.hostName = lib.mkForce "kryonix";
   kryonix.installer.kiosk.enable = true;
   kryonix.branding.enable = true;
 
   # ISO identity
-  isoImage.volumeID = "KRYONIX-INSTALLER";
-  system.nixos.label = lib.mkForce "Kryonix-Installer";
+  system.nixos.distroName = lib.mkForce "Kryonix";
+  system.nixos.label      = lib.mkForce "Kryonix-Installer";
+  isoImage.isoBaseName    = lib.mkForce "kryonix";
+  isoImage.volumeID       = lib.mkForce "KRYONIX";
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
   boot.plymouth.enable = lib.mkForce true;

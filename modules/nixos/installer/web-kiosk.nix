@@ -23,10 +23,11 @@ in
 
         # Required in QEMU/VM: virtio-gpu does not expose hardware cursors
         export WLR_NO_HARDWARE_CURSORS=1
+        export LIBSEAT_BACKEND=seatd
 
-        # Wait up to 30s for the backend (/health) before opening the browser.
+        # Wait up to 60s for the backend (/health) before opening the browser.
         # Full store path avoids relying on PATH being set up during autologin.
-        for i in $(seq 1 30); do
+        for i in $(seq 1 60); do
           if ${pkgs.curl}/bin/curl -sf "http://127.0.0.1:${toString cfg.port}/health" >/dev/null 2>&1; then
             break
           fi
@@ -57,7 +58,7 @@ in
 
     users.users.installer = {
       isNormalUser = true;
-      extraGroups  = [ "wheel" "disk" "video" "input" "drm" ];
+      extraGroups  = [ "wheel" "disk" "video" "input" "drm" "seat" ];
       password     = "";
       shell        = startKiosk;
     };
@@ -66,6 +67,10 @@ in
 
     # Autologin direto no TTY1
     services.getty.autologinUser = lib.mkForce "installer";
+
+    # seatd: necessário para cage acessar DRM/seat sem root
+    services.seatd.enable   = true;
+    security.polkit.enable  = true;
 
     # Backend do instalador — roda como root para poder chamar disko/nixos-install
     systemd.services.kryonix-installer-backend = {

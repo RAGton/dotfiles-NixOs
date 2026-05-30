@@ -166,21 +166,11 @@ let
         -resize 1920x1080^ \
         -gravity center \
         -extent 1920x1080 \
-        -brightness-contrast -20x0 \
         -fill '#081018' \
-        -colorize 40 \
+        -colorize 55 \
         PNG32:"$themeDir/background.png"
 
       cp ${./grub-theme/theme.txt} "$themeDir/theme.txt"
-
-      magick -size 10x32 xc:'#00d4ff22' \
-        -fill none \
-        -stroke '#00d4ff' \
-        -strokewidth 1 \
-        -draw "rectangle 0,0 9,31" \
-        PNG32:"$themeDir/select_c.png"
-      cp "$themeDir/select_c.png" "$themeDir/select_w.png"
-      magick -size 5x32 xc:'#00d4ff22' PNG32:"$themeDir/select_e.png"
     '';
   };
   # Conteúdo do /etc/os-release.
@@ -286,7 +276,7 @@ in
 
         loader.grub = {
           splashImage = grubSplash;
-          theme = lib.mkDefault "${grubTheme}/kryonix";
+          theme = lib.mkForce "${grubTheme}/kryonix";
           splashMode = lib.mkDefault "stretch";
           backgroundColor = lib.mkDefault "#081018";
           gfxmodeEfi = lib.mkDefault "1920x1080";
