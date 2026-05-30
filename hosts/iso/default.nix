@@ -38,7 +38,8 @@
   # Without override: "Kryonix Kryonix-Installer Installer" (distroName + label + "Installer")
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
   # Remove NixOS blue splash — our grubTheme's background.png replaces it
-  isoImage.grubSplashImage   = lib.mkForce null;
+  isoImage.splashImage    = lib.mkForce null;
+  isoImage.efiSplashImage = lib.mkForce null;
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
   boot.plymouth.enable = lib.mkForce true;
