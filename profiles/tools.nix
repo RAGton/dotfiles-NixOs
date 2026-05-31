@@ -27,11 +27,11 @@ in
 
   config = lib.mkIf (cfg.enable || cfg.vscodeInsiders) {
     # Integração com Home Manager para o VSCode
-    home-manager.users.${userConfig.name} = lib.mkIf cfg.vscodeInsiders {
+    home-manager.users.${userConfig.name} = {
       kryonix.vscode = {
         enable = true;
         edition = "insiders";
-        delivery = "managed-download"; # Padrão para insiders no nosso repo
+        delivery = "managed-download";
       };
     };
   };
