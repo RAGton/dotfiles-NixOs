@@ -32,15 +32,15 @@ in
 {
   config = lib.mkIf (config.wayland.windowManager.hyprland.enable or false) {
 
-    # Pacotes KDE necessários para o menu de aplicativos e cache de MIME
-    home.packages = with pkgs; [
-      kdePackages.plasma-workspace  # Fornece plasma-applications.menu
-      kdePackages.kservice          # kbuildsycoca6
-    ];
+    # kservice fornece kbuildsycoca6 (rebuild do cache KDE após switch)
+    home.packages = [ pkgs.kdePackages.kservice ];
 
-    # Menu de aplicativos Plasma — necessário para Dolphin resolver categorias
+    # Menu de aplicativos Plasma — extraído via runCommand para não puxar
+    # o plasma-workspace inteiro (~800 MiB) como dependência do perfil HM.
     xdg.configFile."menus/applications.menu".source =
-      "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+      pkgs.runCommand "plasma-menu" { } ''
+        cp ${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu $out
+      '';
 
     xdg.mimeApps = {
       enable = true;
