@@ -1,104 +1,67 @@
-#![allow(dead_code)] // Phase 2 — used by PROMPT_04 executor
-
-use serde::{Deserialize, Serialize};
-use std::process::Stdio;
-use std::sync::Arc;
-use tokio::io::{AsyncBufReadExt, BufReader};
-use tokio::process::Command;
+use std::process::Command;
+use std::path::Path;
 use tokio::sync::broadcast;
+use tracing::{info, error};
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct InstallConfig {
-    pub locale: String,
-    pub keyboard: String,
-    pub user: String,
-    pub network: String,
-}
-
-pub async fn generate_configs(config: &InstallConfig) -> Result<(), String> {
-    // Generate installer-config.nix dynamically
-    let nix_content = format!(
-        r#"
-{{ config, pkgs, ... }}:
-{{
-  i18n.defaultLocale = "{}";
-  console.keyMap = "{}";
-  networking.hostName = "{}";
-  users.users.{} = {{
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
-  }};
-}}
-"#,
-        config.locale, config.keyboard, config.network, config.user
-    );
-
-    tokio::fs::create_dir_all("/mnt/etc/kryonix")
-        .await
-        .unwrap_or(());
-
-    tokio::fs::write("/mnt/etc/kryonix/installer-config.nix", nix_content)
-        .await
-        .map_err(|e| format!("Failed to write installer-config.nix: {}", e))?;
-
-    // Hardware config Generation
-    let output = Command::new("nixos-generate-config")
-        .args(["--root", "/mnt", "--dir", "/mnt/etc/kryonix"])
-        .output()
-        .await
-        .map_err(|e| format!("nixos-generate-config failed: {}", e))?;
-
-    if !output.status.success() {
-        return Err(String::from_utf8_lossy(&output.stderr).to_string());
+pub async fn orchestrate_installation(host: &str, progress_tx: broadcast::Sender<String>) -> Result<(), String> {
+    let repo_path = "/etc/kryonixos";
+    let disks_nix = format!("{}/hosts/{}/disks.nix", repo_path, host);
+    
+    // 1. Validate disks.nix existence
+    if !Path::new(&disks_nix).exists() {
+        return Err(format!("Configuração de disco não encontrada para o host {}. Execute o Disk Planner primeiro.", host));
     }
 
-    Ok(())
-}
+    let send_update = |msg: &str| {
+        info!("{}", msg);
+        let _ = progress_tx.send(msg.to_string());
+    };
 
-pub async fn execute_nixos_install(sender: Arc<broadcast::Sender<String>>) -> Result<(), String> {
-    let mut child = Command::new("nixos-install")
-        .args([
-            "--flake",
-            "/mnt/etc/kryonix#target-host",
-            "--no-root-passwd",
-            "--root",
-            "/mnt",
-        ])
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|e| format!("Failed to invoke nixos-install: {}", e))?;
+    // 2. Execute Disko
+    send_update("🚀 Iniciando particionamento e formatação (Disko)...");
+    let disko_status = Command::new("sudo")
+        .arg("disko")
+        .arg("--mode")
+        .arg("disko")
+        .arg(&disks_nix)
+        .status()
+        .map_err(|e| format!("Falha ao iniciar disko: {}", e))?;
 
-    let stdout = child.stdout.take().unwrap();
-    let stderr = child.stderr.take().unwrap();
+    if !disko_status.success() {
+        return Err("O particionamento via Disko falhou. Verifique os logs do console.".to_string());
+    }
+    send_update("✅ Particionamento concluído com sucesso.");
 
-    let sender_out = sender.clone();
-    let sender_err = sender.clone();
+    // 3. Execute nixos-install
+    send_update(&format!("📦 Iniciando nixos-install para o host '{}'...", host));
+    let install_status = Command::new("sudo")
+        .arg("nixos-install")
+        .arg("--flake")
+        .arg(format!("{}#{}", repo_path, host))
+        .arg("--no-channel-copy")
+        .status()
+        .map_err(|e| format!("Falha ao iniciar nixos-install: {}", e))?;
 
-    let out_task = tokio::spawn(async move {
-        let mut reader = BufReader::new(stdout).lines();
-        while let Ok(Some(line)) = reader.next_line().await {
-            let _ = sender_out.send(line);
-        }
-    });
+    if !install_status.success() {
+        return Err("A instalação do NixOS falhou. Verifique os logs do console.".to_string());
+    }
+    send_update("✅ NixOS instalado com sucesso.");
 
-    let err_task = tokio::spawn(async move {
-        let mut reader = BufReader::new(stderr).lines();
-        while let Ok(Some(line)) = reader.next_line().await {
-            let _ = sender_err.send(line);
-        }
-    });
+    // 4. Create flag file
+    send_update("🚩 Finalizando ambiente...");
+    let flag_path = "/mnt/etc/kryonix-installed";
+    let create_flag = Command::new("sudo")
+        .arg("touch")
+        .arg(flag_path)
+        .status()
+        .map_err(|e| format!("Falha ao criar flag de instalação: {}", e))?;
 
-    out_task.await.unwrap();
-    err_task.await.unwrap();
-
-    let status = child.wait().await.map_err(|e| e.to_string())?;
-
-    if !status.success() {
-        let _ = sender.send("INSTALLATION FAILED".to_string());
-        return Err("nixos-install exited with non-zero status".to_string());
+    if !create_flag.success() {
+        error!("Aviso: Não foi possível criar o arquivo de flag em {}", flag_path);
     }
 
-    let _ = sender.send("INSTALLATION SUCCESS".to_string());
+    // 5. Final message
+    send_update("🎉 Instalação concluída. Sistema pronto para o primeiro boot.");
+
     Ok(())
 }

@@ -20,6 +20,8 @@
     ./ti
     ./server-ai.nix
     ./workstation-gamer.nix
+    ./virtualization.nix
+    ./tools.nix
     # Perfis específicos do Glacier (base/ai/gamer com separação limpa)
     ./glacier-base.nix
     ./glacier-ai.nix

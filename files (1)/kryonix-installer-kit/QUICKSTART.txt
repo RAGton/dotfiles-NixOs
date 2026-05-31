@@ -1,0 +1,65 @@
+═══════════════════════════════════════════════════════════════════════════════
+  KRYONIX INSTALLER KIT — QUICK START
+═══════════════════════════════════════════════════════════════════════════════
+
+1. DESCOMPACTAR
+   unzip -o kryonix-installer-kit.zip -d /etc/kryonix
+
+2. INSTALAR NO REPO
+   cd /etc/kryonix
+   git add CLAUDE.md AGENTS.md .claude/ specs/ vm-setup/
+   git commit -m "kit(installer): diagnóstico + fix iterativo"
+
+3. INICIAR CLAUDE CODE
+   Abra Claude em /etc/kryonix (ou ~/kryonix)
+
+4. PASSO 1 — DIAGNÓSTICO (5 min)
+   /diagnose all
+   → Claude roda backend, frontend, kiosk, retorna tabela de status
+
+5. PASSO 2 — FIX (10-30 min)
+   /fix backend    (se backend quebrado)
+   /fix frontend   (se frontend quebrado)
+   /fix kiosk      (se kiosk quebrado)
+   → Claude edita código, valida, você revisa
+
+6. PASSO 3 — TESTE VM (20 min)
+   /test-vm
+   → Claude guia: build ISO → VirtualBox → teste interativo
+   → Você controla a VM (cliques), Claude lê logs
+
+7. PASSO 4 — CHECKLIST
+   vm-setup/CHECKLIST_FINAL.md
+   → Confira todos os itens. Se ✓ tudo → PRONTO!
+
+═══════════════════════════════════════════════════════════════════════════════
+ARQUIVOS IMPORTANTES
+
+  CLAUDE.md                    Memória do projeto (leia primeiro)
+  README.md                    Guia completo (leia antes de começar)
+  specs/00-diagnostico.md      O que testar
+  specs/01-fix-backend.md      Fix backend (se precisar)
+  specs/02-fix-frontend.md     Fix frontend (se precisar)
+  specs/03-fix-kiosk.md        Fix kiosk (se precisar)
+  vm-setup/SETUP_VIRTUALBOX.md Como testar em VM (passo-a-passo)
+  vm-setup/CHECKLIST_FINAL.md  DoD (quando parar de iterar)
+
+═══════════════════════════════════════════════════════════════════════════════
+REGRAS OURO
+
+  ✓ Diagnóstico antes de fix (não suponha)
+  ✓ Cada fix pequeno (um problema = um commit)
+  ✓ Teste em VM obrigatório (não confie só em build)
+  ✓ Nenhum secret no binário (brain.env é env var)
+  ✓ Rollback sempre disponível (git revert)
+
+═══════════════════════════════════════════════════════════════════════════════
+COMEÇAR AGORA
+
+  cd /etc/kryonix
+  # Abra Claude Code
+  /diagnose all
+
+  (veja tabela de status, apontará qual componente quebra)
+
+═══════════════════════════════════════════════════════════════════════════════

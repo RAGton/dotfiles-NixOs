@@ -140,6 +140,37 @@ in
   config = lib.mkIf ((config.kryonix.shell.backend or null) == "caelestia") {
     kryonix.shell.caelestia.settings.launcher.useFuzzy.apps = lib.mkDefault false;
 
+    # Caelestia Hybrid Mode: Symlinks point to the live repository
+    # This allows the UI to modify files and the watcher to commit them.
+    xdg.configFile."caelestia/shell.json".source =
+      config.lib.file.mkOutOfStoreSymlink "/etc/kryonixos/user/caelestia/shell.json";
+    
+    xdg.configFile."caelestia/shell-tokens.json".source =
+      config.lib.file.mkOutOfStoreSymlink "/etc/kryonixos/user/caelestia/shell-tokens.json";
+
+    home.file.".local/state/caelestia/scheme.json".source =
+      config.lib.file.mkOutOfStoreSymlink "/etc/kryonixos/user/caelestia/scheme.json";
+
+    # Compatibility symlink for QuickShell if needed
+    home.file.".config/quickshell/shell.json".source =
+      config.lib.file.mkOutOfStoreSymlink "/etc/kryonixos/user/caelestia/shell.json";
+
+    home.activation.caelestiaHybridInit = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+      caelestia_repo_dir="/etc/kryonixos/user/caelestia"
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$caelestia_repo_dir"
+
+      # Initialize files if they don't exist in the repo
+      if [ ! -e "$caelestia_repo_dir/shell.json" ] && [ -n "${builtins.toString shellSettingsFile}" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${shellSettingsFile} "$caelestia_repo_dir/shell.json"
+      fi
+      if [ ! -e "$caelestia_repo_dir/shell-tokens.json" ] && [ -n "${builtins.toString shellTokensFile}" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${shellTokensFile} "$caelestia_repo_dir/shell-tokens.json"
+      fi
+      if [ ! -e "$caelestia_repo_dir/scheme.json" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${shellSchemeFile} "$caelestia_repo_dir/scheme.json"
+      fi
+    '';
+
     home.activation.caelestiaMutableState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       applications_dir="${config.xdg.dataHome}/applications"
       if [ -d "$applications_dir" ]; then
@@ -149,13 +180,6 @@ in
       caelestia_state_dir="${config.xdg.stateHome}/caelestia"
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$caelestia_state_dir"/apps.sqlite*
 
-      ${lib.optionalString (shellSettingsFile != null) (
-        writeMutableFile "${config.xdg.configHome}/caelestia/shell.json" shellSettingsFile
-      )}
-      ${lib.optionalString (shellTokensFile != null) (
-        writeMutableFile "${config.xdg.configHome}/caelestia/shell-tokens.json" shellTokensFile
-      )}
-      ${writeMutableFile "${config.home.homeDirectory}/.local/state/caelestia/scheme.json" shellSchemeFile}
       ${writeMutableFile "${config.home.homeDirectory}/.local/state/caelestia/wallpaper/path.txt" shellWallpaperPathFile}
     '';
   };

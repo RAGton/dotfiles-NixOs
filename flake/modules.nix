@@ -1,7 +1,7 @@
 { self, inputs }:
 {
   nixosModules = {
-    # Opções do namespace kryonix.* (sem implementação)
+    # Opções do namespace kryonix.* (sem implementation)
     options = { ... }: { imports = [ ../lib/options.nix ]; };
 
     # Base comum compartilhada (nix settings, rede, locale, pacotes base)
@@ -10,6 +10,10 @@
 
     # Default: opções + base comum — ponto de entrada principal para downstream
     default = { ... }: { imports = [ ../lib/options.nix ../hosts/common ]; };
+
+    # Perfis isolados para patching dinâmico
+    profile-gamer = { ... }: { imports = [ ../profiles/workstation-gamer.nix ]; };
+    profile-dev-rust = { ... }: { imports = [ ../profiles/dev/rust.nix ]; };
   };
 
   homeManagerModules = {

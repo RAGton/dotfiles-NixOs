@@ -94,6 +94,10 @@ export const installerApi = {
   getTimezoneLocations() { return Promise.resolve({}); },
   getNetworkInterfaces() { return Promise.resolve(['eth0', 'enp1s0']); },
 
+  getHardware() {
+    return requestJson('/hardware');
+  },
+
   getDisks() {
     return requestJson('/api/disks').then(disks => disks.map(d => ({
       name: d.name,

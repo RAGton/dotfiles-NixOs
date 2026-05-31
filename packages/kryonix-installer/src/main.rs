@@ -3,6 +3,7 @@ mod disk;
 mod executor;
 mod install;
 mod network;
+mod profiles;
 
 use axum::{
     Json, Router,
@@ -150,6 +151,26 @@ struct PartitionRequest {
     disk: String,
 }
 
+#[derive(Deserialize)]
+struct ProfileRequest {
+    host: String,
+    profile: String,
+}
+
+#[derive(Deserialize)]
+struct DiskApplyRequest {
+    host: String,
+    device: String,
+    scheme: String,
+    #[serde(default)]
+    dry_run: bool,
+}
+
+#[derive(Deserialize)]
+struct InstallFinalizeRequest {
+    host: String,
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 #[tokio::main]
@@ -190,6 +211,12 @@ async fn main() {
         .route("/dry-run", post(dry_run))
         .route("/install", post(install))
         .route("/install/progress", get(install_progress))
+        // Profiles
+        .route("/profile/apply", post(apply_profile_endpoint))
+        // Disk Planner
+        .route("/disk/apply", post(disk_apply_endpoint))
+        // Installation
+        .route("/install/finalize", post(install_finalize_endpoint))
         // Disk utilities
         .route("/api/disks", get(get_disks))
         .route("/api/disks/:device/partitions", get(get_partitions_handler))
@@ -210,6 +237,84 @@ async fn main() {
         listener.local_addr().unwrap()
     );
     axum::serve(listener, app).await.unwrap();
+}
+
+async fn install_finalize_endpoint(
+    State(state): State<Arc<AppState>>,
+    Json(payload): Json<InstallFinalizeRequest>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let tx = (*state.log_sender).clone();
+    
+    // Run installation in background task to avoid timeout
+    tokio::spawn(async move {
+        if let Err(e) = install::orchestrate_installation(&payload.host, tx.clone()).await {
+            let _ = tx.send(format!("❌ Erro crítico: {}", e));
+        }
+    });
+
+    Ok(Json(serde_json::json!({
+        "status": "started",
+        "message": "Processo de instalação disparado. Acompanhe via stream de logs."
+    })))
+}
+
+async fn disk_apply_endpoint(
+    Json(payload): Json<DiskApplyRequest>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    // 1. Generate config
+    let disks_nix = disk::generate_disko_config(&payload.host, &payload.device, &payload.scheme)
+        .map_err(|e| (StatusCode::BAD_REQUEST, Json(ErrorResponse {
+            error: "Failed to generate disko config".into(),
+            details: Some(e),
+        })))?;
+
+    if payload.dry_run {
+        let content = std::fs::read_to_string(&disks_nix).unwrap_or_default();
+        return Ok(Json(serde_json::json!({
+            "status": "dry-run",
+            "message": "Configuration generated successfully",
+            "path": disks_nix,
+            "content": content
+        })));
+    }
+
+    // 2. Execute disko
+    let status = Command::new("sudo")
+        .arg("disko")
+        .arg("--mode")
+        .arg("disko")
+        .arg(&disks_nix)
+        .status()
+        .map_err(|e| err500("Failed to execute disko", Some(e.to_string())))?;
+
+    if !status.success() {
+        return Err(err500("disko execution failed", None));
+    }
+
+    Ok(Json(serde_json::json!({
+        "status": "success",
+        "message": "Disk partitioned and formatted successfully"
+    })))
+}
+
+async fn apply_profile_endpoint(
+    Json(payload): Json<ProfileRequest>,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let profile = match payload.profile.to_uppercase().as_str() {
+        "GAMER" => profiles::ProfileType::Gamer,
+        "DEV_RUST" => profiles::ProfileType::DevRust,
+        _ => return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse {
+            error: "Perfil inválido".into(),
+            details: Some(format!("Suportados: GAMER, DEV_RUST. Recebido: {}", payload.profile)),
+        }))),
+    };
+
+    profiles::apply_profile(&payload.host, profile)
+        .map(|_| Json(serde_json::json!({ "status": "success", "message": "Perfil aplicado com sucesso" })))
+        .map_err(|e| (StatusCode::BAD_REQUEST, Json(ErrorResponse {
+            error: "Falha ao aplicar perfil".into(),
+            details: Some(e),
+        })))
 }
 
 // ── GET /health ───────────────────────────────────────────────────────────────

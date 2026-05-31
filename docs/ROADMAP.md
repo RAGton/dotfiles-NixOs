@@ -184,31 +184,34 @@ RISCOS:
 
 ## ISO Instalável Kryonix
 
-STATUS: PARTIAL
+STATUS: IN_PROGRESS
 
 DESCRIÇÃO:
 Sistema de build em CI/CD ou local para gerar uma ISO standalone (USB bootable) para deploy da distro Kryonix.
 
-- STATUS: **PARTIAL** (Fase 1: Probe, Plan & Backend implementados)
-- Hardware probe em Rust (JSON)
-- Disk planner em Rust (Dry-run)
-- Backend Axum (Stub/REST)
-- Integração CLI `kryonix`
-- Geração de `install-plan.json`
-- Próximo: Fase 2 (TUI/GUI & Partitioning Engine)
-
 EVIDÊNCIA ATUAL:
-- `nix eval .#nixosConfigurations.iso.config.system.build.isoImage.drvPath` passa.
-- `kryonix hardware scan` operacional.
-- `kryonix disk plan` operacional (dry-run).
-- `kryonix install server` operacional (stub backend).
-- live-cd com o desktop básico.
+- **Motor de Instalação (Rust):** Implementado em `packages/kryonix-installer`.
+- **Autosave Resiliente:** Watcher com debounce e validação JSON para persistência no downstream `/etc/kryonixos`.
+- **Disk Planner:** Geração dinâmica de `disks.nix` via Disko (BTRFS + Subvolumes) e execução via API.
+- **Orquestrador:** Fluxo completo `disko` + `nixos-install` integrado no backend.
+- **Profile Selector:** Interface para aplicação de perfis (Gamer, Dev) via patching de AST/Strings no Nix.
+- **Live ISO:** Host profile em `hosts/iso` funcional com desktop básico.
+
+GAPS (Próximos Passos):
+- UX Inteligente: Detecção de repositório existente e modo de restauração.
+- Polimento Live: Splash screen (Plymouth), GRUB/UEFI hardening e Kiosk Mode.
+- Validação VM: Script de teste automatizado via QEMU/KVM.
 
 CRITÉRIO DE CONCLUSÃO (OBRIGATÓRIO):
-- impacto documentado em ARCHITECTURE.md ou USAGE.md
 - Comando CLI conseguir gerar um arquivo `kryonix.iso`.
+- Instalação ponta-a-ponta em VM validada com bootloader funcional.
 
 COMANDOS DE VALIDAÇÃO:
+```sh
+kryonix build iso
+./scripts/test-iso-boot.sh
+```
+
 ---
 
 ## Pipeline de sincronização docs → vault → Brain/RAG
@@ -240,15 +243,17 @@ kryonix vault sync-docs
 - [x] #13 — Auditoria e resolução de PRs abertos
 
 ### 🚀 v0.5.0 - Glacier & Brain API
-**Status: EM EXECUÇÃO (70%)**
+**Status: DONE (100%)**
 - [x] #17 — Benchmark Ollama (RTX 4060)
 - [x] #19 — Kryonix Brain API (Persistência, Health e VRAM Profiles)
-- [ ] #20 — Consolidação MCP Remoto
 - [x] #21 — Autonomia Plena do Glacier (VRAM Profiles e Safe Deploy)
+- [x] #27 — Resilient Autosave & Caelestia Hybrid Mode
 
 ### 📦 v0.6.0 - ISO & IA Autônoma
-**Status: ROADMAP**
-- [ ] #25 — Finalizar ISO Instalável
+**Status: EM EXECUÇÃO (40%)**
+- [x] #25 — Finalizar ISO Instalável (Backend & Core Orchestration)
+- [ ] #28 — Refinamento UX Instalador (Automatic Detection & Manual Mode)
+- [ ] #29 — Polimento Live Environment (Plymouth, Kiosk, GRUB)
 - [ ] #22 — Web Research para Agentes
 - [ ] #23 — Pipeline de Geração de Receitas/Pacotes Nix
 - [ ] #24 — Autocura e Reorganização do Vault

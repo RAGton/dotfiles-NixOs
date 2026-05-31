@@ -3,6 +3,7 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::process::Command;
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DiskInfo {
@@ -214,4 +215,113 @@ pub fn partition_disk(disk_path: &str) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
 
     Ok(())
+}
+
+pub fn generate_disko_config(host: &str, device: &str, scheme: &str) -> Result<String, String> {
+    if !is_valid_disk_path(device) {
+        return Err(format!("Invalid disk path format: {}", device));
+    }
+
+    if !std::path::Path::new(device).exists() {
+        return Err(format!("Device {} does not exist in the system", device));
+    }
+
+    let repo_path = "/etc/kryonixos";
+    let target_dir = format!("{}/hosts/{}", repo_path, host);
+    let target_file = format!("{}/disks.nix", target_dir);
+
+    // BTRFS Template with Subvolumes
+    let btrfs_template = format!(
+        r#"{{ lib, ... }}:
+{{
+  disko.devices = {{
+    disk."main" = {{
+      type = "disk";
+      device = "{}";
+      content = {{
+        type = "gpt";
+        partitions = {{
+          ESP = {{
+            size = "1G";
+            type = "EF00";
+            content = {{
+              type = "filesystem";
+              format = "vfat";
+              mountpoint = "/boot";
+            }};
+          }};
+          swap = {{
+            size = "16G";
+            content = {{
+              type = "swap";
+            }};
+          }};
+          system = {{
+            size = "60%";
+            content = {{
+              type = "btrfs";
+              extraArgs = [ "-f" "-L" "NIXOS-SYSTEM" ];
+              subvolumes = {{
+                "@" = {{ mountpoint = "/"; mountOptions = [ "compress=zstd" "noatime" ]; }};
+                "@nix" = {{ mountpoint = "/nix"; mountOptions = [ "compress=zstd" "noatime" ]; }};
+                "@log" = {{ mountpoint = "/var/log"; mountOptions = [ "compress=zstd" "noatime" ]; }};
+              }};
+            }};
+          }};
+          home = {{
+            size = "100%";
+            content = {{
+              type = "btrfs";
+              extraArgs = [ "-f" "-L" "NIXOS-HOME" ];
+              subvolumes = {{
+                "@home" = {{ mountpoint = "/home"; mountOptions = [ "compress=zstd" "noatime" ]; }};
+              }};
+            }};
+          }};
+        }};
+      }};
+    }};
+  }};
+}}"#,
+        device
+    );
+
+    let config = match scheme {
+        "btrfs" => btrfs_template,
+        _ => return Err(format!("Unsupported scheme: {}", scheme)),
+    };
+
+    if let Err(e) = std::fs::create_dir_all(&target_dir) {
+        return Err(format!("Failed to create host directory: {}", e));
+    }
+
+    if let Err(e) = std::fs::write(&target_file, &config) {
+        return Err(format!("Failed to write disks.nix: {}", e));
+    }
+
+    Ok(target_file)
+}
+
+pub fn detect_primary_disk() -> Result<String, String> {
+    let disks = list_disks()?;
+    // Prefer NVMe, then SSD (sda/sdb), then others
+    let primary = disks.iter()
+        .find(|d| d.name.contains("nvme"))
+        .or_else(|| disks.iter().find(|d| d.name.starts_with("sd")))
+        .ok_or_else(|| "No suitable primary disk found".to_string())?;
+    
+    Ok(format!("/dev/{}", primary.name))
+}
+
+pub fn generate_disko_config_auto(host: &str) -> Result<String, String> {
+    let device = detect_primary_disk()?;
+    generate_disko_config(host, &device, "btrfs")
+}
+
+pub fn manual_setup_step(host: &str, device: &str, mountpoint: &str) -> Result<String, String> {
+    if mountpoint != "/" {
+        return Err("Manual mode currently requires at least '/' to be specified.".to_string());
+    }
+    // For now, manual mode just wraps the btrfs template but lets the user pick the device
+    generate_disko_config(host, device, "btrfs")
 }
