@@ -43,7 +43,12 @@ jobs:
           name: kryonix
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
-      - name: Flake Check
+      - name: Setup Direnv
+        run: |
+          nix profile install nixpkgs#direnv
+          direnv allow .
+
+      - name: Flake Check (All Hosts & Modules)
         run: nix flake check --keep-going --impure
 
       - name: Build ISO

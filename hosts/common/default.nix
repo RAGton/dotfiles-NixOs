@@ -15,7 +15,7 @@
 # - Encadeia opções, módulos de base/sistema, features e profiles.
 # - Expõe a seleção de desktop via `kryonix.desktop.environment`.
 # ==============================================================================
-{ inputs, userConfig, ... }:
+{ inputs, userConfig, outputs, ... }:
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager
@@ -34,6 +34,16 @@
     ../../features
     ../../profiles
   ];
+
+  # Aplica overlays do repositório no nixpkgs do host
+  nixpkgs.overlays = [
+    outputs.overlays.stable-packages
+    outputs.overlays.xeus-cling-no-checks
+    outputs.overlays.codex-overlay
+    outputs.overlays.kryonix-installer-tools
+  ];
+
+  nixpkgs.config.allowUnfree = true;
 
   # Configuração padrão para o Home Manager integrado ao NixOS
   home-manager = {

@@ -1,77 +1,79 @@
 # 🌌 Kryonix: High-Performance NixOS Platform
+### *Manual do Engenheiro — Versão de Operação Industrial*
 
-Kryonix is a professional-grade NixOS distribution designed for stability, observability, and high-performance workloads (Gaming, Development, AI). It follows the principle of **Operational Truth**, where every state is declarative, reproducible, and validated.
-
----
-
-## 🚀 Quick Start (ISO Users)
-
-If you have just booted the Kryonix Live ISO:
-
-1.  **Network Setup**: Connect via Ethernet (auto-DHCP) or use the UI to scan and connect to WiFi.
-2.  **Hardware Discovery**: The system automatically runs `hardware-probe` to inventory your CPU, GPU, and Storage.
-3.  **Deployment**: Choose between **Recommended** (fresh install) or **Restore** (recovery of existing setup) modes.
-4.  **Finalize**: Click "Finalize Installation" to trigger Disko partitioning and `nixos-install`.
-5.  **Reboot**: Once finished, remove the USB drive and boot into your new Kryonix environment.
+O Kryonix é uma plataforma NixOS de alto desempenho, projetada para estabilidade extrema, observabilidade nativa e cargas de trabalho críticas (Gaming, Desenvolvimento e IA). Este repositório segue o princípio da **Verdade Operacional**: todo estado é declarativo, reproduzível e validado por testes automatizados.
 
 ---
 
-## 🏗️ Installation Architecture
+## 🚀 Quick Start (Usuários de ISO)
 
-The Kryonix installation process is a multi-stage pipeline orchestrated by a Rust-based backend and a React frontend.
+Se você acabou de dar boot na Live ISO do Kryonix:
+
+1.  **Conectividade**: O sistema tenta DHCP automático via Ethernet. Para WiFi, utilize a interface gráfica ou `nmcli` no terminal.
+2.  **Hardware Discovery**: O backend executa o `hardware-probe` automaticamente para identificar CPUs, GPUs e armazenamento disponível.
+3.  **Seleção de Fluxo**:
+    *   **Modo Recomendado**: Instalação limpa com particionamento BTRFS otimizado.
+    *   **Modo de Restauração**: Recuperação de sistemas Kryonix existentes.
+4.  **Finalização**: Clique em "Finalizar Instalação" para disparar o motor de particionamento (Disko) e o `nixos-install`.
+5.  **Primeiro Boot**: Após o reboot, utilize a CLI `kryonix` para gerenciar atualizações e perfis.
+
+---
+
+## 🏗️ Arquitetura de Instalação
+
+O pipeline de implantação do Kryonix é orquestrado por um motor em Rust (`kryonix-installer`) e uma interface React.
 
 ```mermaid
-graph LR
-    A[ISO Boot] --> B[Network Discovery]
-    B --> C[Hardware Probe]
-    C --> D[Disk Planner / Disko]
-    D --> E[nixos-install --flake]
-    E --> F[Flag Creation]
-    F --> G[First Boot / Switch]
+graph TD
+    A[Live ISO Boot] --> B[Network & Hardware Probe]
+    B --> C[Disk Planner / Disko]
+    C --> D[nixos-install --flake]
+    D --> E[Flag de Sucesso /mnt/etc/kryonix-installed]
+    E --> F[Reboot]
+    F --> G[Kryonix Switch - Gestão de Estado]
 ```
 
-1.  **Pre-flight**: The backend inventory hardware and checks for existing Kryonix signatures.
-2.  **Provisioning**: `disko` handles GPT tables, BTRFS subvolumes, and mount points.
-3.  **Deployment**: `nixos-install` pulls the closure directly from the local flake checkout in `/etc/kryonix`.
-4.  **Finalization**: A success flag is created at `/mnt/etc/kryonix-installed` to prevent accidental re-partitions on future boots.
+1.  **Provisionamento**: O `disko` cria as tabelas GPT, subvolumes BTRFS e pontos de montagem em `/mnt`.
+2.  **Implantação**: O `nixos-install` copia as closures diretamente da Flake local em `/etc/kryonixos`.
+3.  **Gestão Post-Install**: Após o boot, o comando `kryonix switch` torna-se a fonte única de mutação do sistema, garantindo que o hardware reflita exatamente o que está no Git.
 
 ---
 
-## 💾 Storage Management
+## 💾 Gestão de Armazenamento
 
-Kryonix uses **Disko** for declarative partitioning. Below is a comparison of the available modes:
+O particionamento é puramente declarativo. Abaixo, a comparação técnica dos perfis de disco:
 
-| Feature | Recommended (BTRFS) | Manual Mode |
+| Atributo | Modo Recomendado (BTRFS) | Modo Manual |
 | :--- | :--- | :--- |
-| **Filesystem** | BTRFS with ZSTD Compression | User Defined (Ext4/XFS/BTRFS) |
-| **Subvolumes** | `@`, `@home`, `@nix`, `@log` | Root (`/`) only required |
-| **Strategy** | Optimized for SSD/NVMe longevity | Minimal intervention |
-| **Encryption** | Optional LUKS2 (Planned) | Pre-existing LUKS supported |
-| **Data Safety** | Automatic snapshots ready | Manual management |
+| **Filesystem** | BTRFS com Compressão ZSTD (v3) | Definido pelo usuário (Ext4/XFS) |
+| **Hierarquia** | Subvolumes: `@`, `@home`, `@nix`, `@log` | Ponto de montagem raiz (`/`) obrigatório |
+| **Estratégia** | Otimizada para longevidade de SSD/NVMe | Intervenção mínima do motor |
+| **Resiliência** | Snapshots atômicos e COW habilitado | Gestão manual de integridade |
+| **Mount Options** | `compress=zstd,noatime,ssd` | Padrões do kernel |
 
 ---
 
-## 🛡️ Restore Mode
+## 🛡️ Modo de Restauração (State Awareness)
 
-The installer is designed with **State Awareness**. It scans block devices for:
-- Labels matching `NIXOS-SYSTEM`.
-- Existence of `/mnt/etc/kryonix-installed`.
-- Existing `flake.lock` in known repository paths.
+O instalador é "consciente" do estado atual dos discos. Ele detecta instalações anteriores via:
+- Labels de partição: `NIXOS-SYSTEM` e `NIXOS-HOME`.
+- Arquivo de flag: `/mnt/etc/kryonix-installed`.
+- Estrutura Git: Presença de `flake.lock` em diretórios de configuração conhecidos.
 
-**How to use it**: If a previous system is detected, the "Restore Mode" banner appears. Selecting it will skip the formatting phase and directly proceed to the `nixos-install` stage, effectively repairing or upgrading the existing system without losing data in `/home`.
+**Vantagem**: Ao selecionar a restauração, o sistema pula a formatação destrutiva e utiliza os subvolumes existentes, permitindo reinstalar o SO ou trocar de host sem perder os dados do usuário em `/home`.
 
 ---
 
-## 🔧 Profile Management
+## 🔧 Gerenciamento de Perfis
 
-Kryonix uses a **modular profile system**. You can toggle high-level system behaviors by patching the `imports` in your host's `default.nix`.
+O Kryonix utiliza um sistema de perfis modulares que podem ser ativados via `patching` declarativo no `flake.nix` do host.
 
-### Available Modules:
-- **Gamer**: Optimizes kernel parameters for low latency, adds `gamemode`, and Steam.
-- **Dev-Rust**: Pre-configures a full Rust toolchain (rustc, cargo, rust-analyzer).
+### Perfis Disponíveis:
+- **Gamer**: Kernel zen/low-latency, `gamemode`, Steam e otimizações de scheduler.
+- **Dev-Rust**: Toolchain completa (cargo, rustc, analyzer, clippy) pré-configurada.
 
-### Activation Example:
-In `/etc/kryonixos/hosts/<hostname>/default.nix`:
+### Ativação Manual (Exemplo):
+No arquivo `/etc/kryonixos/hosts/<host>/default.nix`:
 ```nix
 { inputs, ... }: {
   imports = [
@@ -83,32 +85,34 @@ In `/etc/kryonixos/hosts/<hostname>/default.nix`:
 
 ---
 
-## 🛠️ Development & Validation
+## 🛠️ Desenvolvimento e Testes
 
-To ensure stability, developers must validate changes using the automated VM testing suite.
+Para garantir que a ISO nunca quebre, utilizamos um ambiente de virtualização automatizado.
 
-### Running the Boot Test
-Requires `qemu-system-x86_64` and `KVM` enabled.
+### Teste de Boot em VM (QEMU/KVM)
+O script de teste emula o hardware real, carrega a ISO e valida a API do instalador.
 
 ```bash
-# 1. Build the ISO
+# 1. Build da ISO (Gera o artefato .iso)
 kryonix build iso
 
-# 2. Run the automated boot test
+# 2. Executa a validação em sandbox
 ./scripts/test-iso-boot.sh
 ```
 
-The script will spawn a QEMU instance, forward the API port (`8080`), and wait for a successful `/health` response from the installer backend.
+**O que o script valida**:
+- Bootabilidade UEFI.
+- Disponibilidade da API Axum (Porta 8080).
+- Integridade do sistema de arquivos live.
 
 ---
 
-## 📊 Observability
+## 📊 Observabilidade e Telemetria
 
-Every Kryonix installation includes a dedicated observability module:
-- **Path**: `/etc/kryonix-version`
-- **Contents**: Commit Hash, Build Timestamp, and Pretty Name.
-- **Telemetry**: Optional weekly ping to `telemetry.kryonix.org` (disabled by default) to help us improve hardware compatibility.
+Toda instância Kryonix reporta sua identidade técnica em `/etc/kryonix-version`.
+- **Conteúdo**: Commit Hash, Build Timestamp e Pretty Name.
+- **Telemetria**: Ping semanal anônimo para `telemetry.kryonix.org` (opcional e desativado por padrão) para mapeamento de compatibilidade de hardware.
 
 ---
 
-**Kryonix Team** | *Reproducibility is not an option, it's the standard.*
+**Equipe Kryonix** | *Reprodutibilidade não é um desejo, é o padrão.*
