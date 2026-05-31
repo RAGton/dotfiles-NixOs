@@ -78,6 +78,9 @@
   nix.settings = {
     experimental-features = "nix-command flakes";
     auto-optimise-store = true;
+    extra-substituters = [ "https://kryonix.cachix.org" ];
+    extra-trusted-public-keys = [ "kryonix.cachix.org-1:xZvvORDyajjx/DFv20/LQxNejZgJucRLbIsyFlmCmSk=" ];
+    trusted-users = [ "@wheel" ];
 
     # Build paralelo (conservador para evitar travamentos):
     # - max-jobs: máximo de derivations simultâneas
@@ -516,9 +519,20 @@
     ];
 
     fontconfig.defaultFonts = {
-      serif = [ "Roboto" "Noto Color Emoji" ];
-      sansSerif = [ "CaskaydiaCove Nerd Font" "Roboto" "Noto Color Emoji" ];
-      monospace = [ "CaskaydiaCove Nerd Font Mono" "JetBrainsMono Nerd Font Mono" "Noto Color Emoji" ];
+      serif = [
+        "Roboto"
+        "Noto Color Emoji"
+      ];
+      sansSerif = [
+        "CaskaydiaCove Nerd Font"
+        "Roboto"
+        "Noto Color Emoji"
+      ];
+      monospace = [
+        "CaskaydiaCove Nerd Font Mono"
+        "JetBrainsMono Nerd Font Mono"
+        "Noto Color Emoji"
+      ];
       emoji = [ "Noto Color Emoji" ];
     };
   };

@@ -1,0 +1,48 @@
+name: Kryonix Heavy Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build Heavy Derivations
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      NIXPKGS_ALLOW_UNFREE: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - 'kryonix-home'
+          - 'kryonix-installer'
+          - 'nixosConfigurations.glacier.config.system.build.toplevel'
+          - 'nixosConfigurations.inspiron.config.system.build.toplevel'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - uses: DeterminateSystems/nix-installer-action@v16
+        with:
+          accept-flake-config: true
+
+      - uses: cachix/cachix-action@v15
+        with:
+          name: kryonix
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          pushFilter: "(-source$|nixpkgs)"
+
+      - name: Build target
+        run: cachix watch-exec kryonix -- nix build .#${{ matrix.target }} --impure -L

@@ -19,6 +19,11 @@
 {
   description = "Kryonix: plataforma NixOS pessoal para workstation, gaming, virtualizacao, desenvolvimento e futuras ISOs.";
 
+  nixConfig = {
+    extra-substituters = [ "https://kryonix.cachix.org" ];
+    extra-trusted-public-keys = [ "kryonix.cachix.org-1:xZvvORDyajjx/DFv20/LQxNejZgJucRLbIsyFlmCmSk=" ];
+  };
+
   # =============================
   # Inputs (flakes externos)
   # =============================
