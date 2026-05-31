@@ -1,7 +1,7 @@
 # =============================================================================
 # core/mime.nix — Associações MIME padrão do desktop
 # =============================================================================
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 {
   config = lib.mkIf (config.wayland.windowManager.hyprland.enable or false) {
     xdg.mimeApps = {
@@ -111,5 +111,40 @@
         "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [ "impress.desktop" ];
       };
     };
+
+    # Problema: kate.desktop do nixpkgs declara apenas MimeType=text/plain;inode/directory;
+    # Dolphin não encontra nenhum app para text/markdown e exibe o diálogo vazio.
+    # Solução: override local que adiciona text/markdown ao MimeType de kate, rebuild do índice
+    # e garante que ~/.local/share/applications/mimeapps.list (preferido pelo KDE) tenha a entrada.
+    home.activation.fixMarkdownMimeKde = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      LOCAL_APPS="${config.xdg.dataHome}/applications"
+      mkdir -p "$LOCAL_APPS"
+
+      SYSTEM_KATE="/run/current-system/sw/share/applications/org.kde.kate.desktop"
+      LOCAL_KATE="$LOCAL_APPS/org.kde.kate.desktop"
+
+      # Patch kate.desktop: adiciona text/markdown;text/x-markdown; no MimeType
+      if [ -f "$SYSTEM_KATE" ]; then
+        ${pkgs.gnused}/bin/sed \
+          's|^MimeType=text/plain;|MimeType=text/plain;text/markdown;text/x-markdown;|' \
+          "$SYSTEM_KATE" > "$LOCAL_KATE"
+      fi
+
+      # Garante as entradas no mimeapps.list da localização KDE (precedência sobre ~/.config/)
+      LOCAL_MIME="$LOCAL_APPS/mimeapps.list"
+      # Remove entradas markdown antigas para evitar duplicatas
+      ${pkgs.gnused}/bin/sed -i '/^text\/.*markdown/Id' "$LOCAL_MIME" 2>/dev/null || true
+      # Cria [Default Applications] se não existir
+      if ! ${pkgs.gnugrep}/bin/grep -q '^\[Default Applications\]' "$LOCAL_MIME" 2>/dev/null; then
+        printf '[Default Applications]\n' >> "$LOCAL_MIME"
+      fi
+      # Insere as associações logo após [Default Applications]
+      ${pkgs.gnused}/bin/sed -i \
+        '/^\[Default Applications\]/a text\/markdown=org.kde.kate.desktop\ntext\/x-markdown=org.kde.kate.desktop' \
+        "$LOCAL_MIME"
+
+      # Reconstrói o índice de apps da pasta do usuário
+      ${pkgs.desktop-file-utils}/bin/update-desktop-database "$LOCAL_APPS" 2>/dev/null || true
+    '';
   };
 }
