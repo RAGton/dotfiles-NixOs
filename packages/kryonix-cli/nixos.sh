@@ -231,9 +231,26 @@ run_kryonix_test_target() {
   esac
 }
 
+# Retorna o primeiro diretório canônico que contém flake.nix.
+# Ordem: /etc/kryonixos → ~/kryonix → ~/.config/kryonix
+find_canonical_flake() {
+  local candidate
+  for candidate in \
+    /etc/kryonixos \
+    "${HOME}/kryonix" \
+    "${HOME}/.config/kryonix"
+  do
+    if [[ -e "$candidate/flake.nix" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
 resolve_flake() {
   local explicit="${1:-}"
-  local local_root
+  local local_root canonical_root
 
   flake_mode=""
   flake_root=""
@@ -249,30 +266,130 @@ resolve_flake() {
   bootstrap_repo_root=""
 
   if [[ -n "$explicit" ]]; then
+    # a. --flake explícito — sempre prevalece
     use_flake_input "explicit" "$explicit"
   elif [[ -n "${KRYONIX_FLAKE:-}" ]]; then
+    # b. KRYONIX_FLAKE env var — sempre prevalece
     use_flake_input "env" "$KRYONIX_FLAKE"
   elif local_root="$(find_local_flake_root)"; then
-    # Se o root local é o upstream kryonix (motor) e o downstream existe,
-    # os nixosConfigurations vivem no downstream — redireciona automaticamente.
-    if is_kryonix_checkout "$local_root" && [[ -e /etc/kryonixos/flake.nix ]]; then
-      use_local_flake "etc-kryonixos" "/etc/kryonixos"
+    # c. Root local detectado via git
+    if is_kryonix_checkout "$local_root" && canonical_root="$(find_canonical_flake)"; then
+      # CWD é o upstream motor e existe um downstream canônico →
+      # nixosConfigurations vivem no downstream.
+      use_local_flake "canonical" "$canonical_root"
     else
+      # d. Qualquer outro flake local com nixosConfigurations (dev workflow)
       use_local_flake "dev-repo" "$local_root"
     fi
-  elif [[ -e /etc/kryonixos/flake.nix ]]; then
-    use_local_flake "etc-kryonixos" "/etc/kryonixos"
+  elif canonical_root="$(find_canonical_flake)"; then
+    # e. Busca nos locais canônicos: /etc/kryonixos, ~/kryonix, ~/.config/kryonix
+    use_local_flake "canonical" "$canonical_root"
   elif [[ -e /etc/kryonix/flake.nix ]]; then
+    # Fallback: upstream motor (útil para ISO, packages)
     use_local_flake "etc-kryonix" "/etc/kryonix"
   else
-    printf '%s\n' 'kryonix: não foi possível resolver uma flake.' >&2
-    printf '%s\n' 'Use um destes caminhos:' >&2
-    printf '%s\n' '- kryonix <comando> --flake /caminho/para/o/repo' >&2
-    printf '%s\n' '- exporte KRYONIX_FLAKE com uma flake válida' >&2
-    printf '%s\n' '- execute o comando dentro do checkout Git do projeto' >&2
-    printf '%s\n' '- garanta que /etc/kryonixos/flake.nix exista (downstream)' >&2
+    # f. Nenhum flake encontrado
+    printf '%s\n' 'kryonix: Nenhum flake Kryonix encontrado.' >&2
+    printf '%s\n' 'Use KRYONIX_FLAKE= ou --flake para especificar.' >&2
+    printf '%s\n' 'Locais pesquisados: /etc/kryonixos, ~/kryonix, ~/.config/kryonix' >&2
     return 1
   fi
+}
+
+# Lista hosts em nixosConfigurations.
+# Tenta nix eval primeiro (autoritativo); cai em leitura de hosts/ se falhar.
+list_nixos_hosts() {
+  local nix_result
+  nix_result="$(capture_flake_command nix eval "${flake_ref}#nixosConfigurations" \
+    --apply builtins.attrNames \
+    --json 2>/dev/null \
+  | jq -r '.[]' 2>/dev/null || true)"
+
+  if [[ -n "$nix_result" ]]; then
+    printf '%s\n' "$nix_result"
+    return 0
+  fi
+
+  # Fallback: lê a pasta hosts/ excluindo entradas que não são hosts de usuário.
+  if [[ -n "$flake_root" && -d "$flake_root/hosts" ]]; then
+    local entry name
+    for entry in "$flake_root/hosts"/*/; do
+      [[ -d "$entry" ]] || continue
+      name="$(basename "$entry")"
+      case "$name" in
+        common|iso|shared|_*) continue ;;
+      esac
+      printf '%s\n' "$name"
+    done | sort
+    return 0
+  fi
+
+  return 1
+}
+
+# Verifica se $flake_host existe em nixosConfigurations.
+# Se não existir: único host → infere; múltiplos → lista e pede escolha.
+infer_or_verify_host() {
+  local current_host="$flake_host"
+  local available host_count i choice h host_exists
+
+  # Verificação rápida via builtins.hasAttr — não avalia o sistema inteiro.
+  # Usa --json porque hasAttr retorna boolean; --raw não aceita boolean.
+  host_exists="$(capture_flake_command nix eval "${flake_ref}#nixosConfigurations" \
+    --apply "attrs: builtins.hasAttr \"${current_host}\" attrs" \
+    --json 2>/dev/null || printf 'false')"
+
+  if [[ "$host_exists" == "true" ]]; then
+    return 0
+  fi
+
+  # Host não encontrado — enumera o que está disponível.
+  available="$(list_nixos_hosts || true)"
+
+  # Guard: available pode ser vazio ou ter apenas entradas vazias.
+  if [[ -z "${available//[$'\n\r ']/}" ]]; then
+    printf 'kryonix: nenhum nixosConfiguration encontrado em %s\n' "$flake_ref" >&2
+    return 1
+  fi
+
+  # Filtra linhas em branco antes de contar.
+  available="$(printf '%s\n' "$available" | grep -v '^[[:space:]]*$' || true)"
+  host_count="$(printf '%s\n' "$available" | wc -l | tr -d ' ')"
+
+  # Único host disponível → usa automaticamente.
+  if [[ "$host_count" -eq 1 ]]; then
+    flake_host="$(printf '%s\n' "$available" | head -1)"
+    if [[ "$current_host" != "$flake_host" ]]; then
+      printf 'kryonix: host "%s" não encontrado; usando único host disponível: %s\n' \
+        "$current_host" "$flake_host" >&2
+    fi
+    return 0
+  fi
+
+  # Múltiplos hosts — lista e pede escolha.
+  printf 'kryonix: host "%s" não encontrado no flake.\n' "$current_host" >&2
+  printf 'Hosts disponíveis:\n' >&2
+  i=1
+  while IFS= read -r h; do
+    [[ -z "$h" ]] && continue
+    printf '  %d) %s\n' "$i" "$h" >&2
+    i=$((i + 1))
+  done <<< "$available"
+
+  if [[ ! -t 0 ]]; then
+    printf 'kryonix: stdin não-interativo; use --host <host> para especificar.\n' >&2
+    return 1
+  fi
+
+  printf 'Escolha um host [1-%d]: ' "$host_count" >&2
+  read -r choice
+
+  if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > host_count )); then
+    printf 'kryonix: escolha inválida.\n' >&2
+    return 1
+  fi
+
+  flake_host="$(printf '%s\n' "$available" | grep -v '^[[:space:]]*$' | sed -n "${choice}p")"
 }
 
 flake_lock_hash() {

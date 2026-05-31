@@ -352,6 +352,16 @@ else
   flake_ref=""
 fi
 
+# Inferência automática de host: valida $flake_host contra nixosConfigurations.
+# Só para comandos que constroem/aplicam uma configuração NixOS de host.
+if (( needs_flake )); then
+  case "$subcommand" in
+    switch|boot|rebuild|diff)
+      infer_or_verify_host || exit 1
+      ;;
+  esac
+fi
+
 home_target="${user_arg}@${flake_host}"
 verbose_args=()
 dry_args=()
