@@ -60,7 +60,7 @@ let
     inputs.nixpkgs.lib.nixosSystem {
       specialArgs = {
         inherit inputs hostname;
-        outputs = inputs.self.outputs;
+        outputs = kryonixSelf.outputs;
         isDarwin = false;
         userConfig = users.${username};
         nixosModules = "${kryonixSelf}/modules/nixos";
@@ -82,7 +82,7 @@ let
       pkgs = mkHomePkgs system;
       extraSpecialArgs = {
         inherit inputs;
-        outputs = inputs.self.outputs;
+        outputs = kryonixSelf.outputs;
         userConfig = users.${username};
         nhModules = "${kryonixSelf}/modules/home-manager";
       };
