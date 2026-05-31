@@ -10,7 +10,7 @@
       inherit inputs;
       outputs = inputs.self.outputs;
     };
-    modules = [ ../hosts/glacier/live.nix ];
+    modules = [ ../../hosts/glacier/live.nix ];
   };
 
   iso = inputs.nixpkgs.lib.nixosSystem {
