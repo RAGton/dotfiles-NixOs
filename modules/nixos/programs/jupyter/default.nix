@@ -84,9 +84,8 @@ let
 
       if [ "${lib.boolToString cfg.kernels.node}" = "true" ]; then
         if [ "${lib.boolToString hasIjavascript}" = "true" ]; then
-          ${lib.optionalString hasIjavascript ''
-            ${ijavascriptPkg}/bin/ijsinstall --user
-          ''}
+          ${lib.optionalString hasIjavascript "${ijavascriptPkg}/bin/ijsinstall --user"}
+          :
         else
           echo "kernel Node (ijavascript) não disponível neste nixpkgs" >&2
           exit 1
