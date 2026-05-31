@@ -110,12 +110,11 @@
     }@inputs:
     let
       inherit (self) outputs;
-      users = import ./flake/data/users.nix;
-      lib = import ./flake/lib.nix { inherit inputs users; };
+      # Sem usuários pessoais no upstream; downstream traz os seus próprios via kryonix.lib.mkLib
+      lib = import ./flake/lib.nix { inherit inputs; users = { }; };
     in
     {
       nixosConfigurations = import ./flake/data/hosts.nix { inherit inputs lib; };
-      homeConfigurations = import ./flake/home.nix { inherit inputs lib; };
       packages = import ./flake/packages.nix { inherit inputs lib; };
       devShells = import ./flake/shells.nix { inherit inputs lib; };
       formatter = import ./flake/formatter.nix { inherit inputs lib; };
