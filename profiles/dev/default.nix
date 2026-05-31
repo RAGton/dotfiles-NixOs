@@ -65,7 +65,7 @@ in
       enable = lib.mkDefault true;
       kernels = {
         rust = lib.mkIf cfg.enableRust (lib.mkDefault true);
-        c = lib.mkIf cfg.enableCpp (lib.mkDefault true);
+        cpp = lib.mkIf cfg.enableCpp (lib.mkDefault true);
       };
     };
   };
