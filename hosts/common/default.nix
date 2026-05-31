@@ -26,6 +26,7 @@
     ../../modules/nixos/audio
     ../../modules/nixos/network
     ../../modules/nixos/programs/kryonix
+    ../../modules/nixos/programs/jupyter
     ../../modules/nixos/theming
     ../../modules/nixos/services
     ../../modules/nixos/meta

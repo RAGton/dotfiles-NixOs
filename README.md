@@ -1,316 +1,114 @@
-# Kryonix
+# 🌌 Kryonix: High-Performance NixOS Platform
 
-<p align="center">
-  <img src=".github/assets/kryonix-hero.svg" alt="Kryonix Hero" width="100%">
-</p>
-
-<p align="center">
-  <strong>Plataforma NixOS declarativa para workstation, gaming, virtualização, estudo e desenvolvimento.</strong>
-</p>
-
-<p align="center">
-  <a href="https://github.com/RAGton/kryonix"><img alt="Repo" src="https://img.shields.io/badge/repo-Kryonix-0A84FF?style=for-the-badge"></a>
-  <a href="https://github.com/RAGton/kryonix-vault.git"><img alt="Vault" src="https://img.shields.io/badge/vault-Kryonix--Vault-7C3AED?style=for-the-badge"></a>
-  <img alt="NixOS" src="https://img.shields.io/badge/NixOS-declarativo-5277C3?style=for-the-badge">
-  <img alt="Status" src="https://img.shields.io/badge/status-em%20evolu%C3%A7%C3%A3o-10B981?style=for-the-badge">
-</p>
+Kryonix is a professional-grade NixOS distribution designed for stability, observability, and high-performance workloads (Gaming, Development, AI). It follows the principle of **Operational Truth**, where every state is declarative, reproducible, and validated.
 
 ---
 
-## Visão geral
+## 🚀 Quick Start (ISO Users)
 
-O **Kryonix** é uma plataforma NixOS declarativa para uso real. O projeto deixou de ser apenas uma coleção de dotfiles e passou a ser uma base organizada para:
+If you have just booted the Kryonix Live ISO:
 
-- workstation principal
-- gaming
-- virtualização pessoal com KVM/libvirt
-- estudo e desenvolvimento
-- branding consistente
-- base futura para ISOs instaláveis do Kryonix
-
-<p align="center">
-  <img src=".github/assets/kryonix-overview.svg" alt="Kryonix Overview" width="100%">
-</p>
+1.  **Network Setup**: Connect via Ethernet (auto-DHCP) or use the UI to scan and connect to WiFi.
+2.  **Hardware Discovery**: The system automatically runs `hardware-probe` to inventory your CPU, GPU, and Storage.
+3.  **Deployment**: Choose between **Recommended** (fresh install) or **Restore** (recovery of existing setup) modes.
+4.  **Finalize**: Click "Finalize Installation" to trigger Disko partitioning and `nixos-install`.
+5.  **Reboot**: Once finished, remove the USB drive and boot into your new Kryonix environment.
 
 ---
 
-## Repositórios
+## 🏗️ Installation Architecture
 
-- Repositório principal: `https://github.com/RAGton/kryonix`
-- Vault de conhecimento: `https://github.com/RAGton/kryonix-vault.git`
-- Posicionamento público: **Kryonix**
-- Idioma: **PT-BR** | [English](README-en.md)
+The Kryonix installation process is a multi-stage pipeline orchestrated by a Rust-based backend and a React frontend.
 
----
-
-## O que o projeto publica hoje
-
-O flake expõe atualmente:
-
-- `nixosConfigurations` para `inspiron`, `inspiron-nina`, `glacier` e `iso`
-- `homeConfigurations` para `rocha@inspiron`, `rocha@glacier` e `nina@inspiron-nina`
-- overlays reutilizáveis
-- formatter, checks e pacotes `kryonix` e `ragos` compat
-
-### Host principal atual
-
-O host de produto principal neste momento é o **`glacier`**, tratado como:
-
-- workstation AMD + NVIDIA
-- host gamer
-- host de VMs
-- laboratório do próprio Kryonix
-
----
-
-## Fluxo operacional
-
-A CLI padrão agora é a **`kryonix`**, instalada no PATH do sistema.
-A CLI antiga **`ragos`** continua disponível apenas como compatibilidade temporária.
-
-```sh
-kryonix switch
-kryonix switch --update
-kryonix boot --update
-kryonix home
-kryonix diff
-kryonix doctor
-kryonix check
-kryonix fmt
-kryonix iso
+```mermaid
+graph LR
+    A[ISO Boot] --> B[Network Discovery]
+    B --> C[Hardware Probe]
+    C --> D[Disk Planner / Disko]
+    D --> E[nixos-install --flake]
+    E --> F[Flag Creation]
+    F --> G[First Boot / Switch]
 ```
 
-Ela usa `nh`, `nix`, `nvd` e o hostname atual para reduzir atrito operacional.
-
-<p align="center">
-  <img src=".github/assets/kryonix-terminal.svg" alt="Kryonix Terminal Demo" width="100%">
-</p>
+1.  **Pre-flight**: The backend inventory hardware and checks for existing Kryonix signatures.
+2.  **Provisioning**: `disko` handles GPT tables, BTRFS subvolumes, and mount points.
+3.  **Deployment**: `nixos-install` pulls the closure directly from the local flake checkout in `/etc/kryonix`.
+4.  **Finalization**: A success flag is created at `/mnt/etc/kryonix-installed` to prevent accidental re-partitions on future boots.
 
 ---
 
-## Quick start
+## 💾 Storage Management
 
-Se quiser clonar já com o naming novo:
+Kryonix uses **Disko** for declarative partitioning. Below is a comparison of the available modes:
 
-```sh
-git clone https://github.com/RAGton/kryonix kryonix
-cd kryonix
-```
+| Feature | Recommended (BTRFS) | Manual Mode |
+| :--- | :--- | :--- |
+| **Filesystem** | BTRFS with ZSTD Compression | User Defined (Ext4/XFS/BTRFS) |
+| **Subvolumes** | `@`, `@home`, `@nix`, `@log` | Root (`/`) only required |
+| **Strategy** | Optimized for SSD/NVMe longevity | Minimal intervention |
+| **Encryption** | Optional LUKS2 (Planned) | Pre-existing LUKS supported |
+| **Data Safety** | Automatic snapshots ready | Manual management |
 
-Inspecionar a flake:
+---
 
-```sh
-nix flake show --all-systems
-nix flake check --keep-going
-```
+## 🛡️ Restore Mode
 
-Aplicar o host atual:
+The installer is designed with **State Awareness**. It scans block devices for:
+- Labels matching `NIXOS-SYSTEM`.
+- Existence of `/mnt/etc/kryonix-installed`.
+- Existing `flake.lock` in known repository paths.
 
-```sh
-kryonix switch
-```
+**How to use it**: If a previous system is detected, the "Restore Mode" banner appears. Selecting it will skip the formatting phase and directly proceed to the `nixos-install` stage, effectively repairing or upgrading the existing system without losing data in `/home`.
 
-Aplicar explicitamente um host:
+---
 
-```sh
-kryonix switch --host glacier
+## 🔧 Profile Management
+
+Kryonix uses a **modular profile system**. You can toggle high-level system behaviors by patching the `imports` in your host's `default.nix`.
+
+### Available Modules:
+- **Gamer**: Optimizes kernel parameters for low latency, adds `gamemode`, and Steam.
+- **Dev-Rust**: Pre-configures a full Rust toolchain (rustc, cargo, rust-analyzer).
+
+### Activation Example:
+In `/etc/kryonixos/hosts/<hostname>/default.nix`:
+```nix
+{ inputs, ... }: {
+  imports = [
+    inputs.kryonix.nixosModules.profile-gamer
+    inputs.kryonix.nixosModules.profile-dev-rust
+  ];
+}
 ```
 
 ---
 
-## Arquitetura visual do fluxo
+## 🛠️ Development & Validation
 
-<p align="center">
-  <img src=".github/assets/kryonix-workflow.svg" alt="Kryonix Workflow" width="100%">
-</p>
+To ensure stability, developers must validate changes using the automated VM testing suite.
 
----
+### Running the Boot Test
+Requires `qemu-system-x86_64` and `KVM` enabled.
 
-## Glacier
+```bash
+# 1. Build the ISO
+kryonix build iso
 
-O `glacier` usa o `hardware-configuration.nix` restaurado como fonte real de boot, root e home.
-O `disks.nix` fica reservado para provisionamento e **não** deve ser usado de forma destrutiva no host já instalado.
-
-Além do storage base, o host mantém um storage operacional para virtualização em:
-
-- `/srv/ragenterprise`
-- `/srv/ragenterprise/images`
-- `/srv/ragenterprise/iso`
-- `/srv/ragenterprise/templates`
-- `/srv/ragenterprise/snippets`
-- `/srv/ragenterprise/backups`
-
----
-
-## Branding
-
-O branding do Kryonix já está padronizado em:
-
-- `Plymouth`
-- `GRUB`
-- `GDM`
-- wallpaper do desktop
-- `/etc/os-release`
-- `/etc/issue`
-
-O produto é apresentado publicamente como **Kryonix**.
-O nome antigo permanece apenas como camada temporária de compatibilidade.
-
----
-
-## IA local e serviços do Brain
-
-O `glacier` conta com serviços de Inteligência Artificial nativos como **Ollama**, **LightRAG** e **Kryonix Brain API**.
-
-### Setup da API Key (executar no Glacier)
-
-O arquivo de secrets `/etc/kryonix/brain.env` fica **fora do Git** e precisa ser criado no servidor antes do primeiro `kryonix switch`.
-
-**Método recomendado (CLI):**
-
-```sh
-kryonix brain api-key generate
-kryonix brain api-key validate
+# 2. Run the automated boot test
+./scripts/test-iso-boot.sh
 ```
 
-**Método manual (fallback):**
-
-```sh
-KEY="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
-tmp="$(mktemp)"
-printf 'KRYONIX_BRAIN_API_KEY=%s\n' "$KEY" > "$tmp"
-sudo install -m 600 -o root -g root "$tmp" /etc/kryonix/brain.env
-rm -f "$tmp"
-unset KEY
-```
-
-Confirme as permissões:
-
-```sh
-sudo stat -c "%U:%G %a %n" /etc/kryonix/brain.env
-# Esperado: root:root 600 /etc/kryonix/brain.env
-```
-
-Para rotação: `kryonix brain api-key rotate` (faz backup automático).
-
-Se esse arquivo não existir, o systemd se recusará a subir as units `kryonix-brain-api` e `kryonix-lightrag` no `kryonix switch`.
-
-### Endpoints da Brain API
-
-- `GET /health` — público, sem autenticação
-- `GET /stats`, `POST /search`, `GET /graph/*` — requerem header `X-API-Key`
-
-### Busca Semântica vs Síntese de Resposta
-
-O Kryonix Brain agora separa claramente a recuperação de evidências da geração de respostas:
-
-- **`kryonix brain search`**: Recuperação de evidências puramente vetorial/grafo. **Não chama LLM**, sendo extremamente rápido e econômico. Ideal para localizar fontes e chunks.
-- **`kryonix brain ask`**: Síntese de resposta baseada nas evidências encontradas (**Grounded Synthesis**). Chama o LLM para responder à pergunta usando apenas o contexto recuperado.
-
-Exemplo de uso:
-```sh
-# Localizar onde algo está documentado (Rápido)
-kryonix brain search "configuração do glacier" --explain
-
-# Obter uma resposta explicada (Síntese)
-kryonix brain ask "Como eu configuro o acesso remoto no glacier?"
-```
-
-> ⚠️ **Nunca commite** `brain.env`, `neo4j.env` ou qualquer arquivo com API keys ou tokens.
-> Esses arquivos já estão listados no `.gitignore`.
+The script will spawn a QEMU instance, forward the API port (`8080`), and wait for a successful `/health` response from the installer backend.
 
 ---
 
-## Kryonix Home Brain
+## 📊 Observability
 
-> [!CAUTION]
-> **Status: PARTIAL / UNSTABLE**  
-> **Production Ready: FALSE**  
-> **Execute Enabled: FALSE**  
-> O Home Brain é um componente experimental. O uso em diretórios de produção não é recomendado nesta fase.
-
-O **Kryonix Home Brain** organiza e estrutura arquivos pessoais da sua Home de forma segura, declarativa e auditável.
-
-Fases em desenvolvimento:
-- **Fase 1**: scan / report / duplicates / plan
-- **Fase 2**: manifest / apply / rollback
-- **Fase 3A**: renomeação determinística ABNT-like
-- **Fase 3B**: taxonomia determinística e declarativa baseada em regras
-- **Fase 4A**: Memory Bridge (exportação JSONL auditável para o Brain)
-
-### Fluxo Seguro de Operação
-
-Por segurança de dados, **não existe auto-delete**. Todas as decisões são descritas em um manifesto estruturado e aplicadas somente com confirmação explícita:
-
-```sh
-# 1. Planejar as movimentações com explicabilidade das heurísticas
-kryonix home plan --taxonomy-suggestions --rename-suggestions --why
-
-# 2. Criar o manifesto de ações físicas
-kryonix home manifest create --taxonomy-suggestions --rename-suggestions
-
-# 3. Simular (dry-run) ou aplicar (confirm)
-kryonix home apply --dry-run
-kryonix home apply --confirm
-
-# 4. Se arrepender ou errar, reverta 100% da transação instantaneamente
-kryonix home rollback
-
-# 5. Exportar memória para o Kryonix Brain (RAG/Graph)
-kryonix home export-memory --from latest-manifest --jsonl
-```
-
-Para detalhes de arquitetura, configurações de TOML e guias operacionais, consulte a [Documentação do Home Brain](docs/home-brain/README.md).
+Every Kryonix installation includes a dedicated observability module:
+- **Path**: `/etc/kryonix-version`
+- **Contents**: Commit Hash, Build Timestamp, and Pretty Name.
+- **Telemetry**: Optional weekly ping to `telemetry.kryonix.org` (disabled by default) to help us improve hardware compatibility.
 
 ---
 
-## Acesso remoto seguro ao Glacier
-
-Status: Implementado e validado.
-
-O Kryonix utiliza um pipeline seguro para acesso ao desktop do servidor, garantindo que o tráfego VNC nunca seja exposto à rede pública.
-
-Fluxo:
-- **Glacier (Servidor):** Roda WayVNC escutando exclusivamente em `127.0.0.1:5900`.
-- **Inspiron (Cliente):** Cria um túnel SSH local apontando `127.0.0.1:5901` para o servidor.
-- **Visualização:** Remmina (VNC) conectando em `127.0.0.1:5901`.
-
-Comandos:
-```sh
-kryonix remote vnc start   # Inicia servidor (no Glacier) ou túnel (no Inspiron)
-kryonix remote vnc status  # Mostra o estado de ambos os lados
-kryonix remote vnc stop    # Para os serviços correspondentes
-```
-
----
-
-## Documentação
-
-- [Atalhos do teclado](docs/SHORTCUTS.md)
-- [Operação diária e CLI](docs/OPERATIONS.md)
-- [Papel do host glacier](docs/GLACIER.md)
-- [Índice da documentação](docs/README.md)
-- [Comandos canônicos validados](docs/operations/KRYONIX_COMMANDS_CANONICAL.md)
-- [Matriz de runtime (Inspiron/Glacier)](docs/operations/KRYONIX_RUNTIME_MATRIX.md)
-- [Checklist de validação operacional](docs/operations/KRYONIX_VALIDATION.md)
-- [Walkthrough de revisão canônica](docs/operations/KRYONIX_REVIEW_WALKTHROUGH.md)
-
----
-
-## Observações de segurança operacional
-
-- não use `disko`, `format-*` ou `install-system` no `glacier` já instalado
-- não trate `hosts/glacier/disks.nix` como verdade do hardware atual
-- prefira `kryonix test` e `kryonix boot` antes de mudanças de maior risco
-
----
-
-## Licença
-
-A partir da versão atual, o Kryonix é distribuído como **Source Available / Proprietário — Todos os Direitos Reservados**.
-
-O código está disponível para leitura, auditoria pessoal, estudo e avaliação, mas **não** é permitido copiar, redistribuir, sublicenciar, vender, publicar derivados, criar ISOs/distribuições derivadas, serviços hospedados, appliances ou produtos comerciais baseados no Kryonix sem autorização explícita por escrito de Gabriel Aguiar Rocha.
-
-Componentes de terceiros, dependências e projetos externos usados pelo Kryonix continuam sob suas respectivas licenças. Esta licença não altera licenças de NixOS, nixpkgs, Home Manager, Ollama, Neo4j, LightRAG ou qualquer dependência externa.
-
-Versões antigas que foram publicadas com outra licença permanecem regidas pela licença que acompanhava aquelas versões.
+**Kryonix Team** | *Reproducibility is not an option, it's the standard.*
