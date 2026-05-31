@@ -1,7 +1,7 @@
 # =============================================================================
 # core/mime.nix — Associações MIME padrão do desktop
 # =============================================================================
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 {
   config = lib.mkIf (config.wayland.windowManager.hyprland.enable or false) {
     xdg.mimeApps = {
@@ -115,12 +115,20 @@
 
     # kate.desktop do nixpkgs não declara text/markdown no MimeType, então
     # Dolphin exibia diálogo vazio. Este entry cria kate-markdown.desktop que
-    # declara o tipo — o HM gerencia tudo declarativamente via xdg.dataFile.
+    # declara o tipo — colocado no nix-profile pelo HM, não em ~/.local/share/applications/.
     xdg.desktopEntries.kate-markdown = {
       name = "Kate Kryonix";
       exec = "kate %U";
       mimeType = [ "text/markdown" "text/x-markdown" ];
       noDisplay = true;
     };
+
+    # Reconstrói o cache do KDE (ksycoca6) após cada switch.
+    # Dolphin usa esse cache para associar MIME types a apps — sem rebuild,
+    # as novas entradas do nix-profile (kate-markdown.desktop, etc.) não são vistas.
+    # Cobre todos os tipos de arquivo, não apenas markdown.
+    home.activation.rebuildKdeMimeCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${pkgs.kdePackages.kservice}/bin/kbuildsycoca6 --noincremental 2>/dev/null || true
+    '';
   };
 }
