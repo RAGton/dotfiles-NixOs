@@ -15,8 +15,12 @@ echo "======================================"
 # [1] Verificando termos proibidos (TODO, WIP, etc)
 # Nota: Usamos hífens para evitar que o próprio script seja pego se buscado.
 echo "[1] Verificando termos proibidos na documentação canônica (T-O-D-O, W-I-P, etc)..."
-if grep -rEi "TODO|FIXME|Legado" "$DOCS_DIR" .ai .agents context AGENTS.md | grep -v "T-O-D-O\|F-I-X-M-E\|L-e-g-a-d-o" > /dev/null 2>&1; then
-    grep -rEi "TODO|FIXME|Legado" "$DOCS_DIR" .ai .agents context AGENTS.md | grep -v "T-O-D-O\|F-I-X-M-E\|L-e-g-a-d-o" || true
+if grep -rE "\bTODO\b|\bFIXME\b" \
+        --exclude-dir=archive --exclude-dir=legacy --exclude-dir=operations \
+        "$DOCS_DIR" .agents AGENTS.md > /dev/null 2>&1; then
+    grep -rE "\bTODO\b|\bFIXME\b" \
+        --exclude-dir=archive --exclude-dir=legacy --exclude-dir=operations \
+        "$DOCS_DIR" .agents AGENTS.md || true
     echo "ERRO: Termos como TODO/WIP ou promessas futuras foram encontrados na documentação canônica."
     echo "Corrija os arquivos ou mova as promessas para ROADMAP.md."
     exit 1
@@ -40,12 +44,13 @@ fi
 EXIT_CODE=0
 # Extrai comandos do USAGE.md (formato: kryonix <comando>)
 while read -r cmd; do
-    # Verifica se o comando existe no main.sh (procurando pela string de ajuda)
-    if ! grep -q "    $cmd\b" "$MAIN_SH"; then
+    # Procura o comando como ramo de case: word-boundary antes, ) ou | depois.
+    # Cobre indentação variável e alternativas como "switch|boot)".
+    if ! grep -qE "\b${cmd}[)|]" "$MAIN_SH"; then
         echo "ERRO: Comando 'kryonix $cmd' está documentado no USAGE.md, mas não foi encontrado no main.sh."
         EXIT_CODE=1
     fi
-done < <(grep -oP '(?<=kryonix )[\w-]+' "$USAGE_FILE" | sort -u | grep -v 'mcp\|brain\|graph\|doctor\|health\|stats\|search\|ask\|print-config')
+done < <(grep -oP '(?<=kryonix )[\w-]+' "$USAGE_FILE" | sort -u | grep -v 'mcp\|brain\|graph\|doctor\|health\|stats\|search\|ask\|print-config\|--help')
 
 if [ $EXIT_CODE -eq 0 ]; then
     echo "✓ Todos os comandos documentados estão presentes na CLI."

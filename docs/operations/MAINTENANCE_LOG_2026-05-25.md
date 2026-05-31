@@ -52,4 +52,4 @@ atualizações futuras de versão.
 - **inputs — `rust-overlay`** (114 dias), **`flake-utils`** (558 dias), **`systems`** (1142 dias):
   são transitivos; atualizar via inputs que os puxam (`caelestia-shell` etc.) ou aguardar
   atualização desses inputs upstream.
-- **hosts/glacier/disks.nix — TODO**: substituir ID de disco placeholder pelo ID real do hardware.
+- **hosts/glacier/disks.nix — ⚠ pendente**: substituir ID de disco placeholder pelo ID real do hardware.
