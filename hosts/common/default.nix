@@ -15,9 +15,10 @@
 # - Encadeia opções, módulos de base/sistema, features e profiles.
 # - Expõe a seleção de desktop via `kryonix.desktop.environment`.
 # ==============================================================================
-{ ... }:
+{ inputs, userConfig, ... }:
 {
   imports = [
+    inputs.home-manager.nixosModules.home-manager
     ../../lib/options.nix
     ../../modules/nixos/base
     ../../modules/nixos/hardware
@@ -31,4 +32,14 @@
     ../../features
     ../../profiles
   ];
+
+  # Configuração padrão para o Home Manager integrado ao NixOS
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    extraSpecialArgs = { inherit inputs userConfig; };
+    users.\${userConfig.name} = {
+      imports = [ ../../modules/home-manager/common ];
+    };
+  };
 }
