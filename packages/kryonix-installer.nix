@@ -7,7 +7,7 @@ let
     src = ./kryonix-installer/ui;
     
     # Run a dummy build to get the real hash later, or use fakeHash
-    npmDepsHash = "sha256-poEo6CdDKcXl7CyB+g32UpdpN/pJJ8GDXGsZrlA4vwc=";
+    npmDepsHash = "sha256-sUEtL5G0JMBVcaDwk7YTI5VaaGBsziQ9FuMuXN14BUw=";
     
     installPhase = ''
       mkdir -p $out/dist

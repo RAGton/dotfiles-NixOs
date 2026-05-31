@@ -68,6 +68,9 @@ in
     ./monitors.nix
     ./wrappers.nix
     ./theme
+    ./core/monitors.nix
+    ./core/rules.nix
+    ./core/keybinds.nix
   ];
 
   config = lib.mkMerge [
