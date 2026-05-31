@@ -122,8 +122,25 @@
       checks = import ./flake/checks.nix { inherit inputs lib; };
       overlays = import ./overlays { inherit inputs; };
 
-      # Exports upstream
+      # Exports upstream — consumíveis por repositórios downstream
       nixosModules = (import ./flake/modules.nix { inherit self inputs; }).nixosModules;
       homeManagerModules = (import ./flake/modules.nix { inherit self inputs; }).homeManagerModules;
+
+      # lib: factory para criar configurações downstream
+      # Uso: kryonix.lib.mkLib { inherit inputs; users = ./meus-users.nix; }
+      lib = {
+        mkLib =
+          { inputs, users }:
+          import ./flake/lib.nix { inherit inputs users; };
+
+        # Overlays prontos para uso em nixpkgs.overlays
+        inherit (import ./overlays { inherit inputs; })
+          stable-packages
+          atlauncher-api-user-agent-workaround
+          xeus-cling-no-checks
+          codex-overlay
+          kryonix-installer-tools
+          ;
+      };
     };
 }

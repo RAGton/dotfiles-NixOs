@@ -1,16 +1,41 @@
 { self, inputs }:
 {
   nixosModules = {
-    default = { config, lib, pkgs, ... }: {
-      imports = [
-        ../lib/options.nix
-      ];
-    };
+    # Opções do namespace kryonix.* (sem implementação)
+    options = { ... }: { imports = [ ../lib/options.nix ]; };
+
+    # Base comum compartilhada (nix settings, rede, locale, pacotes base)
+    # Equivale ao que hosts/common provê — downstream importa como módulo
+    common = { ... }: { imports = [ ../hosts/common ]; };
+
+    # Default: opções + base comum — ponto de entrada principal para downstream
+    default = { ... }: { imports = [ ../lib/options.nix ../hosts/common ]; };
   };
 
   homeManagerModules = {
-    default = { config, lib, pkgs, ... }: {
-      # Módulo exportado para ser usado em configurações downstream
+    # Base HM compartilhada (programas, serviços, aliases comuns)
+    common = { nhModules, ... }: {
+      imports = [ ../modules/home-manager/common ];
+    };
+
+    # Desktop Hyprland completo (user.nix como orquestrador)
+    hyprland = { nhModules, ... }: {
+      imports = [ ../desktop/hyprland/user.nix ];
+    };
+
+    # Integração Caelestia Shell (scheme, settings, activation)
+    caelestia = { ... }: {
+      imports = [ ../desktop/hyprland/rice/caelestia-config.nix ];
+    };
+
+    # Shell backend option (kryonix.shell.backend)
+    shell-backend = { ... }: {
+      imports = [ ../desktop/hyprland/shell-backend.nix ];
+    };
+
+    # Default: base HM comum
+    default = { nhModules, ... }: {
+      imports = [ ../modules/home-manager/common ];
     };
   };
 }
