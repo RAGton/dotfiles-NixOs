@@ -9,6 +9,7 @@
   lib,
   pkgs,
   modulesPath,
+  offlineMode ? false,
   ...
 }:
 {
@@ -16,18 +17,32 @@
     # Base do instalador do NixOS (ISO minimal)
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
 
-    # Nosso módulo de instalador automatizado
-    ../../modules/nixos/installer
+    # Modulos para ISO modular
+    inputs.self.nixosModules.installer-core
+
     ../../modules/nixos/installer/web-kiosk.nix
     ../../modules/shared/nixpkgs
+    ../../modules/nixos/meta
 
     # Branding Kryonix (GRUB tema + Plymouth + os-release)
     ../../modules/nixos/branding/kryonix/default.nix
+  ] ++ lib.optionals offlineMode [
+    inputs.self.nixosModules.full-profile
   ];
 
   networking.hostName = lib.mkForce "kryonix";
   kryonix.installer.kiosk.enable = true;
   kryonix.branding.enable = true;
+
+  # Se estiver em modo offline, garante que o closure esteja no store da ISO.
+  isoImage.storeContents = lib.optional offlineMode (with pkgs; [
+    # Garante que as ferramentas e o flake estejam acessíveis sem internet
+    git
+    curl
+    jq
+    nix
+    inputs.self.outPath
+  ]);
 
   # ── Rede: ethernet DHCP automático + WiFi via NetworkManager ──────────────
   # O instalador precisa de internet antes do passo 1 (OAuth GitHub).

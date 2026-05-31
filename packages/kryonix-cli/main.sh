@@ -568,8 +568,40 @@ case "$subcommand" in
     ;;
 
   iso)
-    cmd=(nix build "${flake_ref}#nixosConfigurations.iso.config.system.build.isoImage" "${verbose_args[@]}" "${extra_args[@]}")
-    run_flake_command "${cmd[@]}"
+    iso_mode="online"
+    filtered_args=()
+    
+    # Extrair --mode dos extra_args
+    for (( i=0; i < ${#extra_args[@]}; i++ )); do
+      if [[ "${extra_args[i]}" == "--mode" ]]; then
+        iso_mode="${extra_args[i+1]}"
+        ((i++))
+      else
+        filtered_args+=("${extra_args[i]}")
+      fi
+    done
+
+    offline_val="false"
+    if [[ "$iso_mode" == "offline" ]]; then
+      offline_val="true"
+    fi
+
+    # Usamos o wrapper iso.nix para suportar o argumento dinâmico --arg
+    # Note: assume que o CLI está rodando no root do repositório ou que resolvemos o path.
+    cmd=(nix build --arg offlineMode "$offline_val" -f "$flake_root/iso.nix" "${verbose_args[@]}" "${filtered_args[@]}")
+    
+    blue_line "Construindo ISO em modo: ${iso_mode^^}..."
+    run_command "${cmd[@]}" || exit $?
+
+    blue_line "✅ ISO gerada em modo ${iso_mode^^}."
+    # Tenta localizar o arquivo .iso e mostrar o tamanho
+    iso_file=$(find result/ -name "*.iso" 2>/dev/null | head -n 1)
+    if [[ -n "$iso_file" ]]; then
+       size=$(du -sh "$iso_file" | awk '{print $1}')
+       blue_line "Tamanho final: $size"
+    else
+       blue_line "Tamanho final: (não foi possível localizar o arquivo .iso em result/)"
+    fi
     ;;
 
   fmt)

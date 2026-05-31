@@ -87,7 +87,7 @@ let
         nhModules = "${kryonixSelf}/modules/home-manager";
       };
       # Home config: resolvida no repositório CHAMADOR
-      modules = [ "${inputs.self}/home/${username}/${hostname}" ];
+      modules = [ "${inputs.self}/users/${username}/${hostname}" ];
     };
 
 in

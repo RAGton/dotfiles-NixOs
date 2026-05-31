@@ -14,6 +14,19 @@
     # Perfis isolados para patching dinâmico
     profile-gamer = { ... }: { imports = [ ../profiles/workstation-gamer.nix ]; };
     profile-dev-rust = { ... }: { imports = [ ../profiles/dev/rust.nix ]; };
+
+    # Modulos para ISO modular
+    installer-core = { ... }: {
+      imports = [ ../modules/nixos/installer ];
+    };
+
+    full-profile = { ... }: {
+      imports = [
+        ../lib/options.nix
+        ../hosts/common
+        ../profiles/default.nix
+      ];
+    };
   };
 
   homeManagerModules = {
