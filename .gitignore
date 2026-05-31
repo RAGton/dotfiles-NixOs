@@ -51,3 +51,4 @@ kora.env
 .claude/settings.local.json
 kryonix-claude-kit.zip
 .backup-kit/
+kryonix-claude-kit*.zip
