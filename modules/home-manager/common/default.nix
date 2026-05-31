@@ -98,6 +98,7 @@ in
     username = "${userConfig.name}";
     homeDirectory =
       if pkgs.stdenv.isDarwin then "/Users/${userConfig.name}" else "/home/${userConfig.name}";
+    stateVersion = "26.05"; # Versão base para compatibilidade de estado do usuário
   };
 
   # Ajustes de sessão (principalmente Electron/VS Code em Wayland).
