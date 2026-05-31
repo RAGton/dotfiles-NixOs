@@ -1,121 +1,160 @@
 # =============================================================================
 # core/mime.nix — Associações MIME padrão do desktop
+#
+# Padrão escalável: variáveis de app no let-block permitem trocar
+# um app em um único lugar e propagar para todos os tipos MIME.
 # =============================================================================
 { lib, config, pkgs, ... }:
+let
+  # ===========================================================================
+  # Apps padrão — altere aqui para mudar a associação de toda uma categoria
+  # ===========================================================================
+  browser      = "app.zen_browser.zen.desktop";
+  editor       = "org.kde.kate.desktop";
+  imageViewer  = "org.kde.gwenview.desktop";
+  videoPlayer  = "mpv.desktop";
+  audioPlayer  = "mpv.desktop";
+  pdfViewer    = "org.kde.okular.desktop";
+  fileManager  = "org.kde.dolphin.desktop";
+  archiver     = "org.kde.ark.desktop";
+  imageEditor  = "org.gimp.GIMP.desktop";
+
+  # Office (LibreOffice)
+  docEditor    = "writer.desktop";
+  spreadsheet  = "calc.desktop";
+  presentation = "impress.desktop";
+
+  # kate-markdown.desktop: exceção necessária porque kate.desktop do nixpkgs
+  # não declara text/markdown no MimeType — a variável aponta para o entry
+  # declarado em xdg.desktopEntries abaixo.
+  markdownEditor = "kate-markdown.desktop";
+in
 {
   config = lib.mkIf (config.wayland.windowManager.hyprland.enable or false) {
+
+    # Pacotes KDE necessários para o menu de aplicativos e cache de MIME
+    home.packages = with pkgs; [
+      kdePackages.plasma-workspace  # Fornece plasma-applications.menu
+      kdePackages.kservice          # kbuildsycoca6
+    ];
+
+    # Menu de aplicativos Plasma — necessário para Dolphin resolver categorias
+    xdg.configFile."menus/applications.menu".source =
+      "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
+
     xdg.mimeApps = {
       enable = true;
       defaultApplications = {
-        # Diretórios e imagens
-        "inode/directory"    = [ "org.kde.dolphin.desktop" ];
-        "image/jpeg"         = [ "org.kde.gwenview.desktop" ];
-        "image/jpg"          = [ "org.kde.gwenview.desktop" ];
-        "image/png"          = [ "org.kde.gwenview.desktop" ];
-        "image/x-png"        = [ "org.kde.gwenview.desktop" ];
-        "image/gif"          = [ "org.kde.gwenview.desktop" ];
-        "image/webp"         = [ "org.kde.gwenview.desktop" ];
-        "image/bmp"          = [ "org.kde.gwenview.desktop" ];
-        "image/tiff"         = [ "org.kde.gwenview.desktop" ];
-        "image/heic"         = [ "org.kde.gwenview.desktop" ];
-        "image/avif"         = [ "org.kde.gwenview.desktop" ];
-        "image/svg+xml"      = [ "org.gimp.GIMP.desktop" "org.kde.gwenview.desktop" ];
+        # Diretórios
+        "inode/directory"    = [ fileManager ];
+
+        # Imagens raster
+        "image/jpeg"         = [ imageViewer ];
+        "image/jpg"          = [ imageViewer ];
+        "image/png"          = [ imageViewer ];
+        "image/x-png"        = [ imageViewer ];
+        "image/gif"          = [ imageViewer ];
+        "image/webp"         = [ imageViewer ];
+        "image/bmp"          = [ imageViewer ];
+        "image/tiff"         = [ imageViewer ];
+        "image/heic"         = [ imageViewer ];
+        "image/avif"         = [ imageViewer ];
+        "image/svg+xml"      = [ imageEditor imageViewer ];
 
         # Vídeo
-        "video/mp4"          = [ "mpv.desktop" ];
-        "video/x-matroska"   = [ "mpv.desktop" ];
-        "video/webm"         = [ "mpv.desktop" ];
-        "video/avi"          = [ "mpv.desktop" ];
-        "video/quicktime"    = [ "mpv.desktop" ];
-        "video/x-msvideo"    = [ "mpv.desktop" ];
-        "video/mpeg"         = [ "mpv.desktop" ];
-        "video/ogg"          = [ "mpv.desktop" ];
-        "video/flv"          = [ "mpv.desktop" ];
-        "video/x-flv"        = [ "mpv.desktop" ];
-        "video/mp2t"         = [ "mpv.desktop" ];
-        "video/3gpp"         = [ "mpv.desktop" ];
-        "video/3gpp2"        = [ "mpv.desktop" ];
+        "video/mp4"          = [ videoPlayer ];
+        "video/x-matroska"   = [ videoPlayer ];
+        "video/webm"         = [ videoPlayer ];
+        "video/avi"          = [ videoPlayer ];
+        "video/quicktime"    = [ videoPlayer ];
+        "video/x-msvideo"    = [ videoPlayer ];
+        "video/mpeg"         = [ videoPlayer ];
+        "video/ogg"          = [ videoPlayer ];
+        "video/flv"          = [ videoPlayer ];
+        "video/x-flv"        = [ videoPlayer ];
+        "video/mp2t"         = [ videoPlayer ];
+        "video/3gpp"         = [ videoPlayer ];
+        "video/3gpp2"        = [ videoPlayer ];
 
         # Áudio
-        "audio/mpeg"         = [ "mpv.desktop" ];
-        "audio/mp3"          = [ "mpv.desktop" ];
-        "audio/flac"         = [ "mpv.desktop" ];
-        "audio/ogg"          = [ "mpv.desktop" ];
-        "audio/x-vorbis+ogg" = [ "mpv.desktop" ];
-        "audio/wav"          = [ "mpv.desktop" ];
-        "audio/x-wav"        = [ "mpv.desktop" ];
-        "audio/aac"          = [ "mpv.desktop" ];
-        "audio/opus"         = [ "mpv.desktop" ];
-        "audio/mp4"          = [ "mpv.desktop" ];
-        "audio/x-m4a"        = [ "mpv.desktop" ];
-        "audio/webm"         = [ "mpv.desktop" ];
+        "audio/mpeg"         = [ audioPlayer ];
+        "audio/mp3"          = [ audioPlayer ];
+        "audio/flac"         = [ audioPlayer ];
+        "audio/ogg"          = [ audioPlayer ];
+        "audio/x-vorbis+ogg" = [ audioPlayer ];
+        "audio/wav"          = [ audioPlayer ];
+        "audio/x-wav"        = [ audioPlayer ];
+        "audio/aac"          = [ audioPlayer ];
+        "audio/opus"         = [ audioPlayer ];
+        "audio/mp4"          = [ audioPlayer ];
+        "audio/x-m4a"        = [ audioPlayer ];
+        "audio/webm"         = [ audioPlayer ];
 
         # PDF e documentos
-        "application/pdf"            = [ "org.kde.okular.desktop" ];
-        "application/epub+zip"       = [ "org.kde.okular.desktop" ];
-        "application/postscript"     = [ "org.kde.okular.desktop" ];
-        "image/x-eps"                = [ "org.kde.okular.desktop" ];
+        "application/pdf"        = [ pdfViewer ];
+        "application/epub+zip"   = [ pdfViewer ];
+        "application/postscript" = [ pdfViewer ];
+        "image/x-eps"            = [ pdfViewer ];
 
         # Texto e código
-        "text/plain"                 = [ "org.kde.kate.desktop" ];
-        "text/markdown"              = [ "kate-markdown.desktop" ];
-        "text/x-markdown"            = [ "kate-markdown.desktop" ];
-        "text/x-python"              = [ "org.kde.kate.desktop" ];
-        "text/x-shellscript"         = [ "org.kde.kate.desktop" ];
-        "text/x-script.python"       = [ "org.kde.kate.desktop" ];
-        "text/css"                   = [ "org.kde.kate.desktop" ];
-        "text/html"                  = [ "app.zen_browser.zen.desktop" ];
-        "text/xml"                   = [ "org.kde.kate.desktop" ];
-        "text/x-lua"                 = [ "org.kde.kate.desktop" ];
-        "application/json"           = [ "org.kde.kate.desktop" ];
-        "application/xml"            = [ "org.kde.kate.desktop" ];
-        "application/javascript"     = [ "org.kde.kate.desktop" ];
+        "text/plain"             = [ editor ];
+        "text/markdown"          = [ markdownEditor ];
+        "text/x-markdown"        = [ markdownEditor ];
+        "text/x-python"          = [ editor ];
+        "text/x-shellscript"     = [ editor ];
+        "text/x-script.python"   = [ editor ];
+        "text/css"               = [ editor ];
+        "text/html"              = [ browser ];
+        "text/xml"               = [ editor ];
+        "text/x-lua"             = [ editor ];
+        "application/json"       = [ editor ];
+        "application/xml"        = [ editor ];
+        "application/javascript" = [ editor ];
 
-        # Web
-        "x-scheme-handler/http"           = [ "app.zen_browser.zen.desktop" ];
-        "x-scheme-handler/https"          = [ "app.zen_browser.zen.desktop" ];
-        "x-scheme-handler/ftp"            = [ "app.zen_browser.zen.desktop" ];
-        "x-scheme-handler/chrome"         = [ "app.zen_browser.zen.desktop" ];
-        "x-scheme-handler/mailto"         = [ "app.zen_browser.zen.desktop" ];
-        "application/xhtml+xml"           = [ "app.zen_browser.zen.desktop" ];
-        "application/x-extension-htm"     = [ "app.zen_browser.zen.desktop" ];
-        "application/x-extension-html"    = [ "app.zen_browser.zen.desktop" ];
-        "application/x-extension-xhtml"   = [ "app.zen_browser.zen.desktop" ];
-        "application/x-extension-xht"     = [ "app.zen_browser.zen.desktop" ];
+        # Web e handlers de scheme
+        "x-scheme-handler/http"           = [ browser ];
+        "x-scheme-handler/https"          = [ browser ];
+        "x-scheme-handler/ftp"            = [ browser ];
+        "x-scheme-handler/chrome"         = [ browser ];
+        "x-scheme-handler/mailto"         = [ browser ];
+        "application/xhtml+xml"           = [ browser ];
+        "application/x-extension-htm"     = [ browser ];
+        "application/x-extension-html"    = [ browser ];
+        "application/x-extension-xhtml"   = [ browser ];
+        "application/x-extension-xht"     = [ browser ];
 
         # Compactados
-        "application/zip"                       = [ "org.kde.ark.desktop" ];
-        "application/x-tar"                     = [ "org.kde.ark.desktop" ];
-        "application/gzip"                      = [ "org.kde.ark.desktop" ];
-        "application/x-gzip"                    = [ "org.kde.ark.desktop" ];
-        "application/x-bzip2"                   = [ "org.kde.ark.desktop" ];
-        "application/x-xz"                      = [ "org.kde.ark.desktop" ];
-        "application/x-7z-compressed"           = [ "org.kde.ark.desktop" ];
-        "application/x-rar"                     = [ "org.kde.ark.desktop" ];
-        "application/x-rar-compressed"          = [ "org.kde.ark.desktop" ];
-        "application/vnd.rar"                   = [ "org.kde.ark.desktop" ];
-        "application/zstd"                      = [ "org.kde.ark.desktop" ];
-        "application/x-compressed-tar"          = [ "org.kde.ark.desktop" ];
-        "application/x-bzip-compressed-tar"     = [ "org.kde.ark.desktop" ];
-        "application/x-xz-compressed-tar"       = [ "org.kde.ark.desktop" ];
-        "application/x-zstd-compressed-tar"     = [ "org.kde.ark.desktop" ];
+        "application/zip"                    = [ archiver ];
+        "application/x-tar"                  = [ archiver ];
+        "application/gzip"                   = [ archiver ];
+        "application/x-gzip"                 = [ archiver ];
+        "application/x-bzip2"                = [ archiver ];
+        "application/x-xz"                   = [ archiver ];
+        "application/x-7z-compressed"        = [ archiver ];
+        "application/x-rar"                  = [ archiver ];
+        "application/x-rar-compressed"       = [ archiver ];
+        "application/vnd.rar"                = [ archiver ];
+        "application/zstd"                   = [ archiver ];
+        "application/x-compressed-tar"       = [ archiver ];
+        "application/x-bzip-compressed-tar"  = [ archiver ];
+        "application/x-xz-compressed-tar"    = [ archiver ];
+        "application/x-zstd-compressed-tar"  = [ archiver ];
 
         # Office
-        "application/vnd.oasis.opendocument.text"         = [ "writer.desktop" ];
-        "application/vnd.oasis.opendocument.spreadsheet"  = [ "calc.desktop" ];
-        "application/vnd.oasis.opendocument.presentation" = [ "impress.desktop" ];
-        "application/msword"                              = [ "writer.desktop" ];
-        "application/vnd.ms-excel"                        = [ "calc.desktop" ];
-        "application/vnd.ms-powerpoint"                   = [ "impress.desktop" ];
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"   = [ "writer.desktop" ];
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"         = [ "calc.desktop" ];
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [ "impress.desktop" ];
+        "application/vnd.oasis.opendocument.text"         = [ docEditor ];
+        "application/vnd.oasis.opendocument.spreadsheet"  = [ spreadsheet ];
+        "application/vnd.oasis.opendocument.presentation" = [ presentation ];
+        "application/msword"                              = [ docEditor ];
+        "application/vnd.ms-excel"                        = [ spreadsheet ];
+        "application/vnd.ms-powerpoint"                   = [ presentation ];
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"   = [ docEditor ];
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"         = [ spreadsheet ];
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = [ presentation ];
       };
     };
 
-    # kate.desktop do nixpkgs não declara text/markdown no MimeType, então
-    # Dolphin exibia diálogo vazio. Este entry cria kate-markdown.desktop que
-    # declara o tipo — colocado no nix-profile pelo HM, não em ~/.local/share/applications/.
+    # Exceção necessária: kate.desktop do nixpkgs não declara text/markdown.
+    # Este entry é colocado no nix-profile pelo HM (não em ~/.local/share/applications/).
     xdg.desktopEntries.kate-markdown = {
       name = "Kate Kryonix";
       exec = "kate %U";
@@ -123,10 +162,9 @@
       noDisplay = true;
     };
 
-    # Reconstrói o cache do KDE (ksycoca6) após cada switch.
-    # Dolphin usa esse cache para associar MIME types a apps — sem rebuild,
-    # as novas entradas do nix-profile (kate-markdown.desktop, etc.) não são vistas.
-    # Cobre todos os tipos de arquivo, não apenas markdown.
+    # Reconstrói o cache do KDE após cada switch.
+    # Dolphin usa ksycoca6 para resolver apps — sem rebuild, as entradas
+    # novas do nix-profile não são visíveis para todos os tipos de arquivo.
     home.activation.rebuildKdeMimeCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       $DRY_RUN_CMD ${pkgs.kdePackages.kservice}/bin/kbuildsycoca6 --noincremental 2>/dev/null || true
     '';
