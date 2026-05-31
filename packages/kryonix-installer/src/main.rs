@@ -1,3 +1,4 @@
+mod auth;
 mod disk;
 mod executor;
 mod install;
@@ -20,9 +21,13 @@ use tower_http::{cors::CorsLayer, services::ServeDir};
 
 // ── Shared state ──────────────────────────────────────────────────────────────
 
-struct AppState {
+pub struct AppState {
     log_sender: Arc<broadcast::Sender<String>>,
     progress_tx: Arc<broadcast::Sender<ProgressEvent>>,
+    /// GitHub OAuth state — token kept in memory only
+    pub auth: auth::SharedAuthState,
+    /// Reusable HTTP client (connection pooling, rustls)
+    pub http_client: reqwest::Client,
 }
 
 // ── Common error type ─────────────────────────────────────────────────────────
@@ -151,18 +156,35 @@ async fn main() {
     let (log_tx, _) = broadcast::channel(100);
     let (progress_tx, _) = broadcast::channel::<ProgressEvent>(64);
 
+    let http_client = reqwest::Client::builder()
+        .use_rustls_tls()
+        .user_agent("kryonix-installer/0.1")
+        .build()
+        .expect("Failed to build HTTP client");
+
     let state = Arc::new(AppState {
         log_sender: Arc::new(log_tx),
         progress_tx: Arc::new(progress_tx),
+        auth: auth::new_auth_state(),
+        http_client,
     });
 
     let app = Router::new()
         .route("/health", get(health))
+        // Hardware probe — canonical path matches spec, /probe kept for compat
+        .route("/hardware", get(probe))
         .route("/probe", get(probe))
+        // GitHub OAuth Device Flow
+        .route("/auth/github/device", post(auth::start_device_flow))
+        .route("/auth/github/poll", get(auth::poll_device_flow))
+        .route("/repos", get(auth::list_repos))
+        .route("/clone", post(auth::clone_repo))
+        // Install orchestration
         .route("/plan", post(plan))
         .route("/dry-run", post(dry_run))
         .route("/install", post(install))
         .route("/install/progress", get(install_progress))
+        // Disk utilities
         .route("/api/disks", get(get_disks))
         .route("/api/disks/:device/partitions", get(get_partitions_handler))
         .route("/api/partition", post(partition_endpoint))

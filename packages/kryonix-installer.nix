@@ -1,4 +1,4 @@
-{ rustPlatform, lib, buildNpmPackage, makeWrapper }:
+{ rustPlatform, lib, buildNpmPackage, makeWrapper, pkg-config, openssl }:
 
 let
   ui = buildNpmPackage {
@@ -25,7 +25,11 @@ rustPlatform.buildRustPackage {
     lockFile = ./kryonix-installer/Cargo.lock;
   };
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ makeWrapper pkg-config ];
+  buildInputs = [ openssl ];
+
+  # reqwest with rustls-tls links against openssl for the host build
+  OPENSSL_NO_VENDOR = 1;
 
   postInstall = ''
     mkdir -p $out/share/kryonix-installer/ui
@@ -33,6 +37,8 @@ rustPlatform.buildRustPackage {
 
     wrapProgram $out/bin/kryonix-installer \
       --set RUST_LOG info
+      # GITHUB_CLIENT_ID must be supplied at runtime by the caller (nixos module or CLI).
+      # Intentionally NOT hardcoded here — it is a deployment-time secret.
   '';
 
   meta = with lib; {
