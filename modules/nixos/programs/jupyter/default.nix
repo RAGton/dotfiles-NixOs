@@ -53,6 +53,8 @@ let
       set -euo pipefail
 
       export HOME="${userHome}"
+      # Garante que binários do pip (como zmq/cryptography) encontrem libs do sistema
+      export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:${pkgs.zlib}/lib:${pkgs.libffi}/lib:${pkgs.openssl}/lib:$LD_LIBRARY_PATH"
 
       mkdir -p "$HOME/.local/share"
 
