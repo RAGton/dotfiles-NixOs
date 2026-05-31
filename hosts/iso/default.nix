@@ -82,8 +82,11 @@
     iw
   ];
 
-  # Normalmente útil em instalação remota (opcional)
+  # Normally útil em instalação remota (opcional)
   services.openssh.enable = lib.mkDefault true;
+
+  # Meta versioning
+  kryonix.meta.version.enable = true;
 
   # Evita pedir senha no live. Chave pode ser adicionada depois.
   users.users.nixos.openssh.authorizedKeys.keys = lib.mkDefault [ ];

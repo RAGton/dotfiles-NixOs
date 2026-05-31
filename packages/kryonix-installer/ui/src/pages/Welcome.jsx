@@ -1,4 +1,15 @@
+import { useEffect, useState } from 'react';
+
 export default function Welcome() {
+  const [version, setVersion] = useState(null);
+
+  useEffect(() => {
+    fetch('/version')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setVersion(data))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
       <section className="section-panel flex min-h-0 flex-col justify-between overflow-y-auto">
@@ -24,6 +35,12 @@ export default function Welcome() {
             <p className="mt-2 text-sm text-slate-400">Cálculos pesados de partições saem do render e passam a usar memoização explícita.</p>
           </div>
         </div>
+
+        {version && (
+          <div className="mt-6 text-[10px] text-slate-500 font-mono">
+            {version.KRYONIX_PRETTY_NAME} | {version.KRYONIX_REV?.substring(0, 8)} | {version.KRYONIX_BUILD_TIME}
+          </div>
+        )}
       </section>
 
       <section className="section-panel flex min-h-0 flex-col justify-center overflow-hidden">

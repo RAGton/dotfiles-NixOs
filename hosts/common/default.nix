@@ -28,6 +28,7 @@
     ../../modules/nixos/programs/kryonix
     ../../modules/nixos/theming
     ../../modules/nixos/services
+    ../../modules/nixos/meta
     ../../modules/nixos/desktop
     ../../features
     ../../profiles
@@ -38,7 +39,7 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = { inherit inputs userConfig; };
-    users.\${userConfig.name} = {
+    users.${userConfig.name} = {
       imports = [ ../../modules/home-manager/common ];
     };
   };

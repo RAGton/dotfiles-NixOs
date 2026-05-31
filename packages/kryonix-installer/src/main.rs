@@ -193,6 +193,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/health", get(health))
+        .route("/version", get(version_handler))
         // Hardware probe — canonical path matches spec, /probe kept for compat
         .route("/hardware", get(probe))
         .route("/probe", get(probe))
@@ -324,6 +325,24 @@ async fn health() -> Json<serde_json::Value> {
         "status":  "ok",
         "version": env!("CARGO_PKG_VERSION"),
     }))
+}
+
+async fn version_handler() -> Result<Json<serde_json::Value>, ApiError> {
+    let content = tokio::fs::read_to_string("/etc/kryonix-version")
+        .await
+        .map_err(|e| (StatusCode::NOT_FOUND, Json(ErrorResponse {
+            error: "Versão não encontrada".into(),
+            details: Some(e.to_string()),
+        })))?;
+
+    let mut map = serde_json::Map::new();
+    for line in content.lines() {
+        if let Some((key, value)) = line.split_once('=') {
+            map.insert(key.to_string(), serde_json::Value::String(value.to_string()));
+        }
+    }
+
+    Ok(Json(serde_json::Value::Object(map)))
 }
 
 // ── GET /probe ────────────────────────────────────────────────────────────────
