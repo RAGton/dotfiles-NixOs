@@ -253,7 +253,15 @@ resolve_flake() {
   elif [[ -n "${KRYONIX_FLAKE:-}" ]]; then
     use_flake_input "env" "$KRYONIX_FLAKE"
   elif local_root="$(find_local_flake_root)"; then
-    use_local_flake "dev-repo" "$local_root"
+    # Se o root local é o upstream kryonix (motor) e o downstream existe,
+    # os nixosConfigurations vivem no downstream — redireciona automaticamente.
+    if is_kryonix_checkout "$local_root" && [[ -e /etc/kryonixos/flake.nix ]]; then
+      use_local_flake "etc-kryonixos" "/etc/kryonixos"
+    else
+      use_local_flake "dev-repo" "$local_root"
+    fi
+  elif [[ -e /etc/kryonixos/flake.nix ]]; then
+    use_local_flake "etc-kryonixos" "/etc/kryonixos"
   elif [[ -e /etc/kryonix/flake.nix ]]; then
     use_local_flake "etc-kryonix" "/etc/kryonix"
   else
@@ -262,7 +270,7 @@ resolve_flake() {
     printf '%s\n' '- kryonix <comando> --flake /caminho/para/o/repo' >&2
     printf '%s\n' '- exporte KRYONIX_FLAKE com uma flake válida' >&2
     printf '%s\n' '- execute o comando dentro do checkout Git do projeto' >&2
-    printf '%s\n' '- garanta que /etc/kryonix/flake.nix exista na máquina instalada' >&2
+    printf '%s\n' '- garanta que /etc/kryonixos/flake.nix exista (downstream)' >&2
     return 1
   fi
 }
