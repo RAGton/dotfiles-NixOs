@@ -73,7 +73,7 @@ let
       fi
 
       if [ "${lib.boolToString cfg.kernels.rust}" = "true" ]; then
-        ${lib.getExe pkgs.evcxr} --install
+        ${pkgs.evcxr}/bin/evcxr_jupyter --install
       fi
 
       if [ "${lib.boolToString cfg.kernels.cpp}" = "true" ]; then
