@@ -29,6 +29,20 @@
   kryonix.installer.kiosk.enable = true;
   kryonix.branding.enable = true;
 
+  # ── Rede: ethernet DHCP automático + WiFi via NetworkManager ──────────────
+  # O instalador precisa de internet antes do passo 1 (OAuth GitHub).
+  # nmcli é a ponte entre o backend Axum e as interfaces de rede.
+  networking.networkmanager.enable = lib.mkForce true;
+  # Desabilita dhcpcd para evitar conflito com NM
+  networking.useDHCP = lib.mkForce false;
+
+  # Firmware WiFi para as chips mais comuns (Intel, Realtek, Broadcom, Atheros)
+  hardware.enableAllFirmware = lib.mkDefault true;
+  hardware.enableRedistributableFirmware = lib.mkDefault true;
+
+  # Usuário live precisa estar no grupo networkmanager para rodar nmcli sem sudo
+  users.users.nixos.extraGroups = lib.mkDefault [ "networkmanager" "wheel" ];
+
   # ISO identity
   system.nixos.distroName    = lib.mkForce "Kryonix";
   system.nixos.label         = lib.mkForce "Kryonix-Installer";
@@ -62,6 +76,10 @@
     curl
     jq
     fzf
+    # nmcli já vem pelo networkmanager; garantimos explicitamente para o backend
+    networkmanager
+    # iw é útil para debug manual de WiFi no terminal
+    iw
   ];
 
   # Normalmente útil em instalação remota (opcional)

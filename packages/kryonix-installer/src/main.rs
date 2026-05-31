@@ -2,6 +2,7 @@ mod auth;
 mod disk;
 mod executor;
 mod install;
+mod network;
 
 use axum::{
     Json, Router,
@@ -174,7 +175,12 @@ async fn main() {
         // Hardware probe — canonical path matches spec, /probe kept for compat
         .route("/hardware", get(probe))
         .route("/probe", get(probe))
-        // GitHub OAuth Device Flow
+        // Step 0 — Network setup (ethernet auto / WiFi manual)
+        .route("/network/status", get(network::status))
+        .route("/network/wifi/scan", get(network::wifi_scan))
+        .route("/network/wifi/connect", post(network::wifi_connect))
+        .route("/network/wifi/disconnect", post(network::wifi_disconnect))
+        // Step 1 — GitHub OAuth Device Flow
         .route("/auth/github/device", post(auth::start_device_flow))
         .route("/auth/github/poll", get(auth::poll_device_flow))
         .route("/repos", get(auth::list_repos))
