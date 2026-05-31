@@ -218,6 +218,7 @@ async fn main() {
         .route("/disk/apply", post(disk_apply_endpoint))
         // Installation
         .route("/install/finalize", post(install_finalize_endpoint))
+        .route("/api/validate-install", get(validate_install_handler))
         // Disk utilities
         .route("/api/disks", get(get_disks))
         .route("/api/disks/:device/partitions", get(get_partitions_handler))
@@ -256,6 +257,22 @@ async fn install_finalize_endpoint(
     Ok(Json(serde_json::json!({
         "status": "started",
         "message": "Processo de instalação disparado. Acompanhe via stream de logs."
+    })))
+}
+
+async fn validate_install_handler() -> Result<Json<serde_json::Value>, ApiError> {
+    let flag_exists = std::path::Path::new("/mnt/etc/kryonix-installed").exists();
+    let efi_exists = std::path::Path::new("/mnt/boot/EFI").exists() || std::path::Path::new("/mnt/boot/efi").exists();
+    let grub_exists = std::path::Path::new("/mnt/boot/grub").exists();
+
+    Ok(Json(serde_json::json!({
+        "flag_ok": flag_exists,
+        "bootloader_ok": efi_exists || grub_exists,
+        "paths": {
+            "/mnt/etc/kryonix-installed": flag_exists,
+            "/mnt/boot/EFI": efi_exists,
+            "/mnt/boot/grub": grub_exists
+        }
     })))
 }
 
