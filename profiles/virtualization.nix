@@ -24,8 +24,8 @@ in
   config = lib.mkIf (cfg.enable || cfg.libvirt) {
     kryonix.features.virtualization = {
       enable = true;
-      libvirt.enable = lib.mkIf cfg.libvirt (lib.mkDefault true);
-      kvm.enable = lib.mkIf cfg.libvirt (lib.mkDefault true);
+      libvirt.enable = lib.mkIf cfg.libvirt true;
+      kvm.enable = lib.mkIf cfg.libvirt true;
     };
   };
 }

@@ -16,6 +16,23 @@ echo "🚀 Creating 32GB test disk..."
 rm -f "$DISK_PATH"
 qemu-img create -f qcow2 "$DISK_PATH" 32G
 
+# Check for CI flag
+CI_MODE=false
+if [[ "$*" == *"--ci"* ]]; then
+    CI_MODE=true
+    echo "🤖 Running in CI mode (non-interactive)"
+fi
+
+QEMU_FLAGS="-m 4G -smp 2"
+# Check if KVM is available
+if [ -e /dev/kvm ] && [ -w /dev/kvm ]; then
+    echo "⚡ KVM is available, enabling hardware acceleration."
+    QEMU_FLAGS="$QEMU_FLAGS -enable-kvm -cpu host"
+else
+    echo "⚠️ KVM not found or not writable. Running with software emulation (slow)."
+    QEMU_FLAGS="$QEMU_FLAGS -cpu core2duo"
+fi
+
 echo "🖥️ Starting VM (UEFI mode)..."
 echo "Note: The installer API will be forwarded to localhost:8080"
 
@@ -27,16 +44,13 @@ if [ ! -f "$OVMF_CODE" ]; then
 fi
 
 qemu-system-x86_64 \
-    -enable-kvm \
-    -m 4G \
-    -cpu host \
-    -smp 2 \
+    $QEMU_FLAGS \
     -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
     -drive file="$DISK_PATH",format=qcow2 \
     -cdrom "$ISO_PATH" \
     -net nic,model=virtio \
     -net user,hostfwd=tcp::8080-:8080 \
-    -display gtk,gl=on \
+    -display none \
     -vga virtio \
     -device virtio-tablet-pci \
     -serial stdio &
@@ -65,6 +79,14 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
 fi
 
 echo "🎯 Test successful. VM is running with PID $VM_PID."
+
+if [ "$CI_MODE" = true ]; then
+    echo "✅ CI check passed. Shutting down VM."
+    kill $VM_PID
+    rm -f "$DISK_PATH"
+    exit 0
+fi
+
 echo "You can now access the installer UI at http://localhost:8080"
 echo "Press Enter to stop the VM."
 read

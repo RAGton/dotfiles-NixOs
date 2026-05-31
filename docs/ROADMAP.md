@@ -250,10 +250,11 @@ kryonix vault sync-docs
 - [x] #27 — Resilient Autosave & Caelestia Hybrid Mode
 
 ### 📦 v0.6.0 - ISO & IA Autônoma
-**Status: EM EXECUÇÃO (40%)**
+**Status: EM EXECUÇÃO (60%)**
 - [x] #25 — Finalizar ISO Instalável (Backend & Core Orchestration)
 - [ ] #28 — Refinamento UX Instalador (Automatic Detection & Manual Mode)
 - [ ] #29 — Polimento Live Environment (Plymouth, Kiosk, GRUB)
+- [x] #30 — CI/CD para ISO (GitHub Actions + Boot Test)
 - [ ] #22 — Web Research para Agentes
 - [ ] #23 — Pipeline de Geração de Receitas/Pacotes Nix
 - [ ] #24 — Autocura e Reorganização do Vault
