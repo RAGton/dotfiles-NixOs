@@ -1,0 +1,29 @@
+# Exclui arquivos sensíveis e gerados do closure Nix
+# Substitui a enumeração git-ls-files para os inputs de path
+
+# Secrets — nunca devem entrar no store
+neo4j.env
+kora.env
+brain.env
+.env
+.env.*
+*.env
+*.secret
+.mcp.json
+
+# Artefatos de build
+result
+result-*
+iso-result
+
+# Diretórios de cache/ferramentas
+.direnv/
+.idea/
+node_modules/
+.cache/
+__pycache__/
+
+# Logs e diagnósticos temporários
+*.log
+diagnostics-lightrag/
+scratch/
