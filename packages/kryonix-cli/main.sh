@@ -631,9 +631,9 @@ case "$subcommand" in
     # ── Serviços ───────────────────────────────────────────────────────────────
     printf '\n\033[1m[Serviços]\033[0m\n'
     if command -v systemctl >/dev/null 2>&1; then
-      _sddm="$(systemctl is-active display-manager 2>/dev/null || echo 'unknown')"
-      _tail="$(systemctl is-active tailscaled 2>/dev/null || echo 'inactive')"
-      _libvirt="$(systemctl is-enabled libvirtd 2>/dev/null || echo 'unknown')"
+      _sddm="$(systemctl is-active display-manager 2>/dev/null; true)"
+      _tail="$(systemctl is-active tailscaled 2>/dev/null; true)"
+      _libvirt="$(systemctl is-enabled libvirtd 2>/dev/null; true)"
       printf '  display-manager  : %s\n' "$_sddm"
       printf '  tailscaled       : %s\n' "$_tail"
       printf '  libvirtd         : %s\n' "$_libvirt"
