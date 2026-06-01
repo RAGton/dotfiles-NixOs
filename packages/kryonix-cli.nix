@@ -64,7 +64,10 @@ let
       kora
     ];
     text =
-      "set -euo pipefail\ntrap 'stty sane opost onlcr echo icanon isig 2>/dev/null || true' EXIT INT TERM\n"
+      # writeShellApplication prepends nix-store paths to PATH; we need
+      # /run/wrappers/bin/sudo (setuid) to come first so that nh can escalate.
+      "PATH=\"/run/wrappers/bin\${PATH:+:\${PATH}}\"; export PATH\n"
+      + "set -euo pipefail\ntrap 'stty sane opost onlcr echo icanon isig 2>/dev/null || true' EXIT INT TERM\n"
       + "runtimeLibPath=\"${runtimeLibPath}\"\n"
       + builtins.readFile ./kryonix-cli/core.sh
       + builtins.readFile ./kryonix-cli/registry.sh
