@@ -30,7 +30,7 @@ desktop-color: "#081018"
   top     = 12%
   width   = 100%
   align   = "center"
-  text    = "installer"
+  text    = ""
   font    = "Unifont Regular 12"
   color   = "#45566a"
 }
