@@ -78,6 +78,7 @@ in
     ../services/flatpak
     ../services/kryonix-brain-tunnel
     ../services/kryonix-wayvnc
+    ../services/kryonix-krdp
     ../services/kryonix-glacier-vnc-tunnel
     ../services/kryonix-ollama-tunnel
   ];

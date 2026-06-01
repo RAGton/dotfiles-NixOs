@@ -46,6 +46,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Plasma Manager — configuração declarativa do KDE Plasma 6 (Home Manager)
+    # Usado pelo módulo de desktop "kde" (homeManagerModules.kde).
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # Módulos de hardware do NixOS (nixos-hardware)
     hardware.url = "github:nixos/nixos-hardware";
 

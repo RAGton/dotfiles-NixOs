@@ -45,6 +45,15 @@
       imports = [ ../desktop/hyprland/rice/caelestia-config.nix ];
     };
 
+    # Desktop KDE Plasma 6 completo (ambiente principal de longo prazo).
+    # Traz o módulo HM do plasma-manager + o orquestrador desktop/kde/user.nix.
+    kde = { ... }: {
+      imports = [
+        inputs.plasma-manager.homeModules.plasma-manager
+        ../desktop/kde/user.nix
+      ];
+    };
+
     # Shell backend option (kryonix.shell.backend)
     shell-backend = { ... }: {
       imports = [ ../desktop/hyprland/shell-backend.nix ];

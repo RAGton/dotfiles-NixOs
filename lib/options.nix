@@ -29,7 +29,8 @@ let
   desktopConfigured =
     (config.services.displayManager.gdm.enable or false)
     || (config.services.greetd.enable or false)
-    || (config.programs.hyprland.enable or false);
+    || (config.programs.hyprland.enable or false)
+    || (config.services.desktopManager.plasma6.enable or false);
 in
 {
   imports = [
@@ -42,15 +43,20 @@ in
     # =========================
     desktop = {
       environment = lib.mkOption {
-        type = lib.types.nullOr (lib.types.enum [ "hyprland" ]);
+        type = lib.types.nullOr (lib.types.enum [ "hyprland" "kde" ]);
         default = null;
         description = ''
           Ambiente de desktop a usar.
 
           Opções:
-          - "hyprland": stack desktop padrão do projeto (Hyprland + shell de sessão + GDM)
+          - "hyprland": stack legado (Hyprland + Caelestia + SDDM). Mantido durante a
+            migração para coexistência/rollback.
+          - "kde": ambiente principal de longo prazo — KDE Plasma 6 Wayland + SDDM +
+            KWin/Krohnkite + Albert (ver modules/nixos/desktop/kde e desktop/kde).
           - null: sem desktop (headless/servidor)
 
+          A arquitetura é extensível: adicionar um novo ambiente = novo valor neste enum
+          + novo branch em modules/nixos/desktop/default.nix + novo diretório desktop/<env>.
           O módulo compartilhado do desktop habilita o stack correspondente.
         '';
       };
