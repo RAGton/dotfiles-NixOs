@@ -430,7 +430,7 @@ case "$subcommand" in
     # Se 'all' for usado, aplica Home Manager em seguida
     if (( apply_all )); then
       blue_line "─── Aplicando Home Manager (Kryonix All) ───"
-      cmd=(nh home switch "$flake_ref" -c "$home_target")
+      cmd=(nh home switch "$flake_ref" -c "$home_target" -b hm-old)
       cmd+=("${verbose_args[@]}" "${dry_args[@]}")
       run_flake_command "${cmd[@]}"
     fi
@@ -448,7 +448,7 @@ case "$subcommand" in
     # Home Switch
     home_target="${user_arg}@${flake_host}"
     blue_line "─── Aplicando Home Manager (Kryonix All) ───"
-    cmd=(nh home switch "$flake_ref" -c "$home_target")
+    cmd=(nh home switch "$flake_ref" -c "$home_target" -b hm-old)
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
     run_flake_command "${cmd[@]}"
 
