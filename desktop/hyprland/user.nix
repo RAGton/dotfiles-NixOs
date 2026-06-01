@@ -9,11 +9,18 @@
 { ... }:
 {
   imports = [
+    # Bloco 0 — Base: habilita o WM, configType=hyprlang, lê hyprland.conf
+    ./core/hyprland.nix
+
     # Bloco 1 — Hyprland config (monitors, rules, keybinds)
     ./core/monitors.nix
     ./core/rules.nix
     ./core/keybinds.nix
     ./core/xdg.nix
+
+    # Bloco 2 — Ambiente de sessão
+    ./core/packages.nix
+    ./core/cursor.nix
 
     # Shell integration
     ./caelestia/hyprpaper.nix
