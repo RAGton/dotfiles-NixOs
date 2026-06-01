@@ -112,8 +112,30 @@ print_subcommand_help() {
   printf '\n──────────────────────────────────────────────────────────\n'
 }
 
+reject_unexpected_positional_args() {
+  local command_label="$1"
+  local usage_line="$2"
+  local arg
+
+  for arg in "${extra_args[@]}"; do
+    if [[ "$arg" != -* ]]; then
+      printf 'kryonix: argumento posicional inesperado para "%s": %s\n' "$command_label" "$arg" >&2
+      printf 'Uso: %s\n' "$usage_line" >&2
+      printf 'Para definir a flake, use --flake <flake> ou KRYONIX_FLAKE=<flake>.\n' >&2
+      exit 2
+    fi
+  done
+}
+
 # --- Inicialização ---
 init_colors
+
+# Garante que o sudo com setuid está antes do sudo sem setuid do nix store.
+# /run/wrappers/bin/sudo tem -r-s--x--x; /run/current-system/sw/bin/sudo não tem setuid.
+if [[ -d /run/wrappers/bin ]]; then
+  PATH="/run/wrappers/bin${PATH:+:$PATH}"
+  export PATH
+fi
 
 # --- Parsing de Argumentos ---
 subcommand="${1:-}"
@@ -122,7 +144,8 @@ if [[ -n "$subcommand" ]]; then
 fi
 
 host_arg=""
-user_arg="rocha"
+# Auto-detects current user. Handles sudo escalation via SUDO_USER.
+user_arg="${SUDO_USER:-${USER:-$(id -un 2>/dev/null || printf 'rocha')}}"
 flake_arg=""
 verbose=0
 json_mode=0
@@ -213,6 +236,11 @@ while [[ $# -gt 0 ]]; do
       elif [[ $is_positional_host -eq 1 ]] && [[ -z "$host_arg" && "$1" != -* ]]; then
         if [[ "$subcommand" == "home" ]] && [[ "$1" == "scan" || "$1" == "report" || "$1" == "duplicates" || "$1" == "plan" || "$1" == "manifest" || "$1" == "apply" || "$1" == "rollback" || "$1" == "autopilot" || "$1" == "categories" || "$1" == "explain" || "$1" == "export-memory" || "$1" == "projects" || "$1" == "diagnose" || "$1" == "dashboard" || "$1" == "inbox" || "$1" == "review" || "$1" == "state" ]]; then
           extra_args+=("$1")
+        elif [[ "$subcommand" == "switch" || "$subcommand" == "boot" || "$subcommand" == "test" || "$subcommand" == "rebuild" || "$subcommand" == "diff" ]] && is_path_like_flake_ref "$1"; then
+          printf 'kryonix: argumento "%s" parece caminho/flake, não host.\n' "$1" >&2
+          printf 'Uso: kryonix %s [<host>|all] [--flake <flake>]\n' "$subcommand" >&2
+          printf 'Para definir a flake, use --flake <flake> ou KRYONIX_FLAKE=<flake>.\n' >&2
+          exit 2
         else
           host_arg="$1"
         fi
@@ -266,8 +294,15 @@ flake_host="${host_arg:-$(map_runtime_host)}"
 if [[ "$flake_host" == "all" ]]; then
   flake_host="$(map_runtime_host)"
   apply_all=1
+  if [[ "$subcommand" == "switch" || "$subcommand" == "boot" ]]; then
+    reject_unexpected_positional_args "$subcommand all" "kryonix $subcommand all [--update] [--dry] [--flake <flake>]"
+  fi
 else
   apply_all=0
+fi
+
+if [[ "$subcommand" == "all" ]]; then
+  reject_unexpected_positional_args "all" "kryonix all [--update] [--dry] [--flake <flake>]"
 fi
 
 case "$subcommand" in
