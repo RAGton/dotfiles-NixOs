@@ -445,12 +445,15 @@ case "$subcommand" in
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
     run_flake_command "${cmd[@]}" || exit $?
 
-    # Home Switch
+    # Home Switch — falha não-fatal: sistema funcional mesmo se HM falhar
     home_target="${user_arg}@${flake_host}"
     blue_line "─── Aplicando Home Manager (Kryonix All) ───"
     cmd=(nh home switch "$flake_ref" -c "$home_target" -b hm-old)
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
-    run_flake_command "${cmd[@]}"
+    if ! run_flake_command "${cmd[@]}"; then
+      printf '\033[33m[warn]\033[0m NixOS OK, mas HM falhou — sistema funcional, home config desatualizada.\n' >&2
+      printf '\033[33m[warn]\033[0m Execute: home-manager switch --flake %s#%s -b hm-old\n' "$flake_ref" "$home_target" >&2
+    fi
 
     # ── Post-switch: sincroniza grafo Neo4j com o estado atual do NixOS ──
     # Não-fatal: qualquer falha (kora ausente, Neo4j off, timeout, eval lento)
@@ -548,50 +551,113 @@ case "$subcommand" in
       exit $?
     fi
 
-    blue_line 'Kryonix doctor'
-    blue_line "  host atual   : $(current_hostname)"
-    blue_line "  modo detectado: $flake_mode"
-    blue_line "  flake resolvida: $flake_ref"
-    blue_line "  flake host   : $flake_host"
-    blue_line "  home target  : $home_target"
-    blue_line "  flake root   : $flake_root"
-    blue_line "  exec dir     : $flake_workdir"
-    blue_line "  user         : $user_arg"
+    _ok=$'\033[32m✓\033[0m'
+    _warn=$'\033[33m!\033[0m'
+    _fail=$'\033[31m✗\033[0m'
 
-    if [[ -n "$flake_root" && -e "$flake_root/flake.nix" ]]; then
-      blue_line '  flake        : ok'
-    elif [[ -n "$flake_root" ]]; then
-      blue_line "  flake        : ausente em $flake_root"
+    printf '\n\033[1;34m════════════════════════════════════════\033[0m\n'
+    printf '\033[1;34m  KRYONIX DOCTOR\033[0m\n'
+    printf '\033[1;34m════════════════════════════════════════\033[0m\n\n'
+
+    # ── Sistema ────────────────────────────────────────────────────────────────
+    printf '\033[1m[Sistema]\033[0m\n'
+    printf '  hostname         : %s\n' "$(current_hostname)"
+    _nixver="$(nixos-version 2>/dev/null || cat /etc/os-release 2>/dev/null | grep VERSION_ID | cut -d= -f2 || echo '?')"
+    printf '  nixos-version    : %s\n' "$_nixver"
+    _gen="$(readlink /run/current-system 2>/dev/null | grep -o 'nixos-system[^/]*' || echo '?')"
+    printf '  geração nixos    : %s\n' "$_gen"
+
+    # ── Flake ──────────────────────────────────────────────────────────────────
+    printf '\n\033[1m[Flake]\033[0m\n'
+    printf '  modo             : %s\n' "${flake_mode:-?}"
+    printf '  path             : %s\n' "${flake_workdir:-${flake_root:-${flake_ref:-?}}}"
+    printf '  host             : %s\n' "${flake_host:-?}"
+    printf '  usuário          : %s\n' "${user_arg:-?}"
+    printf '  home target      : %s\n' "${home_target:-?}"
+
+    # Hosts disponíveis no flake (rápido, sem build)
+    _hosts="$(list_nixos_hosts 2>/dev/null | tr '\n' ' ' || echo '?')"
+    printf '  hosts no flake   : %s\n' "${_hosts:-?}"
+
+    # Verifica se flake_host existe nos hosts
+    if echo "$_hosts" | grep -qw "${flake_host:-}"; then
+      printf '  host no flake    : %s %s\n' "$_ok" "${flake_host}"
     else
-      blue_line '  flake        : origem remota ou raiz nao local'
+      printf '  host no flake    : %s %s NÃO encontrado em [%s]\n' "$_fail" "${flake_host:-?}" "$_hosts"
     fi
 
-    if mount_info="$(findmnt -no SOURCE,TARGET /srv/ragenterprise 2>/dev/null)"; then
-      blue_line "  storage      : $mount_info"
+    # ── Home Manager ───────────────────────────────────────────────────────────
+    printf '\n\033[1m[Home Manager]\033[0m\n'
+    _hm_gen="$(readlink "${HOME}/.local/state/nix/profiles/home-manager" 2>/dev/null \
+      | grep -o 'home-manager-[0-9]*-link' || echo '?')"
+    printf '  geração          : %s\n' "$_hm_gen"
+    _hm_conf="${HOME}/.config/hypr/hyprland.conf"
+    if [[ -L "$_hm_conf" ]]; then
+      printf '  hyprland.conf    : %s symlink OK\n' "$_ok"
+    elif [[ -f "$_hm_conf" ]]; then
+      printf '  hyprland.conf    : %s arquivo regular (stub?)\n' "$_warn"
+    else
+      printf '  hyprland.conf    : %s ausente\n' "$_fail"
     fi
 
-    if command -v systemctl >/dev/null 2>&1; then
-      blue_line "  libvirtd     : $(systemctl is-enabled libvirtd 2>/dev/null || printf 'unknown')"
-      blue_line "  tailscaled   : $(systemctl is-active tailscaled 2>/dev/null || printf 'inactive')"
-    fi
-
-    brain_url="$(brain_api_url)"
-    if [[ -n "$brain_url" ]]; then
-      blue_line "  brain url    : $brain_url"
-      if curl -s --connect-timeout 2 "$brain_url/health" >/dev/null; then
-        blue_line '  brain health : OK'
+    # ── Git ────────────────────────────────────────────────────────────────────
+    printf '\n\033[1m[Git]\033[0m\n'
+    _kryonix_root="$(git -C /etc/kryonix rev-parse --show-toplevel 2>/dev/null || echo '')"
+    if [[ -n "$_kryonix_root" ]]; then
+      _kryonix_st="$(git -C "$_kryonix_root" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
+      _kryonix_rev="$(git -C "$_kryonix_root" rev-parse --short HEAD 2>/dev/null || echo '?')"
+      if [[ "$_kryonix_st" -eq 0 ]]; then
+        printf '  kryonix          : %s clean (%s)\n' "$_ok" "$_kryonix_rev"
       else
-        blue_line '  brain health : FAIL'
+        printf '  kryonix          : %s %s alterações não commitadas (%s)\n' "$_warn" "$_kryonix_st" "$_kryonix_rev"
       fi
-    elif [[ "$(kryonix_brain_role)" == "client" ]]; then
-      blue_line '  brain remoto : WARN: KRYONIX_BRAIN_API ausente'
+    else
+      printf '  kryonix          : %s /etc/kryonix não encontrado\n' "$_fail"
     fi
 
-    if drv_path="$(capture_flake_command nix eval "${flake_ref}#nixosConfigurations.${flake_host}.config.system.build.toplevel.drvPath" --raw 2>/dev/null)"; then
-      blue_line "  toplevel drv : $drv_path"
+    _kryonixos_root="$(git -C /etc/kryonixos rev-parse --show-toplevel 2>/dev/null || echo '')"
+    if [[ -n "$_kryonixos_root" ]]; then
+      _kryonixos_st="$(git -C "$_kryonixos_root" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
+      _kryonixos_rev="$(git -C "$_kryonixos_root" rev-parse --short HEAD 2>/dev/null || echo '?')"
+      if [[ "$_kryonixos_st" -eq 0 ]]; then
+        printf '  kryonixos        : %s clean (%s)\n' "$_ok" "$_kryonixos_rev"
+      else
+        printf '  kryonixos        : %s %s alterações não commitadas (%s)\n' "$_warn" "$_kryonixos_st" "$_kryonixos_rev"
+      fi
     else
-      blue_line '  toplevel drv : falhou na avaliacao'
+      printf '  kryonixos        : %s /etc/kryonixos não encontrado\n' "$_fail"
     fi
+
+    # ── Serviços ───────────────────────────────────────────────────────────────
+    printf '\n\033[1m[Serviços]\033[0m\n'
+    if command -v systemctl >/dev/null 2>&1; then
+      _sddm="$(systemctl is-active display-manager 2>/dev/null || echo 'unknown')"
+      _tail="$(systemctl is-active tailscaled 2>/dev/null || echo 'inactive')"
+      _libvirt="$(systemctl is-enabled libvirtd 2>/dev/null || echo 'unknown')"
+      printf '  display-manager  : %s\n' "$_sddm"
+      printf '  tailscaled       : %s\n' "$_tail"
+      printf '  libvirtd         : %s\n' "$_libvirt"
+    fi
+    if ss -ltnp 2>/dev/null | grep -q 11434; then
+      printf '  ollama           : %s ativo (porta 11434)\n' "$_ok"
+    else
+      printf '  ollama           : inativo\n'
+    fi
+
+    # ── Brain ──────────────────────────────────────────────────────────────────
+    _brain_url="$(brain_api_url 2>/dev/null || true)"
+    if [[ -n "$_brain_url" ]]; then
+      printf '\n\033[1m[Brain]\033[0m\n'
+      printf '  url              : %s\n' "$_brain_url"
+      if curl -s --connect-timeout 2 "$_brain_url/health" >/dev/null 2>&1; then
+        printf '  health           : %s OK\n' "$_ok"
+      else
+        printf '  health           : %s FAIL\n' "$_fail"
+      fi
+    fi
+
+    printf '\n\033[1;34m════════════════════════════════════════\033[0m\n'
+    printf '  Use \033[1mkryonix doctor full\033[0m para diagnóstico completo\n\n'
     ;;
 
   git-status)

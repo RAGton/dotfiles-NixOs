@@ -377,7 +377,7 @@ infer_or_verify_host() {
   fi
 
   # Múltiplos hosts — lista e pede escolha.
-  printf 'kryonix: host "%s" não encontrado no flake.\n' "$current_host" >&2
+  printf 'kryonix: hostname="%s" não encontrado em %s\n' "$current_host" "${flake_workdir:-${flake_ref:-?}}" >&2
   printf 'Hosts disponíveis:\n' >&2
   i=1
   while IFS= read -r h; do
