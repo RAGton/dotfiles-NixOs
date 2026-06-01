@@ -35,7 +35,9 @@ let
     Kryonix KDE Keymap v1 — atalhos configurados
     ============================================
 
-  '' + lib.concatStringsSep "\n\n" (map renderGroup groups) + "\n";
+  ''
+  + lib.concatStringsSep "\n\n" (map renderGroup groups)
+  + "\n";
 
   cheatFile = pkgs.writeText "kryonix-keybinds.txt" cheatText;
 

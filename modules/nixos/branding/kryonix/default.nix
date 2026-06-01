@@ -155,7 +155,7 @@ let
         Plymouth.SetDisplayNormalFunction(display_normal_callback);
         EOF
       '';
-  grubTheme = pkgs.runCommand "kryonix-grub-theme" {} ''
+  grubTheme = pkgs.runCommand "kryonix-grub-theme" { } ''
     themeDir="$out/kryonix"
     mkdir -p "$themeDir"
     cp ${./../../../../files/grub-theme/theme.txt} "$themeDir/theme.txt"
@@ -282,12 +282,14 @@ in
         };
       };
     })
-    (lib.mkIf cfg.enable (lib.optionalAttrs (options ? isoImage) {
-      isoImage = {
-        grubTheme = lib.mkForce "${grubTheme}/kryonix";
-        splashImage = lib.mkForce blackPixel;
-        efiSplashImage = lib.mkForce blackPixel;
-      };
-    }))
+    (lib.mkIf cfg.enable (
+      lib.optionalAttrs (options ? isoImage) {
+        isoImage = {
+          grubTheme = lib.mkForce "${grubTheme}/kryonix";
+          splashImage = lib.mkForce blackPixel;
+          efiSplashImage = lib.mkForce blackPixel;
+        };
+      }
+    ))
   ];
 }

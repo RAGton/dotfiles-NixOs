@@ -2,66 +2,105 @@
 {
   nixosModules = {
     # Opções do namespace kryonix.* (sem implementation)
-    options = { ... }: { imports = [ ../lib/options.nix ]; };
+    options =
+      { ... }:
+      {
+        imports = [ ../lib/options.nix ];
+      };
 
     # Base comum compartilhada (nix settings, rede, locale, pacotes base)
     # Equivale ao que hosts/common provê — downstream importa como módulo
-    common = { ... }: { imports = [ ../hosts/common ]; };
+    common =
+      { ... }:
+      {
+        imports = [ ../hosts/common ];
+      };
 
     # Default: opções + base comum — ponto de entrada principal para downstream
-    default = { ... }: { imports = [ ../lib/options.nix ../hosts/common ]; };
+    default =
+      { ... }:
+      {
+        imports = [
+          ../lib/options.nix
+          ../hosts/common
+        ];
+      };
 
     # Perfis isolados para patching dinâmico
-    profile-gamer = { ... }: { imports = [ ../profiles/workstation-gamer.nix ]; };
-    profile-dev-rust = { ... }: { imports = [ ../profiles/dev/rust.nix ]; };
+    profile-gamer =
+      { ... }:
+      {
+        imports = [ ../profiles/workstation-gamer.nix ];
+      };
+    profile-dev-rust =
+      { ... }:
+      {
+        imports = [ ../profiles/dev/rust.nix ];
+      };
 
     # Modulos para ISO modular
-    installer-core = { ... }: {
-      imports = [ ../modules/nixos/installer ];
-    };
+    installer-core =
+      { ... }:
+      {
+        imports = [ ../modules/nixos/installer ];
+      };
 
-    full-profile = { ... }: {
-      imports = [
-        ../lib/options.nix
-        ../hosts/common
-        ../profiles/default.nix
-      ];
-    };
+    full-profile =
+      { ... }:
+      {
+        imports = [
+          ../lib/options.nix
+          ../hosts/common
+          ../profiles/default.nix
+        ];
+      };
   };
 
   homeManagerModules = {
     # Base HM compartilhada (programas, serviços, aliases comuns)
-    common = { nhModules, ... }: {
-      imports = [ ../modules/home-manager/common ];
-    };
+    common =
+      { nhModules, ... }:
+      {
+        imports = [ ../modules/home-manager/common ];
+      };
 
     # Desktop Hyprland completo (user.nix como orquestrador)
-    hyprland = { nhModules, ... }: {
-      imports = [ ../desktop/hyprland/user.nix ];
-    };
+    hyprland =
+      { nhModules, ... }:
+      {
+        imports = [ ../desktop/hyprland/user.nix ];
+      };
 
     # Integração Caelestia Shell (scheme, settings, activation)
-    caelestia = { ... }: {
-      imports = [ ../desktop/hyprland/rice/caelestia-config.nix ];
-    };
+    caelestia =
+      { ... }:
+      {
+        imports = [ ../desktop/hyprland/rice/caelestia-config.nix ];
+      };
 
     # Desktop KDE Plasma 6 completo (ambiente principal de longo prazo).
     # Traz o módulo HM do plasma-manager + o orquestrador desktop/kde/user.nix.
-    kde = { ... }: {
-      imports = [
-        inputs.plasma-manager.homeModules.plasma-manager
-        ../desktop/kde/user.nix
-      ];
-    };
+    kde =
+      { ... }:
+      {
+        imports = [
+          inputs.plasma-manager.homeModules.plasma-manager
+          ../desktop/kde/user.nix
+        ];
+      };
 
     # Shell backend option (kryonix.shell.backend)
-    shell-backend = { ... }: {
-      imports = [ ../desktop/hyprland/shell-backend.nix ];
-    };
+    shell-backend =
+      { ... }:
+      {
+        imports = [ ../desktop/hyprland/shell-backend.nix ];
+      };
 
     # Default: base HM comum
-    default = { nhModules, ... }: {
-      imports = [ ../modules/home-manager/common ];
-    };
+    default =
+      { nhModules, ... }:
+      {
+        imports = [ ../modules/home-manager/common ];
+      };
   };
 }

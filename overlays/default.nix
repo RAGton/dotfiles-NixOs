@@ -80,8 +80,8 @@
   #   `NoBuildIdException` durante `resolve_modules()`.
   #
   # Riscos
-  # - Se o upstream mudar o trecho alvo, o build falha com mensagem explícita,
-  #   evitando aplicar uma alteração incorreta silenciosamente.
+  # - Se o upstream mudar o trecho alvo (ex.: drkonqi 6.6.5), o workaround é
+  #   pulado (drkonqi vanilla) com aviso no log, em vez de abortar o build.
   drkonqi-ignore-missing-buildid = final: prev: {
     kdePackages = prev.kdePackages.overrideScope (
       kfinal: kprev: {
@@ -115,10 +115,13 @@
                 "            core_images.append(image)\n"
             )
 
-            if old not in txt:
-                raise SystemExit("drkonqi-ignore-missing-buildid: snippet não encontrado; o upstream mudou")
-
-            path.write_text(txt.replace(old, new, 1), encoding="utf-8")
+            if old in txt:
+                path.write_text(txt.replace(old, new, 1), encoding="utf-8")
+            else:
+                # Upstream mudou o trecho alvo (ex.: drkonqi 6.6.5). O workaround
+                # deixou de ser aplicável — seguimos com o drkonqi vanilla em vez
+                # de abortar o build (antes: raise SystemExit, que travava o host).
+                print("drkonqi-ignore-missing-buildid: snippet não encontrado; pulando (drkonqi vanilla)")
             PY
                       fi
           '';

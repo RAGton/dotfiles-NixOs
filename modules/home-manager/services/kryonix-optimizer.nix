@@ -1,9 +1,15 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 let
   cfg = config.kryonix.services.ram-optimizer;
-in {
+in
+{
   options.kryonix.services.ram-optimizer = {
     enable = mkEnableOption "Daemon Otimizador Vivo de RAM do Kryonix";
   };
@@ -12,7 +18,10 @@ in {
     systemd.user.services.kryonix-optimizer = {
       Unit = {
         Description = "Kryonix RAM Optimizer AI Daemon";
-        After = [ "network.target" "tailscaled.service" ];
+        After = [
+          "network.target"
+          "tailscaled.service"
+        ];
       };
       Service = {
         ExecStart = "${pkgs.kryonix-optimizer}/bin/kryonix-optimizer";

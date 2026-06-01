@@ -8,6 +8,9 @@
       hostname = "iso";
       isDarwin = false;
       nixosModules = "${inputs.self}/modules/nixos";
+      # Valor concreto: evita que `offlineMode` seja resolvido via _module.args
+      # (que exige `config`) quando usado em `imports` de hosts/iso → recursão.
+      offlineMode = false;
     };
     modules = [ ../../hosts/iso ];
   };

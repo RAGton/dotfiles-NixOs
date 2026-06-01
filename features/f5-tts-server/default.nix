@@ -30,7 +30,7 @@
 with lib;
 
 let
-  cfg     = config.kryonix.features.f5tts;
+  cfg = config.kryonix.features.f5tts;
   dataDir = "/var/lib/f5-tts";
 
   preStartCheck = pkgs.writeShellScript "f5tts-prestart" ''
@@ -50,7 +50,7 @@ in
     enable = mkEnableOption "F5-TTS Server — síntese de voz zero-shot (glacier)";
 
     port = mkOption {
-      type    = types.port;
+      type = types.port;
       default = 7860;
       description = "Porta de escuta do servidor F5-TTS.";
     };
@@ -60,29 +60,29 @@ in
 
     users.users.f5tts = {
       isSystemUser = true;
-      group        = "f5tts";
-      home         = dataDir;
-      description  = "F5-TTS inference server";
+      group = "f5tts";
+      home = dataDir;
+      description = "F5-TTS inference server";
     };
-    users.groups.f5tts = {};
+    users.groups.f5tts = { };
 
     systemd.services.f5-tts-server = {
       description = "F5-TTS Zero-Shot Voice Synthesis Server";
-      after       = [ "network.target" ];
+      after = [ "network.target" ];
 
       serviceConfig = {
-        Type              = "simple";
-        User              = "f5tts";
-        Group             = "f5tts";
-        StateDirectory    = "f5-tts";
+        Type = "simple";
+        User = "f5tts";
+        Group = "f5tts";
+        StateDirectory = "f5-tts";
         StateDirectoryMode = "0750";
-        ExecStartPre      = preStartCheck;
-        ExecStart         = "${dataDir}/venv/bin/python /etc/kryonix/features/f5-tts-server/api_server.py";
-        Restart           = "on-failure";
-        RestartSec        = "10s";
-        MemoryMax         = "8G";
-        WorkingDirectory  = dataDir;
-        Environment       = [
+        ExecStartPre = preStartCheck;
+        ExecStart = "${dataDir}/venv/bin/python /etc/kryonix/features/f5-tts-server/api_server.py";
+        Restart = "on-failure";
+        RestartSec = "10s";
+        MemoryMax = "8G";
+        WorkingDirectory = dataDir;
+        Environment = [
           "HOME=${dataDir}"
           "HF_HOME=${dataDir}/hf-cache"
           "PYTHONUNBUFFERED=1"
@@ -96,7 +96,7 @@ in
     # Expõe o servidor apenas em Tailscale e LAN interna (br0)
     networking.firewall.interfaces = {
       tailscale0.allowedTCPPorts = [ cfg.port ];
-      br0.allowedTCPPorts        = [ cfg.port ];
+      br0.allowedTCPPorts = [ cfg.port ];
     };
   };
 }

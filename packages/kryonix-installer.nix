@@ -1,14 +1,21 @@
-{ rustPlatform, lib, buildNpmPackage, makeWrapper, pkg-config, openssl }:
+{
+  rustPlatform,
+  lib,
+  buildNpmPackage,
+  makeWrapper,
+  pkg-config,
+  openssl,
+}:
 
 let
   ui = buildNpmPackage {
     pname = "kryonix-installer-ui-web";
     version = "0.1.0";
     src = ./kryonix-installer/ui;
-    
+
     # Run a dummy build to get the real hash later, or use fakeHash
     npmDepsHash = "sha256-sUEtL5G0JMBVcaDwk7YTI5VaaGBsziQ9FuMuXN14BUw=";
-    
+
     installPhase = ''
       mkdir -p $out/dist
       cp -r static/* $out/dist/
@@ -25,7 +32,10 @@ rustPlatform.buildRustPackage {
     lockFile = ./kryonix-installer/Cargo.lock;
   };
 
-  nativeBuildInputs = [ makeWrapper pkg-config ];
+  nativeBuildInputs = [
+    makeWrapper
+    pkg-config
+  ];
   buildInputs = [ openssl ];
 
   # reqwest with rustls-tls links against openssl for the host build

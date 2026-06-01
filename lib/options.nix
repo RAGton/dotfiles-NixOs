@@ -43,7 +43,12 @@ in
     # =========================
     desktop = {
       environment = lib.mkOption {
-        type = lib.types.nullOr (lib.types.enum [ "hyprland" "kde" ]);
+        type = lib.types.nullOr (
+          lib.types.enum [
+            "hyprland"
+            "kde"
+          ]
+        );
         default = null;
         description = ''
           Ambiente de desktop a usar.

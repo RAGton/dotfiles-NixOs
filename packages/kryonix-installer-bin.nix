@@ -1,8 +1,17 @@
-{ stdenv, lib, fetchurl, makeWrapper }:
+{
+  stdenv,
+  lib,
+  fetchurl,
+  makeWrapper,
+}:
 
 # Exemplo de uso via override ou input fetchurl
 # Este pacote permite usar o binário pré-compilado da release
-{ url, sha256, version }:
+{
+  url,
+  sha256,
+  version,
+}:
 
 stdenv.mkDerivation {
   pname = "kryonix-installer-bin";

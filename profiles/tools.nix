@@ -9,7 +9,12 @@
 # - Centraliza a configuração de aplicativos que podem ter múltiplas edições
 #   ou formas de entrega (como o VSCode).
 # =============================================================================
-{ config, lib, userConfig, ... }:
+{
+  config,
+  lib,
+  userConfig,
+  ...
+}:
 
 let
   cfg = config.kryonix.profiles.tools;

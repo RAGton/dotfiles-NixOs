@@ -5,7 +5,13 @@
 # - Importa o módulo HM de monitores e adiciona o restore automático ao autostart.
 # - Mantém desktop/hyprland/user.nix limpo.
 # =============================================================================
-{ lib, config, pkgs, nhModules, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  nhModules,
+  ...
+}:
 {
   imports = [
     "${nhModules}/desktop/monitors.nix"

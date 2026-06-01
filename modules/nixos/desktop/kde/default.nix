@@ -18,7 +18,12 @@
 # Riscos:
 # - Não habilitar GDM/greetd/gnome aqui (o branch kde em ../default.nix já os força off).
 # =============================================================================
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   isKde = config.kryonix.desktop.environment == "kde";
   cfg = config.kryonix.desktop.kde;
@@ -57,6 +62,12 @@ in
 
     # Desktop: Plasma 6 (Wayland por padrão no SDDM/Plasma 6).
     services.desktopManager.plasma6.enable = true;
+
+    # Bypass do drkonqi: kdePackages.drkonqi (6.6.5) quebra o build por patch
+    # inválido no upstream do nixpkgs ("snippet não encontrado"). O Plasma 6 o
+    # puxa por padrão — excluímos do closure para o sistema compilar (perde-se
+    # apenas o handler de relatório de crash do KDE).
+    environment.plasma6.excludePackages = with pkgs.kdePackages; [ drkonqi ];
 
     # dconf é necessário para configurações GTK/portais consistentes.
     programs.dconf.enable = true;
