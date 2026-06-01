@@ -333,6 +333,10 @@ infer_or_verify_host() {
   local current_host="$flake_host"
   local available host_count i choice h host_exists
 
+  if [[ -z "${flake_ref:-}" ]]; then
+    resolve_flake "${flake_arg:-}" || return 1
+  fi
+
   # Verificação rápida via builtins.hasAttr — não avalia o sistema inteiro.
   # Usa --json porque hasAttr retorna boolean; --raw não aceita boolean.
   host_exists="$(capture_flake_command nix eval "${flake_ref}#nixosConfigurations" \
@@ -355,6 +359,12 @@ infer_or_verify_host() {
   # Filtra linhas em branco antes de contar.
   available="$(printf '%s\n' "$available" | grep -v '^[[:space:]]*$' || true)"
   host_count="$(printf '%s\n' "$available" | wc -l | tr -d ' ')"
+
+  while IFS= read -r h; do
+    if [[ "$h" == "$current_host" ]]; then
+      return 0
+    fi
+  done <<< "$available"
 
   # Único host disponível → usa automaticamente.
   if [[ "$host_count" -eq 1 ]]; then
