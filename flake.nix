@@ -40,9 +40,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";          # rolling release
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";      # LTS estável
 
-    # Home Manager
+    # Home Manager — release-26.05 alinha com nixpkgs nixos-unstable (26.05)
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

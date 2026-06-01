@@ -15,4 +15,15 @@
     systemd.enable = false;
     extraConfig = builtins.readFile ../hyprland.conf;
   };
+
+  # Remove arquivo regular e backup stale antes de checkLinkTargets.
+  # Necessário porque HM não sobrescreve arquivos regulares se .hm-backup já existe,
+  # deixando o symlink sem ser criado e o Hyprland gerando um stub autogenerado.
+  home.activation.cleanHyprlandConf = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    _conf="$HOME/.config/hypr/hyprland.conf"
+    rm -f "$_conf.hm-backup"
+    if [[ -e "$_conf" && ! -L "$_conf" ]]; then
+      rm -f "$_conf"
+    fi
+  '';
 }
