@@ -6,6 +6,7 @@
 #   expondo apenas as partes consumidas pela sessão KDE Kryonix:
 #     * Kvantum (estilo Qt) ........ share/Kvantum/<tema>
 #     * Plasma desktoptheme ........ share/plasma/desktoptheme/<tema>
+#     * Global Theme (L&F) ......... share/plasma/look-and-feel/<tema>
 #     * Esquemas de cor ............ share/color-schemes/*.colors
 #     * Decorações Aurorae ......... share/aurorae/themes/<tema>
 #
@@ -18,6 +19,8 @@
 # - Nome do tema Kvantum (pasta + .kvconfig + .svg): "BonaFides-Dark-Kvantum".
 # - Nome do desktoptheme (X-KDE-PluginInfo-Name): "BonaFides-Color-Plasma".
 # - Decoração Aurorae Plasma 6: "BonaFides-Color-Dark-Aurorae-6".
+# - Global Theme Plasma 6 (lookAndFeel Id): "BonaFides-Dark-Color-Global-6"
+#   (variantes -5 são Plasma 5; -6 são Plasma 6; também há *-Rounded-Global-*).
 # =============================================================================
 {
   lib,
@@ -44,6 +47,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     mkdir -p \
       "$out/share/Kvantum" \
       "$out/share/plasma/desktoptheme" \
+      "$out/share/plasma/look-and-feel" \
       "$out/share/color-schemes" \
       "$out/share/aurorae/themes"
 
@@ -52,6 +56,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     # --- Plasma desktoptheme ------------------------------------------------
     cp -r "BonaFides Plasma Themes/"* "$out/share/plasma/desktoptheme/"
+
+    # --- Global Themes (look-and-feel: Plasma 5 e 6) ------------------------
+    # Habilita o lookAndFeel BonaFides (ex.: "BonaFides-Dark-Color-Global-6"),
+    # consumido por workspace.lookAndFeel em desktop/kde/theme.nix. Sem isto, o
+    # Plasma cai no Breeze Dark como tema global (problema reportado pelo host).
+    cp -r "BonaFides Global Themes/"* "$out/share/plasma/look-and-feel/"
 
     # --- Esquemas de cor ----------------------------------------------------
     cp "BonaFides Color Schemes/"*.colors "$out/share/color-schemes/"
@@ -63,7 +73,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Tema BonaFides (Dark/Azul/Glass) para KDE Plasma: Kvantum, desktoptheme, color-schemes e Aurorae";
+    description = "Tema BonaFides (Dark/Azul/Glass) para KDE Plasma: Kvantum, desktoptheme, global theme (look-and-feel), color-schemes e Aurorae";
     homepage = "https://github.com/L4ki/BonaFides-Plasma-Themes";
     license = lib.licenses.gpl3Only;
     platforms = lib.platforms.linux;

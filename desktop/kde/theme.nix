@@ -2,11 +2,12 @@
 # desktop/kde/theme.nix — Camada visual moderna do KDE (Home Manager)
 #
 # Estética padrão do ambiente principal:
-# - Tema global Breeze Dark (consistente em Qt/KDE)
+# - Global Theme BonaFides Dark (lookAndFeel "BonaFides-Dark-Color-Global-6")
+#   + desktoptheme/colorScheme azul Kryonix (override do default cyan)
 # - Blur + transparência (efeitos do KWin)
 # - Animações mantidas (não zeramos AnimationDurationFactor)
 # - Cursor Nordzy-cursors (X11, GTK e Wayland), tamanho 24
-# - Painel superior minimalista (menu, tarefas em ícones, systray, relógio)
+# - SEM painel KDE (panels=[]) — topo reservado para a Kryonix Bar (Rust)
 # - Dolphin otimizado (caminho completo, navegação em arquivos)
 # =============================================================================
 { pkgs, ... }:
@@ -38,14 +39,17 @@
 
   programs.plasma = {
     # --- Tema BonaFides (Dark/Azul/Glass) ----------------------------------
-    # Base global: mantemos o lookAndFeel Breeze Dark como esqueleto estável do
-    # Plasma 6 e sobrepomos a identidade BonaFides via desktoptheme + colorScheme
-    # (aplicados, nesta ordem, DEPOIS do lookAndFeel pelo plasma-manager).
+    # Identidade global completa: o lookAndFeel é o Global Theme BonaFides
+    # (Plasma 6 dark), não mais Breeze Dark — era o Breeze que "dominava" o host.
+    # Sobre o lookAndFeel ainda fixamos desktoptheme + colorScheme (aplicados,
+    # nesta ordem, DEPOIS do lookAndFeel pelo plasma-manager), porque o default
+    # do Global Theme é o esquema CYAN e queremos o azul Kryonix:
+    #   - lookAndFeel  → share/plasma/look-and-feel/<Id> (Id == nome da pasta)
     #   - theme        → Plasma desktoptheme (share/plasma/desktoptheme/<id>)
     #   - colorScheme  → base do .colors (share/color-schemes/<base>.colors)
     # Assets vêm de `pkgs.bonafides-theme` (instalado em kvantum.nix).
     workspace = {
-      lookAndFeel = "org.kde.breezedark.desktop";
+      lookAndFeel = "BonaFides-Dark-Color-Global-6";
       theme = "BonaFides-Color-Plasma";
       colorScheme = "BonaFidesBlueDarkColorscheme";
       iconTheme = "breeze-dark";
@@ -61,10 +65,11 @@
     };
 
     # NOTA: as decorações Aurorae BonaFides são instaladas pelo pacote
-    # (share/aurorae/themes/), mas NÃO forçamos windowDecorations aqui: a regra
-    # global `noborder` (tiling.nix) remove a borda de todas as janelas, então a
-    # decoração não seria exibida. Forçá-la junto do lookAndFeel Breeze ainda
-    # gera o aviso "lookAndFeel override" do plasma-manager sem ganho visual.
+    # (share/aurorae/themes/) e o Global Theme já define a Aurorae
+    # "BonaFides-Color-Dark-Aurorae-6" como decoração. NÃO forçamos
+    # windowDecorations aqui: a regra global `noborder` (tiling.nix) remove a
+    # borda de todas as janelas, então a decoração não é exibida de qualquer
+    # forma; deixamos o lookAndFeel cuidar do default e evitamos definição dupla.
 
     # --- Blur profundo + transparência (Kryonix Glass) --------------------
     kwin.effects = {
@@ -76,22 +81,33 @@
       translucency.enable = true;
     };
 
-    # --- Painel superior minimalista, flutuante e translúcido (Glass) -----
-    panels = [
-      {
-        location = "top";
-        height = 32;
-        floating = true; # barra "glass" destacada da borda
-        opacity = "translucent"; # transparência profunda (com blur do KWin atrás)
-        widgets = [
-          "org.kde.plasma.kickoff"
-          "org.kde.plasma.icontasks"
-          "org.kde.plasma.marginsseparator"
-          "org.kde.plasma.systemtray"
-          "org.kde.plasma.digitalclock"
-        ];
-      }
-    ];
+    # --- SEM painel KDE: a barra do topo será a Kryonix Bar (Rust) --------
+    # Lista vazia → o plasma-manager REMOVE todos os painéis do Plasma, deixando
+    # o topo limpo para a Kryonix Bar (backend em packages/kryonix-bar). Enquanto
+    # a UI (frontend QML) não existe, o topo fica intencionalmente vazio.
+    #
+    # ROLLBACK (painel ilha nativo do KDE): reativar o bloco abaixo.
+    #   panels = [
+    #     {
+    #       location = "top";
+    #       alignment = "center";
+    #       height = 32;
+    #       floating = true;
+    #       lengthMode = "fit";   # ilha (não estica 100%)
+    #       hiding = "none";
+    #       opacity = "translucent";
+    #       widgets = [
+    #         "org.kde.plasma.kickoff"
+    #         "org.kde.plasma.pager"
+    #         "org.kde.plasma.marginsseparator"
+    #         "org.kde.plasma.icontasks"
+    #         "org.kde.plasma.marginsseparator"
+    #         "org.kde.plasma.systemtray"
+    #         "org.kde.plasma.digitalclock"
+    #       ];
+    #     }
+    #   ];
+    panels = [ ];
 
     configFile = {
       # --- Dolphin otimizado ---------------------------------------------

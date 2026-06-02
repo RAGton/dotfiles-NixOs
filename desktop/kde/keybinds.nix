@@ -25,8 +25,11 @@ let
     qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut "Window to Desktop $d"
     qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut "Switch to Desktop $d"
   '';
-  albertFiles = pkgs.writeShellScript "kryonix-albert-files" ''exec albert show "files "'';
-  albertPower = pkgs.writeShellScript "kryonix-albert-power" ''exec albert show "sys "'';
+  # Toggle do Wofi (abre se fechado; fecha se já aberto). O operador `||` não
+  # pode ir no Exec do .desktop (ver nota acima), então embrulhamos num script.
+  wofiToggle = pkgs.writeShellScript "kryonix-wofi-toggle" ''
+    ${pkgs.procps}/bin/pkill -x wofi || exec ${pkgs.wofi}/bin/wofi --show drun
+  '';
 
   # Meta+1..0 → trocar de desktop; Meta+Shift+1..0 → mover janela p/ desktop.
   switchTo = lib.listToAttrs (
@@ -165,21 +168,14 @@ in
     # Comandos disparados por atalho (hotkeys.commands)
     # =====================================================================
     hotkeys.commands = moveFollowCommands // {
-      # --- Albert ---
-      "albert-toggle" = {
-        name = "Albert Launcher";
+      # --- Wofi (launcher de aplicativos, estilo Hyprland/Waybar) ---
+      # Meta+A: toggle do menu drun. As antigas buscas de arquivos/energia eram
+      # plugins específicos do Albert (sem equivalente direto no Wofi); foram
+      # removidas. Se quiser, dá pra recriar um power-menu em wofi-dmenu.
+      "wofi-toggle" = {
+        name = "Wofi Launcher";
         key = "Meta+A";
-        command = "albert toggle";
-      };
-      "albert-files" = {
-        name = "Albert: busca de arquivos";
-        key = "Meta+Shift+A";
-        command = "${albertFiles}";
-      };
-      "albert-power" = {
-        name = "Albert: menu de energia";
-        key = "Meta+Ctrl+A";
-        command = "${albertPower}";
+        command = "${wofiToggle}";
       };
 
       # --- Kora (serviço web em :8787; abre no navegador padrão) ---
