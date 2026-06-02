@@ -276,6 +276,9 @@
   #   wallpapers) é usado em desktop/kde/{kvantum,theme,tiling}.nix.
   kryonix-themes = final: _prev: {
     bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
+
+    # Backend D-Bus da Kryonix Bar (org.kryonix.Bar). UI (QML) virá depois.
+    kryonix-bar-backend = final.callPackage ../packages/kryonix-bar { };
   };
 
   # Kryonix Installer Tools

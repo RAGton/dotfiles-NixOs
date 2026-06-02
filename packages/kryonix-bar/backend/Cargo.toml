@@ -1,0 +1,9 @@
+[package]
+name = "kryonix-bar-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.37.0", features = ["full"] }
+# Feature "tokio": faz o zbus usar o runtime tokio (coerente com #[tokio::main]).
+zbus = { version = "4.1.2", features = ["tokio"] }
