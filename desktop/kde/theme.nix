@@ -81,33 +81,27 @@
       translucency.enable = true;
     };
 
-    # --- SEM painel KDE: a barra do topo será a Kryonix Bar (Rust) --------
-    # Lista vazia → o plasma-manager REMOVE todos os painéis do Plasma, deixando
-    # o topo limpo para a Kryonix Bar (backend em packages/kryonix-bar). Enquanto
-    # a UI (frontend QML) não existe, o topo fica intencionalmente vazio.
-    #
-    # ROLLBACK (painel ilha nativo do KDE): reativar o bloco abaixo.
-    #   panels = [
-    #     {
-    #       location = "top";
-    #       alignment = "center";
-    #       height = 32;
-    #       floating = true;
-    #       lengthMode = "fit";   # ilha (não estica 100%)
-    #       hiding = "none";
-    #       opacity = "translucent";
-    #       widgets = [
-    #         "org.kde.plasma.kickoff"
-    #         "org.kde.plasma.pager"
-    #         "org.kde.plasma.marginsseparator"
-    #         "org.kde.plasma.icontasks"
-    #         "org.kde.plasma.marginsseparator"
-    #         "org.kde.plasma.systemtray"
-    #         "org.kde.plasma.digitalclock"
-    #       ];
-    #     }
-    #   ];
-    panels = [ ];
+    # --- PAINEL FALLBACK (Fase 1): Ilha minimalista até a Kryonix Bar estar pronta ---
+    # Em vez de panels = [ ], restauramos um painel 'Floating Island' para manter
+    # a usabilidade mínima (Workspaces, Relógio, Tray).
+    panels = [
+      {
+        location = "top";
+        alignment = "center";
+        height = 38;
+        floating = true;
+        lengthMode = "fit"; # Estilo ilha (não ocupa 100% da largura)
+        hiding = "none";
+        opacity = "translucent";
+        widgets = [
+          "org.kde.plasma.kickoff"
+          "org.kde.plasma.pager"
+          "org.kde.plasma.marginsseparator"
+          "org.kde.plasma.systemtray"
+          "org.kde.plasma.digitalclock"
+        ];
+      }
+    ];
 
     configFile = {
       # --- Dolphin otimizado ---------------------------------------------

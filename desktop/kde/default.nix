@@ -19,12 +19,16 @@
   # kglobalshortcutsrc, kdeglobals, etc.) a partir de programs.plasma.*.
   programs.plasma.enable = true;
 
+  # Habilita o backend da Kryonix Bar (Rust/D-Bus).
+  services.kryonix-bar.enable = true;
+
   # Pacotes de sessão no escopo do usuário (úteis para os atalhos e o dia a dia).
   home.packages = with pkgs; [
     kdePackages.dolphin
     kdePackages.spectacle
     kdePackages.qttools # qdbus6 — usado por scratchpad/"mover e seguir"
     playerctl # controle de mídia (Meta+,/. e XF86AudioPlay)
+    kryonix-bar-backend
   ];
 
   # NOTA: QT_QPA_PLATFORMTHEME é definido em kvantum.nix ("kvantum"), parte da

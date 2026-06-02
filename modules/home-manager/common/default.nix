@@ -81,6 +81,7 @@ in
     ../services/kryonix-krdp
     ../services/kryonix-glacier-vnc-tunnel
     ../services/kryonix-ollama-tunnel
+    ../services/kryonix-bar.nix
   ];
 
   # Habilita Jupyter via módulo declarativo.
