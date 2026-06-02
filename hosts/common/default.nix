@@ -54,6 +54,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
+    backupFileExtension = "backup";
     extraSpecialArgs = { inherit inputs userConfig; };
     users.${userConfig.name} = {
       imports = [ ../../modules/home-manager/common ];
