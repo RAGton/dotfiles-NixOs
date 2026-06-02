@@ -20,7 +20,6 @@ in
   home.packages = [
     pkgs.gemini-cli
     claudeWrapper
-    (pkgs.callPackage ../../packages/codex-bin/default.nix { })
     pkgs.antigravity
   ];
 
@@ -38,13 +37,6 @@ in
       terminal = false;
       categories = [ "Development" "Utility" ];
       icon = "gemini";
-    };
-    codex = {
-      name = "Codex CLI";
-      exec = "kryonix-terminal codex";
-      terminal = false;
-      categories = [ "Development" "Utility" ];
-      icon = "codex";
     };
     antigravity = {
       name = "Antigravit AI";
