@@ -133,6 +133,18 @@ in
           "KrohnkiteTileLayout" = [ ]; # default Meta+T (= Toggle Float)
           "KrohnkiteFloatAll" = [ ]; # default Meta+Shift+F
           "KrohnkitePreviousLayout" = [ ]; # default Meta+|
+
+          # --- Efeitos de visão geral/exposição que ATRAPALHAM o tiling ----
+          # Limpos por não estarem no keymap Kryonix (eram defaults residuais do
+          # Plasma). NÃO mexer em "Overview" (Meta+W) nem "Grid View" (Meta+G):
+          # são bindings intencionais do keymap.
+          "Expose" = "none"; # default Meta+F9 / Ctrl+F9
+          "ExposeAll" = "none"; # default Meta+F10 / Ctrl+F10
+          "ExposeClass" = "none"; # default Meta+F7 / Ctrl+F7
+          "ExposeClassCurrentDesktop" = "none";
+          "Cycle Overview" = "none";
+          "Cycle Overview Opposite" = "none";
+          "Suspend Compositor" = "none"; # evita desligar o compositor por engano
         };
 
       # ---- ksmserver: sessão ----
