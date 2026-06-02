@@ -17,6 +17,7 @@
 {
   imports = [
     ./default.nix
+    ./ai-tools.nix
     ./theme.nix
     ./kvantum.nix
     ./tiling.nix
