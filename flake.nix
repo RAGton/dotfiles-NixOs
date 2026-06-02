@@ -148,6 +148,7 @@
           xeus-cling-no-checks
           codex-overlay
           kryonix-installer-tools
+          kryonix-themes
           ;
       };
     };

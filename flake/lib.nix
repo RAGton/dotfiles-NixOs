@@ -41,6 +41,7 @@ let
         repoOverlays.xeus-cling-no-checks
         repoOverlays.codex-overlay
         repoOverlays.kryonix-installer-tools
+        repoOverlays.kryonix-themes
       ];
       config.allowUnfree = true;
     };

@@ -266,6 +266,18 @@
         });
   };
 
+  # Temas Kryonix (KDE/Plasma)
+  #
+  # O que é
+  # - Expõe pacotes de tema customizados consumidos pela sessão KDE.
+  #
+  # Como
+  # - `pkgs.bonafides-theme` (Kvantum + desktoptheme + color-schemes + Aurorae +
+  #   wallpapers) é usado em desktop/kde/{kvantum,theme,tiling}.nix.
+  kryonix-themes = final: _prev: {
+    bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
+  };
+
   # Kryonix Installer Tools
   kryonix-installer-tools = final: _prev: {
     kryonix-home = final.callPackage ../packages/kryonix-home.nix {

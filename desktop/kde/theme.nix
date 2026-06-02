@@ -37,16 +37,34 @@
   };
 
   programs.plasma = {
-    # --- Tema global escuro ------------------------------------------------
+    # --- Tema BonaFides (Dark/Azul/Glass) ----------------------------------
+    # Base global: mantemos o lookAndFeel Breeze Dark como esqueleto estável do
+    # Plasma 6 e sobrepomos a identidade BonaFides via desktoptheme + colorScheme
+    # (aplicados, nesta ordem, DEPOIS do lookAndFeel pelo plasma-manager).
+    #   - theme        → Plasma desktoptheme (share/plasma/desktoptheme/<id>)
+    #   - colorScheme  → base do .colors (share/color-schemes/<base>.colors)
+    # Assets vêm de `pkgs.bonafides-theme` (instalado em kvantum.nix).
     workspace = {
       lookAndFeel = "org.kde.breezedark.desktop";
-      colorScheme = "BreezeDark";
+      theme = "BonaFides-Color-Plasma";
+      colorScheme = "BonaFidesBlueDarkColorscheme";
       iconTheme = "breeze-dark";
       cursor = {
         theme = "Nordzy-cursors";
         size = 24;
       };
+
+      # Wallpaper padrão do Kryonix (files/wallpaper/12.png — mesmo default do
+      # módulo modules/home-manager/misc/wallpaper, que não é importado na sessão
+      # KDE; por isso referenciamos o arquivo diretamente).
+      wallpaper = ../../files/wallpaper/12.png;
     };
+
+    # NOTA: as decorações Aurorae BonaFides são instaladas pelo pacote
+    # (share/aurorae/themes/), mas NÃO forçamos windowDecorations aqui: a regra
+    # global `noborder` (tiling.nix) remove a borda de todas as janelas, então a
+    # decoração não seria exibida. Forçá-la junto do lookAndFeel Breeze ainda
+    # gera o aviso "lookAndFeel override" do plasma-manager sem ganho visual.
 
     # --- Blur profundo + transparência (Kryonix Glass) --------------------
     kwin.effects = {

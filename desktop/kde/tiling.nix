@@ -56,5 +56,25 @@
         tileLayoutGap = 8;
       };
     };
+
+    # Remove as barras de título / bordas de TODAS as janelas, requisito do
+    # tiling (Krohnkite). Em plasma-manager (rev pinada) a opção correta é
+    # `window-rules` (NÃO `kwin.rules`, que não existe): cada regra vira uma
+    # seção em kwinrulesrc. Aqui casamos qualquer windowClass por regex e
+    # forçamos `noborder = true`.
+    window-rules = [
+      {
+        description = "Kryonix: remover bordas/barras de titulo (tiling Krohnkite)";
+        match.window-class = {
+          value = ".*";
+          type = "regex";
+          match-whole = false;
+        };
+        apply.noborder = {
+          value = true;
+          apply = "force";
+        };
+      }
+    ];
   };
 }
