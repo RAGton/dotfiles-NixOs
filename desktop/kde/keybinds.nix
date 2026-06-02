@@ -142,8 +142,11 @@ in
         "Log Out" = "Shift+Escape";
       };
 
-      # ---- plasmashell: limpa Meta+1..0 (task manager) ----
-      plasmashell = clearTaskEntries;
+      # ---- plasmashell: limpa Meta+1..0 (task manager) e conflitos ----
+      plasmashell = clearTaskEntries // {
+        "next activity" = "none";
+        "manage activities" = "none";
+      };
     };
 
     # =====================================================================
