@@ -32,6 +32,16 @@
     QT_QPA_PLATFORMTHEME = "kvantum";
   };
 
+  # A sessão Plasma/SDDM (Wayland) NÃO carrega hm-session-vars.sh (esse arquivo
+  # só é lido por shells de login interativos), então as variáveis acima não
+  # chegam ao startplasma e o Kvantum não é aplicado. Entregamos as mesmas vars
+  # via script de ambiente da sessão, que o Plasma faz source no boot da sessão
+  # (~/.config/plasma-workspace/env/*.sh). É o mecanismo canônico do Plasma.
+  xdg.configFile."plasma-workspace/env/kvantum-platformtheme.sh".text = ''
+    export QT_QPA_PLATFORMTHEME=kvantum
+    export QT_STYLE_OVERRIDE=kvantum
+  '';
+
   xdg.configFile."Kvantum/kvantum.kvconfig".text = ''
     [General]
     theme=BonaFides-Dark-Kvantum
