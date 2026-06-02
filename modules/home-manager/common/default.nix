@@ -114,6 +114,11 @@ in
     LIBVIRT_DEFAULT_URI = "qemu:///system";
   };
 
+  # Força a sobrescrita de arquivos GTK e outros para evitar falhas de ativação
+  xdg.configFile."gtk-3.0/settings.ini".force = true;
+  xdg.configFile."gtk-4.0/settings.ini".force = true;
+  home.file.".gtkrc-2.0".force = true;
+
   # Garante que os pacotes comuns estejam instalados
   home.packages = with pkgs; [
     awscli2
