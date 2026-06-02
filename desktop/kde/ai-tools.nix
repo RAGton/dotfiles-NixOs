@@ -20,7 +20,7 @@ in
   home.packages = [
     pkgs.gemini-cli
     claudeWrapper
-    pkgs.codex-cli
+    (pkgs.callPackage ../../packages/codex-bin/default.nix { })
     pkgs.antigravity
   ];
 
