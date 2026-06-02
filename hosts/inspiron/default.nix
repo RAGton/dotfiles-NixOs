@@ -76,6 +76,9 @@
     alwaysOn = true;
   };
 
+  # Backup automático para arquivos colidentes no Home Manager
+  home-manager.backupFileExtension = "backup";
+
   networking.hostName = hostname;
   programs.winbox.enable = true;
   system.stateVersion = "26.05";
