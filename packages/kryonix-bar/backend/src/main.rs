@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let mut sys = System::new_with_specifics(
             RefreshKind::new()
                 .with_cpu(CpuRefreshKind::everything())
-                .with_memory()
+                .with_memory(MemoryRefreshKind::everything())
         );
 
         loop {
