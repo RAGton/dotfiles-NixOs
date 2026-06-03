@@ -11,7 +11,7 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 use zbus::{connection, interface};
 use serde::{Serialize, Deserialize};
-use sysinfo::{CpuRefreshKind, RefreshKind, System};
+use sysinfo::{CpuRefreshKind, MemoryRefreshKind, RefreshKind, System};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct SystemState {
