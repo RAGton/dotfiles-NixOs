@@ -34,15 +34,33 @@
 - `modules/home-manager/`: modulos Home Manager reutilizaveis.
 - `desktop/hyprland/`: configuracao Hyprland system/user.
 - `desktop/hyprland/rice/`: Caelestia/DMS e arquivos de rice.
-- `files/`: assets e arquivos estaticos usados pelo sistema.
+- `assets/`: assets estaticos usados pelo sistema (wallpaper, avatar, sddm, grub-theme).
 
 ## Contexto e documentacao
 
 - `docs/`: documentacao humana e historica.
 - `docs/ai/`: contexto curto para LLMs.
-- `context/`: memoria operacional curta e rastreavel.
-- `skills/`: procedimentos reutilizaveis para agentes.
-- `ai/`: material anterior/experimental; nao e a entrada principal atual.
+
+## Camadas de contexto de IA (topologia)
+
+Quatro diretorios de contexto com papeis DISTINTOS — nao sao redundantes e nao
+devem ser fundidos as cegas. Mover qualquer um exige mapeamento de dependencias.
+
+- `AGENTS.md` (raiz): constituicao cross-tool. Ordem de leitura #1 para qualquer agente.
+- `.ai/`: camada de conhecimento/memoria canonica. Vault Obsidian
+  (`kryonix-vault/`, **git submodule**), prompts reutilizaveis, skills por
+  dominio, `STATE.md`. Fonte de grounding do RAG/Brain.
+  **Consumida em runtime pelo CLI** (`packages/kryonix-cli/services.sh` le
+  `.ai/STATE.md`) — nao mover sem patch coordenado do CLI + submodule.
+- `.agents/`: governanca multi-agente (Antigravity/Kora). Roles, workflows,
+  checklists e prompts de orquestracao.
+- `.claude/`: config do Claude Code (agents, commands, rules, skills, settings).
+  Path exigido pela ferramenta — nao renomear.
+- `.codex/`: config do Codex (agents, `config.toml` com MCP servers).
+  Path exigido pela ferramenta — nao renomear.
+
+Ordem de leitura recomendada: `AGENTS.md` -> `docs/` ->
+`.ai/kryonix-vault/01-Canonical/` -> o prompt/skill/role relevante a tarefa.
 
 ## Diretorios que agentes devem evitar em varreduras
 
