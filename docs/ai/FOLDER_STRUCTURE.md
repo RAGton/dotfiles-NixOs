@@ -13,12 +13,13 @@
 
 ## Infra NixOS
 
-- `hosts/`: hosts NixOS e ISO.
-- `hosts/common/`: configuracao comum.
-- `hosts/glacier/`: workstation AMD + NVIDIA, gaming e virtualizacao.
-- `hosts/inspiron/`: notebook principal.
-- `hosts/inspiron-nina/`: notebook da Nina.
-- `hosts/iso/`: live/install ISO.
+- `hosts/`: hosts mantidos NESTE repo (motor) — apenas `common/`, `inspiron/` e `iso/`.
+- `hosts/common/`: configuracao comum compartilhada.
+- `hosts/inspiron/`: host de referencia (hardware-configuration.nix, disks.nix, default.nix).
+- `hosts/iso/`: live/install ISO — unica `nixosConfiguration` exposta pelo flake do motor.
+- Hosts pessoais (`glacier`, `inspiron-nina`, ...) NAO vivem aqui: ficam no repo
+  downstream `/etc/kryonixos` (github:RAGton/Kryonixos), que consome este motor via
+  `kryonix.url = git+file:///etc/kryonix`.
 - `modules/nixos/`: modulos de sistema.
 - `modules/kernel/`: kernel Zen.
 - `modules/virtualization/`: rede/virtualizacao compartilhada.
@@ -30,8 +31,8 @@
 
 ## Usuario e desktop
 
-- `home/`: Home Manager por usuario/host.
-- `modules/home-manager/`: modulos Home Manager reutilizaveis.
+- `modules/home-manager/`: modulos Home Manager reutilizaveis (a config Home Manager
+  por usuario/host vive no downstream `/etc/kryonixos`, nao ha `home/` neste repo).
 - `desktop/hyprland/`: configuracao Hyprland system/user.
 - `desktop/hyprland/rice/`: Caelestia/DMS e arquivos de rice.
 - `assets/`: assets estaticos usados pelo sistema (wallpaper, avatar, sddm, grub-theme).
