@@ -9,7 +9,7 @@
       #      kryonix-wallpaper --random
       #      kryonix-wallpaper --next
 
-      WALL_DIR="/etc/kryonix/files/wallpaper"
+      WALL_DIR="/etc/kryonix/assets/wallpaper"
 
       set_wall() {
         local img="$1"

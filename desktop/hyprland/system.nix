@@ -67,7 +67,7 @@ in
             ThemeDir = "/run/current-system/sw/share/sddm/themes";
             CursorTheme = "Bibata-Modern-Ice";
             CursorSize = 24;
-            ThemeConfig = "/etc/kryonix/files/sddm/astronaut-theme.conf";
+            ThemeConfig = "/etc/kryonix/assets/sddm/astronaut-theme.conf";
           };
           General = {
             Font = "CaskaydiaCove Nerd Font";
@@ -98,7 +98,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "sddm-random-wallpaper" ''
-          WALL_DIR="/etc/kryonix/files/wallpaper"
+          WALL_DIR="/etc/kryonix/assets/wallpaper"
           LINK="/var/lib/sddm/current-wallpaper"
           img=$(ls "$WALL_DIR"/*.{png,jpg,webp} 2>/dev/null | shuf -n1)
           [ -n "$img" ] && ln -sf "$img" "$LINK" && echo "SDDM wallpaper: $img"

@@ -11,7 +11,7 @@
 #     * Decorações Aurorae ......... share/aurorae/themes/<tema>
 #
 # - Os wallpapers do upstream NÃO são empacotados: a sessão KDE usa o wallpaper
-#   padrão do Kryonix (files/wallpaper/12.png), definido em desktop/kde/theme.nix.
+#   padrão do Kryonix (assets/wallpaper/12.png), definido em desktop/kde/theme.nix.
 #
 # Notas (verificado no rev pinado):
 # - Os diretórios do upstream contêm ESPAÇOS no nome (ex.: "BonaFides Kvantum

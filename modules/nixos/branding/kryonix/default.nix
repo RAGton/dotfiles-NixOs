@@ -37,9 +37,9 @@ let
       cfg.edition
     ]
   );
-  kryonixWallpaper = ../../../../files/wallpaper/01.png;
-  kryonixGdmWallpaper = ../../../../files/wallpaper/01.png;
-  kryonixAvatar = ../../../../files/avatar/ragton.jpeg;
+  kryonixWallpaper = ../../../../assets/wallpaper/01.png;
+  kryonixGdmWallpaper = ../../../../assets/wallpaper/01.png;
+  kryonixAvatar = ../../../../assets/avatar/ragton.jpeg;
   grubSplash =
     pkgs.runCommand "kryonix-grub-splash.png"
       {
@@ -158,7 +158,7 @@ let
   grubTheme = pkgs.runCommand "kryonix-grub-theme" { } ''
     themeDir="$out/kryonix"
     mkdir -p "$themeDir"
-    cp ${./../../../../files/grub-theme/theme.txt} "$themeDir/theme.txt"
+    cp ${./../../../../assets/grub-theme/theme.txt} "$themeDir/theme.txt"
   '';
 
   blackPixel = pkgs.runCommand "black-pixel.png" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''

@@ -58,10 +58,10 @@
         size = 24;
       };
 
-      # Wallpaper padrão do Kryonix (files/wallpaper/12.png — mesmo default do
+      # Wallpaper padrão do Kryonix (assets/wallpaper/12.png — mesmo default do
       # módulo modules/home-manager/misc/wallpaper, que não é importado na sessão
       # KDE; por isso referenciamos o arquivo diretamente).
-      wallpaper = ../../files/wallpaper/12.png;
+      wallpaper = ../../assets/wallpaper/12.png;
     };
 
     # NOTA: as decorações Aurorae BonaFides são instaladas pelo pacote

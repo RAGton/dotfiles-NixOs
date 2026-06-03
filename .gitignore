@@ -1,5 +1,5 @@
-files/configs/nvim/lazy-lock.json
-files/configs/nvim/lazyvim.json
+assets/configs/nvim/lazy-lock.json
+assets/configs/nvim/lazyvim.json
 .DS_Store
 .direnv/
 .idea/
