@@ -164,6 +164,23 @@
         "type": "github"
       }
     },
+    "hermes-agent": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780061757,
+        "narHash": "sha256-0CmNH879jnsAAszo1nkkFm8RNE49xtwUditYdFIYBCM=",
+        "owner": "NousResearch",
+        "repo": "hermes-agent",
+        "rev": "77a1650c78a4cb1813d8a81fa1da40a15b6a3ec5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NousResearch",
+        "ref": "v2026.5.29.2",
+        "repo": "hermes-agent",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -330,6 +347,7 @@
         "darwin": "darwin",
         "disko": "disko",
         "hardware": "hardware",
+        "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "kryonix-brain-lightrag": "kryonix-brain-lightrag",
         "kryonix-home": "kryonix-home",

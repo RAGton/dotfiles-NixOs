@@ -37,6 +37,7 @@ kryonix-artifacts/
 # Kryonix local secrets - never commit
 /brain.env
 /neo4j.env
+/hermes.env
 /.env
 *.secret
 *.token

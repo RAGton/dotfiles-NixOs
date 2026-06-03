@@ -104,6 +104,14 @@
       url = "github:RAGEnterprise/kryonix-brain-lightrag";
       flake = false;
     };
+
+    # Hermes Agent (NousResearch) — agente de IA Python instalado declarativamente
+    # via uv (sem o instalador imperativo curl|bash). Consumido por
+    # modules/nixos/services/hermes.nix. Pinado em tag estável.
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent/v2026.5.29.2";
+      flake = false;
+    };
   };
 
   # =============================
