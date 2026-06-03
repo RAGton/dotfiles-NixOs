@@ -122,12 +122,21 @@ let
       exit 0
     fi
 
+    # A fonte vem do /nix/store (read-only). setuptools precisa escrever
+    # hermes_agent.egg-info DENTRO da pasta-fonte → copiamos para um diretório
+    # gravável antes de instalar. Mantém o pin reproduzível (WANT = store path).
+    APP="${cfg.stateDir}/app"
+    echo "hermes-install: copiando fonte para $APP (gravável)"
+    rm -rf "$APP"
+    cp -r "${src}" "$APP"
+    chmod -R u+w "$APP"
+
     echo "hermes-install: (re)criando venv em ${venvDir} para $WANT"
     rm -rf "${venvDir}"
     ${pkgs.uv}/bin/uv venv --python ${pkgs.python311}/bin/python3.11 "${venvDir}"
     VIRTUAL_ENV="${venvDir}" ${pkgs.uv}/bin/uv pip install \
       --python "${venvDir}/bin/python" \
-      "${src}${extrasSpec}"
+      "$APP${extrasSpec}"
 
     printf '%s' "$WANT" > "$STAMP"
     echo "hermes-install: concluído."
