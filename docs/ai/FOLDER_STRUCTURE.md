@@ -5,10 +5,9 @@
 - `.github/`: instrucoes Copilot, prompts e CI.
 - `.vscode/`: configuracao local do editor.
 - `AGENTS.md`: contrato principal para agentes.
-- `README.md` e `README-en.md`: visao publica do projeto.
-- `flake.nix`: entrada principal Nix.
+- `README.md`: visao publica do projeto (manual do engenheiro / fluxo de instalacao).
+- `flake.nix`: entrada principal Nix (roteador fino).
 - `flake.lock`: pins; nao alterar sem motivo.
-- `Makefile`: atalhos seguros e alvos destrutivos protegidos.
 - `SECURITY.md`: politica de reporte.
 
 ## Infra NixOS
