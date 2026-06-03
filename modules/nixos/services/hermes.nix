@@ -289,6 +289,9 @@ in
       description = "Hermes Agent service user";
       home = cfg.stateDir;
       createHome = true;
+      # 0755: o stateDir/venv não contém secrets; usuários humanos precisam
+      # atravessar o home p/ executar o `hermes`. (createHome usa 0700 por padrão.)
+      homeMode = "0755";
     };
 
     # stateDir world-readable/executable: o venv não contém secrets (esses ficam
