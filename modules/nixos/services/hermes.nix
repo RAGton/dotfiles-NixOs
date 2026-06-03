@@ -137,6 +137,7 @@ let
   # environmentFile quando legível e injeta provider/modelo padrão.
   hermesWrapper = pkgs.writeShellApplication {
     name = "hermes";
+    excludeShellChecks = [ "SC1090" "SC1091" ];
     runtimeInputs = [
       pkgs.uv
       pkgs.python311
@@ -157,8 +158,8 @@ let
       # Carrega secrets (GEMINI_API_KEY/GOOGLE_API_KEY) se o arquivo for legível.
       if [ -r "${cfg.environmentFile}" ]; then
         set -a
-        # shellcheck disable=SC1090
-        . "${cfg.environmentFile}"
+        # shellcheck disable=SC1090,SC1091
+        source "${cfg.environmentFile}"
         set +a
       fi
 
