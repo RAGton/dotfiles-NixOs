@@ -30,6 +30,14 @@ scratch/
 kryonix-artifacts/
 *.isorag_storage/
 
+# Lixo de extração/cópia e metadados de DE (auditoria 2026-06)
+*.zip
+*.directory
+* (1)
+* (1)/
+*\ copy
+*\ copy/
+
 # Local/generated agent packs and MCP backups
 .agents/kryonix-rag-doc-pack/
 .mcp.json.bak-*
