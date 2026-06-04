@@ -26,7 +26,6 @@
   kryonix-hardware-probe,
   kryonix-disk-planner,
   kryonix-installer,
-  kora,
   installShellFiles,
   symlinkJoin,
 }:
@@ -61,7 +60,6 @@ let
       kryonix-hardware-probe
       kryonix-disk-planner
       kryonix-installer
-      kora
     ];
     text =
       # writeShellApplication prepends nix-store paths to PATH; we need
@@ -78,20 +76,13 @@ let
       + builtins.readFile ./kryonix-cli/remote.sh
       + builtins.readFile ./kryonix-cli/home.sh
       + builtins.readFile ./kryonix-cli/installer.sh
-      + builtins.readFile ./kryonix-cli/kora.sh
       + builtins.readFile ./kryonix-cli/main.sh;
-  };
-
-  koraWrapper = writeShellApplication {
-    name = "kora";
-    text = "exec ${kora}/bin/kora \"$@\"";
   };
 in
 symlinkJoin {
   name = "kryonix";
   paths = [
     kryonixBase
-    koraWrapper
   ];
   nativeBuildInputs = [ installShellFiles ];
   postBuild = ''

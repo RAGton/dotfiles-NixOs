@@ -5,7 +5,7 @@
 # - n8n rodando localmente (127.0.0.1:5678) como orquestrador visual.
 #
 # Por quê:
-# - Permite integrações da Kora (Assistant) através de Webhooks locais.
+# - Permite integrações da Aura/assistente através de Webhooks locais.
 # - Integra Ollama, scripts e APIs de forma visual, 100% isolado da internet.
 #
 # Segurança:

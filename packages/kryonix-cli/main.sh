@@ -33,7 +33,6 @@ print_usage() {
     [graph]="🕸️  Graph"
     [mcp]="🔌 MCP"
     [vault]="📖 Vault"
-    [kora]="🤖 Kora"
     [utils]="⚡ Utilidades"
   )
 
@@ -198,7 +197,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       if [[ "$subcommand" == "home" || "$subcommand" == "graph" || "$subcommand" == "brain" || "$subcommand" == "mcp" || \
-            "$subcommand" == "vault" || "$subcommand" == "kora" || "$subcommand" == "remote" || "$subcommand" == "switch" || "$subcommand" == "boot" || \
+            "$subcommand" == "vault" || "$subcommand" == "remote" || "$subcommand" == "switch" || "$subcommand" == "boot" || \
             "$subcommand" == "ollama" || "$subcommand" == "ai" || "$subcommand" == "rgb" || "$subcommand" == "all" || \
             "$subcommand" == "install" || "$subcommand" == "hardware" || "$subcommand" == "disk" ]]; then
         extra_args+=("$1")
@@ -353,7 +352,7 @@ case "$subcommand" in
     exit 0
     ;;
 
-  clean|vm|git-status|pull|deploy|sync|brain|graph|mcp|vault|kora|rgb|ollama|ai|remote|install|hardware|disk)
+  clean|vm|git-status|pull|deploy|sync|brain|graph|mcp|vault|rgb|ollama|ai|remote|install|hardware|disk)
     needs_flake=0
     ;;
 
@@ -455,21 +454,10 @@ case "$subcommand" in
       printf '\033[33m[warn]\033[0m Execute: home-manager switch --flake %s#%s -b hm-old\n' "$flake_ref" "$home_target" >&2
     fi
 
-    # ── Post-switch: sincroniza grafo Neo4j com o estado atual do NixOS ──
-    # Não-fatal: qualquer falha (kora ausente, Neo4j off, timeout, eval lento)
-    # apenas emite warning. Switch nunca falha por causa do sync.
-    if command -v kora >/dev/null 2>&1; then
-      blue_line "─── Sincronizando grafo (kora brain sync) ───"
-      # Inject Neo4j credentials from the root-only neo4j.env so the sync
-      # can authenticate even when running as a non-root user.
-      _n4j_env_line=$(sudo sh -c \
-        'grep "^NEO4J_AUTH=" /etc/kryonix/neo4j.env 2>/dev/null' || true)
-      timeout 15s env ${_n4j_env_line:+"${_n4j_env_line}"} \
-        kora /brain sync --host "$flake_host" \
-        || printf '\033[33m[warn]\033[0m kora brain sync falhou (não-fatal) host=%s\n' "$flake_host" >&2
-    else
-      printf '\033[33m[warn]\033[0m kora não encontrado no PATH — pulando brain sync\n' >&2
-    fi
+    # ── Post-switch: sincronização do grafo Neo4j ──
+    # PENDÊNCIA (Kora removida): o sync pós-switch do grafo era feito por
+    # `kora /brain sync`. Será reimplementado na camada Aura/Brain.
+    # Ver docs/aura/KORA_RETIREMENT_STUDY.md (§4).
     ;;
 
   test)
@@ -912,10 +900,6 @@ case "$subcommand" in
         exit 1
         ;;
     esac
-    ;;
-
-  kora)
-    kryonix_kora "${extra_args[@]}"
     ;;
 
   ollama)

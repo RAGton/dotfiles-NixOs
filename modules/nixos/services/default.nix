@@ -21,7 +21,6 @@
     ./neo4j.nix
     ./llama-cpp.nix
     ./kryonix-state.nix
-    ./kora
     ./n8n
     ./home-assistant
   ];

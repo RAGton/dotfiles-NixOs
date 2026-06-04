@@ -1,44 +1,28 @@
-# Antigravity Kora Agent Governance System
+# Kryonix Agent Governance
 
-Este diretório contém as definições, papéis, regras operacionais e fluxos de trabalho da equipe de agentes autônomos (**Antigravity**) encarregados de manter e evoluir a **Kora** no ecossistema **Kryonix**.
+> **Equipe Kora/Antigravity aposentada.** A Kora foi removida (ver
+> `docs/aura/KORA_RETIREMENT_STUDY.md`). A assistente do Kryonix agora é a **Aura**
+> sobre o motor **Hermes** (`kryonix.services.hermes` + camada `aura`). Os papéis,
+> workflows e prompts `kora-*`/Antigravity foram removidos; restam os artefatos
+> de governança não específicos da Kora.
 
----
-
-## Estrutura do Diretório
+## Estrutura atual
 
 ```txt
 .agents/
-├── INDEX.md             # Índice geral de agentes e permissões
-├── README.md            # Este arquivo de introdução e governança
-├── roles/               # Definição canônica dos papéis de agentes especializados
-│   ├── kora-mind-constructor.md
-│   ├── kora-voice-stabilizer.md
-│   ├── kora-security-warden.md
-│   ├── kryonix-nixos-integrator.md
-│   ├── kora-memory-rag-engineer.md
-│   ├── kora-quality-benchmark-engineer.md
-│   ├── kora-local-llm-training-engineer.md
-│   ├── kora-ux-cli-designer.md
-│   └── kora-n8n-automation-engineer.md
-├── workflows/           # Fluxos operacionais passo a passo
-│   ├── kora-agent-orchestration.md
-│   ├── kora-voice-debug.md
-│   ├── kora-mind-quality-pass.md
-│   └── security-review.md
-├── checklists/          # Checklists de segurança e conformidade
-│   ├── validation.md
-│   ├── no-secrets.md
-│   └── nixos-switch-safety.md
-└── prompts/             # System prompts e blueprints para novos agentes
-    ├── antigravity-kora-master.md
-    └── gemini-kora-agent-team.md
+├── INDEX.md             # Índice de agentes ativos
+├── README.md            # Este arquivo
+├── roles/
+│   └── kryonix-nixos-integrator.md   # Integração NixOS & Home Manager declarativa
+├── workflows/
+│   └── security-review.md            # Revisão de segurança
+├── checklists/          # Gates de validação/segurança (validation, no-secrets, nixos-switch-safety)
+└── rules/               # Regras operacionais
 ```
 
----
+## Filosofia operacional
 
-## Filosofia Operacional
-
-1. **Local-First & Soberania**: O sistema de IA e voz da Kora deve rodar localmente no **Glacier** (servidor) e no **Inspiron** (cliente) sem dependências externas ocultas. Nenhuma chamada de nuvem é permitida sem opt-in explícito do usuário.
-2. **Nixos-Native**: Toda configuração do sistema ou serviço em background deve ser declarada como um módulo NixOS ou Home Manager. Scripts imperativos avulsos são estritamente desencorajados para controle de produção.
-3. **Pequenas Alterações Altamente Validadas**: Cada alteração deve ser a menor mudança correta possível, acompanhada de testes locais imediatos antes de qualquer comando de implantação (`switch`).
-4. **Segurança Hardened**: Secrets de produção, chaves API e tokens nunca devem entrar na Nix Store ou no repositório do Git. O agente `kora-security-warden` audita agressivamente toda tentativa de violação.
+1. **Local-First & Soberania**: IA roda localmente (Glacier/Inspiron); sem chamadas de nuvem sem opt-in.
+2. **NixOS-Native**: tudo declarativo (módulo NixOS/Home Manager); evitar estado imperativo.
+3. **Menor mudança validada**: a menor mudança correta + testes locais antes de `switch`.
+4. **Segurança hardened**: secrets nunca no Nix Store/Git; revisão via `workflows/security-review.md`.

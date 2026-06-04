@@ -70,12 +70,6 @@
     serverHost = "rve-glacier"; # GLACIER (Tailscale Hostname)
   };
 
-  # Kora voice daemon
-  kryonix.services.kora.voice = {
-    enable = true;
-    alwaysOn = true;
-  };
-
   networking.hostName = hostname;
   programs.winbox.enable = true;
   system.stateVersion = "26.05";

@@ -291,13 +291,11 @@
     kryonix-installer = final.callPackage ../packages/kryonix-installer.nix { };
     kryonix-optimizer = final.callPackage ../packages/kryonix-optimizer { };
     kryonix-monitors = final.callPackage ../packages/kryonix-monitors.nix { };
-    kora = final.callPackage ../packages/kora.nix { };
     kryonix = final.callPackage ../packages/kryonix-cli.nix {
       kryonixHome = final.kryonix-home;
       kryonix-hardware-probe = final.kryonix-hardware-probe;
       kryonix-disk-planner = final.kryonix-disk-planner;
       kryonix-installer = final.kryonix-installer;
-      kora = final.kora;
     };
   };
 }

@@ -65,7 +65,6 @@ jobs:
           - 'kryonix-installer'
           - 'kryonix-hardware-probe'
           - 'kryonix-disk-planner'
-          - 'kora'
           - 'kryonix-optimizer'
           # Toplevels NixOS (compilação pesada — valida toda a config dos hosts)
           - 'nixosConfigurations.glacier.config.system.build.toplevel'

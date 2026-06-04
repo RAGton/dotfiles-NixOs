@@ -178,22 +178,8 @@ in
         command = "${wofiToggle}";
       };
 
-      # --- Kora (serviço web em :8787; abre no navegador padrão) ---
-      "kora-ui" = {
-        name = "Abrir Kora (UI)";
-        key = "Meta+I";
-        command = "xdg-open http://127.0.0.1:8787";
-      };
-      "kora-chat" = {
-        name = "Kora: chat rápido";
-        key = "Meta+Shift+I";
-        command = "xdg-open http://127.0.0.1:8787/chat";
-      };
-      "kora-agents" = {
-        name = "Kora: painel de agentes";
-        key = "Meta+Ctrl+I";
-        command = "xdg-open http://127.0.0.1:8787/agents";
-      };
+      # Atalhos da Kora removidos (assistente legada → Aura sobre Hermes).
+      # Meta+I / Meta+Shift+I / Meta+Ctrl+I ficaram livres para a futura UI da Aura.
 
       # --- Ajuda: Kryonix Keybind Helper (Meta+/ e Meta+F1) ---
       "kryonix-keybind-helper" = {

@@ -2445,13 +2445,13 @@ kryonix_brain_llama_cpp() {
 # Brain Stack Service Control
 #
 # Controla os serviços do stack Brain via systemctl (nunca enable/disable).
-# Ordem de start: ollama → neo4j → kryonix-brain-api → kora
+# Ordem de start: ollama → neo4j → kryonix-brain-api
 # Ordem de stop:  inversa
 # kryonix-lightrag é oneshot gerenciado automaticamente pelo systemd como
 # dependência de kryonix-brain-api — não precisa de controle manual.
 # =============================================================================
 
-_BRAIN_SVC_ORDER=(ollama neo4j kryonix-brain-api kora)
+_BRAIN_SVC_ORDER=(ollama neo4j kryonix-brain-api)
 
 _brain_need_glacier_ssh() {
   [[ "$(hostname)" != "RVE-GLACIER" ]] && [[ "$(map_runtime_host)" == "glacier" ]]

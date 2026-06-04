@@ -26,7 +26,7 @@ KRYONIX_REGISTRY=(
 
   # --- Brain ---
   "brain|brain||Busca e diagnósticos RAG||kryonix brain --help|low|glacier|brain-api|false|ai|stable"
-  "brain|brain|start|Inicia stack Brain (ollama→neo4j→brain-api→kora)|[serviço]|kryonix brain start|medium|glacier|none|true|ai|stable"
+  "brain|brain|start|Inicia stack Brain (ollama→neo4j→brain-api)|[serviço]|kryonix brain start|medium|glacier|none|true|ai|stable"
   "brain|brain|stop|Para stack Brain em ordem inversa|[serviço]|kryonix brain stop|medium|glacier|none|true|ai|stable"
   "brain|brain|restart|Reinicia stack Brain (stop + start)|[serviço]|kryonix brain restart|medium|glacier|none|true|ai|stable"
   "brain|brain|status|Estado de cada serviço do stack + VRAM||kryonix brain status|low|glacier|none|false|ai|stable"
@@ -61,15 +61,6 @@ KRYONIX_REGISTRY=(
   "vault|vault|scan|Escaneia o vault por mudanças|||low|any|none|false|vault|stable"
   "vault|vault|index|Reindexa o vault no Brain|||low|any|none|false|vault|stable"
 
-  # --- Kora ---
-  "kora|kora||Gateway da Assistente Kora||kryonix kora --help|low|any|none|false|ai|stable"
-  "kora|kora|health|Status das dependências da Kora||kryonix kora health|low|any|kora-api|false|ai|stable"
-  "kora|kora|status|Metadata do serviço Kora||kryonix kora status|low|any|kora-api|false|ai|stable"
-  "kora|kora|capabilities|Capacidades suportadas||kryonix kora capabilities|low|any|kora-api|false|ai|stable"
-  "kora|kora|ask|Pergunta rápida à Kora|--mode|kryonix kora ask \"pergunta\"|low|any|kora-api|false|ai|stable"
-  "kora|kora|chat|Inicia chat stream (Fase 3)|||low|any|kora-api|false|ai|experimental"
-  "kora|kora|memory|Busca na memória (Fase 1)||kryonix kora memory search \"termo\"|low|any|kora-api|false|ai|stable"
-  "kora|kora|tunnel|Abre túnel SSH para a Kora (Inspiron)|||low|inspiron|none|false|ai|stable"
 
   # --- Utilidades ---
   "utils|ollama||Gerencia LLMs locais||kryonix ollama list|low|glacier|ollama|false|ai|stable"

@@ -5,7 +5,7 @@
 # - Home Assistant rodando localmente usando container oficial em Podman.
 #
 # Por quê:
-# - Permite integrações da Kora e n8n para automação residencial futura.
+# - Permite integrações da Aura e n8n para automação residencial futura.
 # - Uso de container garante isolamento de dependências Python.
 #
 # Segurança:

@@ -27,21 +27,6 @@
     keys = "Meta+Ctrl+A";
     desc = "Albert: menu de energia";
   }
-  {
-    group = "Launchers & IA";
-    keys = "Meta+I";
-    desc = "Abrir Kora (UI web)";
-  }
-  {
-    group = "Launchers & IA";
-    keys = "Meta+Shift+I";
-    desc = "Kora: chat rápido";
-  }
-  {
-    group = "Launchers & IA";
-    keys = "Meta+Ctrl+I";
-    desc = "Kora: painel de agentes";
-  }
 
   # ---------------- Ajuda ----------------
   {

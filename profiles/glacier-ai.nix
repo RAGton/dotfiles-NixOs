@@ -97,14 +97,7 @@ in
       portBolt = 7687;
       environmentFile = "/etc/kryonix/neo4j.env";
     };
-
-    # Kora — Assistente pessoal local (gateway/orchestrator)
-    # Desabilitada por padrão. Habilitar explicitamente quando pronta.
-    kryonix.services.kora = {
-      enable = lib.mkDefault false;
-      ollamaUrl = "http://127.0.0.1:11434";
-      brainUrl = "http://127.0.0.1:8000";
-      neo4jUri = "bolt://127.0.0.1:7687";
-    };
+    # Kora removida (assistente legada). Substituída pela Aura sobre Hermes
+    # (kryonix.services.hermes + camada `aura`). Ver docs/aura/KORA_RETIREMENT_STUDY.md.
   };
 }
