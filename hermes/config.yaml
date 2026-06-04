@@ -1,0 +1,16 @@
+# =============================================================================
+# Config canônica NÃO-secreta do Hermes para a Aura (Kryonix).
+# Exposta ao motor via HERMES_CONFIG=/etc/kryonix/hermes/config.yaml.
+#
+# REGRA: secrets (API keys) ficam APENAS em /etc/kryonix/hermes.env (HERMES_ENV).
+# NUNCA coloque ANTHROPIC_API_KEY/GEMINI_API_KEY/OPENAI_API_KEY aqui.
+#
+# Schema = nativo do hermes-agent (não inventar chaves). O roteamento entre
+# providers (Claude→Gemini→Codex/OpenAI) é feito pela camada `aura`, que passa
+# --provider/-m explicitamente ao `hermes`. A persona/nome "Aura" vem do SOUL.md
+# (semeado em HERMES_HOME). A compactação de contexto é tratada nativamente pelo
+# Hermes antes de qualquer fallback do router.
+# =============================================================================
+
+security:
+  redact_secrets: true

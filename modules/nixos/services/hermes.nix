@@ -41,7 +41,11 @@ let
 
   # Extras efetivos: base + ferramentas de navegador quando habilitadas.
   effectiveExtras = lib.unique (
-    cfg.extras ++ lib.optionals cfg.browserTools [ "web" "computer-use" ]
+    cfg.extras
+    ++ lib.optionals cfg.browserTools [
+      "web"
+      "computer-use"
+    ]
   );
   extrasSpec = optionalString (effectiveExtras != [ ]) "[${concatStringsSep "," effectiveExtras}]";
 
@@ -64,18 +68,16 @@ let
   );
 
   # Toolchain disponível para o `uv` (build de eventuais sdists nativos).
-  buildPath = lib.makeBinPath (
-    [
-      pkgs.uv
-      pkgs.python311
-      pkgs.gcc
-      pkgs.gnumake
-      pkgs.pkg-config
-      pkgs.git
-      pkgs.cargo
-      pkgs.rustc
-    ]
-  );
+  buildPath = lib.makeBinPath ([
+    pkgs.uv
+    pkgs.python311
+    pkgs.gcc
+    pkgs.gnumake
+    pkgs.pkg-config
+    pkgs.git
+    pkgs.cargo
+    pkgs.rustc
+  ]);
 
   # Programas que o agente espera encontrar no PATH em runtime.
   runtimePath = lib.makeBinPath (
@@ -103,6 +105,11 @@ let
     UV_NO_CONFIG = "1";
     # venv compartilhado e fixo: não tenta recriar por usuário.
     HERMES_AGENT_VENV = venvDir;
+    # Separação canônica: estado/sessão em HERMES_HOME; config declarativa
+    # NÃO-secreta em HERMES_CONFIG (/etc); secrets só em HERMES_ENV.
+    HERMES_HOME = cfg.stateDir;
+    HERMES_CONFIG = cfg.configFile;
+    HERMES_ENV = cfg.environmentFile;
   }
   // playwrightEnv;
 
@@ -146,7 +153,10 @@ let
   # environmentFile quando legível e injeta provider/modelo padrão.
   hermesWrapper = pkgs.writeShellApplication {
     name = "hermes";
-    excludeShellChecks = [ "SC1090" "SC1091" ];
+    excludeShellChecks = [
+      "SC1090"
+      "SC1091"
+    ];
     runtimeInputs = [
       pkgs.uv
       pkgs.python311
@@ -159,6 +169,18 @@ let
     text = ''
       export LD_LIBRARY_PATH="${runtimeLibPath}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       export UV_NO_CONFIG=1
+
+      # Config canônica externa (não-secreta) + secrets separados.
+      export HERMES_CONFIG="${cfg.configFile}"
+      export HERMES_ENV="${cfg.environmentFile}"
+      # HERMES_HOME precisa ser gravável (sessão/SOUL.md). Usa o stateDir quando
+      # gravável (daemon); senão cai para um diretório por-usuário (uso interativo).
+      if [ -w "${cfg.stateDir}" ]; then
+        export HERMES_HOME="${cfg.stateDir}"
+      else
+        export HERMES_HOME="''${XDG_STATE_HOME:-$HOME/.local/state}/kryonix-hermes"
+        mkdir -p "$HERMES_HOME"
+      fi
       ${optionalString cfg.browserTools ''
         export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
         export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
@@ -178,8 +200,39 @@ let
         exit 1
       fi
 
-      exec "${hermesBin}" --provider "${cfg.provider}" -m "${cfg.model}" "$@"
+      # Se o chamador (ex.: camada `aura`) já passou --provider/-m, respeita o
+      # override; senão injeta o provider/modelo padrão do módulo. Evita flags
+      # duplicados quando o router da Aura seleciona o provider.
+      case " $* " in
+        *" --provider "* | *" -m "*)
+          exec "${hermesBin}" "$@"
+          ;;
+        *)
+          exec "${hermesBin}" --provider "${cfg.provider}" -m "${cfg.model}" "$@"
+          ;;
+      esac
     '';
+  };
+
+  # Camada Aura (Kryonix) por cima do motor Hermes. NÃO toca no upstream:
+  # roteia entre providers (Claude→Gemini→Codex/OpenAI) chamando o `hermes`.
+  # Script versionado em packages/aura/aura.sh (shellcheck via writeShellApplication).
+  auraWrapper = pkgs.writeShellApplication {
+    name = "aura";
+    runtimeInputs = [
+      hermesWrapper
+      pkgs.coreutils
+      pkgs.gnused
+    ];
+    bashOptions = [
+      "nounset"
+      "pipefail"
+    ];
+    excludeShellChecks = [
+      "SC1090"
+      "SC1091"
+    ];
+    text = builtins.readFile ../../../packages/aura/aura.sh;
   };
 
 in
@@ -246,8 +299,19 @@ in
       type = types.str;
       default = "/etc/kryonix/hermes.env";
       description = ''
-        Arquivo de secrets (GEMINI_API_KEY/GOOGLE_API_KEY e tokens de plataformas).
-        Modo 600, gitignored. NUNCA versionar.
+        Arquivo de secrets (ANTHROPIC_API_KEY/GEMINI_API_KEY/GOOGLE_API_KEY/
+        OPENAI_API_KEY/CODEX_API_KEY e tokens de plataformas). Modo 600,
+        gitignored. NUNCA versionar. Exposto ao Hermes via HERMES_ENV.
+      '';
+    };
+
+    configFile = mkOption {
+      type = types.str;
+      default = "/etc/kryonix/hermes/config.yaml";
+      description = ''
+        Config declarativa NÃO-secreta do Hermes (HERMES_CONFIG). Persona/Aura,
+        modelo padrão, providers e security.redact_secrets. Secrets ficam apenas
+        no environmentFile — nunca aqui.
       '';
     };
 
@@ -278,8 +342,11 @@ in
 
   config = mkIf cfg.enable {
 
-    # Comando `hermes` disponível em todos os hosts que habilitam o módulo.
-    environment.systemPackages = [ hermesWrapper ];
+    # Comandos `hermes` (motor) e `aura` (camada Kryonix) disponíveis nos hosts.
+    environment.systemPackages = [
+      hermesWrapper
+      auraWrapper
+    ];
 
     # Usuário/grupo de sistema dedicados (evita colisão com kryonix do brain.nix).
     users.groups.${cfg.group} = { };
@@ -298,6 +365,9 @@ in
     # no environmentFile), então usuários humanos podem executar o `hermes`.
     systemd.tmpfiles.rules = [
       "d ${cfg.stateDir} 0755 ${cfg.user} ${cfg.group} - -"
+      # Persona Aura: HERMES_HOME/SOUL.md aponta para a versão canônica (não-secreta)
+      # versionada junto da config. Symlink = sempre reflete o repo (declarativo).
+      "L+ ${cfg.stateDir}/SOUL.md - - - - ${builtins.dirOf cfg.configFile}/SOUL.md"
     ];
 
     # Instalação do venv (oneshot, idempotente). Precisa de rede no primeiro run.
