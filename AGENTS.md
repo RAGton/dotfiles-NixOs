@@ -29,4 +29,12 @@ Esta é a constituição curta; detalhes operacionais ficam nas skills `.claude/
 
 ## Arquivos sensíveis (cuidado redobrado)
 `flake.nix`, `flake.lock`, `hosts/*/hardware-configuration.nix`, `hosts/*/disks.nix`,
-`modules/nixos/installer/*`, `packages/kryonix-cli*`, `Makefile`, `.github/workflows/*`.
+`modules/nixos/installer/*`, `packages/kryonix-cli*`, `.github/workflows/*`.
+
+## Documentação Canônica e Memória IA
+- Índice: `docs/README.md`
+- O que é real: `docs/CURRENT_STATE.md`
+- Contexto de Agente: `docs/ai/PROJECT_CONTEXT.md`
+- Mapa Seguro: `docs/ai/PROJECT_INDEX.md`
+- Regras MCP: `docs/mcp/SECURITY.md`
+- Skills de IA: `.agents/skills/**`

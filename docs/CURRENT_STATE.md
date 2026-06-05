@@ -1,95 +1,40 @@
-# Estado atual do Kryonix
+# Estado Atual (Current State)
 
-**Atualizado em:** 2026-04-29
+Esta página consolida o estado real e auditado do projeto Kryonix. O que não constar como "Implementado" aqui não existe ou está quebrado no código, devendo ser tratado como [Roadmap](ROADMAP.md).
 
-## Resumo
+*Última atualização: Junho 2026*
 
-O projeto opera com **Kryonix** como superfície pública. A trilha oficial é 100% NixOS/Linux e a CLI pública é `kryonix`.
+## Infraestrutura Base
+- **Dual-Flake:** Implementado ✅ (Upstream e Downstream isolados corretamente)
+- **CI/CD (Cachix + FlakeHub):** Implementado ✅ (Pipelines `ci.yml` e `build.yml` operacionais)
+- **Instalador (Backend em Rust):** Parcial 🚧 (Arquitetura Probe→Planner→Backend rodando, porém E2E Install não confirmado 100% livre de Kernel Panics passados)
+- **ISO Bootável:** Implementado ✅ (Via `nixosConfigurations.iso`)
 
-A base atual entrega:
+## Kryonix Brain (IA / RAG)
+- **Módulos NixOS (systemd, ollama, ligthrag):** Implementado ✅ (`modules/nixos/services/brain.nix`)
+- **Package Python (kryonix-brain-lightrag):** Implementado ✅ (21 módulos, 25 testes, CLI `rag` funcional)
+- **Persistência Estruturada:** Implementado ✅ (Via `kryonix-state.nix` para `/var/lib/kryonix/`)
+- **Grafo de Conhecimento (Neo4j):** Implementado ✅ (Via módulo restrito a Tailscale)
+- **Sincronização Vault (Obsidian) → RAG:** Parcial 🚧
+- **Autopilot / Reasoner:** Roadmap 🛤️
 
-- múltiplos hosts (`inspiron`, `inspiron-nina`, `glacier`, `iso`)
-- múltiplos usuários (`rocha`, `nina`)
-- namespace primário `kryonix.*`
-- aliases legados internos temporários para configurações antigas
-- `hosts/common/default.nix` como agregador compartilhado
-- `features/` e `profiles/` reais
-- stack desktop **Hyprland** com **Caelestia** como shell principal
-- acesso remoto seguro via **WayVNC** + Túnel SSH validado
-- CLI operacional primária `kryonix`
-- `nixosConfigurations`, `homeConfigurations`, `overlays`, `formatter` e `checks`
+## Model Context Protocol (MCP)
+- **Configuração Base (.mcp.json):** Implementado ✅ (Template versionado em `.mcp.example.json`)
+- **Filesystem / Read-only:** Parcial 🚧 (Apenas configurado no template)
+- **GitHub MCP:** Parcial 🚧 (Apenas configurado no template)
+- **Brain MCP Server:** Parcial 🚧 (Protocolo desenhado, scripts Python existem, mas necessita validação de deploy seguro)
+- **Segurança (Políticas, Sandboxing):** Implementado ✅ (`docs/mcp/SECURITY.md` define as regras)
 
-## Arquitetura real
+## Desktop & Experiência (Caelestia / Hyprland)
+- **Hyprland Core (Wayland):** Implementado ✅
+- **KDE Plasma (Alternativa Estável):** Implementado ✅
+- **Caelestia Launcher (Live JSON confs):** Implementado ✅ (Usa `user/caelestia/` no downstream)
+- **App Wrappers (Performance):** Implementado ✅ (`desktop/hyprland/wrappers.nix`)
+- **Aura (Roteador de IA Desktop):** Quebrado ❌ (Depende do `hermes`, que foi aposentado)
+- **Kora (Assistente de Voz):** Roadmap / Aposentado 🛤️
 
-- `hosts/`: hardware, boot e papel de cada máquina
-- `hosts/common/default.nix`: composição compartilhada
-- `lib/options.nix`: opções públicas `kryonix.*` com aliases internos temporários
-- `modules/nixos/**`: base, rede, áudio, desktop, serviços, theming
-- `features/**`: capacidades opt-in
-- `profiles/**`: composição reutilizável por papel
-- `desktop/hyprland/**`: stack desktop atual
-- `home/**`: perfis Home Manager por usuário/host
-- `packages/kryonix-cli.nix`: CLI nova
-- `packages/kryonix-brain-lightrag/`: Brain/LightRAG usado por `kryonix brain`, `kryonix graph`, `kryonix mcp` e `kryonix test`
-
-## Repositórios
-
-- repo principal: `https://github.com/RAGton/kryonix`
-- vault de conhecimento: `https://github.com/RAGton/kryonix-vault.git`
-
-## Compatibilidade legada
-
-- `/etc/kryonix` é o caminho operacional primário
-- aliases internos podem existir para não quebrar hosts antigos, mas não são interface pública
-- docs e fluxos operacionais devem usar apenas `kryonix`
-
-## Estado por host
-
-### inspiron
-
-- notebook principal
-- Intel
-- Hyprland + Caelestia
-- profile de laptop com virtualização e desenvolvimento
-- cliente Brain: roda `kryonix-cli` e consulta o Brain remoto no `glacier`
-- `kryonix brain health`, `kryonix brain stats` e `kryonix brain search "pergunta"` usam `KRYONIX_BRAIN_API` quando configurado
-- não exige Ollama, GraphML ou storage LightRAG local para validação de build/configuração
-
-### inspiron-nina
-
-- notebook da Nina
-- Intel
-- Hyprland + Caelestia
-- perfil mais leve
-
-### glacier
-
-- desktop AMD + NVIDIA
-- Hyprland + Caelestia
-- host principal para workstation, virtualização e gaming
-- storage operacional em `/srv/ragenterprise`
-- servidor Brain central: Ollama, Kryonix Brain API, LightRAG storage, MCP Brain, vault e índice
-- valida runtime local com `systemctl status ollama`, `systemctl status kryonix-brain`, `kryonix brain doctor --local` e `kryonix graph stats --local`
-
-### iso
-
-- saída de instalação/provisionamento
-
-## Decisões atuais
-
-- o desktop real do projeto hoje é `hyprland`
-- os hosts Hyprland ativos usam Caelestia como shell principal em nível de sistema
-- documentação histórica deve continuar existindo, mas não é fonte de verdade ativa
-- notebook principal não deve auto-bloquear nem auto-suspender por padrão
-- `glacier` deve ser tratado como host principal para virtualização e gaming
-- `Kryonix` é o nome público atual
-- pronto em nível de build/configuração não depende de Ollama ou GraphML local no `inspiron`
-- pronto em nível de runtime/infra só é validado no `glacier`
-
-## Atenções abertas
-
-- remover aliases internos só depois de uma janela de migração validada
-- revisar docs históricas fora da trilha canônica em uma etapa separada
-- `desktop/hyprland/user.nix` ainda concentra responsabilidade demais
-- resíduos legados de DMS não devem receber novos acoplamentos
-- validação server-side depende do `glacier` estar online
+## Hosts Downstream Conhecidos
+O código upstream expõe profiles para os seguintes hosts que vivem no downstream:
+- `glacier` (Server/Brain Node)
+- `inspiron` (Workstation/Client Node)
+- `inspiron-nina` (Secundário)

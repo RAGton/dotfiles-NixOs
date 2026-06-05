@@ -1,41 +1,39 @@
-# Operações Kryonix
+# Manual de Operações Kryonix
 
-**Atualizado em:** 2026-05-07
+Este guia descreve as operações do dia a dia no ecossistema Kryonix.
 
-## Fluxo oficial
+## Ferramenta Oficial: Kryonix CLI
 
-- [CLI Kryonix](CLI.md)
-- [Acesso Remoto (VNC)](operations/REMOTE_DESKTOP_WAYVNC.md)
-- [Status da Rede e Tailscale](operations/KRYONIX_NETWORK_STATUS.md)
-- [Instalação Btrfs Manual no Glacier](operations/GLACIER_BTRFS_INSTALL.md)
+O `kryonix-cli` (`packages/kryonix-cli`) é a interface central para interagir com o sistema.
 
-A CLI `kryonix` é o ponto de entrada operacional do projeto. O fluxo oficial é NixOS/Linux, com checkout em `/etc/kryonix` nos hosts instalados.
+### Build e Deploy
 
-## Resolução da flake
+- `kryonix status` - Diagnóstico rápido de sistema e dual-flake.
+- `kryonix build <host>` - Roda `nixos-rebuild build` na máquina atual apontando para o flake correto.
+- `kryonix switch <host>` - Aplica a configuração no sistema.
+- `kryonix test <host>` - Aplica a configuração temporariamente, não sobrevive a boot.
+- `kryonix update` - Atualiza as referências do flake (`flake.lock`).
 
-A origem da flake segue esta ordem:
+*Nota:* Ao trabalhar em um host real (downstream), a CLI resolve automaticamente o caminho do flake a partir de `/etc/kryonixos` ou do diretório corrente.
 
-1. `--flake <path|uri>` informado no comando
-2. variável de ambiente `KRYONIX_FLAKE`
-3. checkout local do Kryonix no diretório atual ou pai
-4. `/etc/kryonix/flake.nix`, quando o sistema já foi instalado
-5. erro com instrução clara para informar a flake manualmente
+## Validações de Sistema (Engine)
 
-## Fluxo de Atualização de Host (Recomendado)
+Antes de aprovar mudanças no Motor (upstream `/etc/kryonix`), execute a validação estática:
 
-O fluxo seguro para testar e aplicar mudanças no Glacier ou Inspiron:
+```bash
+cd /etc/kryonix
+nix flake check --keep-going
+```
 
-1. Modifique a configuração do repositório em `/etc/kryonix`.
-2. `kryonix git-status` (Verifique as mudanças)
-3. `kryonix fmt` (Formate)
-4. `kryonix check` (Valide flake)
-5. `kryonix diff` (Revise as diferenças)
-6. `kryonix test` (Teste em runtime)
-7. `kryonix boot` (Agende proximo boot) ou `kryonix switch` (Aplique agora).
+Isto garante que as definições Nix estão válidas e que nenhum derivation quebrou de forma fatal.
 
-## Observações
+## Manutenção do Brain (Ollama e LightRAG)
 
-- Fora do checkout local, a CLI usa `/etc/kryonix` como origem padrão instalada.
-- `/etc/kryonix` deve ser um checkout Git (preferencialmente branch main) com origem válida.
-- `kryonix git-status` é o preflight obrigatório.
-- Validações profundas remotas dependem que o host `glacier` esteja disponível via LAN/Tailscale.
+O serviço do Ollama no servidor Glacier não fica ativo perpetuamente. Para economizar VRAM, ele possui tempo limite e desliga quando ocioso (`keepAlive=0`).
+
+Para debugar a infra de IA:
+
+- Checar logs: `journalctl -u kryonix-brain-api.service -f`
+- Parar o motor: `systemctl stop kryonix-brain-api.service`
+
+A pasta de estado da inteligência artificial fica em `/var/lib/kryonix/brain/`.

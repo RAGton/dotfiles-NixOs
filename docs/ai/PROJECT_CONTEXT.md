@@ -1,118 +1,31 @@
-# PROJECT_CONTEXT
+# Contexto do Projeto para Agentes IA
 
-## Objetivo
+Você está operando no ecossistema Kryonix. Leia e siga estas regras estritamente para não corromper o sistema ou alucinar recursos.
 
-Kryonix e uma plataforma NixOS declarativa para uso real em workstation, gaming, virtualizacao, estudo e desenvolvimento, com base para futura ISO instalavel. O repo tambem prepara uma camada curta de contexto para agentes Codex/LLMs trabalharem com seguranca.
+## 1. O Motor vs As Instâncias (Dual-Flake)
+O Kryonix não tem configuração de hardware real no repositório Upstream.
+- **Upstream (Onde você está: `/etc/kryonix`):** É o motor. Contém módulos reaproveitáveis, features, pacotes, e perfis.
+- **Downstream (Ausente aqui: `/etc/kryonixos`):** É o Superflake do usuário que importa o motor para montar máquinas reais (`inspiron`, `glacier`).
 
-## Tipo detectado
+**Regra de Ouro:** Não tente criar ou editar `hosts/glacier/` no upstream, ele não existe aqui. Não crie uma pasta `home/` na raiz, as configurações de usuário vivem em `users/` no downstream.
 
-- Principal: NixOS/infra declarativa.
-- Tambem: CLI/automacao operacional, desktop Linux, monorepo de configuracao.
-- Nao detectado como backend/API web, SaaS ou frontend web.
+## 2. Precedência de Verdade
+1. O Código Real (Módulos, Nix files) é a fonte de verdade absoluta.
+2. `docs/CURRENT_STATE.md` diz o que realmente está pronto.
+3. Se um documento (mesmo em Obsidian ou `ROADMAP.md`) afirmar algo que contradiz o código, assuma que a doc está velha ou trata-se de um desejo futuro. Não documente como "pronto" o que falta implementação.
 
-## Stack detectada
+## 3. Segurança Inviolável
+1. Nunca modifique, imprima, ou inclua secrets (chaves de API, senhas).
+2. O arquivo `.mcp.json` é gitignored propositalmente para guardar secrets.
+3. Não rode comandos destrutivos sem aprovação expressa (ex: `nixos-rebuild switch`, scripts `mkfs`).
+4. Nunca modifique o `flake.lock` manualmente.
 
-- Nix flakes.
-- NixOS.
-- Home Manager.
-- Hyprland + UWSM.
-- Caelestia como shell/rice principal.
-- GDM, GRUB, Plymouth e branding Kryonix.
-- KVM/libvirt para virtualizacao.
-- Acesso remoto seguro via **WayVNC** + Túnel SSH.
-- Podman/Docker opcionais via features.
-- Shell scripts empacotados por Nix (`writeShellApplication`).
-- GitHub Actions com Determinate Nix.
+## 4. O Cérebro (Kryonix Brain)
+- O motor de IA é nativo e reside em `modules/nixos/services/brain.nix` e `packages/kryonix-brain-lightrag`.
+- O host Glacier age como Servidor (Roda Ollama + API FastAPI + Neo4j na Tailscale).
+- O host Inspiron age como Cliente (Acessa o Glacier remotamente via túnel SSH).
 
-## Comandos principais
-
-Operacao diaria:
-
-```sh
-kryonix doctor
-kryonix diff
-kryonix test
-kryonix boot
-kryonix switch
-kryonix home
-kryonix check
-kryonix fmt
-kryonix iso
-```
-
-Inspecao segura:
-
-```sh
-nix flake show --all-systems
-nix flake check --keep-going
-nix fmt
-make help
-make flake-show
-make flake-check
-```
-
-Comandos perigosos exigem aprovacao humana explicita:
-
-```sh
-make format-full ALLOW_DANGEROUS=1
-make format-system ALLOW_DANGEROUS=1
-make install-system ALLOW_DANGEROUS=1
-disko
-sudo nixos-install
-```
-
-## Estrutura
-
-- `flake.nix`: entrada principal e outputs.
-- `hosts/`: hosts NixOS reais e ISO.
-- `hosts/common/`: composicao compartilhada.
-- `home/`: Home Manager por usuario/host.
-- `modules/nixos/`: modulos NixOS reutilizaveis.
-- `modules/home-manager/`: modulos Home Manager.
-- `features/`: capacidades opt-in.
-- `profiles/`: presets por papel.
-- `desktop/hyprland/`: desktop real e rice.
-- `packages/`: CLI `kryonix` e Brain/LightRAG interno.
-- `overlays/`: overrides e patches de pacotes.
-- `context/`: memoria curta operacional ja existente.
-- `docs/ai/`: contexto curto para LLMs.
-- `skills/`: procedimentos reutilizaveis para agentes.
-
-## Arquivos importantes
-
-- `AGENTS.md`
-- `README.md`
-- `flake.nix`
-- `flake.lock`
-- `Makefile`
-- `.github/workflows/ci.yml`
-- `.github/copilot-instructions.md`
-- `docs/CURRENT_STATE.md`
-- `docs/OPERATIONS.md`
-- `docs/GLACIER.md`
-- `context/INDEX.md`
-- `context/CURRENT_STATE.md`
-- `lib/options.nix`
-- `packages/kryonix-cli.nix`
-- `hosts/glacier/hardware-configuration.nix`
-
-## Regras criticas
-
-- O codigo real prevalece sobre docs historicas.
-- `Kryonix` e o nome publico atual.
-- `kryonix.*` e namespace ativo.
-- `kryonix` e a CLI publica unica.
-- Hyprland e o desktop real.
-- Caelestia e o shell/rice principal.
-- DMS e legado em transicao.
-- No `glacier`, nao use `disko`, `format-*`, `install-system` ou `hosts/glacier/disks.nix` em fluxo incremental.
-- Nao mexa em `flake.lock` sem necessidade clara.
-
-## Como validar mudancas
-
-- Docs: revisar Markdown e links tocados.
-- Nix puro: `nix fmt` e `nix flake show --all-systems`.
-- Mudanca ampla: `nix flake check --keep-going`.
-- Host especifico: avaliar/buildar o host afetado.
-- Desktop/launcher: validar Hyprland, UWSM, Caelestia e launch de apps graficos.
-- Operacao: preferir `kryonix test` ou `kryonix boot` antes de `kryonix switch`.
+## Onde Ir Próximo?
+- [Índice do Projeto](PROJECT_INDEX.md)
+- [Estado Operacional Atual](PROJECT_MEMORY_CURRENT.md)
+- [Escopo do Agente](AGENT_SCOPE.md)

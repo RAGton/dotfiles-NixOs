@@ -1,27 +1,33 @@
-# Segurança e Hardening do Kryonix
+# Política de Segurança e Operações Seguras
 
-Este documento descreve as políticas e definições de segurança para os hosts gerenciados pelo Kryonix.
+Esta página define as regras invioláveis de segurança e operação do repositório Kryonix.
 
-## Secrets e Credenciais
+## Gestão de Secrets
 
-Os secrets (Tailscale auth key, variáveis de ambiente, etc) **nunca** devem ser "commitados" no repositório.
+- **NENHUM secret deve ser commitado** no repositório.
+- Arquivos sensíveis detectáveis por padrão (ex: `*.env`, chaves SSH, API keys) são impedidos pelo `.gitleaks.toml` e workflow do GitHub Actions.
+- **Onde vivem os secrets?** Em runtime, eles são carregados de `/etc/kryonix/*.env` com permissão restrita `0600`.
+- Arquivos env conhecidos:
+  - `brain.env` (API Keys do Brain e provedores externos)
+  - `neo4j.env` (Credenciais de banco de dados)
 
-- O `.mcp.json` real fica em `.gitignore`. O repositório versiona apenas o `.mcp.example.json`.
-- O `.codex/config.toml` do repositório não pode conter secrets. Tokens e chaves continuam fora do repo, no ambiente do usuário.
-- Nenhum acesso de escrita fora do diretório do vault é permitido para o MCP.
-- O NixOS *store* é de leitura pública. Nenhuma credencial sensível deve ser colocada inline dentro das derivações do Nix ou variáveis systemd exportadas em logs de forma pública. Use arquivos no runtime (`/run/secrets`).
+## Sandboxing e Model Context Protocol (MCP)
 
-## Rede e Firewall
+As ferramentas de IA interagem com o Kryonix através de servidores MCP. A segurança desta camada é rigorosa:
 
-- Exposição pública deve ser evitada. Utilize acessos em LAN ou Tailscale preferencialmente.
-- **Glacier SSH**: Porta customizada `2224`.
-- **Kryonix Brain API**: Porta `8000`.
-- **Ollama API**: Porta `11434`.
+1. **Restrição de Filesystem:** O MCP de filesystem começa como `read-only`. O acesso global a `/` é terminantemente proibido.
+2. **Separação de Configuração:**
+   - A configuração local (`.mcp.json`) é `.gitignore`'d e contém tokens de acesso reais.
+   - A configuração versionada (`.mcp.example.json`) atua como template canônico sem secrets.
+3. **Padrão de Comunicação:** Os servidores MCP devem comunicar apenas JSON-RPC limpo no `stdout`. Quaisquer logs ou warnings devem ir para o `stderr`.
+4. **Bancos de Dados:** O acesso inicial do MCP ao Neo4j ou PostgreSQL é sempre `read-only`. Comandos destrutivos são bloqueados na raiz.
 
-A regra geral do firewall é restringir todas as outras portas de conexões externas não documentadas explicitamente e aprovadas.
+Detalhes completos de arquitetura MCP em: `docs/mcp/SECURITY.md`.
 
-## Relatório de Vulnerabilidades
+## Modificações no NixOS (Safe Changes)
 
-Não abra issues públicas para problemas de segurança, senhas expostas, credenciais vazadas ou configurações sensíveis. Envie e-mail privadamente para `gabriel.rag@proton.me` incluindo a descrição do problema, arquivo afetado, e avaliação de impacto.
+Toda e qualquer mudança arquitetural ou de pacotes deve seguir o princípio do "Menor Dano Seguro" e ser passível de rollback:
 
-O repositório cobra responsabilidade apenas pelas configurações e infraestrutura provisionada pelo Kryonix; vulnerabilidades upstream no Nixpkgs e serviços terceiros são reportadas às respectivas instâncias oficiais.
+- Validação estática: `nix flake check --keep-going`
+- O `switch` para a nova configuração (`kryonixos-rebuild switch` ou `kryonix switch`) deve sempre poder ser revertido selecionando a geração anterior no GRUB.
+- Evitar o comando `git add .`. Faça commits granulares e específicos, listando arquivos explicitamente para prevenir inclusão acidental de lixo ou secrets.

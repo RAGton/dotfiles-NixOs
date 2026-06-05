@@ -1,27 +1,22 @@
 # Host: Inspiron
 
-Este documento consolida o estado do host Inspiron.
+Este documento descreve o papel do host **Inspiron** na arquitetura Kryonix.
 
-## Fonte de Verdade (Serviços e Cliente)
-- **Serviço:** (Desktop Client - `Hyprland` e User Sessions dependentes)
-- **Porta:** N/A
-- **Comando:** `kryonix test client`
-- **Validação:** Validação da ausência de pendências na CLI principal e integridade via flake check.
+## Função
+O Inspiron atua como a **Workstation principal (Client)** do projeto. É a interface do usuário primária com a inteligência do sistema, acessando o Glacier remotamente.
 
-## Perfil
-
-- **Tipo:** Workstation / Cliente Leve
-- **Hardware Base:** Intel
-- **Ambiente Desktop:** Hyprland + Caelestia (Shell Principal)
-- **Papel na Rede:** Cliente de desenvolvimento, administração do NixOS e operação diária.
-
-## Papel Arquitetural
-
-O host `inspiron` atua como o cliente para consultas e operações na rede Kryonix. Ele não é encarregado de rodar instâncias locais massivas de Ollama ou hospedar dados brutos (GraphML). 
-
-Ao invés disso, o `inspiron` usa a CLI via rede (LAN / Tailscale).
-
+## Onde vive o código real
 > [!WARNING]
-> O uso da variável `KRYONIX_BRAIN_API` para acessar a porta `8000` do Glacier está listado no ROADMAP, pois o serviço de API contínuo encontra-se desativado no servidor. O cliente pode atualmente apenas operar comandos locais da CLI.
+> O arquivo final de hardware, disco, e a amarração do sistema operacional (`hosts/inspiron/default.nix` que injeta seu usuário) vivem **exclusivamente no repositório Downstream (`/etc/kryonixos`)**.
+> O repositório Upstream (`/etc/kryonix`) possui a pasta `hosts/inspiron/` apenas como documentação de referência de hardware base, para ser consumida e injetada no superflake Downstream.
 
-Este desacoplamento impede que o build e verificação local falhem por questões relacionadas ao servidor. Se a comunicação remota com o `glacier` falha ou está inativa, o cliente alerta com um `WARN`, mas valida o código do sistema localmente sem problemas.
+## Serviços e Features Esperadas (Profile)
+- **Profile:** Utiliza `profiles/laptop.nix` e `profiles/workstation-gamer.nix`
+- **Ambiente Gráfico:** Caelestia (Hyprland rice) via Wayland.
+- **Integração IA:** Acessa o Kryonix Brain no Glacier como **client** puro. Usa um túnel SSH (gerenciado pelo módulo home-manager de brain-tunnel).
+- **VRAM/GPU:** Configurado com balanceamento térmico (Intel CPU/GPU genérica para laptops).
+
+## O que está implementado vs Roadmap
+- Ambiente gráfico Caelestia e wrappers: Implementado.
+- Túnel SSH p/ Brain no Glacier: Implementado.
+- Configuração de áudio isolado Kora: Roadmap/Legado.

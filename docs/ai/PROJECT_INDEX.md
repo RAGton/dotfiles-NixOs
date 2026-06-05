@@ -1,88 +1,27 @@
-# PROJECT_INDEX
+# Índice do Projeto para Agentes
 
-## Mapa de modulos
+Use este mapa para navegar pela base de código de forma rápida e precisa. Nunca invente ou presuma pastas que não estão nesta lista.
 
-- `flake.nix`: inputs, helpers, hosts, homes, packages, checks e overlays.
-- `lib/options.nix`: opcoes publicas `kryonix.*` e aliases internos temporarios.
-- `hosts/common/default.nix`: base compartilhada importada por hosts.
-- `hosts/<host>/default.nix`: papel, hardware e opcoes do host.
-- `hosts/<host>/hardware-configuration.nix`: verdade local de boot, discos e hardware.
-- `modules/nixos/base`: base de sistema.
-- `modules/nixos/common`: configuracao compartilhada de sistema.
-- `modules/nixos/desktop`: habilitacao do desktop.
-- `modules/nixos/desktop/caelestia`: shell/rice principal em nivel de sistema.
-- `modules/nixos/installer`: ISO e instalador.
-- `modules/nixos/services`: servicos como Tailscale, TLP e Snapper.
-- `features/development.nix`: toolchains e ferramentas dev.
-- `features/gaming.nix`: Steam, Gamescope e ajustes de gaming.
-- `features/virtualization.nix`: KVM, libvirt, Podman, Docker e VirtualBox.
-- `profiles/*.nix`: composicoes por papel.
-- `desktop/hyprland/system.nix`: stack system-level Hyprland.
-- `desktop/hyprland/user.nix`: configuracao user-level Hyprland, ainda grande.
-- `home/<user>/<host>/default.nix`: Home Manager por usuario/host.
-- `packages/kryonix-cli.nix`: CLI operacional principal.
-- `packages/kryonix-brain-lightrag/`: Brain/LightRAG usado pela CLI `kryonix`.
-- `overlays/default.nix`: patches e overrides de nixpkgs.
+## Caminhos Estratégicos (Upstream Engine - `/etc/kryonix`)
+- `/etc/kryonix/flake.nix` → Ponto central. Usa NixOS 26.05 stable.
+- `/etc/kryonix/flake/lib.nix` → Helper functions para montar instâncias Downstream.
+- `/etc/kryonix/modules/nixos/services/brain.nix` → Core IA, define systemd services.
+- `/etc/kryonix/packages/kryonix-brain-lightrag/` → Código Python da IA.
+- `/etc/kryonix/packages/kryonix-cli/` → Ferramenta de linha de comando.
+- `/etc/kryonix/packages/kryonix-installer/` → Backend em Rust do Instalador.
+- `/etc/kryonix/desktop/hyprland/core/keybinds.nix` → Atalhos do Hyprland.
+- `/etc/kryonix/.mcp.example.json` → Template MCP limpo.
 
-## Onde mexer por tipo de tarefa
+## Caminhos Estratégicos (Downstream Hosts - `/etc/kryonixos`)
+> *Você não tem acesso a esta pasta diretamente no repositório Upstream.*
+- `/etc/kryonixos/flake.nix` → Define inputs e `.follows`.
+- `/etc/kryonixos/hosts/glacier/` → Configuração de hardware do Server.
+- `/etc/kryonixos/hosts/inspiron/` → Configuração de hardware do Client.
+- `/etc/kryonixos/users/rocha/` → Instâncias Home Manager.
 
-- Novo host: `hosts/<novo-host>/`, `flake.nix`, `context/HOSTS/`.
-- Ajuste de hardware/boot/disco: `hosts/<host>/hardware-configuration.nix` ou arquivo especifico do host.
-- Feature reutilizavel: `features/` ou `modules/nixos/`, evitando duplicar em hosts.
-- Perfil de papel: `profiles/`.
-- Ferramentas de usuario: `home/` ou `modules/home-manager/`.
-- Desktop Hyprland/Caelestia: `desktop/hyprland/` e modulos relacionados.
-- CLI operacional: `packages/kryonix-cli.nix`.
-- Overlay/patch de pacote: `overlays/default.nix` e `overlays/patches/`.
-- CI: `.github/workflows/ci.yml`.
-- Contexto para IA: `AGENTS.md`, `AGENTS_KRYONIX_EVOLUTION.md`, `context/`, `docs/ai/`, `skills/`.
-- Arquitetura Brain: `docs/ai/BRAIN_SERVER_ARCHITECTURE.md`.
-- Documentacao humana: `README.md`, `docs/README.md`, `docs/CURRENT_STATE.md`, docs tematicas.
-
-## Arquivos sensiveis
-
-- `flake.nix`
-- `flake.lock`
-- `hosts/*/hardware-configuration.nix`
-- `hosts/*/disks.nix`
-- `hosts/glacier/ragenterprise-disko.nix`
-- `modules/nixos/installer/*`
-- `packages/kryonix-cli.nix`
-- `Makefile`
-- `.github/workflows/*`
-- qualquer referencia a `/root/*.secret`, SSH/GPG keys, Tailscale auth keys, tokens ou credenciais.
-
-## Fluxos principais
-
-### Operacao diaria
-
-1. `kryonix doctor`
-2. `kryonix diff`
-3. `kryonix test` ou `kryonix boot`
-4. `kryonix switch` quando seguro
-
-### Validacao CI
-
-1. `nix flake show --all-systems`
-2. `nix flake check --keep-going`
-
-### Resolucao de host pela CLI
-
-1. `--flake`
-2. `KRYONIX_FLAKE`
-3. checkout local
-4. `/etc/kryonix`
-
-### Superficie publica Kryonix
-
-- `kryonix` e a unica CLI publica.
-- `kryonix.*` e o namespace publico.
-- aliases legados internos podem existir apenas para nao quebrar hosts antigos.
-
-## Contratos importantes
-
-- Outputs de flake: `nixosConfigurations`, `homeConfigurations`, `packages`, `checks`, `formatter`, `overlays`.
-- Hosts atuais: `inspiron`, `inspiron-nina`, `glacier`, `iso`.
-- Homes atuais: `rocha@inspiron`, `rocha@glacier`, `nina@inspiron-nina`.
-- CLI publica: comandos `switch`, `boot`, `test`, `home`, `update`, `rebuild`, `clean`, `diff`, `repl`, `doctor`, `git-status`, `vm`, `iso`, `fmt`, `check`.
-- CI deve continuar sem secrets e com permissoes minimas.
+## Documentação Core
+- `docs/README.md` → Índice Humano Principal.
+- `docs/CURRENT_STATE.md` → O que está implementado de verdade.
+- `docs/ROADMAP.md` → O que é futuro.
+- `docs/ARCHITECTURE.md` → Arquitetura do Motor.
+- `docs/mcp/SECURITY.md` → Segurança MCP e APIs.

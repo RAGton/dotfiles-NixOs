@@ -1,43 +1,51 @@
-# Documentação Kryonix
+# Kryonix Project
 
-Visão geral curta e índice da documentação canônica do projeto Kryonix.
+Kryonix é uma arquitetura de sistema operacional baseada em NixOS, projetada para ser hiper-declarativa, modular e orientada por agentes de Inteligência Artificial.
 
-O projeto **Kryonix** é uma plataforma NixOS declarativa para workstation, gaming, virtualização, estudo, desenvolvimento e futura ISO instalável. O repositório é fonte de verdade para hosts NixOS, perfis Home Manager, módulos, overlays, pacotes e operação diária via CLI `kryonix`.
+## O Que É Kryonix
 
-## Índice Canônico
+Kryonix não é apenas um repositório NixOS. É um **engine** (motor) para construir sistemas. Ele define a infraestrutura base:
+- Módulos e features reutilizáveis.
+- Infraestrutura de IA (LightRAG, Ollama, Neo4j) via `kryonix-brain`.
+- Perfis de uso (Workstation, Server, Gamer).
+- Experiência de desktop (Caelestia / Hyprland).
+- Um instalador TUI e ISO autônomos.
 
-- [Página Inicial do Repositório](../README.md)
-- [Arquitetura](ARCHITECTURE.md)
-- [Instalação](INSTALL.md)
-- [Uso e Comandos](USAGE.md)
-- [Operações e CLI](OPERATIONS.md)
-- [Atalhos do Teclado](SHORTCUTS.md)
-- [Documentação Técnica da CLI](cli/README.md)
-- [Status da Rede](operations/KRYONIX_NETWORK_STATUS.md)
-- [Auditoria de Licença](operations/KRYONIX_LICENSE_AUDIT.md)
-- [Benchmark Ollama RTX 4060](operations/OLLAMA_MODEL_BENCHMARK_RTX4060.md)
-- [Benchmark llama.cpp CUDA](operations/LLAMA_CPP_CUDA_BENCHMARK_RTX4060.md)
-- [Brain Safe Deploy](operations/BRAIN_SAFE_DEPLOY.md)
-- [Glacier VRAM Profiles](operations/GLACIER_VRAM_PROFILES.md)
-- [CI Hardening](operations/KRYONIX_CI_HARDENING.md)
-- [Acesso Remoto WayVNC](operations/REMOTE_DESKTOP_WAYVNC.md)
-- [Status dos Comandos](operations/KRYONIX_COMMANDS_CANONICAL.md)
-- [Testes e Validação](TESTING.md)
-- [Troubleshooting](TROUBLESHOOTING.md)
-- [Roadmap](ROADMAP.md)
+## O Que o Kryonix NÃO É
 
-### Hosts
-- [Inspiron](hosts/inspiron.md)
-- [Glacier](hosts/glacier.md)
+O Kryonix (este repositório, em `/etc/kryonix`) **não contém configurações de máquinas físicas específicas do usuário** (ex: seu laptop pessoal ou seu servidor caseiro). Ele fornece a fundação; as configurações de hardware e partições de máquinas reais vivem no repositório **Downstream**.
 
-### Kryonix Brain
-- [Visão Geral Brain](brain/README.md)
-- [LightRAG](brain/lightrag.md)
-- [Model Context Protocol (MCP)](brain/mcp.md)
-- [Vault (Obsidian)](brain/vault.md)
+## Arquitetura Dual-Flake
 
-### Agentes
-- [Guia para Agentes](agents/README.md)
+O projeto segue um modelo estrito de "Dual-Flake":
 
----
-Para documentação legada, consulte a pasta `archive/`.
+1. **Upstream (O Motor)**
+   - **Localização:** `/etc/kryonix`
+   - **Repositório:** `github:RAGton/kryonix`
+   - **Função:** Contém a lógica universal. Módulos, packages, perfis, features e a definição da imagem ISO.
+   - **Hosts contidos aqui:** Apenas `common`, `inspiron` (como referência abstrata) e `iso`.
+
+2. **Downstream (A Instância / Superflake)**
+   - **Localização:** `/etc/kryonixos`
+   - **Repositório:** `github:RAGton/Kryonixos`
+   - **Função:** Materializa os hosts reais e as configurações de usuário.
+   - **Hosts contidos lá:** `glacier` (Server/Brain), `inspiron` (Workstation/Client), `inspiron-nina`.
+   - **Integração:** O `flake.nix` do downstream importa o upstream (`kryonix.url = git+file:///etc/kryonix`) e usa suas funções de biblioteca (`mkNixosConfiguration`) para montar as máquinas reais.
+
+## Mapa da Documentação
+
+- **[Estado Atual](CURRENT_STATE.md):** O que está implementado, o que é parcial e o que está quebrado.
+- **[Roadmap](ROADMAP.md):** Planejamento de futuras versões.
+- **[Arquitetura](ARCHITECTURE.md):** Como as peças se encaixam dentro do engine.
+- **[Operações](OPERATIONS.md):** Como rodar, testar e fazer build.
+- **[Segurança](SECURITY.md):** Políticas de secrets, MCP e diretrizes de hardening.
+- **[Memória da IA (AI)](ai/PROJECT_CONTEXT.md):** Contexto estrito para LLMs e Agentes que operam neste projeto.
+
+## Diretórios Principais do Engine
+
+- `modules/`: Módulos base do NixOS e Home Manager.
+- `features/`: Combinações de alto nível (ex: `ai.nix`, `gaming.nix`).
+- `profiles/`: Arquétipos de uso (ex: `glacier-ai.nix`, `laptop.nix`).
+- `packages/`: Pacotes empacotados pelo Kryonix (ex: `kryonix-brain-lightrag`, `kryonix-cli`).
+- `desktop/`: Configurações de ambiente gráfico (Hyprland/KDE).
+- `hosts/`: Definições básicas e a ISO do instalador.
