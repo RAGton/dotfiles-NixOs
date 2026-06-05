@@ -10,7 +10,7 @@
 # - SEM painel KDE (panels=[]) — topo reservado para a Kryonix Bar (Rust)
 # - Dolphin otimizado (caminho completo, navegação em arquivos)
 # =============================================================================
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   # --- Cursor Nordzy (X11 / GTK / Wayland) ---------------------------------
   home.pointerCursor = {
@@ -27,6 +27,7 @@
   # pelo stack GTK do Hyprland.
   gtk = {
     enable = true;
+    gtk2.force = true;
     theme = {
       name = "Breeze-Dark";
       package = pkgs.kdePackages.breeze-gtk;
@@ -35,6 +36,11 @@
       name = "breeze-dark";
       package = pkgs.kdePackages.breeze-icons;
     };
+  };
+
+  xdg.configFile = {
+    "gtk-3.0/settings.ini".force = true;
+    "gtk-4.0/settings.ini".force = true;
   };
 
   programs.plasma = {
@@ -123,4 +129,8 @@
       };
     };
   };
+
+  home.activation.forceKdeTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${pkgs.kdePackages.plasma-workspace}/bin/plasma-apply-lookandfeel -a BonaFides-Color-Plasma || true
+  '';
 }

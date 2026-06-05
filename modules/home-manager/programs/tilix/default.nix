@@ -40,12 +40,15 @@ let
     text = ''
       set -euo pipefail
 
-      # Se o Warp Terminal estiver disponível, tenta ele primeiro
+      # Warp Terminal é o padrão. Em sessões Hyprland/UWSM, isolamos via
+      # `uwsm app --` para herança correta de slice/cgroup; em KDE/Plasma (sem
+      # uwsm), executamos direto — caso contrário o exec falhava com
+      # "uwsm: not found" e Meta+T não abria nada.
       if command -v warp-terminal >/dev/null 2>&1; then
-        # Nota: warp-terminal às vezes falha ao abrir janelas em Wayland sem variáveis explícitas
-        # ou se o pacote Oz CLI estiver conflitando. 
-        # Aqui tentamos o lançamento via uwsm.
-        exec uwsm app -- warp-terminal "$@"
+        if command -v uwsm >/dev/null 2>&1; then
+          exec uwsm app -- warp-terminal "$@"
+        fi
+        exec warp-terminal "$@"
       fi
 
       profile_name="${tilixProfileName}"

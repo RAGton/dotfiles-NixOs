@@ -1,17 +1,3 @@
-# =============================================================================
-# desktop/kde/keybinds.nix — Injeção do Kryonix KDE Keymap v1 no Plasma
-#
-# Mecanismos (plasma-manager):
-#   programs.plasma.shortcuts.<componente>.<ação>  → kglobalshortcutsrc (KWin/ksmserver/Krohnkite)
-#   programs.plasma.hotkeys.commands.<nome>        → comandos disparados por atalho
-#   programs.plasma.spectacle.shortcuts.*          → capturas de tela
-#
-# IDs do Krohnkite extraídos de contents/ui/shortcuts.qml (kdePackages.krohnkite
-# 0.9.9.2). Vários defaults do Krohnkite colidem com o keymap (Meta+F/T/I/D/R/,/.
-# /Return) e são realocados ou limpos (= [ ] → "none") explicitamente.
-#
-# Convenção de workspaces: 1..9 e 0 (=10). O 10 é o Scratchpad (Meta+S / Meta+Shift+S).
-# =============================================================================
 { lib, pkgs, ... }:
 let
   range = lib.range 1 10;
@@ -25,10 +11,29 @@ let
     qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut "Window to Desktop $d"
     qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut "Switch to Desktop $d"
   '';
-  # Toggle do Wofi (abre se fechado; fecha se já aberto). O operador `||` não
-  # pode ir no Exec do .desktop (ver nota acima), então embrulhamos num script.
-  wofiToggle = pkgs.writeShellScript "kryonix-wofi-toggle" ''
-    ${pkgs.procps}/bin/pkill -x wofi || exec ${pkgs.wofi}/bin/wofi --show drun
+
+  # Terminal default Kryonix em KDE = Warp. O wrapper kryonix-terminal vem
+  # antes (porque já injeta env/zellij quando disponível e cai em Warp por
+  # baixo); konsole é o último fallback de emergência para nunca deixar o
+  # usuário sem terminal por atalho. Não chamar konsole primeiro — política
+  # 2026-06: Warp é o terminal padrão SEMPRE.
+  kdeTerminal = pkgs.writeShellScript "kryonix-kde-terminal" ''
+    set -euo pipefail
+
+    if command -v kryonix-terminal >/dev/null 2>&1; then
+      exec kryonix-terminal "$@"
+    fi
+
+    if [ -x "${pkgs.warp-terminal}/bin/warp-terminal" ]; then
+      exec "${pkgs.warp-terminal}/bin/warp-terminal" "$@"
+    fi
+
+    if [ -x "${pkgs.kdePackages.konsole}/bin/konsole" ]; then
+      exec "${pkgs.kdePackages.konsole}/bin/konsole" --workdir "$HOME" "$@"
+    fi
+
+    echo "kryonix-kde-terminal: nenhum terminal encontrado" >&2
+    exit 127
   '';
 
   # Meta+1..0 → trocar de desktop; Meta+Shift+1..0 → mover janela p/ desktop.
@@ -123,7 +128,7 @@ in
           "KrohnkiteBTreeLayout" = "Meta+B";
           "KrohnkiteMonocleLayout" = "Meta+M";
           "KrohnkiteColumnsLayout" = "Meta+C";
-          "KrohnkiteToggleFloat" = "Meta+T";
+          "KrohnkiteToggleFloat" = "Meta+Shift+F";
 
           # --- Krohnkite: defaults conflitantes → limpos (none) ---
           "KrohnkiteFocusNext" = [ ]; # default Meta+. (= Próxima faixa)
@@ -169,13 +174,14 @@ in
     # =====================================================================
     hotkeys.commands = moveFollowCommands // {
       # --- Wofi (launcher de aplicativos, estilo Hyprland/Waybar) ---
-      # Meta+A: toggle do menu drun. As antigas buscas de arquivos/energia eram
-      # plugins específicos do Albert (sem equivalente direto no Wofi); foram
-      # removidas. Se quiser, dá pra recriar um power-menu em wofi-dmenu.
-      "wofi-toggle" = {
-        name = "Wofi Launcher";
+      # Meta+A: Abre o wofi em modo drun (aplicativos). As antigas buscas de
+      #         arquivos/energia eram plugins específicos do Albert (sem equivalente
+      #         direto no Wofi); foram removidas. Se quiser, dá pra recriar um
+      #         power-menu em wofi-dmenu.
+      "wofi-drun" = {
+        name = "Wofi Application Launcher";
         key = "Meta+A";
-        command = "${wofiToggle}";
+        command = "${pkgs.wofi}/bin/wofi --show drun --allow-images --no-colors";
       };
 
       # Atalhos da Kora removidos (assistente legada → Aura sobre Hermes).
@@ -192,15 +198,17 @@ in
       # --- Janelas / Apps ---
       "terminal" = {
         name = "Terminal";
-        key = "Meta+Return";
-        command = "kryonix-terminal";
+        key = "Meta+T";
+        keys = [ "Meta+Return" ];
+        command = "${kdeTerminal}";
       };
       # Terminal flutuante: lança o terminal; o comportamento "flutuante" é
       # tratado por regra do KWin (ver nota). Funcionalmente abre o terminal.
       "terminal-float" = {
         name = "Terminal flutuante";
-        key = "Meta+Shift+Return";
-        command = "kryonix-terminal";
+        key = "Meta+Shift+T";
+        keys = [ "Meta+Shift+Return" ];
+        command = "${kdeTerminal}";
       };
       "dolphin" = {
         name = "Dolphin";

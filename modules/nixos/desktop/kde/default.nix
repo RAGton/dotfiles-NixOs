@@ -20,8 +20,10 @@
 # =============================================================================
 {
   config,
+  inputs,
   lib,
   pkgs,
+  userConfig,
   ...
 }:
 let
@@ -93,6 +95,13 @@ in
       wl-clipboard
       kdePackages.qttools # qdbus6 (usado pelos atalhos "mover e seguir"/scratchpad)
       playerctl # controle de mídia (atalhos Meta+,/. e XF86AudioPlay)
+    ];
+
+    # Plasma Manager é Home Manager; quando o host seleciona KDE, o módulo de
+    # sistema injeta também a camada HM do Plasma para o usuário do host.
+    home-manager.users.${userConfig.name}.imports = [
+      inputs.plasma-manager.homeModules.plasma-manager
+      ../../../../desktop/kde/user.nix
     ];
   };
 }

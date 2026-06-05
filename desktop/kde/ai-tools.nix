@@ -20,15 +20,19 @@ let
   # para evitar conflito de binários ("two given paths contain a conflicting subpath").
   aiWorkstationEnabled = config.kryonix.programs.aiWorkstation.enable or false;
 
-  # Claude Code nativo blindado via npx
+  # Fallback via npx caso o nixpkgs pinado não exponha pkgs.claude-code.
   claudeWrapper = pkgs.writeShellScriptBin "claude" ''
     exec ${pkgs.nodejs_22}/bin/npx -y @anthropic-ai/claude-code "$@"
   '';
+  claudePackage = pkgs.claude-code or claudeWrapper;
+
+  geminiWrapper = pkgs.writeShellScriptBin "gemini" ''
+    exec ${pkgs.nodejs_22}/bin/npx -y @google/gemini-cli "$@"
+  '';
+  geminiPackage = pkgs.gemini-cli or geminiWrapper;
 in
 {
-  home.packages =
-    [ pkgs.gemini-cli ]
-    ++ lib.optional (!aiWorkstationEnabled) claudeWrapper;
+  home.packages = [ geminiPackage ] ++ lib.optional (!aiWorkstationEnabled) claudePackage;
 
   xdg.desktopEntries = {
     claude = {
@@ -43,7 +47,7 @@ in
     };
     gemini = {
       name = "Gemini CLI";
-      exec = "kryonix-terminal gemini-cli";
+      exec = "kryonix-terminal gemini";
       terminal = false;
       categories = [
         "Development"
@@ -51,15 +55,12 @@ in
       ];
       icon = "gemini";
     };
-    antigravity = {
-      name = "Antigravit AI";
-      exec = "kryonix-terminal antigravity";
-      terminal = false;
-      categories = [
-        "Development"
-        "Utility"
-      ];
-      icon = "antigravit";
-    };
+    # NOTE: NÃO criar um desktopEntry "antigravity" aqui. O Antigravity é uma
+    # IDE GRÁFICA (não um CLI como claude/gemini), e o pacote antigravity-nix já
+    # fornece um antigravity.desktop válido (Exec=antigravity %U, Icon=antigravity,
+    # Name=Google Antigravity). O override anterior (Exec=kryonix-terminal
+    # antigravity, Icon/Name com typo, Categories sem ';' final) era malformado:
+    # mascarava o .desktop nativo e o kbuildsycoca o descartava → o app sumia do
+    # menu do KDE. Deixar o entry nativo do pacote prevalecer.
   };
 }

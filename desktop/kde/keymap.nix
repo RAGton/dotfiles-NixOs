@@ -15,17 +15,13 @@
   {
     group = "Launchers & IA";
     keys = "Meta+A";
-    desc = "Albert Launcher";
+    desc = "Wofi Launcher";
   }
   {
     group = "Launchers & IA";
     keys = "Meta+Shift+A";
-    desc = "Albert: busca de arquivos";
-  }
-  {
-    group = "Launchers & IA";
-    keys = "Meta+Ctrl+A";
-    desc = "Albert: menu de energia";
+    desc = "Wofi: dmenu mode";
+    reserved = true;
   }
 
   # ---------------- Ajuda ----------------
@@ -125,12 +121,12 @@
   # ---------------- Janelas & Scratchpad ----------------
   {
     group = "Janelas & Scratchpad";
-    keys = "Meta+Return";
-    desc = "Terminal (kryonix-terminal)";
+    keys = "Meta+T / Meta+Return";
+    desc = "Terminal";
   }
   {
     group = "Janelas & Scratchpad";
-    keys = "Meta+Shift+Return";
+    keys = "Meta+Shift+T / Meta+Shift+Return";
     desc = "Terminal flutuante";
   }
   {
@@ -145,7 +141,7 @@
   }
   {
     group = "Janelas & Scratchpad";
-    keys = "Meta+T";
+    keys = "Meta+Shift+F";
     desc = "Toggle floating";
   }
   {

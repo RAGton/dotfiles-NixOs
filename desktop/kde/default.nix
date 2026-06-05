@@ -25,10 +25,13 @@
   # Pacotes de sessão no escopo do usuário (úteis para os atalhos e o dia a dia).
   home.packages = with pkgs; [
     kdePackages.dolphin
+    kdePackages.konsole
     kdePackages.spectacle
     kdePackages.qttools # qdbus6 — usado por scratchpad/"mover e seguir"
     playerctl # controle de mídia (Meta+,/. e XF86AudioPlay)
     kryonix-bar-backend
+    wofi
+    warp-terminal
   ];
 
   # NOTA: QT_QPA_PLATFORMTHEME é definido em kvantum.nix ("kvantum"), parte da
