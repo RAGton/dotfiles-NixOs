@@ -2,9 +2,9 @@
 
 > **Equipe Kora/Antigravity aposentada.** A Kora foi removida (ver
 > `docs/aura/KORA_RETIREMENT_STUDY.md`). A assistente do Kryonix agora é a **Aura**
-> sobre o motor **Hermes** (`kryonix.services.hermes` + camada `aura`). Os papéis,
-> workflows e prompts `kora-*`/Antigravity foram removidos; restam os artefatos
-> de governança não específicos da Kora.
+> (`kryonix.services.aura` — camada de roteamento; motor de execução a ser
+> redefinido). Os papéis, workflows e prompts `kora-*`/Antigravity foram
+> removidos; restam os artefatos de governança não específicos da Kora.
 
 ## Estrutura atual
 

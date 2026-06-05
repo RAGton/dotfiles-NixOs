@@ -184,7 +184,7 @@ in
         command = "${pkgs.wofi}/bin/wofi --show drun --allow-images --no-colors";
       };
 
-      # Atalhos da Kora removidos (assistente legada → Aura sobre Hermes).
+      # Atalhos da Kora removidos (assistente legada → Aura).
       # Meta+I / Meta+Shift+I / Meta+Ctrl+I ficaram livres para a futura UI da Aura.
 
       # --- Ajuda: Kryonix Keybind Helper (Meta+/ e Meta+F1) ---

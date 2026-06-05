@@ -44,9 +44,16 @@ export default function FooterFixed({
 
       <span className="step-info">
         <span style={{ color: 'var(--text3)', fontSize: '11px' }}>{progressLabel}</span>
-        {issues.length > 0 && (
+        {issues.length > 0 ? (
           <span style={{ display: 'block', color: 'var(--warning)', fontSize: '11px' }}>
             {hint}
+          </span>
+        ) : (
+          <span
+            className="kbd-legend"
+            style={{ display: 'block', color: 'var(--text3)', fontSize: '10px', letterSpacing: '0.3px' }}
+          >
+            Enter/Alt+N: Próximo · Alt+B: Voltar · Tab: Navegar · Espaço: Selecionar · F1: Ajuda · Esc: bloqueado
           </span>
         )}
       </span>

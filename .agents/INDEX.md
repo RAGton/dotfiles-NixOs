@@ -1,8 +1,8 @@
 # Kryonix Agent Index
 
 > **Equipe de agentes Kora/Antigravity aposentada.** A Kora foi removida (ver
-> `docs/aura/KORA_RETIREMENT_STUDY.md`); a assistente agora é a **Aura** sobre o
-> motor **Hermes** (`kryonix.services.hermes` + camada `aura`). Os papéis `kora-*`
+> `docs/aura/KORA_RETIREMENT_STUDY.md`); a assistente agora é a **Aura**
+> (`kryonix.services.aura` — camada `aura`, motor a definir). Os papéis `kora-*`
 > e os workflows/prompts da equipe Kora foram removidos.
 
 ## Agentes ativos

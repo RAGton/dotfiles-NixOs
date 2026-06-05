@@ -17,7 +17,7 @@
     ./snapper
     ./tlp
     ./brain.nix
-    ./hermes.nix
+    ./aura.nix
     ./neo4j.nix
     ./llama-cpp.nix
     ./kryonix-state.nix

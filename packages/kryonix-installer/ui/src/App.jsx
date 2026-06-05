@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Layout from './components/Layout.jsx';
 import FooterFixed from './components/FooterFixed.jsx';
 import Welcome from './pages/Welcome.jsx';
@@ -131,33 +131,83 @@ export default function App() {
     });
   }, []);
 
+  const goNext = useCallback(
+    () => setStepIndex((previous) => Math.min(STEPS.length - 1, previous + 1)),
+    [],
+  );
+  const goBack = useCallback(
+    () => setStepIndex((previous) => Math.max(0, previous - 1)),
+    [],
+  );
+
+  // Navegação por teclado (Gate 6 — keyboard-only). Atalhos de "Próximo":
+  // Enter (fora de campos), Alt+N, Alt+→, Ctrl+Enter. "Voltar": Alt+B, Alt+←, Alt+Backspace.
+  // Esc é no-op: nunca sai do kiosk nem fecha o Chromium.
   useEffect(() => {
     const onKeyDown = (event) => {
-      const tag = event.target?.tagName;
-      const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || event.target?.isContentEditable;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        return;
+      }
+      // F1 (Ajuda) / F2 (Logs): reservados — impede a ajuda nativa do Chromium.
+      // (overlays de ajuda/logs entram numa próxima iteração da Fase 0.2)
+      if (event.key === 'F1' || event.key === 'F2') {
+        event.preventDefault();
+        return;
+      }
 
+      const tag = event.target?.tagName;
+      const isTyping =
+        tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || event.target?.isContentEditable;
+
+      const k = event.key;
+      const explicitNext =
+        (event.altKey && (k === 'n' || k === 'N' || k === 'ArrowRight')) ||
+        (event.ctrlKey && k === 'Enter');
+      const bareEnterNext = k === 'Enter' && !isTyping && !event.altKey && !event.ctrlKey;
+      const wantBack =
+        event.altKey && (k === 'b' || k === 'B' || k === 'ArrowLeft' || k === 'Backspace');
+
+      // EULA: Enter "pelado" NÃO avança (evita aceite acidental); só atalho explícito
+      // e somente após o aceite (canGoNext). O Space no checkbox continua nativo.
       if (step.id === 'eula') {
-        if (event.altKey || event.key === 'Enter') {
+        if (k === 'Enter' && !isTyping) event.preventDefault();
+        if (explicitNext && canGoNext) {
           event.preventDefault();
+          goNext();
         }
         return;
       }
 
-      if ((event.key === 'ArrowLeft' && event.altKey) || (event.key === 'Backspace' && event.altKey)) {
+      if (wantBack) {
         event.preventDefault();
-        setStepIndex((previous) => Math.max(0, previous - 1));
+        goBack();
         return;
       }
-
-      if ((event.key === 'ArrowRight' && event.altKey) || (event.key === 'Enter' && !isTyping && canGoNext)) {
+      if ((explicitNext || bareEnterNext) && canGoNext) {
         event.preventDefault();
-        setStepIndex((previous) => Math.min(STEPS.length - 1, previous + 1));
+        goNext();
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [canGoNext, step.id]);
+  }, [canGoNext, step.id, goNext, goBack]);
+
+  // Foco inicial previsível: ao trocar de etapa, foca o primeiro elemento
+  // interativo da página (EULA → checkbox, Disks → primeiro card, Users → 1º campo).
+  const pageRef = useRef(null);
+  useEffect(() => {
+    const root = pageRef.current;
+    if (!root) return;
+    const sel =
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [role="button"]:not([aria-disabled="true"]), [tabindex]:not([tabindex="-1"])';
+    const el = root.querySelector(sel);
+    if (el && typeof el.focus === 'function') {
+      // requestAnimationFrame: garante que a etapa já montou antes de focar
+      requestAnimationFrame(() => el.focus());
+    }
+  }, [stepIndex]);
 
   const stepsWithState = useMemo(
     () => STEPS.map((item, index) => ({
@@ -230,7 +280,9 @@ export default function App() {
         />
       )}
     >
-      {currentPage}
+      <div className="wizard-page" ref={pageRef} style={{ display: 'contents' }}>
+        {currentPage}
+      </div>
     </Layout>
   );
 }

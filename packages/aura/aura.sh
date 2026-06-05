@@ -31,7 +31,7 @@ FALLBACKS="${HERMES_PROVIDER_FALLBACKS:-gemini,codex,openai}"
 
 # Modelos por provider — configuráveis por env (NÃO inventar ids: ajuste no
 # hermes.env/config.yaml conforme o catálogo real do `hermes`).
-MODEL_CLAUDE="${AURA_MODEL_CLAUDE:-claude-sonnet-4-5}"
+MODEL_CLAUDE="${AURA_MODEL_CLAUDE:-claude-sonnet-4-6}"
 MODEL_GEMINI="${AURA_MODEL_GEMINI:-gemini-2.5-flash}"
 MODEL_CODEX="${AURA_MODEL_CODEX:-gpt-5-codex}"
 MODEL_OPENAI="${AURA_MODEL_OPENAI:-gpt-4o}"
@@ -57,6 +57,16 @@ provider_keyname() {
 }
 
 order() { printf '%s\n' "$PRIMARY"; printf '%s' "$FALLBACKS" | tr ',' '\n'; }
+
+# Primeiro provider com chave presente, na ordem primary→fallbacks.
+first_healthy_provider() {
+  local p
+  while read -r p; do
+    [ -z "$p" ] && continue
+    if provider_keyname "$p" >/dev/null 2>&1; then echo "$p"; return 0; fi
+  done < <(order)
+  return 1
+}
 
 # Classifica o texto de erro do provider. Ecoa: fallback | stop | context | ok
 classify_error() {
@@ -165,11 +175,23 @@ case "${1:-}" in
       show) [ -r "$HERMES_CONFIG" ] && cat "$HERMES_CONFIG" || echo "config ausente: $HERMES_CONFIG" ;;
       *) echo "uso: aura config {show|path}" >&2; exit 2 ;;
     esac ;;
-  ""|-h|--help)
+  "")
+    # Sem argumentos → abre o TUI interativo do Hermes (igual ao `hermes`),
+    # com a persona Aura, no primeiro provider com chave.
+    p="$(first_healthy_provider)" || {
+      echo "Aura: nenhum provider com chave em $HERMES_ENV." >&2
+      echo "      Rode 'aura providers doctor' e preencha as chaves." >&2
+      exit 1
+    }
+    echo "Aura → $p (TUI interativo). Ctrl-D para sair." >&2
+    exec hermes --provider "$(provider_hprovider "$p")" -m "$(provider_model "$p")"
+    ;;
+  -h|--help)
     echo "Aura (camada Kryonix sobre Hermes). Uso:"
-    echo "  aura <mensagem>            chat roteado (Claude->Gemini->Codex/OpenAI)"
+    echo "  aura                       abre o TUI interativo (provider com chave)"
+    echo "  aura <mensagem>            pergunta única roteada (Claude→Gemini→Codex/OpenAI)"
     echo "  aura providers list|doctor|test <p>"
     echo "  aura config show|path"
-    [ "${1:-}" = "" ] && exit 0 || exit 0 ;;
+    exit 0 ;;
   *) cmd_chat "$@" ;;
 esac

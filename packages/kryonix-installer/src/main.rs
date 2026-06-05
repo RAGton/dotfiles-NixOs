@@ -1,7 +1,7 @@
 mod auth;
+mod detection;
 mod disk;
 mod executor;
-mod install;
 mod network;
 mod profiles;
 
@@ -9,7 +9,10 @@ use axum::{
     Json, Router,
     extract::{Path, State},
     http::StatusCode,
-    response::{IntoResponse, sse::{Event, Sse}},
+    response::{
+        IntoResponse,
+        sse::{Event, Sse},
+    },
     routing::{get, post},
 };
 use executor::{ProgressEvent, SafetyCheck};
@@ -18,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use std::process::Command;
 use std::sync::Arc;
-use tokio::sync::broadcast;
+use tokio::sync::{RwLock, broadcast};
 use tower_http::{cors::CorsLayer, services::ServeDir};
 
 // ── Shared state ──────────────────────────────────────────────────────────────
@@ -26,6 +29,7 @@ use tower_http::{cors::CorsLayer, services::ServeDir};
 pub struct AppState {
     log_sender: Arc<broadcast::Sender<String>>,
     progress_tx: Arc<broadcast::Sender<ProgressEvent>>,
+    install_status: Arc<RwLock<InstallStatus>>,
     /// GitHub OAuth state — token kept in memory only
     pub auth: auth::SharedAuthState,
     /// Reusable HTTP client (connection pooling, rustls)
@@ -137,38 +141,40 @@ struct Check {
 
 impl Check {
     fn pass(msg: impl Into<String>) -> Self {
-        Self { ok: true, message: msg.into() }
+        Self {
+            ok: true,
+            message: msg.into(),
+        }
     }
     fn fail(msg: impl Into<String>) -> Self {
-        Self { ok: false, message: msg.into() }
+        Self {
+            ok: false,
+            message: msg.into(),
+        }
     }
 }
 
-// ── Partition request (legacy) ────────────────────────────────────────────────
-
-#[derive(Deserialize)]
-struct PartitionRequest {
-    disk: String,
+#[derive(Serialize, Clone, Default)]
+struct InstallStatus {
+    running: bool,
+    #[serde(rename = "exitCode")]
+    exit_code: Option<i32>,
+    #[serde(rename = "currentPhase")]
+    current_phase: Option<String>,
+    #[serde(rename = "lastError")]
+    last_error: Option<String>,
+    #[serde(rename = "lastLogLine")]
+    last_log_line: Option<String>,
+    #[serde(rename = "havePlan")]
+    have_plan: bool,
+    #[serde(rename = "canInstall")]
+    can_install: bool,
 }
 
 #[derive(Deserialize)]
 struct ProfileRequest {
     host: String,
     profile: String,
-}
-
-#[derive(Deserialize)]
-struct DiskApplyRequest {
-    host: String,
-    device: String,
-    scheme: String,
-    #[serde(default)]
-    dry_run: bool,
-}
-
-#[derive(Deserialize)]
-struct InstallFinalizeRequest {
-    host: String,
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -187,9 +193,13 @@ async fn main() {
     let state = Arc::new(AppState {
         log_sender: Arc::new(log_tx),
         progress_tx: Arc::new(progress_tx),
+        install_status: Arc::new(RwLock::new(InstallStatus::default())),
         auth: auth::new_auth_state(),
         http_client,
     });
+
+    let ui_dir = std::env::var("KRYONIX_INSTALLER_UI_DIR")
+        .unwrap_or_else(|_| "/run/current-system/sw/share/kryonix-installer/ui/dist".to_string());
 
     let app = Router::new()
         .route("/health", get(health))
@@ -199,6 +209,7 @@ async fn main() {
         .route("/probe", get(probe))
         // Step 0 — Network setup (ethernet auto / WiFi manual)
         .route("/network/status", get(network::status))
+        .route("/network/interfaces", get(network::interfaces))
         .route("/network/wifi/scan", get(network::wifi_scan))
         .route("/network/wifi/connect", post(network::wifi_connect))
         .route("/network/wifi/disconnect", post(network::wifi_disconnect))
@@ -211,11 +222,15 @@ async fn main() {
         .route("/plan", post(plan))
         .route("/dry-run", post(dry_run))
         .route("/install", post(install))
+        .route("/install/status", get(install_status))
         .route("/install/progress", get(install_progress))
         // Profiles
         .route("/profile/apply", post(apply_profile_endpoint))
+        // Detection
+        .route("/api/detection", get(detection_handler))
         // Disk Planner
         .route("/disk/apply", post(disk_apply_endpoint))
+        .route("/disk/manual-setup", get(manual_setup_handler))
         // Installation
         .route("/install/finalize", post(install_finalize_endpoint))
         .route("/api/validate-install", get(validate_install_handler))
@@ -223,17 +238,15 @@ async fn main() {
         .route("/api/disks", get(get_disks))
         .route("/api/disks/:device/partitions", get(get_partitions_handler))
         .route("/api/partition", post(partition_endpoint))
+        .route("/api/reboot", post(reboot_endpoint))
         .route("/api/stream", get(stream_logs))
         .layer(CorsLayer::permissive())
         .with_state(state)
-        .fallback_service(
-            ServeDir::new("/run/current-system/sw/share/kryonix-installer/ui/dist")
-                .fallback(ServeDir::new("ui/static")),
-        );
+        .fallback_service(ServeDir::new(ui_dir).fallback(ServeDir::new("ui/static")));
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
-        .await
-        .unwrap();
+    let bind_addr =
+        std::env::var("KRYONIX_INSTALLER_BIND").unwrap_or_else(|_| "127.0.0.1:8080".to_string());
+    let listener = tokio::net::TcpListener::bind(&bind_addr).await.unwrap();
     println!(
         "Kryonix Installer API → http://{}",
         listener.local_addr().unwrap()
@@ -242,27 +255,24 @@ async fn main() {
 }
 
 async fn install_finalize_endpoint(
-    State(state): State<Arc<AppState>>,
-    Json(payload): Json<InstallFinalizeRequest>,
+    State(_state): State<Arc<AppState>>,
+    Json(_payload): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    let tx = (*state.log_sender).clone();
-    
-    // Run installation in background task to avoid timeout
-    tokio::spawn(async move {
-        if let Err(e) = install::orchestrate_installation(&payload.host, tx.clone()).await {
-            let _ = tx.send(format!("❌ Erro crítico: {}", e));
-        }
-    });
-
-    Ok(Json(serde_json::json!({
-        "status": "started",
-        "message": "Processo de instalação disparado. Acompanhe via stream de logs."
-    })))
+    Err((
+        StatusCode::GONE,
+        Json(ErrorResponse {
+            error: "LEGACY_ROUTE_DISABLED".into(),
+            details: Some(
+                "Use POST /dry-run para validação e POST /install para execução protegida.".into(),
+            ),
+        }),
+    ))
 }
 
 async fn validate_install_handler() -> Result<Json<serde_json::Value>, ApiError> {
     let flag_exists = std::path::Path::new("/mnt/etc/kryonix-installed").exists();
-    let efi_exists = std::path::Path::new("/mnt/boot/EFI").exists() || std::path::Path::new("/mnt/boot/efi").exists();
+    let efi_exists = std::path::Path::new("/mnt/boot/EFI").exists()
+        || std::path::Path::new("/mnt/boot/efi").exists();
     let grub_exists = std::path::Path::new("/mnt/boot/grub").exists();
 
     Ok(Json(serde_json::json!({
@@ -277,42 +287,18 @@ async fn validate_install_handler() -> Result<Json<serde_json::Value>, ApiError>
 }
 
 async fn disk_apply_endpoint(
-    Json(payload): Json<DiskApplyRequest>,
+    Json(_payload): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    // 1. Generate config
-    let disks_nix = disk::generate_disko_config(&payload.host, &payload.device, &payload.scheme)
-        .map_err(|e| (StatusCode::BAD_REQUEST, Json(ErrorResponse {
-            error: "Failed to generate disko config".into(),
-            details: Some(e),
-        })))?;
-
-    if payload.dry_run {
-        let content = std::fs::read_to_string(&disks_nix).unwrap_or_default();
-        return Ok(Json(serde_json::json!({
-            "status": "dry-run",
-            "message": "Configuration generated successfully",
-            "path": disks_nix,
-            "content": content
-        })));
-    }
-
-    // 2. Execute disko
-    let status = Command::new("sudo")
-        .arg("disko")
-        .arg("--mode")
-        .arg("disko")
-        .arg(&disks_nix)
-        .status()
-        .map_err(|e| err500("Failed to execute disko", Some(e.to_string())))?;
-
-    if !status.success() {
-        return Err(err500("disko execution failed", None));
-    }
-
-    Ok(Json(serde_json::json!({
-        "status": "success",
-        "message": "Disk partitioned and formatted successfully"
-    })))
+    Err((
+        StatusCode::GONE,
+        Json(ErrorResponse {
+            error: "LEGACY_ROUTE_DISABLED".into(),
+            details: Some(
+                "A rota /disk/apply não executa mais ações destrutivas. Use /dry-run e /install."
+                    .into(),
+            ),
+        }),
+    ))
 }
 
 async fn apply_profile_endpoint(
@@ -321,10 +307,18 @@ async fn apply_profile_endpoint(
     let profile = match payload.profile.to_uppercase().as_str() {
         "GAMER" => profiles::ProfileType::Gamer,
         "DEV_RUST" => profiles::ProfileType::DevRust,
-        _ => return Err((StatusCode::BAD_REQUEST, Json(ErrorResponse {
-            error: "Perfil inválido".into(),
-            details: Some(format!("Suportados: GAMER, DEV_RUST. Recebido: {}", payload.profile)),
-        }))),
+        _ => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                Json(ErrorResponse {
+                    error: "Perfil inválido".into(),
+                    details: Some(format!(
+                        "Suportados: GAMER, DEV_RUST. Recebido: {}",
+                        payload.profile
+                    )),
+                }),
+            ));
+        }
     };
 
     profiles::apply_profile(&payload.host, profile)
@@ -333,6 +327,17 @@ async fn apply_profile_endpoint(
             error: "Falha ao aplicar perfil".into(),
             details: Some(e),
         })))
+}
+
+async fn detection_handler() -> Result<Json<Vec<detection::InstallationMatch>>, ApiError> {
+    detection::detect_existing_installations()
+        .map(Json)
+        .map_err(|e| err500("FAILED_TO_DETECT_INSTALLATIONS", Some(e)))
+}
+
+async fn manual_setup_handler() -> impl IntoResponse {
+    // Redirect to ttyd running on port 8081
+    axum::response::Redirect::temporary("http://localhost:8081")
 }
 
 // ── GET /health ───────────────────────────────────────────────────────────────
@@ -347,15 +352,23 @@ async fn health() -> Json<serde_json::Value> {
 async fn version_handler() -> Result<Json<serde_json::Value>, ApiError> {
     let content = tokio::fs::read_to_string("/etc/kryonix-version")
         .await
-        .map_err(|e| (StatusCode::NOT_FOUND, Json(ErrorResponse {
-            error: "Versão não encontrada".into(),
-            details: Some(e.to_string()),
-        })))?;
+        .map_err(|e| {
+            (
+                StatusCode::NOT_FOUND,
+                Json(ErrorResponse {
+                    error: "Versão não encontrada".into(),
+                    details: Some(e.to_string()),
+                }),
+            )
+        })?;
 
     let mut map = serde_json::Map::new();
     for line in content.lines() {
         if let Some((key, value)) = line.split_once('=') {
-            map.insert(key.to_string(), serde_json::Value::String(value.to_string()));
+            map.insert(
+                key.to_string(),
+                serde_json::Value::String(value.to_string()),
+            );
         }
     }
 
@@ -365,7 +378,9 @@ async fn version_handler() -> Result<Json<serde_json::Value>, ApiError> {
 // ── GET /probe ────────────────────────────────────────────────────────────────
 
 async fn probe() -> Result<Json<serde_json::Value>, ApiError> {
-    let output = tokio::task::spawn_blocking(|| Command::new("kryonix-hardware-probe").output())
+    let probe_cmd = std::env::var("KRYONIX_HARDWARE_PROBE")
+        .unwrap_or_else(|_| "kryonix-hardware-probe".to_string());
+    let output = tokio::task::spawn_blocking(move || Command::new(probe_cmd).output())
         .await
         .map_err(|e| err500("Spawn error", Some(e.to_string())))?
         .map_err(|e| err500("kryonix-hardware-probe not found", Some(e.to_string())))?;
@@ -412,8 +427,16 @@ async fn plan(Json(req): Json<PlanRequest>) -> Json<InstallPlan> {
 
 // ── POST /dry-run ─────────────────────────────────────────────────────────────
 
-async fn dry_run(Json(plan): Json<InstallPlan>) -> Json<DryRunResult> {
-    Json(validate_plan(&plan))
+async fn dry_run(Json(plan): Json<InstallPlan>) -> impl IntoResponse {
+    let result = validate_plan(&plan);
+    // 200 somente se ok==true; 422 se o plano/alvo é semanticamente inválido.
+    // (Body/JSON malformado já vira 400/422 no extractor Json antes de chegar aqui.)
+    let status = if result.ok {
+        StatusCode::OK
+    } else {
+        StatusCode::UNPROCESSABLE_ENTITY
+    };
+    (status, Json(result))
 }
 
 fn validate_plan(plan: &InstallPlan) -> DryRunResult {
@@ -421,9 +444,16 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
     let mut ok = true;
 
     if plan.disk.profile == "manual" {
-        let parts = plan.disk.manual_partitions.as_ref().cloned().unwrap_or_default();
+        let parts = plan
+            .disk
+            .manual_partitions
+            .as_ref()
+            .cloned()
+            .unwrap_or_default();
         let has_root = parts.iter().any(|p| p.mountpoint == "/");
-        let has_efi = parts.iter().any(|p| p.mountpoint == "/boot/efi" || p.mountpoint == "/efi");
+        let has_efi = parts
+            .iter()
+            .any(|p| p.mountpoint == "/boot/efi" || p.mountpoint == "/efi");
 
         if has_root {
             checks.push(Check::pass("Partição raiz (/) definida"));
@@ -435,7 +465,9 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
         if has_efi {
             checks.push(Check::pass("Partição EFI definida"));
         } else {
-            checks.push(Check::fail("Modo manual exige partição EFI (/boot/efi ou /efi)"));
+            checks.push(Check::fail(
+                "Modo manual exige partição EFI (/boot/efi ou /efi)",
+            ));
             ok = false;
         }
 
@@ -443,7 +475,10 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
         let mut mnts = std::collections::HashSet::new();
         for p in &parts {
             if !mnts.insert(&p.mountpoint) {
-                checks.push(Check::fail(format!("Ponto de montagem duplicado: {}", p.mountpoint)));
+                checks.push(Check::fail(format!(
+                    "Ponto de montagem duplicado: {}",
+                    p.mountpoint
+                )));
                 ok = false;
             }
         }
@@ -458,9 +493,18 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
         };
 
         if count >= min_required {
-            checks.push(Check::pass(format!("Configuração {} com {} discos", level.to_uppercase(), count)));
+            checks.push(Check::pass(format!(
+                "Configuração {} com {} discos",
+                level.to_uppercase(),
+                count
+            )));
         } else {
-            checks.push(Check::fail(format!("{} exige pelo menos {} discos (selecionados: {})", level.to_uppercase(), min_required, count)));
+            checks.push(Check::fail(format!(
+                "{} exige pelo menos {} discos (selecionados: {})",
+                level.to_uppercase(),
+                min_required,
+                count
+            )));
             ok = false;
         }
 
@@ -469,11 +513,16 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
             ok = false;
         }
     } else {
-        if std::path::Path::new(&plan.disk.target).exists() {
-            checks.push(Check::pass(format!("Disco {} encontrado", plan.disk.target)));
-        } else {
-            checks.push(Check::fail(format!("Disco {} não encontrado", plan.disk.target)));
-            ok = false;
+        validate_install_target(&plan.disk.target, &mut checks, &mut ok);
+    }
+
+    if plan.disk.profile == "manual" {
+        for target in install_targets(plan) {
+            validate_install_target(&target, &mut checks, &mut ok);
+        }
+    } else if plan.disk.profile == "raid" {
+        for target in &plan.disk.selected_disks {
+            validate_install_target(target, &mut checks, &mut ok);
         }
     }
 
@@ -488,7 +537,10 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
     if user.is_empty() {
         checks.push(Check::fail("Nome de usuário não pode ser vazio"));
         ok = false;
-    } else if user.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') {
+    } else if user
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+    {
         checks.push(Check::pass(format!("Usuário: {}", user)));
     } else {
         checks.push(Check::fail("Nome de usuário contém caracteres inválidos"));
@@ -503,6 +555,78 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
     }
 
     DryRunResult { ok, checks }
+}
+
+fn install_targets(plan: &InstallPlan) -> Vec<String> {
+    let mut targets = vec![plan.disk.target.clone()];
+    if let Some(parts) = &plan.disk.manual_partitions {
+        targets.extend(parts.iter().map(|p| p.device.clone()));
+    }
+    targets.sort();
+    targets.dedup();
+    targets.retain(|target| !target.trim().is_empty());
+    targets
+}
+
+fn validate_install_target(target: &str, checks: &mut Vec<Check>, ok: &mut bool) {
+    match disk::inspect_disk(target) {
+        Ok(info) => checks.push(Check::pass(format!(
+            "Disco {target} encontrado como block device ({}, {})",
+            info.name, info.size
+        ))),
+        Err(e) => {
+            checks.push(Check::fail(e));
+            *ok = false;
+            return;
+        }
+    }
+
+    match disk::is_system_disk(target) {
+        Ok(true) => {
+            checks.push(Check::fail(format!(
+                "PERIGO: {target} é o disco onde o sistema está rodando"
+            )));
+            *ok = false;
+        }
+        Ok(false) => checks.push(Check::pass(format!("{target} não é o disco do sistema"))),
+        Err(e) => {
+            checks.push(Check::fail(e));
+            *ok = false;
+        }
+    }
+
+    match disk::disk_mount_conflicts(target) {
+        Ok(conflicts) if conflicts.is_empty() => {
+            checks.push(Check::pass(format!("{target} não tem partições montadas")))
+        }
+        Ok(conflicts) => {
+            checks.push(Check::fail(format!(
+                "{target} está montado em {}",
+                conflicts.join(", ")
+            )));
+            *ok = false;
+        }
+        Err(e) => {
+            checks.push(Check::fail(e));
+            *ok = false;
+        }
+    }
+
+    match disk::disk_has_min_install_size(target) {
+        Ok((true, size_bytes)) => {
+            let size_gb = size_bytes / (1024 * 1024 * 1024);
+            checks.push(Check::pass(format!("{target} tem {size_gb} GB")));
+        }
+        Ok((false, size_bytes)) => {
+            let size_gb = size_bytes / (1024 * 1024 * 1024);
+            checks.push(Check::fail(format!("{target} tem apenas {size_gb} GB")));
+            *ok = false;
+        }
+        Err(e) => {
+            checks.push(Check::fail(e));
+            *ok = false;
+        }
+    }
 }
 
 // ── POST /install ─────────────────────────────────────────────────────────────
@@ -522,6 +646,25 @@ async fn install(
         return Json(validate_plan(&plan)).into_response();
     }
 
+    if plan.disk.mode != "install" && plan.disk.mode != "real" {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ErrorResponse {
+                error: "INVALID_INSTALL_MODE".into(),
+                details: Some(
+                    "Use disk.mode=\"dry-run\" para validar ou \"install\"/\"real\" para executar."
+                        .into(),
+                ),
+            }),
+        )
+            .into_response();
+    }
+
+    let validation = validate_plan(&plan);
+    if !validation.ok {
+        return (StatusCode::UNPROCESSABLE_ENTITY, Json(validation)).into_response();
+    }
+
     // Safety checks — ALL must pass; any failure → 403 Forbidden
     let checks = executor::run_safety_checks(&plan);
     if checks.iter().any(|c| !c.passed) {
@@ -538,28 +681,55 @@ async fn install(
     // Launch executor in background, return job_id immediately
     let job_id = uuid::Uuid::new_v4().to_string();
     let tx = state.progress_tx.clone();
-    let _plan_clone = plan.clone();
+    let status_state = state.install_status.clone();
+    let plan_clone = plan.clone();
+    let job_id_for_task = job_id.clone();
 
     tokio::spawn(async move {
-        let steps = [
-            ("PRECHECK", "Validando ambiente e integridade dos discos...", 5),
-            ("PARTITION", "Inicializando particionador disko...", 15),
-            ("PARTITION", "Criando tabelas de partição GPT...", 25),
-            ("FS", "Formatando volumes Btrfs e subvolumes @, @home, @nix...", 40),
-            ("MOUNT", "Montando hierarquia de arquivos em /mnt...", 55),
-            ("INSTALL", "Iniciando nixos-install (copiando closures)...", 70),
-            ("CONFIG", "Gerando configurações de hardware e bootloader...", 85),
-            ("VERIFY", "Finalizando instalação e limpando ambiente...", 95),
-            ("done", "Instalação concluída com sucesso! Sistema pronto para reiniciar.", 100),
-        ];
+        {
+            let mut status = status_state.write().await;
+            *status = InstallStatus {
+                running: true,
+                exit_code: None,
+                current_phase: Some("precheck".into()),
+                last_error: None,
+                last_log_line: Some(format!(
+                    "job {job_id_for_task} aceito; iniciando executor real"
+                )),
+                have_plan: true,
+                can_install: true,
+            };
+        }
 
-        for (step, msg, pct) in steps {
-            let _ = tx.send(ProgressEvent {
-                step: step.into(),
-                message: msg.into(),
-                percent: pct,
-            });
-            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+        let _ = tx.send(ProgressEvent {
+            step: "precheck".into(),
+            message: "Executor real iniciado; disko e nixos-install serão chamados.".into(),
+            percent: 1,
+        });
+
+        match executor::run_installation(&plan_clone, tx.clone()).await {
+            Ok(()) => {
+                let mut status = status_state.write().await;
+                status.running = false;
+                status.exit_code = Some(0);
+                status.current_phase = Some("done".into());
+                status.last_error = None;
+                status.last_log_line = Some("Instalação concluída pelo executor real".into());
+            }
+            Err(error) => {
+                let _ = tx.send(ProgressEvent {
+                    step: "error".into(),
+                    message: error.clone(),
+                    percent: 100,
+                });
+
+                let mut status = status_state.write().await;
+                status.running = false;
+                status.exit_code = Some(1);
+                status.current_phase = Some("error".into());
+                status.last_error = Some(error.clone());
+                status.last_log_line = Some(error);
+            }
         }
     });
 
@@ -568,6 +738,10 @@ async fn install(
         Json(serde_json::json!({ "job_id": job_id, "status": "running" })),
     )
         .into_response()
+}
+
+async fn install_status(State(state): State<Arc<AppState>>) -> Json<InstallStatus> {
+    Json(state.install_status.read().await.clone())
 }
 
 // ── GET /install/progress — SSE ───────────────────────────────────────────────
@@ -602,11 +776,15 @@ async fn get_disks() -> Result<Json<Vec<disk::DiskInfo>>, ApiError> {
 }
 
 async fn partition_endpoint(
-    Json(payload): Json<PartitionRequest>,
+    Json(_payload): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
-    disk::partition_disk(&payload.disk)
-        .map(|_| Json(serde_json::json!({ "status": "success" })))
-        .map_err(|e| err500("PARTITION_FAILED", Some(e)))
+    Err((
+        StatusCode::GONE,
+        Json(ErrorResponse {
+            error: "LEGACY_ROUTE_DISABLED".into(),
+            details: Some("A rota /api/partition foi desativada. Use /dry-run e /install.".into()),
+        }),
+    ))
 }
 
 async fn stream_logs(
@@ -619,6 +797,16 @@ async fn stream_logs(
         }
     };
     Sse::new(stream).keep_alive(axum::response::sse::KeepAlive::new())
+}
+
+async fn reboot_endpoint() -> Result<Json<serde_json::Value>, ApiError> {
+    Err((
+        StatusCode::NOT_IMPLEMENTED,
+        Json(ErrorResponse {
+            error: "REBOOT_DISABLED".into(),
+            details: Some("O backend do instalador não reinicia a máquina automaticamente.".into()),
+        }),
+    ))
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -657,7 +845,10 @@ mod tests {
         let result = validate_plan(&make_plan("/dev/nonexistent999xyz", "kryonix", "admin"));
         assert!(!result.ok);
         assert!(
-            result.checks.iter().any(|c| !c.ok && c.message.contains("nonexistent999xyz"))
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("nonexistent999xyz"))
         );
     }
 
@@ -665,27 +856,40 @@ mod tests {
     fn test_dry_run_rejects_empty_hostname() {
         let result = validate_plan(&make_plan("/dev/null", "", "admin"));
         assert!(!result.ok);
-        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("Hostname")));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("Hostname"))
+        );
     }
 
     #[test]
     fn test_dry_run_manual_requires_root_and_efi() {
         let mut plan = make_plan("/dev/null", "kryonix", "admin");
         plan.disk.profile = "manual".into();
-        plan.disk.manual_partitions = Some(vec![
-            PartitionSpec {
-                device: "/dev/sda".into(),
-                mountpoint: "/home".into(),
-                fstype: "ext4".into(),
-                size: "100%".into(),
-                format: true,
-            }
-        ]);
+        plan.disk.manual_partitions = Some(vec![PartitionSpec {
+            device: "/dev/sda".into(),
+            mountpoint: "/home".into(),
+            fstype: "ext4".into(),
+            size: "100%".into(),
+            format: true,
+        }]);
 
         let result = validate_plan(&plan);
         assert!(!result.ok);
-        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("raiz (/)")));
-        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("EFI")));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("raiz (/)"))
+        );
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("EFI"))
+        );
     }
 
     #[test]
@@ -693,14 +897,37 @@ mod tests {
         let mut plan = make_plan("/dev/null", "kryonix", "admin");
         plan.disk.profile = "manual".into();
         plan.disk.manual_partitions = Some(vec![
-            PartitionSpec { device: "/dev/sda".into(), mountpoint: "/".into(), fstype: "ext4".into(), size: "10G".into(), format: true },
-            PartitionSpec { device: "/dev/sda".into(), mountpoint: "/boot/efi".into(), fstype: "vfat".into(), size: "512M".into(), format: true },
-            PartitionSpec { device: "/dev/sda".into(), mountpoint: "/".into(), fstype: "ext4".into(), size: "10G".into(), format: true },
+            PartitionSpec {
+                device: "/dev/sda".into(),
+                mountpoint: "/".into(),
+                fstype: "ext4".into(),
+                size: "10G".into(),
+                format: true,
+            },
+            PartitionSpec {
+                device: "/dev/sda".into(),
+                mountpoint: "/boot/efi".into(),
+                fstype: "vfat".into(),
+                size: "512M".into(),
+                format: true,
+            },
+            PartitionSpec {
+                device: "/dev/sda".into(),
+                mountpoint: "/".into(),
+                fstype: "ext4".into(),
+                size: "10G".into(),
+                format: true,
+            },
         ]);
 
         let result = validate_plan(&plan);
         assert!(!result.ok);
-        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("duplicado")));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("duplicado"))
+        );
     }
 
     #[test]
@@ -712,14 +939,24 @@ mod tests {
 
         let result = validate_plan(&plan);
         assert!(!result.ok);
-        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("RAID5 exige pelo menos 3")));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("RAID5 exige pelo menos 3"))
+        );
     }
 
     #[test]
     fn test_dry_run_rejects_empty_user() {
         let result = validate_plan(&make_plan("/dev/null", "kryonix", ""));
         assert!(!result.ok);
-        assert!(result.checks.iter().any(|c| !c.ok && c.message.contains("usuário")));
+        assert!(
+            result
+                .checks
+                .iter()
+                .any(|c| !c.ok && c.message.contains("usuário"))
+        );
     }
 
     #[test]
@@ -729,14 +966,14 @@ mod tests {
     }
 
     #[test]
-    fn test_dry_run_passes_null_device() {
+    fn test_dry_run_rejects_null_device() {
         let result = validate_plan(&make_plan("/dev/null", "kryonix", "admin"));
+        assert!(!result.ok);
         assert!(
-            result.checks
+            result
+                .checks
                 .iter()
-                .find(|c| c.message.contains("null"))
-                .map(|c| c.ok)
-                .unwrap_or(false)
+                .any(|c| c.message.contains("null") && !c.ok)
         );
     }
 

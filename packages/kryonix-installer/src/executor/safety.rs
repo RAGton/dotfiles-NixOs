@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::process::Command;
 
-use crate::InstallPlan;
+use crate::{InstallPlan, disk};
 
 #[derive(Serialize, Clone, Debug)]
 pub struct SafetyCheck {
@@ -12,10 +12,18 @@ pub struct SafetyCheck {
 
 impl SafetyCheck {
     fn pass(name: impl Into<String>, reason: impl Into<String>) -> Self {
-        Self { name: name.into(), passed: true, reason: reason.into() }
+        Self {
+            name: name.into(),
+            passed: true,
+            reason: reason.into(),
+        }
     }
     fn fail(name: impl Into<String>, reason: impl Into<String>) -> Self {
-        Self { name: name.into(), passed: false, reason: reason.into() }
+        Self {
+            name: name.into(),
+            passed: false,
+            reason: reason.into(),
+        }
     }
 }
 
@@ -28,23 +36,54 @@ pub fn run_safety_checks(plan: &InstallPlan) -> Vec<SafetyCheck> {
 
     if plan.disk.profile == "manual" {
         checks.push(check_manual_layout(plan));
+        for target in manual_targets(plan) {
+            checks.extend(check_installable_disk(&target));
+        }
     } else if plan.disk.profile == "raid" {
         checks.push(check_raid_layout(plan));
+        for target in &plan.disk.selected_disks {
+            checks.extend(check_installable_disk(target));
+        }
     } else {
-        checks.push(check_disk_not_system(&plan.disk.target));
-        checks.push(check_disk_not_mounted(&plan.disk.target));
-        checks.push(check_disk_has_space(&plan.disk.target));
+        checks.extend(check_installable_disk(&plan.disk.target));
     }
 
     checks
 }
 
+fn manual_targets(plan: &InstallPlan) -> Vec<String> {
+    let mut targets = vec![plan.disk.target.clone()];
+    if let Some(parts) = &plan.disk.manual_partitions {
+        targets.extend(parts.iter().map(|p| p.device.clone()));
+    }
+    targets.sort();
+    targets.dedup();
+    targets.retain(|target| !target.trim().is_empty());
+    targets
+}
+
+fn check_installable_disk(target: &str) -> Vec<SafetyCheck> {
+    vec![
+        check_disk_is_block_device(target),
+        check_disk_not_system(target),
+        check_disk_not_mounted(target),
+        check_disk_has_space(target),
+    ]
+}
+
 fn check_manual_layout(plan: &InstallPlan) -> SafetyCheck {
     let name = "layout_manual_valido";
-    let parts = plan.disk.manual_partitions.as_ref().cloned().unwrap_or_default();
-    
+    let parts = plan
+        .disk
+        .manual_partitions
+        .as_ref()
+        .cloned()
+        .unwrap_or_default();
+
     let has_root = parts.iter().any(|p| p.mountpoint == "/");
-    let has_efi = parts.iter().any(|p| p.mountpoint == "/boot/efi" || p.mountpoint == "/efi");
+    let has_efi = parts
+        .iter()
+        .any(|p| p.mountpoint == "/boot/efi" || p.mountpoint == "/efi");
 
     if !has_root {
         return SafetyCheck::fail(name, "Modo manual exige partição raiz (/)");
@@ -60,7 +99,7 @@ fn check_raid_layout(plan: &InstallPlan) -> SafetyCheck {
     let name = "layout_raid_valido";
     let level = plan.disk.raid_level.as_deref().unwrap_or("raid1");
     let count = plan.disk.selected_disks.len();
-    
+
     let min_required = match level {
         "raid0" | "raid1" => 2,
         "raid5" => 3,
@@ -69,146 +108,98 @@ fn check_raid_layout(plan: &InstallPlan) -> SafetyCheck {
     };
 
     if count < min_required {
-        return SafetyCheck::fail(name, format!("{} exige {} discos (selecionados: {})", level.to_uppercase(), min_required, count));
+        return SafetyCheck::fail(
+            name,
+            format!(
+                "{} exige {} discos (selecionados: {})",
+                level.to_uppercase(),
+                min_required,
+                count
+            ),
+        );
     }
 
-    SafetyCheck::pass(name, format!("Configuração {} válida com {} discos", level.to_uppercase(), count))
+    SafetyCheck::pass(
+        name,
+        format!(
+            "Configuração {} válida com {} discos",
+            level.to_uppercase(),
+            count
+        ),
+    )
+}
+
+fn check_disk_is_block_device(target: &str) -> SafetyCheck {
+    let name = "disco_block_device_valido";
+    match disk::inspect_disk(target) {
+        Ok(info) => SafetyCheck::pass(
+            name,
+            format!(
+                "{target} detectado como disco ({}, {})",
+                info.name, info.size
+            ),
+        ),
+        Err(e) => SafetyCheck::fail(name, e),
+    }
 }
 
 // CRÍTICO — nunca remover. Impede particionar o disco onde o sistema está rodando.
 fn check_disk_not_system(target: &str) -> SafetyCheck {
     let name = "disco_nao_e_sistema";
-
-    let output = match Command::new("findmnt")
-        .args(["--target", "/", "--output", "SOURCE", "--noheadings"])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => {
-            return SafetyCheck::fail(
-                name,
-                format!("Não foi possível executar findmnt: {e}"),
-            );
-        }
-    };
-
-    if !output.status.success() {
-        return SafetyCheck::fail(
-            name,
-            format!(
-                "findmnt falhou: {}",
-                String::from_utf8_lossy(&output.stderr)
-            ),
-        );
-    }
-
-    let source = String::from_utf8_lossy(&output.stdout);
-    // target = "/dev/sda" → base = "sda"; root source = "/dev/sda2" → contains "sda"
-    // target = "/dev/nvme0n1" → base = "nvme0n1"; root source = "/dev/nvme0n1p2" → contains "nvme0n1"
-    let target_base = target.trim_start_matches("/dev/");
-
-    let is_system = source.lines().any(|line| {
-        let line = line.trim().trim_start_matches("/dev/");
-        // Exact match (partition IS target) or partition starts with target base
-        line == target_base || line.starts_with(target_base)
-    });
-
-    if is_system {
-        SafetyCheck::fail(
+    match disk::is_system_disk(target) {
+        Ok(true) => SafetyCheck::fail(
             name,
             format!("PERIGO: {target} é o disco onde o sistema está rodando!"),
-        )
-    } else {
-        SafetyCheck::pass(name, format!("{target} não é o disco do sistema"))
+        ),
+        Ok(false) => SafetyCheck::pass(name, format!("{target} não é o disco do sistema")),
+        Err(e) => SafetyCheck::fail(name, e),
     }
 }
 
 fn check_disk_not_mounted(target: &str) -> SafetyCheck {
     let name = "disco_nao_montado";
-    let target_base = target.trim_start_matches("/dev/");
-
-    let output = match Command::new("findmnt")
-        .args(["--output", "SOURCE,TARGET", "--noheadings"])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => return SafetyCheck::fail(name, format!("findmnt falhou: {e}")),
-    };
-
-    let text = String::from_utf8_lossy(&output.stdout);
-
-    for line in text.lines() {
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() < 2 {
-            continue;
-        }
-        let source = parts[0].trim_start_matches("/dev/");
-        let mountpoint = parts[1];
-
-        // Check if this source is a partition of our target disk
-        if source == target_base || source.starts_with(target_base) {
-            // /iso is the live media — that's expected and acceptable
-            if mountpoint == "/iso" || mountpoint.starts_with("/iso/") {
-                continue;
-            }
-            return SafetyCheck::fail(
-                name,
-                format!("{target} está montado em {mountpoint} — desmonte antes de instalar"),
-            );
-        }
+    match disk::disk_mount_conflicts(target) {
+        Ok(conflicts) if conflicts.is_empty() => SafetyCheck::pass(
+            name,
+            format!("{target} não tem partições montadas (exceto /iso)"),
+        ),
+        Ok(conflicts) => SafetyCheck::fail(
+            name,
+            format!("{target} está montado em {}", conflicts.join(", ")),
+        ),
+        Err(e) => SafetyCheck::fail(name, e),
     }
-
-    SafetyCheck::pass(name, format!("{target} não tem partições montadas (exceto /iso)"))
 }
 
 fn check_disk_has_space(target: &str) -> SafetyCheck {
     let name = "disco_tem_espaco";
-    const MIN_BYTES: u64 = 10 * 1024 * 1024 * 1024; // 10 GB
-
-    let output = match Command::new("lsblk")
-        .args(["-b", "-d", "-o", "SIZE", "--noheadings", target])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => return SafetyCheck::fail(name, format!("lsblk falhou: {e}")),
-    };
-
-    if !output.status.success() {
-        return SafetyCheck::fail(
-            name,
-            format!("lsblk error: {}", String::from_utf8_lossy(&output.stderr)),
-        );
-    }
-
-    let size_str = String::from_utf8_lossy(&output.stdout);
-    let size_bytes: u64 = match size_str.trim().parse() {
-        Ok(n) => n,
-        Err(_) => {
-            return SafetyCheck::fail(
+    match disk::disk_has_min_install_size(target) {
+        Ok((true, size_bytes)) => {
+            let size_gb = size_bytes / (1024 * 1024 * 1024);
+            SafetyCheck::pass(
                 name,
-                format!("Não foi possível ler o tamanho de {target}"),
+                format!("{target} tem {size_gb} GB (>= 10 GB requerido)"),
             )
         }
-    };
-
-    let size_gb = size_bytes / (1024 * 1024 * 1024);
-    if size_bytes >= MIN_BYTES {
-        SafetyCheck::pass(name, format!("{target} tem {size_gb} GB (≥ 10 GB requerido)"))
-    } else {
-        SafetyCheck::fail(
-            name,
-            format!("{target} tem apenas {size_gb} GB — mínimo 10 GB requerido"),
-        )
+        Ok((false, size_bytes)) => {
+            let size_gb = size_bytes / (1024 * 1024 * 1024);
+            SafetyCheck::fail(
+                name,
+                format!("{target} tem apenas {size_gb} GB — mínimo 10 GB requerido"),
+            )
+        }
+        Err(e) => SafetyCheck::fail(name, e),
     }
 }
 
 fn check_nixos_install_available() -> SafetyCheck {
     let name = "nixos_install_disponivel";
     match Command::new("which").arg("nixos-install").output() {
-        Ok(o) if o.status.success() => {
-            SafetyCheck::pass(name, "nixos-install encontrado no PATH")
-        }
-        _ => SafetyCheck::fail(name, "nixos-install não encontrado — execute a partir da ISO Kryonix"),
+        Ok(o) if o.status.success() => SafetyCheck::pass(name, "nixos-install encontrado no PATH"),
+        _ => SafetyCheck::fail(
+            name,
+            "nixos-install não encontrado — execute a partir da ISO Kryonix",
+        ),
     }
 }
 
@@ -216,7 +207,10 @@ fn check_disko_available() -> SafetyCheck {
     let name = "disko_disponivel";
     match Command::new("which").arg("disko").output() {
         Ok(o) if o.status.success() => SafetyCheck::pass(name, "disko encontrado no PATH"),
-        _ => SafetyCheck::fail(name, "disko não encontrado — execute a partir da ISO Kryonix"),
+        _ => SafetyCheck::fail(
+            name,
+            "disko não encontrado — execute a partir da ISO Kryonix",
+        ),
     }
 }
 
@@ -226,9 +220,7 @@ fn check_network_for_nix() -> SafetyCheck {
         .args(["-s", "--max-time", "5", "--head", "https://cache.nixos.org"])
         .output()
     {
-        Ok(o) if o.status.success() => {
-            SafetyCheck::pass(name, "cache.nixos.org acessível")
-        }
+        Ok(o) if o.status.success() => SafetyCheck::pass(name, "cache.nixos.org acessível"),
         Ok(o) => SafetyCheck::fail(
             name,
             format!(
@@ -247,14 +239,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_check_disk_not_system_null_is_not_system() {
-        // Skip if findmnt is not available (e.g., Nix build sandbox)
-        if std::process::Command::new("findmnt").arg("--help").output().is_err() {
-            return;
-        }
-        // /dev/null is never the root disk
-        let check = check_disk_not_system("/dev/null");
-        assert!(check.passed, "expected /dev/null to not be system disk: {}", check.reason);
+    fn test_check_disk_block_device_rejects_null() {
+        let check = check_disk_is_block_device("/dev/null");
+        assert!(
+            !check.passed,
+            "/dev/null must not be accepted as an install disk"
+        );
     }
 
     #[test]
@@ -284,12 +274,19 @@ mod tests {
                 raid_level: None,
                 manual_partitions: None,
             },
-            user: PlanUser { name: "admin".into(), admin: true },
+            user: PlanUser {
+                name: "admin".into(),
+                admin: true,
+            },
             features: serde_json::json!({}),
         };
         let checks = run_safety_checks(&plan);
-        assert_eq!(checks.len(), 6);
+        assert_eq!(checks.len(), 7);
         let names: std::collections::HashSet<_> = checks.iter().map(|c| &c.name).collect();
-        assert_eq!(names.len(), 6, "all check names must be unique");
+        assert_eq!(
+            names.len(),
+            7,
+            "all check names must be unique for a single target"
+        );
     }
 }

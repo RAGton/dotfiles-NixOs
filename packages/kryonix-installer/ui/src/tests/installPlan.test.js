@@ -36,11 +36,29 @@ function createValidUi(overrides = {}) {
     eulaAccepted: true,
     destructiveConfirmed: true,
     netIfacesCount: 2,
+    netConnected: true,
     wanIdentified: true,
     lanIdentified: true,
     ...overrides,
   });
 }
+
+test('etapa de rede bloqueia avanço sem conexao ou modo offline', () => {
+  const draft = createValidDraft();
+  const uiState = createValidUi({
+    netConnected: false,
+    netOffline: false,
+  });
+
+  const validation = validateStep('network', draft, uiState);
+  assert.ok(validation.blockingIssues.includes('Conecte-se à internet ou selecione "Continuar offline" para prosseguir.'));
+
+  const validOnline = validateStep('network', draft, { ...uiState, netConnected: true });
+  assert.equal(validOnline.blockingIssues.includes('Conecte-se à internet ou selecione "Continuar offline" para prosseguir.'), false);
+
+  const validOffline = validateStep('network', draft, { ...uiState, netOffline: true });
+  assert.equal(validOffline.blockingIssues.includes('Conecte-se à internet ou selecione "Continuar offline" para prosseguir.'), false);
+});
 
 test('draft gera install-plan canonico sem vazar estado transitorio', () => {
   const draft = createValidDraft({

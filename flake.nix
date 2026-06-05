@@ -49,7 +49,7 @@
     # Plasma Manager — configuração declarativa do KDE Plasma 6 (Home Manager)
     # Usado pelo módulo de desktop "kde" (homeManagerModules.kde).
     plasma-manager = {
-      url = "github:nix-community/plasma-manager";
+      url = "github:AlexNabokikh/plasma-manager/trunk";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
@@ -102,14 +102,6 @@
     # Fonte pinada no lock do flake.
     kryonix-brain-lightrag = {
       url = "github:RAGEnterprise/kryonix-brain-lightrag";
-      flake = false;
-    };
-
-    # Hermes Agent (NousResearch) — agente de IA Python instalado declarativamente
-    # via uv (sem o instalador imperativo curl|bash). Consumido por
-    # modules/nixos/services/hermes.nix. Pinado em tag estável.
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent/v2026.5.29.2";
       flake = false;
     };
   };

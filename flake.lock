@@ -164,23 +164,6 @@
         "type": "github"
       }
     },
-    "hermes-agent": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1780061757,
-        "narHash": "sha256-0CmNH879jnsAAszo1nkkFm8RNE49xtwUditYdFIYBCM=",
-        "owner": "NousResearch",
-        "repo": "hermes-agent",
-        "rev": "77a1650c78a4cb1813d8a81fa1da40a15b6a3ec5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NousResearch",
-        "ref": "v2026.5.29.2",
-        "repo": "hermes-agent",
-        "type": "github"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -305,15 +288,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1775856943,
-        "narHash": "sha256-b7Mp7P+q2Md5AGt4rjHfMcBykzMumFTen10ST++AuTU=",
-        "owner": "nix-community",
+        "lastModified": 1763909441,
+        "narHash": "sha256-56LwV51TX/FhgX+5LCG6akQ5KrOWuKgcJa+eUsRMxsc=",
+        "owner": "AlexNabokikh",
         "repo": "plasma-manager",
-        "rev": "a524a6160e6df89f7673ba293cf7d78b559eb1a5",
+        "rev": "b24ed4b272256dfc1cc2291f89a9821d5f9e14b4",
         "type": "github"
       },
       "original": {
-        "owner": "nix-community",
+        "owner": "AlexNabokikh",
+        "ref": "trunk",
         "repo": "plasma-manager",
         "type": "github"
       }
@@ -347,7 +331,6 @@
         "darwin": "darwin",
         "disko": "disko",
         "hardware": "hardware",
-        "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "kryonix-brain-lightrag": "kryonix-brain-lightrag",
         "kryonix-home": "kryonix-home",

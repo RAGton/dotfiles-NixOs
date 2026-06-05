@@ -1,6 +1,9 @@
 {
   lib,
   writeShellApplication,
+  coreutils,
+  gawk,
+  gnugrep,
   util-linux,
   pciutils,
   jq,
@@ -10,6 +13,9 @@ writeShellApplication {
   name = "kryonix-hardware-probe";
 
   runtimeInputs = [
+    coreutils
+    gawk
+    gnugrep
     util-linux
     pciutils
     jq

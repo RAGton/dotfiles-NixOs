@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import FieldError from '../components/FieldError.jsx';
 import { installerApi, getInstallerApiErrorMessage } from '../utils/installerApi.js';
 
@@ -67,60 +67,120 @@ export default function Network({ wizard, onChange, validation }) {
   const [error, setError] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [showPppoePassword, setShowPppoePassword] = useState(false);
+
+  // Conectividade (Wi-Fi + status). 
+  // SECURITY: Senha só em estado local — nunca persistida no wizardState/localStorage.
+  const [netStatus, setNetStatus] = useState(null);
+  const [wifiList, setWifiList] = useState([]);
+  const [wifiScanning, setWifiScanning] = useState(false);
+  const [selectedWifiIface, setSelectedWifiIface] = useState('');
+  const [wifiSsid, setWifiSsid] = useState('');
+  const [wifiPassword, setWifiPassword] = useState('');
+  const [showWifiPassword, setShowWifiPassword] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [connectMsg, setConnectMsg] = useState('');
+
   const fieldErrors = validation?.fieldErrors || {};
   const warnings = validation?.warnings || [];
+  
+  const ifaceNames = interfaces.map((i) => i.name).filter(Boolean);
+  const ethIfaces = interfaces.filter((i) => i.type === 'ethernet');
+  const wifiIfaces = interfaces.filter((i) => i.type === 'wifi');
+  const otherIfaces = interfaces.filter((i) => i.type !== 'ethernet' && i.type !== 'wifi');
+  
+  const hasWifi = wifiIfaces.length > 0;
   const wanEnabled = Boolean(wizard.wanInterface);
   const sameNicSelected = wizard.mgmtInterface && wizard.wanInterface && wizard.mgmtInterface === wizard.wanInterface;
 
+  const refreshStatus = useCallback(async () => {
+    try { 
+      const status = await installerApi.getNetworkStatus();
+      setNetStatus(status);
+      if (status.connected) {
+        onChange({ netConnected: true, netOffline: false });
+      } else {
+        onChange({ netConnected: false });
+      }
+    } catch { /* ignora */ }
+  }, [onChange]);
+
+  const loadInterfaces = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const payload = await installerApi.getNetworkInterfaces();
+      const list = Array.isArray(payload?.interfaces) ? payload.interfaces : [];
+      setInterfaces(list);
+      
+      const wifi = list.find(i => i.type === 'wifi');
+      if (wifi && !selectedWifiIface) {
+        setSelectedWifiIface(wifi.name);
+      }
+
+      const names = list.map((i) => i.name).filter(Boolean);
+      const patch = { netIfacesCount: names.length };
+      if (!wizard.mgmtInterface || !names.includes(wizard.mgmtInterface)) {
+        patch.mgmtInterface = names[0] || '';
+      }
+      onChange(patch);
+    } catch (nextError) {
+      setError(getInstallerApiErrorMessage(nextError, 'Falha ao carregar interfaces.'));
+    } finally {
+      setLoading(false);
+    }
+  }, [onChange, wizard.mgmtInterface, selectedWifiIface]);
+
   useEffect(() => {
     let cancelled = false;
+    (async () => {
+      await loadInterfaces();
+      if (!cancelled) await refreshStatus();
+    })();
+    return () => { cancelled = true; };
+  }, [loadInterfaces, refreshStatus]);
 
-    async function load() {
-      try {
-        setLoading(true);
-        setError('');
-        const payload = await installerApi.getNetworkInterfaces();
-        const next = Array.isArray(payload.interfaces) ? payload.interfaces : [];
-
-        if (!cancelled) {
-          setInterfaces(next);
-          const nextPatch = { netIfacesCount: next.length };
-
-          if (!wizard.mgmtInterface || !next.includes(wizard.mgmtInterface)) {
-            nextPatch.mgmtInterface = next[0] || '';
-          }
-
-          if (wizard.wanInterface && !next.includes(wizard.wanInterface)) {
-            nextPatch.wanInterface = '';
-            nextPatch.wanMode = 'dhcp';
-            nextPatch.wanAddress = '';
-            nextPatch.wanGateway = '';
-            nextPatch.wanDns = '';
-            nextPatch.pppoeUser = '';
-            nextPatch.pppoePassword = '';
-            nextPatch.wanIdentified = false;
-          }
-
-          if (Object.keys(nextPatch).length > 0) {
-            onChange(nextPatch);
-          }
-        }
-      } catch (nextError) {
-        if (!cancelled) {
-          setError(getInstallerApiErrorMessage(nextError, 'Falha ao carregar interfaces.'));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+  const scanWifi = useCallback(async () => {
+    if (!selectedWifiIface) return;
+    setWifiScanning(true);
+    setConnectMsg('');
+    try {
+      const response = await installerApi.scanWifi(selectedWifiIface);
+      setWifiList(Array.isArray(response?.networks) ? response.networks : []);
+      if (response?.warning) {
+        setConnectMsg(response.warning);
       }
+    } catch (nextError) {
+      setConnectMsg(getInstallerApiErrorMessage(nextError, 'Falha ao escanear redes Wi-Fi.'));
+    } finally {
+      setWifiScanning(false);
     }
+  }, [selectedWifiIface]);
 
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [onChange, wizard.mgmtInterface, wizard.wanInterface]);
+  const connectWifi = useCallback(async () => {
+    if (!selectedWifiIface || !wifiSsid) return;
+    setConnecting(true);
+    setConnectMsg('');
+    try {
+      const result = await installerApi.connectWifi(selectedWifiIface, wifiSsid, wifiPassword);
+      setConnectMsg(result?.message || 'Conectado.');
+      
+      // SECURITY: limpa a senha da memória local após a tentativa
+      setWifiPassword(''); 
+      
+      await refreshStatus();
+    } catch (nextError) {
+      setConnectMsg(getInstallerApiErrorMessage(nextError, 'Falha ao conectar.'));
+    } finally {
+      setConnecting(false);
+    }
+  }, [selectedWifiIface, wifiSsid, wifiPassword, refreshStatus]);
+
+  const continueOffline = () => {
+    // SECURITY: Limpa qualquer dado sensível local
+    setWifiSsid('');
+    setWifiPassword('');
+    onChange({ netOffline: true, netConnected: false });
+  };
 
   const handleIpv4Change = (field) => (event) => {
     onChange({
@@ -154,29 +214,166 @@ export default function Network({ wizard, onChange, validation }) {
       <section className="section-panel min-h-0 overflow-y-auto p-4">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-xl font-bold text-white">Rede do servidor</h3>
-            <p className="mt-1 text-sm text-slate-400">Somente campos que entram no contrato real entre React, backend, shell e `params.nix`.</p>
+            <h3 className="text-xl font-bold text-white">Conectividade e Redes</h3>
+            <p className="mt-1 text-sm text-slate-400">Configure o acesso à internet para o instalador e os parâmetros de rede do servidor.</p>
           </div>
           <button type="button" className="btn-secondary !px-3 !py-2" onClick={() => setShowHelp((previous) => !previous)}>
-            {showHelp ? 'Ocultar ajuda' : 'Ajuda tecnica'}
+            {showHelp ? 'Ocultar ajuda' : 'Ajuda técnica'}
           </button>
         </div>
 
         {showHelp ? <HelpBlock /> : null}
 
-        <div className="mt-4 space-y-4">
+        {/* ── Conectividade Live ─────────────────────────────────────────── */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 mt-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Status do Instalador</div>
+            <div className="flex gap-2">
+               <button type="button" className="btn-secondary !px-2 !py-1 text-xs" onClick={loadInterfaces} disabled={loading}>
+                 {loading ? '↻' : '↻ Atualizar'}
+               </button>
+               <span className={`metric-chip ${wizard.netConnected ? 'text-emerald-300' : wizard.netOffline ? 'text-amber-300' : 'text-slate-400'}`}>
+                {wizard.netConnected
+                  ? `Online${netStatus?.ssid ? ` · ${netStatus.ssid}` : ''}`
+                  : wizard.netOffline ? 'Modo Offline' : 'Desconectado'}
+              </span>
+            </div>
+          </div>
+
+          {/* Listagem de Interfaces Ethernet */}
+          <div className="mt-4">
+            <div className="text-sm font-semibold text-white mb-2">Interfaces Ethernet</div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {ethIfaces.length === 0 ? (
+                <div className="text-xs text-slate-500 italic">Nenhuma interface Ethernet detectada.</div>
+              ) : (
+                ethIfaces.map((it) => (
+                  <div key={it.name} className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm">
+                    <span className="text-white">󰈀 {it.name}</span>
+                    <span className={it.state === 'connected' ? 'text-emerald-300' : 'text-slate-400'}>{it.state}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Gestão de Wi-Fi */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div className="text-sm font-semibold text-white">Redes Wi-Fi</div>
+              {hasWifi && (
+                <div className="flex gap-2">
+                  <select 
+                    className="bg-slate-900 border border-white/10 text-xs rounded px-2 py-1 text-slate-300"
+                    value={selectedWifiIface}
+                    onChange={(e) => setSelectedWifiIface(e.target.value)}
+                  >
+                    {wifiIfaces.map(i => <option key={i.name} value={i.name}>{i.name}</option>)}
+                  </select>
+                  <button type="button" className="btn-secondary !px-3 !py-1 text-xs" onClick={scanWifi} disabled={wifiScanning || !selectedWifiIface}>
+                    {wifiScanning ? 'Buscando…' : 'Buscar redes'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {!hasWifi ? (
+              <div className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-3 text-sm text-slate-400">
+                󰖪 Nenhuma interface Wi-Fi detectada neste hardware.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {wifiList.length > 0 ? (
+                  <>
+                    <div>
+                      <label className="label-text" htmlFor="wifiSsid">Rede Disponível</label>
+                      <select id="wifiSsid" className="input-shell" value={wifiSsid} onChange={(e) => setWifiSsid(e.target.value)}>
+                        <option value="">Selecione uma rede</option>
+                        {wifiList.map((w) => (
+                          <option key={w.ssid} value={w.ssid}>
+                            {w.ssid} — {w.signal}% {w.security ? `(${w.security})` : '(Aberta)'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="label-text" htmlFor="wifiPassword">Senha</label>
+                      <div className="flex gap-2">
+                        <input
+                          id="wifiPassword"
+                          type={showWifiPassword ? 'text' : 'password'}
+                          className="input-shell flex-1"
+                          value={wifiPassword}
+                          autoComplete="off"
+                          onChange={(e) => setWifiPassword(e.target.value)}
+                          placeholder="Vazio para redes abertas"
+                        />
+                        <button type="button" className="btn-secondary !px-3 !py-2" onClick={() => setShowWifiPassword((p) => !p)}>
+                          {showWifiPassword ? '󰈈' : '󰈉'}
+                        </button>
+                        <button type="button" className="btn-primary !px-4 !py-2" onClick={connectWifi} disabled={!wifiSsid || connecting}>
+                          {connecting ? '...' : 'Conectar'}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-xs text-slate-500 italic">Clique em "Buscar redes" para listar sinais Wi-Fi.</div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {connectMsg ? <div className="mt-3 p-2 rounded bg-cyan-950/30 text-xs text-cyan-200 border border-cyan-400/20">{connectMsg}</div> : null}
+
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+            <button type="button" className={`btn-secondary !px-4 !py-2 ${wizard.netOffline ? 'ring-2 ring-amber-400/50 bg-amber-400/10' : ''}`} onClick={continueOffline}>
+              Continuar offline
+            </button>
+            {wizard.netOffline && (
+              <span className="text-[10px] text-amber-300 font-medium uppercase tracking-wider">
+                󱧥 Avanço offline liberado
+              </span>
+            )}
+          </div>
+          
+          {wizard.netOffline && (
+            <div className="mt-3 p-3 rounded-xl bg-amber-400/5 border border-amber-400/20 text-xs text-amber-100/80 leading-relaxed">
+              <span className="font-bold text-amber-200">Aviso:</span> Modo offline ativado. A instalação dependerá exclusivamente do conteúdo presente na ISO ou em caches locais. Downloads de repositórios externos não serão realizados.
+            </div>
+          )}
+        </div>
+
+        {/* ── Configurações do Target ─────────────────────────────────────── */}
+        <div className="mt-8 space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Servidor / LAN-PXE</div>
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Servidor / LAN-PXE (Target)</div>
+
+            {/* Modo de endereçamento IPv4 da interface LAN/PXE: DHCP (automático)
+                ou manual (IP estático). Em DHCP os campos de IP/máscara/gateway/DNS
+                são obtidos automaticamente e não são exigidos. */}
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                className={wizard.mgmtMode === 'dhcp' ? 'btn-primary' : 'btn-secondary'}
+                onClick={() => onChange({ mgmtMode: 'dhcp' })}
+              >
+                DHCP (IP automático)
+              </button>
+              <button
+                type="button"
+                className={wizard.mgmtMode === 'static' ? 'btn-primary' : 'btn-secondary'}
+                onClick={() => onChange({ mgmtMode: 'static' })}
+              >
+                Manual (IP estático)
+              </button>
+            </div>
+
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="label-text" htmlFor="hostName">Hostname</label>
                 <input id="hostName" className="input-shell" value={wizard.hostName} onChange={(event) => onChange({ hostName: event.target.value })} />
                 <FieldError message={fieldErrors.hostName} />
-              </div>
-              <div>
-                <label className="label-text" htmlFor="serverIp">IP do servidor</label>
-                <input id="serverIp" className="input-shell" value={wizard.serverIp} onChange={handleIpv4Change('serverIp')} inputMode="numeric" />
-                <FieldError message={fieldErrors.serverIp} />
               </div>
               <div>
                 <label className="label-text" htmlFor="mgmtInterface">Interface LAN/PXE</label>
@@ -187,32 +384,47 @@ export default function Network({ wizard, onChange, validation }) {
                   onChange={(event) => onChange({ mgmtInterface: event.target.value, lanIdentified: false })}
                 >
                   <option value="">Selecione uma interface</option>
-                  {interfaces.map((item) => (
+                  {ifaceNames.map((item) => (
                     <option key={item} value={item}>{item}</option>
                   ))}
                 </select>
                 <FieldError message={fieldErrors.mgmtInterface} />
               </div>
-              <div>
-                <label className="label-text" htmlFor="mgmtNetmask">Mascara / prefixo</label>
-                <select id="mgmtNetmask" className="input-shell" value={wizard.mgmtNetmask} onChange={(event) => onChange({ mgmtNetmask: event.target.value })}>
-                  <option value="255.255.255.0">255.255.255.0 (/24)</option>
-                  <option value="255.255.255.128">255.255.255.128 (/25)</option>
-                  <option value="255.255.255.252">255.255.255.252 (/30)</option>
-                  <option value="255.255.0.0">255.255.0.0 (/16)</option>
-                </select>
-                <FieldError message={fieldErrors.mgmtNetmask} />
-              </div>
-              <div>
-                <label className="label-text" htmlFor="mgmtGateway">Gateway</label>
-                <input id="mgmtGateway" className="input-shell" value={wizard.mgmtGateway} onChange={handleIpv4Change('mgmtGateway')} inputMode="numeric" />
-                <FieldError message={fieldErrors.mgmtGateway} />
-              </div>
-              <div>
-                <label className="label-text" htmlFor="mgmtDns">DNS</label>
-                <input id="mgmtDns" className="input-shell" value={wizard.mgmtDns} onChange={(event) => onChange({ mgmtDns: event.target.value })} />
-                <FieldError message={fieldErrors.mgmtDns} />
-              </div>
+
+              {wizard.mgmtMode === 'static' ? (
+                <>
+                  <div>
+                    <label className="label-text" htmlFor="serverIp">IP do servidor</label>
+                    <input id="serverIp" className="input-shell" value={wizard.serverIp} onChange={handleIpv4Change('serverIp')} inputMode="numeric" />
+                    <FieldError message={fieldErrors.serverIp} />
+                  </div>
+                  <div>
+                    <label className="label-text" htmlFor="mgmtNetmask">Mascara / prefixo</label>
+                    <select id="mgmtNetmask" className="input-shell" value={wizard.mgmtNetmask} onChange={(event) => onChange({ mgmtNetmask: event.target.value })}>
+                      <option value="255.255.255.0">255.255.255.0 (/24)</option>
+                      <option value="255.255.255.128">255.255.255.128 (/25)</option>
+                      <option value="255.255.255.252">255.255.255.252 (/30)</option>
+                      <option value="255.255.0.0">255.255.0.0 (/16)</option>
+                    </select>
+                    <FieldError message={fieldErrors.mgmtNetmask} />
+                  </div>
+                  <div>
+                    <label className="label-text" htmlFor="mgmtGateway">Gateway</label>
+                    <input id="mgmtGateway" className="input-shell" value={wizard.mgmtGateway} onChange={handleIpv4Change('mgmtGateway')} inputMode="numeric" />
+                    <FieldError message={fieldErrors.mgmtGateway} />
+                  </div>
+                  <div>
+                    <label className="label-text" htmlFor="mgmtDns">DNS</label>
+                    <input id="mgmtDns" className="input-shell" value={wizard.mgmtDns} onChange={(event) => onChange({ mgmtDns: event.target.value })} />
+                    <FieldError message={fieldErrors.mgmtDns} />
+                  </div>
+                </>
+              ) : (
+                <div className="sm:col-span-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
+                  IP, máscara, gateway e DNS serão obtidos automaticamente via DHCP na interface LAN/PXE.
+                </div>
+              )}
+
               <div className="sm:col-span-2">
                 <label className="label-text" htmlFor="httpPort">Porta HTTP</label>
                 <input
@@ -233,7 +445,7 @@ export default function Network({ wizard, onChange, validation }) {
                 checked={Boolean(wizard.lanIdentified)}
                 onChange={(event) => onChange({ lanIdentified: event.target.checked })}
               />
-              Confirmei fisicamente a interface LAN/PXE ({wizard.mgmtInterface || 'nao selecionada'}).
+              Confirmei fisicamente a interface LAN/PXE ({wizard.mgmtInterface || 'não selecionada'}).
             </label>
           </div>
 
@@ -241,7 +453,7 @@ export default function Network({ wizard, onChange, validation }) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">WAN opcional</div>
-                <p className="mt-2 text-sm text-slate-400">Preencha apenas se houver uma segunda interface dedicada para uplink, NAT ou PPPoE.</p>
+                <p className="mt-2 text-sm text-slate-400">Preencha apenas se houver uma segunda interface dedicada para uplink.</p>
               </div>
               <div className={`metric-chip ${wanEnabled ? 'text-emerald-300' : 'text-slate-400'}`}>
                 {wanEnabled ? wizard.wanInterface : 'Sem WAN'}
@@ -252,7 +464,7 @@ export default function Network({ wizard, onChange, validation }) {
               <label className="label-text" htmlFor="wanInterface">Interface WAN</label>
               <select id="wanInterface" className="input-shell" value={wizard.wanInterface} onChange={(event) => handleWanInterfaceChange(event.target.value)}>
                 <option value="">Sem uplink dedicado</option>
-                {interfaces
+                {ifaceNames
                   .filter((item) => item !== wizard.mgmtInterface)
                   .map((item) => (
                     <option key={item} value={item}>{item}</option>
@@ -268,7 +480,7 @@ export default function Network({ wizard, onChange, validation }) {
                     DHCP
                   </button>
                   <button type="button" className={wizard.wanMode === 'static' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'static' })}>
-                    IP estatico
+                    IP estático
                   </button>
                   <button type="button" className={wizard.wanMode === 'pppoe' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'pppoe' })}>
                     PPPoE
@@ -308,7 +520,7 @@ export default function Network({ wizard, onChange, validation }) {
                 {wizard.wanMode === 'pppoe' ? (
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="label-text" htmlFor="pppoeUser">Usuario PPPoE</label>
+                      <label className="label-text" htmlFor="pppoeUser">Usuário PPPoE</label>
                       <input id="pppoeUser" className="input-shell" value={wizard.pppoeUser || ''} onChange={(event) => onChange({ pppoeUser: event.target.value })} />
                       <FieldError message={fieldErrors.pppoeUser} />
                     </div>
@@ -323,7 +535,7 @@ export default function Network({ wizard, onChange, validation }) {
                           onChange={(event) => onChange({ pppoePassword: event.target.value })}
                         />
                         <button type="button" className="btn-secondary !px-3 !py-2" onClick={() => setShowPppoePassword((previous) => !previous)}>
-                          {showPppoePassword ? 'Ocultar' : 'Mostrar'}
+                          {showPppoePassword ? '󰈈' : '󰈉'}
                         </button>
                       </div>
                       <FieldError message={fieldErrors.pppoePassword} />
@@ -338,12 +550,12 @@ export default function Network({ wizard, onChange, validation }) {
                     checked={Boolean(wizard.wanIdentified)}
                     onChange={(event) => onChange({ wanIdentified: event.target.checked })}
                   />
-                  Confirmei fisicamente a interface WAN ({wizard.wanInterface || 'nao selecionada'}).
+                  Confirmei fisicamente a interface WAN ({wizard.wanInterface || 'não selecionada'}).
                 </label>
               </>
             ) : (
               <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
-                Sem WAN dedicada: o servidor usara apenas a interface LAN/PXE e o gateway informado na configuracao principal.
+                Sem WAN dedicada: o servidor usará apenas a interface LAN/PXE.
               </div>
             )}
           </div>
@@ -355,16 +567,14 @@ export default function Network({ wizard, onChange, validation }) {
         <div className="mt-4 space-y-3">
           <SummaryRow label="Interfaces detectadas" value={loading ? 'carregando' : String(interfaces.length)} />
           <SummaryRow label="LAN/PXE" value={wizard.mgmtInterface || 'pendente'} />
-          <SummaryRow label="IP LAN/PXE" value={wizard.serverIp || 'pendente'} />
-          <SummaryRow label="Gateway" value={wizard.mgmtGateway || 'pendente'} />
-          <SummaryRow label="DNS" value={wizard.mgmtDns || 'pendente'} />
+          <SummaryRow label="IP LAN/PXE" value={wizard.mgmtMode === 'dhcp' ? 'DHCP (automático)' : (wizard.serverIp || 'pendente')} />
           <SummaryRow label="WAN" value={wanEnabled ? `${wizard.wanInterface} (${wizard.wanMode})` : 'desabilitada'} />
-          <SummaryRow label="Porta HTTP" value={String(wizard.httpPort || 0)} />
+          <SummaryRow label="Status Live" value={wizard.netConnected ? 'Online' : wizard.netOffline ? 'Offline' : 'Desconectado'} />
         </div>
 
         {sameNicSelected ? (
           <div className="mt-4 rounded-2xl border border-rose-400/25 bg-rose-400/10 p-3 text-sm text-rose-200">
-            LAN/PXE e WAN nao podem usar a mesma placa de rede.
+            LAN/PXE e WAN não podem usar a mesma placa de rede.
           </div>
         ) : null}
 
@@ -376,19 +586,21 @@ export default function Network({ wizard, onChange, validation }) {
 
         {warnings.length > 0 ? (
           <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
-            <div className="font-semibold text-amber-50">Avisos</div>
+            <div className="font-semibold text-amber-50">Avisos de Configuração</div>
             <ul className="mt-2 space-y-1">
               {warnings.map((warning) => <li key={warning}>- {warning}</li>)}
             </ul>
           </div>
         ) : null}
 
-        <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">
-          <div className="font-semibold text-white">Automatico x manual</div>
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">
+          <div className="font-semibold text-white">Requisitos de Avanço</div>
           <ul className="mt-3 space-y-2 text-slate-400">
-            <li>- Automatico: somente a lista de interfaces vem do backend e a primeira LAN/PXE pode ser sugerida.</li>
-            <li>- Manual: IP, mascara, gateway, DNS, porta HTTP e qualquer uplink WAN continuam sendo revisados por voce.</li>
-            <li>- Se a WAN ficar vazia, nenhum uplink extra sera enviado ao backend.</li>
+            <li className={wizard.netConnected || wizard.netOffline ? 'text-emerald-300' : 'text-slate-200'}>
+              - {wizard.netConnected ? '󰄬 Conectado à rede' : wizard.netOffline ? '󰄬 Modo offline selecionado' : '󰅙 Conecte-se ou use Modo Offline'}
+            </li>
+            <li className={wizard.hostName ? 'text-emerald-300' : 'text-slate-400'}>- Hostname definido</li>
+            <li className={wizard.mgmtInterface ? 'text-emerald-300' : 'text-slate-400'}>- Interface LAN/PXE selecionada</li>
           </ul>
         </div>
       </section>

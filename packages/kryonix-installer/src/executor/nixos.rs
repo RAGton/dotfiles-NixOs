@@ -3,8 +3,8 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 use tokio::sync::broadcast;
 
-use crate::InstallPlan;
 use super::progress::ProgressEvent;
+use crate::InstallPlan;
 
 pub async fn run_nixos_install(
     plan: &InstallPlan,
@@ -24,11 +24,24 @@ pub async fn run_nixos_install(
         percent: 50,
     });
 
+    let flake =
+        std::env::var("KRYONIX_INSTALLER_FLAKE").unwrap_or_else(|_| "/etc/kryonix".to_string());
+    let flake_ref = format!("{flake}#{}", plan.hostname);
+
+    let _ = tx.send(ProgressEvent {
+        step: "nixos-install".into(),
+        message: format!("Usando flake {flake_ref}"),
+        percent: 55,
+    });
+
     let mut child = Command::new("nixos-install")
         .args([
-            "--root", "/mnt",
+            "--root",
+            "/mnt",
             "--no-root-passwd",
-            "--flake", &format!("/etc/kryonix#{}", plan.hostname),
+            "--no-channel-copy",
+            "--flake",
+            &flake_ref,
         ])
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
@@ -69,10 +82,12 @@ pub async fn run_nixos_install(
     let status = child.wait().await.map_err(|e| e.to_string())?;
 
     if status.success() {
+        // Não declarar "done" aqui: o sucesso só é válido após a verificação
+        // estrutural do disco em executor::run_installation.
         let _ = tx.send(ProgressEvent {
-            step: "done".into(),
-            message: "Instalação concluída! Reinicie para usar o Kryonix.".into(),
-            percent: 100,
+            step: "nixos-install".into(),
+            message: "nixos-install concluído; aguardando verificação do disco...".into(),
+            percent: 90,
         });
         Ok(())
     } else {

@@ -68,7 +68,7 @@
   # ISO identity
   system.nixos.distroName = lib.mkForce "Kryonix";
   system.nixos.label = lib.mkForce "Kryonix-Installer";
-  isoImage.isoBaseName = lib.mkForce "kryonix";
+  image.baseName = lib.mkForce "kryonix";
   isoImage.volumeID = lib.mkForce "KRYONIX";
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
 
@@ -78,14 +78,35 @@
   # Boot silencioso para Plymouth aparecer corretamente
   boot.initrd.verbose = lib.mkForce false;
   boot.consoleLogLevel = lib.mkForce 0;
-  boot.kernelParams = lib.mkForce [
+  # IMPORTANT: usar mkAfter, NUNCA mkForce. O iso-image.nix injeta os params
+  # essenciais do boot da Live ISO em boot.kernelParams — em especial
+  # "root=LABEL=${volumeID}" (stage-1 script-based monta o CD por label). Um
+  # lib.mkForce (prio 50) sobrescreve a lista inteira do iso-image e apaga o
+  # root=LABEL → o stage-1 não acha o store → switch_root falha → kernel panic
+  # "Attempted to kill init! exitcode=0x7f00". mkAfter apenas ANEXA os
+  # cosméticos abaixo, preservando root=LABEL e boot.shell_on_fail.
+  boot.kernelParams = lib.mkAfter [
     "quiet"
     "splash"
     "loglevel=0"
+    "udev.log_priority=3"
     "systemd.show_status=false"
     "rd.systemd.show_status=false"
     "rd.udev.log_level=3"
+    "vt.global_cursor_default=0"
+    "plymouth.ignore-serial-consoles"
   ];
+
+  # NOTE: o bloco de "Early KMS" (boot.initrd.kernelModules=[virtio_gpu] +
+  # availableKernelModules amdgpu/radeon/nouveau/i915) foi removido. Não era a
+  # causa do panic (essa era o lib.mkForce em kernelParams, corrigido acima),
+  # mas puxava firmware GPU pesado para o initrd sem necessidade no boot do
+  # ambiente live. Reintroduzir só se o splash precisar, de forma isolada.
+
+  # Sem banner de login no tty1: elimina o texto "kryonix login: installer
+  # (automatic login)" que aparecia na janela entre o Plymouth e o kiosk gráfico.
+  services.getty.greetingLine = lib.mkForce "";
+  services.getty.helpLine = lib.mkForce "";
 
   # ISO deve ser estável e pequena: evita trazer desktop completo.
   documentation.enable = lib.mkDefault false;
@@ -106,6 +127,7 @@
 
   # Normally útil em instalação remota (opcional)
   services.openssh.enable = lib.mkDefault true;
+  services.qemuGuest.enable = lib.mkDefault true;
 
   # Meta versioning
   kryonix.meta.version.enable = true;

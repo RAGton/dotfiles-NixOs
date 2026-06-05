@@ -4,8 +4,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 function copyInstallerImages() {
+  let buildOutDir = 'dist';
   return {
     name: 'copy-installer-images',
+    configResolved(config) {
+      buildOutDir = config.build.outDir || 'dist';
+    },
     closeBundle() {
       const sourceDir = path.resolve(__dirname, 'imgs');
       const filesToCopy = [
@@ -15,7 +19,7 @@ function copyInstallerImages() {
       const directoriesToCopy = [
         'calamares-timezones',
       ];
-      const outDir = path.resolve(__dirname, 'static', 'imgs');
+      const outDir = path.resolve(__dirname, buildOutDir, 'imgs');
       mkdirSync(outDir, { recursive: true });
 
       for (const relativeFile of filesToCopy) {
@@ -52,7 +56,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'static',
+    outDir: 'dist',
     emptyOutDir: true,
     sourcemap: false,
   },

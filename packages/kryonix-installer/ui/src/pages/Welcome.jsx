@@ -2,13 +2,21 @@ import { useEffect, useState } from 'react';
 
 export default function Welcome() {
   const [version, setVersion] = useState(null);
+  const [detections, setDetections] = useState([]);
 
   useEffect(() => {
     fetch('/version')
       .then(r => r.ok ? r.json() : null)
       .then(data => setVersion(data))
       .catch(() => {});
+
+    fetch('/api/detection')
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setDetections(data))
+      .catch(() => {});
   }, []);
+
+  const hasKryonix = detections.some(d => d.is_kryonix);
 
   return (
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -16,6 +24,20 @@ export default function Welcome() {
         <div>
           <div className="metric-chip">Build focado em servidor</div>
           <h2 className="mt-5 text-2xl font-black tracking-tight text-white">Instalador redesenhado para estabilidade operacional</h2>
+          
+          {hasKryonix && (
+            <div className="mt-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 animate-pulse">
+              <div className="flex items-center gap-2 text-cyan-400 font-bold">
+                <span className="h-2 w-2 rounded-full bg-cyan-400"></span>
+                Instalação Kryonix detectada
+              </div>
+              <p className="mt-2 text-sm text-cyan-100/70">
+                Detectamos o host <span className="text-white font-mono">{detections[0].hostname}</span> em <span className="text-white font-mono">{detections[0].device}</span>.
+                Recomendamos o <strong>Modo Restore</strong> no passo de particionamento.
+              </p>
+            </div>
+          )}
+
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
             Esta refatoração elimina o arquivo monolítico, separa layout, footer, mapa e páginas críticas, e prepara a UI para evoluir sem travamentos.
           </p>

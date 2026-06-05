@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -14,6 +15,11 @@ in
     port = lib.mkOption {
       type = lib.types.port;
       default = 8080;
+    };
+    listenAddress = lib.mkOption {
+      type = lib.types.str;
+      default = "127.0.0.1";
+      description = "Endereço de bind do backend. O default local-only evita expor o instalador na LAN.";
     };
     url = lib.mkOption {
       type = lib.types.str;
@@ -101,17 +107,59 @@ in
       services.seatd.enable = true;
       security.polkit.enable = true;
 
+      # Web Terminal (ttyd) para modo Manual
+      systemd.services.kryonix-installer-terminal = {
+        description = "Kryonix Installer Web Terminal";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+        serviceConfig = {
+          ExecStart = "${pkgs.ttyd}/bin/ttyd -p 8081 -i 127.0.0.1 -W /bin/sh";
+          Restart = "on-failure";
+          User = "root";
+        };
+      };
+
       # Backend do instalador — roda como root para poder chamar disko/nixos-install
       systemd.services.kryonix-installer-backend = {
         description = "Kryonix Installer Backend";
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ];
         before = [ "getty@tty1.service" ];
+        # Utilitários que o backend chama por nome (sem caminho absoluto).
+        # systemd services NÃO herdam /run/current-system/sw/bin, então cada
+        # binário precisa estar explícito aqui — senão os safety checks (que
+        # rodam `which disko`/`which nixos-install`) recusam a instalação com
+        # "Safety checks falharam".
+        # - util-linux: lsblk/findmnt (disk.rs) — senão GET /api/disks dá 500;
+        # - networkmanager: nmcli (network.rs) — senão a etapa Rede mostra
+        #   "0 interfaces detectadas" e bloqueia o wizard;
+        # - which: safety.rs usa Command::new("which") — sem ele TODO check falha;
+        # - curl: safety.rs check_network_for_nix (cache.nixos.org);
+        # - disko: safety + executor (disko --mode disko);
+        # - nixos-install-tools: executor (nixos-install);
+        # - nix: nixos-install precisa do nix no PATH para avaliar o flake.
+        path = [
+          pkgs.util-linux
+          pkgs.networkmanager
+          pkgs.which
+          pkgs.curl
+          pkgs.disko
+          pkgs.nixos-install-tools
+          config.nix.package
+        ];
         serviceConfig = {
-          # Binary hardcodes 127.0.0.1:8080 — does not accept --port flag
           ExecStart = "${pkgs.kryonix-installer}/bin/kryonix-installer";
           Restart = "on-failure";
           User = "root";
+        };
+        environment = {
+          KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
+          KRYONIX_INSTALLER_FLAKE = "${inputs.self.outPath}";
+          KRYONIX_HARDWARE_PROBE = "${pkgs.kryonix-hardware-probe}/bin/kryonix-hardware-probe";
+          # O CLI do disko (disko --mode disko <config.nix>) avalia
+          # `import <nixpkgs>` em cli.nix; sem NIX_PATH o particionamento falha
+          # com "file 'nixpkgs' was not found in the Nix search path".
+          NIX_PATH = "nixpkgs=${pkgs.path}";
         };
       };
 
@@ -180,7 +228,20 @@ in
         nixos-install-tools
       ];
 
-      hardware.opengl.enable = lib.mkDefault true;
+      hardware.graphics.enable = lib.mkDefault true;
+
+      # Fontes do kiosk: a base installation-cd não traz fontes GUI, então o
+      # Chromium renderiza apenas caixas/fallback. enableDefaultPackages cobre o
+      # baseline (dejavu/liberation/noto-emoji); inter = UI sans; jetbrains-mono
+      # = mono/branding (mesmas fontes do desktop Kryonix).
+      fonts = {
+        enableDefaultPackages = true;
+        fontconfig.enable = true;
+        packages = with pkgs; [
+          inter
+          nerd-fonts.jetbrains-mono
+        ];
+      };
     }
   );
 }

@@ -16,6 +16,7 @@ let
       exec npx --yes @anthropic-ai/claude-code "$@"
     '';
   };
+  claudePackage = pkgs.claude-code or claudeWrapper;
 
   traeLauncher = pkgs.writeShellApplication {
     name = "trae-launcher";
@@ -64,7 +65,7 @@ in
   config = lib.mkIf (!pkgs.stdenv.isDarwin && cfg.enable) {
     home.packages = [
       pkgs.nodejs_22
-      claudeWrapper
+      claudePackage
     ]
     ++ lib.optionals cfg.enableTraeLauncher [ traeLauncher ]
     ++ lib.optionals cfg.enableCodex [ pkgs.codex-cli ];

@@ -203,11 +203,24 @@ export function isDiskEligible(input) {
 
 export function decorateDiskRecord(input, index = 0) {
   const disk = normalizeDiskRecord(input, index);
-  const eligibility = isDiskEligible(disk);
+  const local = isDiskEligible(disk);
+
+  // Backend é a fonte de verdade: se o payload trouxer eligible/eligibilityIssues
+  // (camelCase ou snake_case), usa do backend; senão calcula localmente (fallback).
+  const backendIssues = input?.eligibilityIssues ?? input?.eligibility_issues;
+  const hasBackendEligibility =
+    typeof input?.eligible === 'boolean' || Array.isArray(backendIssues);
+  const eligible = hasBackendEligibility
+    ? (typeof input?.eligible === 'boolean' ? input.eligible : (backendIssues?.length ?? 0) === 0)
+    : local.eligible;
+  const eligibilityIssues = hasBackendEligibility
+    ? (Array.isArray(backendIssues) ? backendIssues : [])
+    : local.reasons;
+
   return {
     ...disk,
-    eligible: eligibility.eligible,
-    eligibilityIssues: eligibility.reasons,
+    eligible,
+    eligibilityIssues,
     sizeLabel: formatBytes(disk.sizeBytes),
   };
 }

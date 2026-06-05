@@ -1,9 +1,4 @@
-use axum::{
-    Json,
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -120,7 +115,9 @@ pub async fn start_device_flow(State(state): State<Arc<AppState>>) -> impl IntoR
         Err(e) => {
             return (
                 StatusCode::BAD_GATEWAY,
-                Json(serde_json::json!({ "error": "GitHub unreachable", "details": e.to_string() })),
+                Json(
+                    serde_json::json!({ "error": "GitHub unreachable", "details": e.to_string() }),
+                ),
             )
                 .into_response();
         }
@@ -194,7 +191,9 @@ pub async fn poll_device_flow(State(state): State<Arc<AppState>>) -> impl IntoRe
         Err(e) => {
             return (
                 StatusCode::BAD_GATEWAY,
-                Json(serde_json::json!({ "error": "GitHub unreachable", "details": e.to_string() })),
+                Json(
+                    serde_json::json!({ "error": "GitHub unreachable", "details": e.to_string() }),
+                ),
             )
                 .into_response();
         }
@@ -284,7 +283,9 @@ pub async fn list_repos(State(state): State<Arc<AppState>>) -> impl IntoResponse
             None => {
                 return (
                     StatusCode::UNAUTHORIZED,
-                    Json(serde_json::json!({ "error": "Not authenticated — complete OAuth first" })),
+                    Json(
+                        serde_json::json!({ "error": "Not authenticated — complete OAuth first" }),
+                    ),
                 )
                     .into_response();
             }
@@ -448,7 +449,10 @@ mod tests {
     fn inject_token_into_https_url() {
         let url = "https://github.com/user/repo.git";
         let authed = inject_token_into_url(url, "ghp_tok123");
-        assert_eq!(authed, "https://x-access-token:ghp_tok123@github.com/user/repo.git");
+        assert_eq!(
+            authed,
+            "https://x-access-token:ghp_tok123@github.com/user/repo.git"
+        );
     }
 
     #[test]

@@ -35,8 +35,8 @@
   # =========================
 
   # Desktop
-  kryonix.desktop.environment = "hyprland";
-  kryonix.shell.caelestia.enable = true;
+  kryonix.desktop.environment = "kde";
+  kryonix.shell.caelestia.enable = false;
 
   # Ativação via Perfis (Modular)
   kryonix.profiles = {

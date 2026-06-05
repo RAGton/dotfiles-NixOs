@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
-use crate::InstallPlan;
 use super::progress::ProgressEvent;
+use crate::InstallPlan;
 
 pub async fn run_disko(
     plan: &InstallPlan,
@@ -47,7 +47,7 @@ fn generate_disko_config(plan: &InstallPlan) -> String {
     if plan.disk.profile == "manual" {
         return generate_disko_config_manual(plan);
     }
-    
+
     match plan.disk.layout.as_str() {
         "lvm-simple" => generate_lvm_simple(&plan.disk.target, &plan.disk.boot_mode),
         _ => generate_btrfs_simple(&plan.disk.target, &plan.disk.boot_mode),
@@ -56,8 +56,13 @@ fn generate_disko_config(plan: &InstallPlan) -> String {
 
 fn generate_disko_config_manual(plan: &InstallPlan) -> String {
     use std::collections::HashMap;
-    let parts = plan.disk.manual_partitions.as_ref().cloned().unwrap_or_default();
-    
+    let parts = plan
+        .disk
+        .manual_partitions
+        .as_ref()
+        .cloned()
+        .unwrap_or_default();
+
     let mut disks: HashMap<String, Vec<crate::PartitionSpec>> = HashMap::new();
     for p in parts {
         disks.entry(p.device.clone()).or_default().push(p);
@@ -67,7 +72,7 @@ fn generate_disko_config_manual(plan: &InstallPlan) -> String {
     for (device, p_list) in disks {
         let name = device.split('/').last().unwrap_or("disk").replace('.', "_");
         let mut part_configs = Vec::new();
-        
+
         for (idx, p) in p_list.iter().enumerate() {
             let part_name = format!("p{}", idx + 1);
             let content = if p.format {
@@ -76,7 +81,10 @@ fn generate_disko_config_manual(plan: &InstallPlan) -> String {
                     p.fstype, p.mountpoint
                 )
             } else {
-                format!(r#"content = {{ type = "filesystem"; mountpoint = "{}"; }};"#, p.mountpoint)
+                format!(
+                    r#"content = {{ type = "filesystem"; mountpoint = "{}"; }};"#,
+                    p.mountpoint
+                )
             };
 
             part_configs.push(format!(
@@ -99,7 +107,9 @@ fn generate_disko_config_manual(plan: &InstallPlan) -> String {
         }};
       }};
     }};"#,
-            name, device, part_configs.join("\n")
+            name,
+            device,
+            part_configs.join("\n")
         ));
     }
 

@@ -95,14 +95,18 @@ function PartitionBar({ partitions, totalBytes }) {
 function DiskCard({ disk, selected, partData, onClick }) {
   const partitions = partData?.blockdevices?.[0]?.children ?? [];
   const totalSize = partData?.blockdevices?.[0]?.size ?? disk.size_bytes ?? disk.size;
+  const blocked = disk.eligible === false;
+  const reason = Array.isArray(disk.eligibilityIssues) ? disk.eligibilityIssues[0] : null;
 
   return (
     <div
-      className={`disk-card${selected ? ' selected' : ''}`}
-      onClick={onClick}
+      className={`disk-card${selected ? ' selected' : ''}${blocked ? ' disk-card-blocked' : ''}`}
+      onClick={blocked ? undefined : onClick}
       role="button"
-      tabIndex={0}
-      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onClick?.()}
+      aria-disabled={blocked}
+      tabIndex={blocked ? -1 : 0}
+      style={blocked ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
+      onKeyDown={e => !blocked && (e.key === 'Enter' || e.key === ' ') && onClick?.()}
     >
       <div className="disk-card-header">
         <div>
@@ -111,12 +115,33 @@ function DiskCard({ disk, selected, partData, onClick }) {
             <span style={{ fontSize: 11, color: 'var(--text3)', marginLeft: 8 }}>{disk.model}</span>
           )}
         </div>
-        <span className="disk-size">{disk.size ?? `${bytesToGb(disk.size_bytes)} GB`}</span>
+        {blocked ? (
+          <span style={{
+            fontSize: 11, fontWeight: 700, color: 'var(--danger)',
+            border: '1px solid var(--danger)', borderRadius: 4, padding: '1px 6px',
+          }}>
+            Bloqueado
+          </span>
+        ) : (
+          <span className="disk-size">{disk.size ?? `${bytesToGb(disk.size_bytes)} GB`}</span>
+        )}
+      </div>
+
+      <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        {disk.type && <span>tipo: {disk.type}</span>}
+        {disk.readonly && <span style={{ color: 'var(--danger)' }}>read-only</span>}
+        {disk.removable && <span style={{ color: 'var(--warning)' }}>removível</span>}
       </div>
 
       <PartitionBar partitions={partitions} totalBytes={totalSize} />
 
-      {selected && (
+      {blocked && reason && (
+        <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 6 }}>
+          ⚠ {reason}
+        </div>
+      )}
+
+      {selected && !blocked && (
         <div style={{ fontSize: 11, color: 'var(--primary)', marginTop: 6 }}>
           ✓ Disco selecionado para instalação
         </div>
@@ -127,7 +152,23 @@ function DiskCard({ disk, selected, partData, onClick }) {
 
 /* ── aba Discos ── */
 
-function TabDiscos({ diskInventory, loadingDisks, diskError, partitions, wizard, onChange, eligibleDisks, eligiblePaths }) {
+function TabDiscos({ diskInventory, loadingDisks, diskError, partitions, wizard, onChange, eligibleDisks, eligiblePaths, onReload }) {
+  const toolbar = (
+    <div className="flex-between" style={{ marginBottom: 12, gap: 12 }}>
+      <span style={{ fontSize: 11, color: 'var(--danger)', fontWeight: 600 }}>
+        ⚠ A instalação APAGA e REPARTICIONA o disco selecionado. Faça backup antes.
+      </span>
+      <button
+        type="button"
+        className="btn btn-ghost"
+        style={{ padding: '4px 10px', fontSize: 12, whiteSpace: 'nowrap' }}
+        onClick={onReload}
+      >
+        ↻ Atualizar discos
+      </button>
+    </div>
+  );
+
   if (loadingDisks) {
     return (
       <div className="scanning" style={{ marginTop: 24, justifyContent: 'center' }}>
@@ -139,35 +180,52 @@ function TabDiscos({ diskInventory, loadingDisks, diskError, partitions, wizard,
 
   if (diskError) {
     return (
-      <div style={{ padding: '16px 0', fontSize: 13, color: 'var(--danger)' }}>
-        ✗ {diskError}
+      <div>
+        {toolbar}
+        <div style={{ padding: '16px 0', fontSize: 13, color: 'var(--danger)' }}>✗ {diskError}</div>
       </div>
     );
   }
 
-  if (diskInventory.length === 0) {
-    return (
-      <div style={{ padding: '24px 0', fontSize: 13, color: 'var(--text3)', textAlign: 'center' }}>
-        Nenhum disco detectado.
-      </div>
-    );
-  }
+  const blocked = diskInventory.filter(d => d.eligible === false);
+
+  const cardFor = (disk) => (
+    <DiskCard
+      key={disk.path}
+      disk={disk}
+      selected={wizard.sysDisk === disk.path}
+      partData={partitions[disk.name ?? disk.path?.split('/').pop()]}
+      onClick={() => {
+        if (eligiblePaths.has(disk.path)) {
+          onChange({ sysDisk: disk.path, selectedDisks: [disk.path] });
+        }
+      }}
+    />
+  );
 
   return (
-    <div className="disk-grid">
-      {diskInventory.map(disk => (
-        <DiskCard
-          key={disk.path}
-          disk={disk}
-          selected={wizard.sysDisk === disk.path}
-          partData={partitions[disk.name ?? disk.path?.split('/').pop()]}
-          onClick={() => {
-            if (eligiblePaths.has(disk.path)) {
-              onChange({ sysDisk: disk.path, selectedDisks: [disk.path] });
-            }
-          }}
-        />
-      ))}
+    <div>
+      {toolbar}
+
+      <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, textTransform: 'uppercase', margin: '4px 0 8px' }}>
+        Discos elegíveis ({eligibleDisks.length})
+      </div>
+      {eligibleDisks.length === 0 ? (
+        <div style={{ padding: '12px 0', fontSize: 13, color: 'var(--text3)' }}>
+          Nenhum disco elegível detectado para instalação.
+        </div>
+      ) : (
+        <div className="disk-grid">{eligibleDisks.map(cardFor)}</div>
+      )}
+
+      {blocked.length > 0 && (
+        <>
+          <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, textTransform: 'uppercase', margin: '16px 0 8px' }}>
+            Discos bloqueados ({blocked.length})
+          </div>
+          <div className="disk-grid">{blocked.map(cardFor)}</div>
+        </>
+      )}
     </div>
   );
 }
@@ -532,6 +590,8 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
   const [diskInventory, setDiskInventory] = useState([]);
   const [loadingDisks, setLoadingDisks]   = useState(true);
   const [diskError, setDiskError]         = useState('');
+  const [reloadKey, setReloadKey]         = useState(0);
+  const reloadDisks = () => setReloadKey(k => k + 1);
 
   /* ── partições por device name ── */
   const [partitions, setPartitions] = useState({});
@@ -543,8 +603,9 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
     setDiskError('');
 
     installerApi.getDisks()
-      .then(payload => {
-        if (!cancelled) setDiskInventory(normalizeDiskInventory(payload.disks));
+      .then(disks => {
+        // /api/disks devolve um ARRAY (não { disks: [...] })
+        if (!cancelled) setDiskInventory(normalizeDiskInventory(disks));
       })
       .catch(err => {
         if (!cancelled) {
@@ -555,7 +616,7 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
       .finally(() => { if (!cancelled) setLoadingDisks(false); });
 
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadKey]);
 
   /* carregar partições para cada disco depois da lista chegar */
   useEffect(() => {
@@ -683,6 +744,7 @@ export default function Disks({ wizard, uiState, onChange, validation }) {
             onChange={onChange}
             eligibleDisks={eligibleDisks}
             eligiblePaths={eligiblePaths}
+            onReload={reloadDisks}
           />
         )}
         {activeTab === 1 && (

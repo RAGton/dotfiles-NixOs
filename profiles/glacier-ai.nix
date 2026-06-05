@@ -97,7 +97,8 @@ in
       portBolt = 7687;
       environmentFile = "/etc/kryonix/neo4j.env";
     };
-    # Kora removida (assistente legada). Substituída pela Aura sobre Hermes
-    # (kryonix.services.hermes + camada `aura`). Ver docs/aura/KORA_RETIREMENT_STUDY.md.
+    # Kora removida (assistente legada). Camada Aura preservada em
+    # `kryonix.services.aura` — motor de execução a ser redefinido.
+    # Ver docs/aura/KORA_RETIREMENT_STUDY.md.
   };
 }

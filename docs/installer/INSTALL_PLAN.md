@@ -7,29 +7,23 @@ O arquivo `install-plan.json` é a especificação declarativa de como o sistema
 ```json
 {
   "version": 1,
-  "profile": "desktop",
   "hostname": "kryonix",
   "timezone": "America/Cuiaba",
   "locale": "pt_BR.UTF-8",
   "keyboard": "br-abnt2",
-  "boot": {
-    "mode": "uefi"
-  },
   "disk": {
     "mode": "dry-run",
-    "target": "/dev/nvme0n1",
-    "layout": "btrfs-simple"
+    "target": "/dev/vda",
+    "layout": "btrfs-simple",
+    "boot_mode": "uefi",
+    "profile": "single",
+    "selectedDisks": ["/dev/vda"]
   },
   "user": {
-    "name": "rocha",
+    "name": "admin",
     "admin": true
   },
-  "features": {
-    "desktop": "hyprland-caelestia",
-    "nvidia": "auto",
-    "zram": true,
-    "brain_client": true
-  }
+  "features": {}
 }
 ```
 
@@ -39,8 +33,17 @@ O schema oficial encontra-se em `packages/kryonix-installer/schemas/install-plan
 
 ### Campos Principais
 
-*   **profile**: Define o conjunto de pacotes e serviços base.
-*   **boot.mode**: `uefi` (recomendado) ou `bios`.
-*   **disk.mode**: `dry-run` para testes e `real` para instalação efetiva.
-*   **disk.layout**: Estrutura de partições sugerida.
+*   **disk.mode**: `dry-run` para validação, `install`/`real` para execução efetiva.
+*   **disk.boot_mode**: `uefi` (recomendado) ou `bios`.
+*   **disk.layout**: `btrfs-simple` ou `lvm-simple`.
+*   **disk.profile**: `single`, `raid` ou `manual`.
 *   **features**: Módulos opt-in do Kryonix.
+
+## Segurança operacional
+
+`/dry-run` valida se o alvo é um block device real, não é o disco do sistema,
+não possui partições montadas fora de `/iso` e tem pelo menos 10 GiB.
+
+As rotas legadas `/disk/apply`, `/api/partition` e `/install/finalize` ficam
+desativadas. A execução destrutiva passa por `/install`, que roda safety checks
+antes de chamar o executor real.

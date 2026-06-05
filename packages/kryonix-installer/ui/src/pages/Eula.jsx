@@ -45,10 +45,10 @@ export default function Eula({ uiState, onChange, validation }) {
   }, []);
 
   /* ── campos do probe com fallbacks seguros ── */
+  // Leitura defensiva do probe: todo campo pode faltar; nenhuma tela mostra "undefined".
   const cpu  = probe?.cpu;
-  const mem  = probe?.memory;
-  const disk = probe?.disks?.[0];
-  const gpu  = probe?.gpu;
+  const disk = Array.isArray(probe?.disks) ? probe.disks[0] : probe?.disks;
+  const gpu0 = Array.isArray(probe?.gpu) ? probe.gpu[0] : probe?.gpu;
   const boot = probe?.boot_mode;
   const net  = probe?.network;
   const virt = probe?.virtualization;
@@ -56,17 +56,19 @@ export default function Eula({ uiState, onChange, validation }) {
   const cpuLabel = cpu?.model
     ? cpu.model.replace(/\(.*\)/g, '').trim().split(' ').slice(-4).join(' ')
     : null;
-  const cpuSub = cpu
-    ? `${cpu.cores} núcleos · ${cpu.threads} threads`
+  // núcleos sempre que houver; threads só se o probe reportar (evita "undefined threads")
+  const cpuSub = cpu?.cores != null
+    ? `${cpu.cores} núcleos${cpu?.threads != null ? ` · ${cpu.threads} threads` : ''}`
     : null;
-  const memVal  = mem?.total_gb != null ? `${mem.total_gb} GB` : null;
-  const memSub  = mem?.available_gb != null ? `${mem.available_gb} GB livres` : null;
-  const diskVal = disk?.name ?? null;
-  const diskSub = disk?.size_gb != null
-    ? `${disk.size_gb} GB`
-    : disk?.size ?? null;
-  const gpuVal  = gpu?.name ?? (gpu ? 'Integrada' : null);
-  const gpuSub  = gpu?.vram_gb ? `${gpu.vram_gb} GB VRAM` : null;
+  // RAM: probe emite memory_gb (número); aceita memory.total_gb por compatibilidade
+  const memGb   = probe?.memory_gb ?? probe?.memory?.total_gb;
+  const memVal  = memGb != null ? `${memGb} GB` : null;
+  const memSub  = probe?.memory?.available_gb != null ? `${probe.memory.available_gb} GB livres` : null;
+  // Disco: probe emite disks[].path/size_gb (sem name)
+  const diskVal = disk?.path ?? disk?.name ?? null;
+  const diskSub = disk?.size_gb != null ? `${disk.size_gb} GB` : (disk?.size ?? null);
+  const gpuVal  = gpu0?.model ?? gpu0?.name ?? (gpu0 ? 'Integrada' : null);
+  const gpuSub  = gpu0?.vram_gb != null ? `${gpu0.vram_gb} GB VRAM` : null;
 
   return (
     <div className="split">

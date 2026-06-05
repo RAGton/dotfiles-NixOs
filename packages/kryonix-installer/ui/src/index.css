@@ -268,6 +268,27 @@ select:not([class]):focus { border-color: var(--primary); }
 input.valid { border-color: #2a5a2a; }
 input.error { border-color: var(--danger); }
 
+/* ── Acessibilidade: foco por teclado sempre visível (Gate 6 — keyboard-only) ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.btn:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+.disk-card:focus-visible,
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* ── Layout split 50/50 (Fix 2) ────────────────────────────────────────── */
 
 .split {

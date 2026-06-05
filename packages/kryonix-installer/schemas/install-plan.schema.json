@@ -1,47 +1,57 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Kryonix Install Plan",
+  "title": "Kryonix Backend Install Plan",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
-    "version": { "type": "integer" },
-    "profile": { "enum": ["desktop", "server", "minimal"] },
-    "hostname": { "type": "string" },
-    "timezone": { "type": "string" },
-    "locale": { "type": "string" },
-    "keyboard": { "type": "string" },
-    "boot": {
-      "type": "object",
-      "properties": {
-        "mode": { "enum": ["uefi", "bios"] }
-      },
-      "required": ["mode"]
-    },
+    "version": { "type": "integer", "const": 1 },
+    "hostname": { "type": "string", "minLength": 1 },
+    "timezone": { "type": "string", "minLength": 1 },
+    "locale": { "type": "string", "minLength": 1 },
+    "keyboard": { "type": "string", "minLength": 1 },
     "disk": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "mode": { "enum": ["dry-run", "real"] },
-        "target": { "type": "string" },
-        "layout": { "enum": ["btrfs-simple", "ext4-basic", "zfs-experimental"] }
+        "mode": { "enum": ["dry-run", "install", "real"] },
+        "target": { "type": "string", "pattern": "^/dev/(sd[a-z]|vd[a-z]|nvme[0-9]+n[0-9]+)$" },
+        "layout": { "enum": ["btrfs-simple", "lvm-simple"] },
+        "boot_mode": { "enum": ["uefi", "bios"] },
+        "profile": { "enum": ["single", "raid", "manual"] },
+        "selectedDisks": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^/dev/(sd[a-z]|vd[a-z]|nvme[0-9]+n[0-9]+)$" },
+          "uniqueItems": true
+        },
+        "raidLevel": { "enum": ["raid0", "raid1", "raid5", "raid10"] },
+        "manualPartitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["device", "mountpoint", "fstype", "size", "format"],
+            "properties": {
+              "device": { "type": "string", "pattern": "^/dev/(sd[a-z]|vd[a-z]|nvme[0-9]+n[0-9]+)$" },
+              "mountpoint": { "type": "string", "minLength": 1 },
+              "fstype": { "type": "string", "minLength": 1 },
+              "size": { "type": "string", "minLength": 1 },
+              "format": { "type": "boolean" }
+            }
+          }
+        }
       },
-      "required": ["mode", "target", "layout"]
+      "required": ["mode", "target", "layout", "boot_mode", "profile"]
     },
     "user": {
       "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "name": { "type": "string" },
+        "name": { "type": "string", "minLength": 1 },
         "admin": { "type": "boolean" }
       },
       "required": ["name", "admin"]
     },
-    "features": {
-      "type": "object",
-      "properties": {
-        "desktop": { "type": "string" },
-        "nvidia": { "enum": ["auto", "enabled", "disabled"] },
-        "zram": { "type": "boolean" },
-        "brain_client": { "type": "boolean" }
-      }
-    }
+    "features": { "type": "object" }
   },
-  "required": ["version", "profile", "hostname", "boot", "disk", "user"]
+  "required": ["version", "hostname", "timezone", "locale", "keyboard", "disk", "user", "features"]
 }

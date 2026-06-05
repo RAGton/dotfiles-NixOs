@@ -27,8 +27,8 @@ pub fn apply_profile(host: &str, profile: ProfileType) -> Result<(), String> {
     }
 
     // 1. Create backup
-    let content = fs::read_to_string(host_path)
-        .map_err(|e| format!("Failed to read {}: {}", host_nix, e))?;
+    let content =
+        fs::read_to_string(host_path).map_err(|e| format!("Failed to read {}: {}", host_nix, e))?;
     let backup_content = content.clone();
 
     // 2. Patch the content
@@ -56,7 +56,7 @@ pub fn apply_profile(host: &str, profile: ProfileType) -> Result<(), String> {
             println!("Validation failed! Reverting...");
             fs::write(host_path, backup_content)
                 .map_err(|e| format!("Failed to revert {}: {}", host_nix, e))?;
-            
+
             // Capture stderr for better error reporting if possible
             let output = Command::new("nix")
                 .arg("flake")
@@ -64,16 +64,19 @@ pub fn apply_profile(host: &str, profile: ProfileType) -> Result<(), String> {
                 .arg(repo_path)
                 .output()
                 .map_err(|e| e.to_string())?;
-            
+
             let stderr = String::from_utf8_lossy(&output.stderr);
-            Err(format!("Nix validation failed. File reverted.\nError: {}", stderr))
+            Err(format!(
+                "Nix validation failed. File reverted.\nError: {}",
+                stderr
+            ))
         }
     }
 }
 
 fn patch_imports(content: &str, profile: ProfileType) -> Result<String, String> {
     let import_line = profile.as_import_line();
-    
+
     // Simple block detection for 'imports = ['
     let mut lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
     let mut imports_start = None;
@@ -95,7 +98,9 @@ fn patch_imports(content: &str, profile: ProfileType) -> Result<String, String> 
     };
 
     // Check if already exists
-    let exists = lines[start..=end].iter().any(|l| l.contains(import_line.trim()));
+    let exists = lines[start..=end]
+        .iter()
+        .any(|l| l.contains(import_line.trim()));
     if exists {
         return Ok(content.to_string());
     }

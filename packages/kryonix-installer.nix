@@ -16,9 +16,13 @@ let
     # Run a dummy build to get the real hash later, or use fakeHash
     npmDepsHash = "sha256-sUEtL5G0JMBVcaDwk7YTI5VaaGBsziQ9FuMuXN14BUw=";
 
+    npmBuildScript = "build";
+
     installPhase = ''
+      runHook preInstall
       mkdir -p $out/dist
-      cp -r static/* $out/dist/
+      cp -r dist/* $out/dist/
+      runHook postInstall
     '';
   };
 in
@@ -46,7 +50,8 @@ rustPlatform.buildRustPackage {
     cp -r ${ui}/dist $out/share/kryonix-installer/ui/dist
 
     wrapProgram $out/bin/kryonix-installer \
-      --set RUST_LOG info
+      --set RUST_LOG info \
+      --set KRYONIX_INSTALLER_UI_DIR "$out/share/kryonix-installer/ui/dist"
       # GITHUB_CLIENT_ID must be supplied at runtime by the caller (nixos module or CLI).
       # Intentionally NOT hardcoded here — it is a deployment-time secret.
   '';

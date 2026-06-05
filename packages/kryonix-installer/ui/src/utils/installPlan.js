@@ -176,6 +176,7 @@ export function buildInstallPlanPayload(draftInput) {
     network: {
       hostname: sanitizeString(draft.hostName),
       interface: sanitizeString(draft.mgmtInterface),
+      mode: draft.mgmtMode === 'static' ? 'static' : 'dhcp',
       serverIp: sanitizeString(draft.serverIp),
       prefixLength: mgmtPrefix,
       gateway: sanitizeString(draft.mgmtGateway),
@@ -361,15 +362,24 @@ export function validateStep(stepId, draftInput, uiInput = {}) {
       }
       return result;
     case 'network':
+      // Requisito de avanço: estar online OU ter escolhido modo offline explicitamente.
+      if (!uiState.netConnected && !uiState.netOffline) {
+        addBlockingIssue(result, 'Conecte-se à internet ou selecione "Continuar offline" para prosseguir.');
+      }
+
       if (!payload.network.interface) addFieldError(result, 'mgmtInterface', 'Selecione a interface LAN/PXE.');
       if (payload.network.interface && payload.network.wan.interface && payload.network.interface === payload.network.wan.interface) {
         addBlockingIssue(result, 'LAN/PXE e WAN devem usar placas distintas.');
       }
       if (!isValidHostname(draft.hostName)) addFieldError(result, 'hostName', 'Hostname inválido para um servidor Linux.');
-      if (!isValidIpv4(draft.serverIp)) addFieldError(result, 'serverIp', 'IP do servidor inválido.');
-      if (!isValidIpv4(draft.mgmtNetmask)) addFieldError(result, 'mgmtNetmask', 'Máscara de gerenciamento inválida.');
-      if (!isValidIpv4(draft.mgmtGateway)) addFieldError(result, 'mgmtGateway', 'Gateway inválido.');
-      if (!hasOnlyValidDnsItems(draft.mgmtDns)) addFieldError(result, 'mgmtDns', 'DNS deve conter IPv4 válidos separados por vírgula.');
+      // IP/máscara/gateway/DNS só são exigidos no modo manual (estático).
+      // Em DHCP esses valores vêm automaticamente da rede.
+      if (payload.network.mode === 'static') {
+        if (!isValidIpv4(draft.serverIp)) addFieldError(result, 'serverIp', 'IP do servidor inválido.');
+        if (!isValidIpv4(draft.mgmtNetmask)) addFieldError(result, 'mgmtNetmask', 'Máscara de gerenciamento inválida.');
+        if (!isValidIpv4(draft.mgmtGateway)) addFieldError(result, 'mgmtGateway', 'Gateway inválido.');
+        if (!hasOnlyValidDnsItems(draft.mgmtDns)) addFieldError(result, 'mgmtDns', 'DNS deve conter IPv4 válidos separados por vírgula.');
+      }
       if (!(Number(payload.network.httpPort) >= 1 && Number(payload.network.httpPort) <= 65535)) {
         addFieldError(result, 'httpPort', 'Porta HTTP deve ficar entre 1 e 65535.');
       }

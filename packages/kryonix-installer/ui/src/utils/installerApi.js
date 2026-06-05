@@ -80,8 +80,11 @@ function buildKryonixInstallPlan(planPayload, mode = 'install') {
 
 // Maps ProgressEvent.step → INSTALL_RUNTIME_PHASE label
 const STEP_TO_PHASE = {
+  precheck: 'INPUT',
   partition: 'PARTITION',
+  PARTITION: 'PARTITION',
   'nixos-install': 'INSTALL',
+  INSTALL: 'INSTALL',
   done: 'VERIFY',
   error: 'ERROR',
 };
@@ -92,7 +95,25 @@ export const installerApi = {
   getKeymaps() { return Promise.resolve([{ id: 'br-abnt2', name: 'Portugues (ABNT2)' }]); },
   getTimezones() { return Promise.resolve(['America/Cuiaba', 'America/Sao_Paulo']); },
   getTimezoneLocations() { return Promise.resolve({}); },
-  getNetworkInterfaces() { return Promise.resolve(['eth0', 'enp1s0']); },
+  // { interfaces: [{ name, type, state }] } — fonte de verdade = backend (nmcli)
+  getNetworkInterfaces() { return requestJson('/network/interfaces'); },
+  getNetworkStatus() { return requestJson('/network/status'); },
+  scanWifi(iface) {
+    const path = iface ? `/network/wifi/scan?interface=${encodeURIComponent(iface)}` : '/network/wifi/scan';
+    return requestJson(path);
+  },
+  connectWifi(iface, ssid, password) {
+    // SECURITY: senha apenas em memória/trânsito; nunca persistida nem logada
+    return requestJson('/network/wifi/connect', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        interface: iface,
+        ssid,
+        password: password || null,
+      }),
+    });
+  },
 
   getHardware() {
     return requestJson('/hardware');
@@ -101,10 +122,18 @@ export const installerApi = {
   getDisks() {
     return requestJson('/api/disks').then(disks => disks.map(d => ({
       name: d.name,
+      path: d.path || (d.name ? `/dev/${d.name}` : ''),
       model: d.model,
       size: d.size,
-      logical_size: d.size,
-      type: d.type_,
+      size_bytes: d.size_bytes,
+      logical_size: d.size_bytes ?? d.size,
+      type: d.type ?? d.type_,
+      mountpoint: d.mountpoint,
+      removable: d.removable,
+      readonly: d.readonly,
+      // elegibilidade vinda do backend (fonte de verdade); aceita snake_case
+      eligible: d.eligible,
+      eligibilityIssues: d.eligibilityIssues ?? d.eligibility_issues,
     })));
   },
 
@@ -151,19 +180,13 @@ export const installerApi = {
   },
 
   getStatus() {
-    return Promise.resolve({
-      running: window.__kryonix_running || false,
-      exitCode: null,
-      currentPhase: null,
-    });
+    return requestJson('/install/status');
   },
 
   getLog() { return Promise.resolve({ tail: '' }); },
 
   reboot() {
-    return fetch('/api/reboot', { method: 'POST', cache: 'no-store' })
-      .then(() => ({}))
-      .catch(() => ({}));
+    return requestJson('/api/reboot', { method: 'POST' });
   },
 
   // Connect to /install/progress SSE and map ProgressEvent → hook handlers.

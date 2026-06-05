@@ -36,6 +36,7 @@
     ../../modules/nixos/services
     ../../modules/nixos/meta
     ../../modules/nixos/desktop
+    ../../modules/kernel/zen.nix
     ../../features
     ../../profiles
   ];
@@ -55,7 +56,10 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
-    extraSpecialArgs = { inherit inputs userConfig; };
+    extraSpecialArgs = {
+      inherit inputs userConfig;
+      nhModules = "${inputs.self}/modules/home-manager";
+    };
     users.${userConfig.name} = {
       imports = [ ../../modules/home-manager/common ];
     };
