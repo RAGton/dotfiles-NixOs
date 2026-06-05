@@ -1,14 +1,23 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 let
   cfg = config.kryonix.services.smart-filer;
-in {
+in
+{
   options.kryonix.services.smart-filer = {
     enable = mkEnableOption "Daemon de Organização Semântica de Arquivos";
     watchPaths = mkOption {
       type = types.listOf types.str;
-      default = [ "%h/Downloads" "%h/Inbox_IA" ];
+      default = [
+        "%h/Downloads"
+        "%h/Inbox_IA"
+      ];
       description = "Diretórios monitorados pelo Smart Filer.";
     };
   };
@@ -34,7 +43,10 @@ in {
     systemd.user.services.kryonix-home = {
       Unit = {
         Description = "Kryonix Home Context-Aware File Processing Service";
-        After = [ "network.target" "tailscaled.service" ];
+        After = [
+          "network.target"
+          "tailscaled.service"
+        ];
       };
       Service = {
         Type = "oneshot";

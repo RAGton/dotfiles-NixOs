@@ -49,10 +49,7 @@ let
       pos = m.position;
       scale = toString m.scale;
     in
-    if !m.enabled then
-      "monitor=${name},disabled"
-    else
-      "monitor=${name},${res},${pos},${scale}";
+    if !m.enabled then "monitor=${name},disabled" else "monitor=${name},${res},${pos},${scale}";
 
   # Gera diretivas workspace= a partir do mapa workspaceMonitorMap.
   mkWorkspaceLines =
@@ -61,7 +58,9 @@ let
       lib.flatten (
         lib.mapAttrsToList (
           monitor: workspaces:
-          lib.imap1 (i: ws: "workspace=${toString ws},monitor:${monitor}${if i == 1 then ",default:true" else ""}") workspaces
+          lib.imap1 (
+            i: ws: "workspace=${toString ws},monitor:${monitor}${if i == 1 then ",default:true" else ""}"
+          ) workspaces
         ) map
       )
     );
@@ -69,22 +68,19 @@ let
   monitorLines = lib.mapAttrsToList mkMonitorLine cfg.monitors.outputs;
   workspaceLines = mkWorkspaceLines cfg.workspaceMonitorMap;
 
-  generatedConfig =
-    ''
-      # Fallback universal — SEMPRE presente para outputs não declarados
-      monitor=,${cfg.monitors.fallbackRule}
+  generatedConfig = ''
+    # Fallback universal — SEMPRE presente para outputs não declarados
+    monitor=,${cfg.monitors.fallbackRule}
 
-    ''
-    + lib.optionalString (monitorLines != [ ]) (
-      "# Monitores declarados via kryonix.desktop.monitors\n"
-      + lib.concatStringsSep "\n" monitorLines
-      + "\n"
-    )
-    + lib.optionalString (workspaceLines != "") (
-      "\n# Workspaces por monitor via kryonix.desktop.workspaceMonitorMap\n"
-      + workspaceLines
-      + "\n"
-    );
+  ''
+  + lib.optionalString (monitorLines != [ ]) (
+    "# Monitores declarados via kryonix.desktop.monitors\n"
+    + lib.concatStringsSep "\n" monitorLines
+    + "\n"
+  )
+  + lib.optionalString (workspaceLines != "") (
+    "\n# Workspaces por monitor via kryonix.desktop.workspaceMonitorMap\n" + workspaceLines + "\n"
+  );
 
   monitorSubmodule = lib.types.submodule {
     options = {

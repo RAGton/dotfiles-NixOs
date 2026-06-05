@@ -144,7 +144,7 @@ in
     # This allows the UI to modify files and the watcher to commit them.
     xdg.configFile."caelestia/shell.json".source =
       config.lib.file.mkOutOfStoreSymlink "/etc/kryonixos/user/caelestia/shell.json";
-    
+
     xdg.configFile."caelestia/shell-tokens.json".source =
       config.lib.file.mkOutOfStoreSymlink "/etc/kryonixos/user/caelestia/shell-tokens.json";
 
@@ -160,11 +160,19 @@ in
       $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$caelestia_repo_dir"
 
       # Initialize files if they don't exist in the repo
-      if [ ! -e "$caelestia_repo_dir/shell.json" ] && [ "${if shellSettingsFile != null then "true" else "false"}" = "true" ]; then
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${if shellSettingsFile != null then shellSettingsFile else "/dev/null"} "$caelestia_repo_dir/shell.json"
+      if [ ! -e "$caelestia_repo_dir/shell.json" ] && [ "${
+        if shellSettingsFile != null then "true" else "false"
+      }" = "true" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${
+          if shellSettingsFile != null then shellSettingsFile else "/dev/null"
+        } "$caelestia_repo_dir/shell.json"
       fi
-      if [ ! -e "$caelestia_repo_dir/shell-tokens.json" ] && [ "${if shellTokensFile != null then "true" else "false"}" = "true" ]; then
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${if shellTokensFile != null then shellTokensFile else "/dev/null"} "$caelestia_repo_dir/shell-tokens.json"
+      if [ ! -e "$caelestia_repo_dir/shell-tokens.json" ] && [ "${
+        if shellTokensFile != null then "true" else "false"
+      }" = "true" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${
+          if shellTokensFile != null then shellTokensFile else "/dev/null"
+        } "$caelestia_repo_dir/shell-tokens.json"
       fi
       if [ ! -e "$caelestia_repo_dir/scheme.json" ]; then
         $DRY_RUN_CMD ${pkgs.coreutils}/bin/cp ${shellSchemeFile} "$caelestia_repo_dir/scheme.json"

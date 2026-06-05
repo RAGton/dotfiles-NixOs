@@ -92,11 +92,11 @@ in
 
     systemd.services.sddm-random-wallpaper = {
       description = "Sorteia wallpaper aleatório para o SDDM";
-      before   = [ "display-manager.service" ];
+      before = [ "display-manager.service" ];
       wantedBy = [ "display-manager.service" ];
       path = [ pkgs.coreutils ];
       serviceConfig = {
-        Type      = "oneshot";
+        Type = "oneshot";
         ExecStart = pkgs.writeShellScript "sddm-random-wallpaper" ''
           WALL_DIR="/etc/kryonix/files/wallpaper"
           LINK="/var/lib/sddm/current-wallpaper"

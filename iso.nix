@@ -1,4 +1,6 @@
-{ offlineMode ? false }:
+{
+  offlineMode ? false,
+}:
 let
   flake = builtins.getFlake (toString ./.);
   # Re-evaluate with the desired offlineMode

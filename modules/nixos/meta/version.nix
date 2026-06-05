@@ -16,7 +16,7 @@
 let
   cfg = config.kryonix.meta.version;
   self = inputs.self;
-  
+
   # Captura a revisão do commit do input 'self' (o próprio repositório)
   commit = self.rev or self.dirtyRev or "dirty-${self.lastModifiedDate or "unknown"}";
   timestamp = self.lastModifiedDate or "unknown";
@@ -59,7 +59,7 @@ in
       description = "Kryonix Distro Telemetry Ping";
       after = [ "network-online.target" ];
       wants = [ "network-online.target" ];
-      
+
       serviceConfig = {
         Type = "oneshot";
         ExecStart = ''

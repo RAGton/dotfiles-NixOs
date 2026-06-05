@@ -41,7 +41,7 @@
   # Ativação via Perfis (Modular)
   kryonix.profiles = {
     laptop.enable = true;
-    
+
     dev = {
       enable = true;
       enableRust = true;
