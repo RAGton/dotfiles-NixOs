@@ -18,11 +18,18 @@
 #   editar modules/home-manager/common (afeta também a stack Hyprland).
 #
 # Como:
-# - `nhModules` é injetado por extraSpecialArgs (= ${kryonix}/modules/home-manager).
+# - Resolve o caminho do módulo Wofi via `inputs.kryonix` (downstream) ou
+#   `inputs.self` (upstream), evitando depender de `nhModules` em
+#   extraSpecialArgs — esse arg não chega no caminho NixOS → HM quando o
+#   downstream usa hosts/common (que aponta `nhModules` para `inputs.self`,
+#   resolvendo no diretório do chamador e não no engine).
 # =============================================================================
-{ nhModules, ... }:
+{ inputs, ... }:
+let
+  kryonixRoot = inputs.kryonix or inputs.self;
+in
 {
   imports = [
-    "${nhModules}/programs/wofi"
+    "${kryonixRoot}/modules/home-manager/programs/wofi"
   ];
 }
