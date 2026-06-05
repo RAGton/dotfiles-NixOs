@@ -50,7 +50,7 @@
     hardware.url = "github:nixos/nixos-hardware";
 
     # Gerenciador declarativo de Flatpak
-    nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.7.0";   # pin de tag
+    nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.7.0"; # pin de tag
 
     # Nix Darwin (para máquinas macOS)
     darwin = {
@@ -111,7 +111,10 @@
     let
       inherit (self) outputs;
       # Sem usuários pessoais no upstream; downstream traz os seus próprios via kryonix.lib.mkLib
-      lib = import ./flake/lib.nix { inherit inputs; users = { }; };
+      lib = import ./flake/lib.nix {
+        inherit inputs;
+        users = { };
+      };
     in
     {
       nixosConfigurations = import ./flake/data/hosts.nix { inherit inputs lib; };
@@ -128,9 +131,7 @@
       # lib: factory para criar configurações downstream
       # Uso: kryonix.lib.mkLib { inherit inputs; users = ./meus-users.nix; }
       lib = {
-        mkLib =
-          { inputs, users }:
-          import ./flake/lib.nix { inherit inputs users; };
+        mkLib = { inputs, users }: import ./flake/lib.nix { inherit inputs users; };
 
         # Overlays prontos para uso em nixpkgs.overlays
         inherit (import ./overlays { inherit inputs; })

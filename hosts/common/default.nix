@@ -15,7 +15,12 @@
 # - Encadeia opções, módulos de base/sistema, features e profiles.
 # - Expõe a seleção de desktop via `kryonix.desktop.environment`.
 # ==============================================================================
-{ inputs, userConfig, outputs, ... }:
+{
+  inputs,
+  userConfig,
+  outputs,
+  ...
+}:
 {
   imports = [
     inputs.home-manager.nixosModules.home-manager

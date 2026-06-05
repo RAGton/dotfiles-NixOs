@@ -26,7 +26,8 @@
 
     # Branding Kryonix (GRUB tema + Plymouth + os-release)
     ../../modules/nixos/branding/kryonix/default.nix
-  ] ++ lib.optionals offlineMode [
+  ]
+  ++ lib.optionals offlineMode [
     inputs.self.nixosModules.full-profile
   ];
 
@@ -35,14 +36,17 @@
   kryonix.branding.enable = true;
 
   # Se estiver em modo offline, garante que o closure esteja no store da ISO.
-  isoImage.storeContents = lib.optional offlineMode (with pkgs; [
-    # Garante que as ferramentas e o flake estejam acessíveis sem internet
-    git
-    curl
-    jq
-    nix
-    inputs.self.outPath
-  ]);
+  isoImage.storeContents = lib.optional offlineMode (
+    with pkgs;
+    [
+      # Garante que as ferramentas e o flake estejam acessíveis sem internet
+      git
+      curl
+      jq
+      nix
+      inputs.self.outPath
+    ]
+  );
 
   # ── Rede: ethernet DHCP automático + WiFi via NetworkManager ──────────────
   # O instalador precisa de internet antes do passo 1 (OAuth GitHub).
@@ -56,13 +60,16 @@
   hardware.enableRedistributableFirmware = lib.mkDefault true;
 
   # Usuário live precisa estar no grupo networkmanager para rodar nmcli sem sudo
-  users.users.nixos.extraGroups = lib.mkDefault [ "networkmanager" "wheel" ];
+  users.users.nixos.extraGroups = lib.mkDefault [
+    "networkmanager"
+    "wheel"
+  ];
 
   # ISO identity
-  system.nixos.distroName    = lib.mkForce "Kryonix";
-  system.nixos.label         = lib.mkForce "Kryonix-Installer";
-  isoImage.isoBaseName       = lib.mkForce "kryonix";
-  isoImage.volumeID          = lib.mkForce "KRYONIX";
+  system.nixos.distroName = lib.mkForce "Kryonix";
+  system.nixos.label = lib.mkForce "Kryonix-Installer";
+  isoImage.isoBaseName = lib.mkForce "kryonix";
+  isoImage.volumeID = lib.mkForce "KRYONIX";
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
