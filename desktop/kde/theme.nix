@@ -10,7 +10,7 @@
 # - SEM painel KDE (panels=[]) — topo reservado para a Kryonix Bar (Rust)
 # - Dolphin otimizado (caminho completo, navegação em arquivos)
 # =============================================================================
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 {
   # --- Cursor Nordzy (X11 / GTK / Wayland) ---------------------------------
   home.pointerCursor = {
@@ -130,7 +130,9 @@
     };
   };
 
-  home.activation.forceKdeTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD ${pkgs.kdePackages.plasma-workspace}/bin/plasma-apply-lookandfeel -a BonaFides-Color-Plasma || true
-  '';
+  # NOTA: não rodamos plasma-apply-lookandfeel via home.activation. O próprio
+  # plasma-manager (programs.plasma) já aplica o lookAndFeel acima no activation
+  # do módulo. A activation extra usava ID errado ("BonaFides-Color-Plasma" — o
+  # ID real do Global Theme é "BonaFides-Dark-Color-Global-6", definido em
+  # workspace.lookAndFeel acima) e só gerava warning no journal sem efeito útil.
 }

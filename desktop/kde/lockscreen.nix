@@ -24,8 +24,16 @@
 #   visual "sessão bloqueada". Ajuste o arquivo se quiser unificar.
 # - Não definimos lockOnStartup (deixaria a sessão sempre travada após boot
 #   antes do autologin/SDDM concluir — não é o fluxo do Inspiron).
+# - PreviewImage: plasma-manager NÃO declara essa chave (só Image). Sem
+#   override fica o leftover do último clique manual em System Settings (no
+#   nosso caso, um path em ~/Downloads), o que dá mismatch entre miniatura
+#   exibida no painel de Lock & Login e o wallpaper real. Forçamos via
+#   configFile para casar com o Image.
 # =============================================================================
 { ... }:
+let
+  lockWallpaper = ../../assets/wallpaper/01.png;
+in
 {
   programs.plasma.kscreenlocker = {
     # Comportamento -------------------------------------------------------
@@ -39,9 +47,15 @@
     appearance = {
       # Wallpaper da lockscreen — assets/wallpaper/01.png (distinto do
       # desktop default 12.png para sinalizar visualmente "trancado").
-      wallpaper = ../../assets/wallpaper/01.png;
+      wallpaper = lockWallpaper;
       alwaysShowClock = true; # relógio mesmo sem campo de senha visível
       showMediaControls = false; # nada de revelar app de mídia atual
     };
   };
+
+  # Casa o PreviewImage com o Image para evitar leftover de path antigo
+  # (ex.: ~/Downloads). plasma-manager faz mkMerge no kscreenlockerrc, então
+  # esta seção combina com Image gerado pelo module de plasma-manager.
+  programs.plasma.configFile.kscreenlockerrc."Greeter/Wallpaper/org.kde.image/General".PreviewImage =
+    builtins.toString lockWallpaper;
 }
