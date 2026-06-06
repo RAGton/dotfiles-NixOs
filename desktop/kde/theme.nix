@@ -77,13 +77,11 @@
     # borda de todas as janelas, então a decoração não é exibida de qualquer
     # forma; deixamos o lookAndFeel cuidar do default e evitamos definição dupla.
 
-    # --- Blur profundo + transparência (Kryonix Glass) --------------------
+    # --- Transparência sem blur (Kryonix Glass plano) ---------------------
+    # Blur desativado: o painel/menus continuam translúcidos (translucency),
+    # mas mostram o wallpaper sem desfoque (efeito "flat glass").
     kwin.effects = {
-      blur = {
-        enable = true;
-        strength = 12; # 1–15: blur reforçado atrás de painéis/menus translúcidos
-        noiseStrength = 0;
-      };
+      blur.enable = false;
       translucency.enable = true;
     };
 
