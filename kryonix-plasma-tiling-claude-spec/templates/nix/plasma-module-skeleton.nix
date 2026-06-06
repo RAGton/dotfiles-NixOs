@@ -1,6 +1,11 @@
 # Skeleton: NixOS Plasma opt-in module
 # Ajuste para o namespace real do Kryonix antes de usar.
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 
 let
   cfg = config.kryonix.desktop.plasma;
@@ -23,7 +28,6 @@ in
     services.displayManager.sddm.enable = lib.mkDefault true;
     services.displayManager.sddm.wayland.enable = lib.mkDefault true;
 
-    services.displayManager.defaultSession =
-      lib.mkIf cfg.setDefaultSession (lib.mkDefault "plasma");
+    services.displayManager.defaultSession = lib.mkIf cfg.setDefaultSession (lib.mkDefault "plasma");
   };
 }

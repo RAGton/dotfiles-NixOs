@@ -5,7 +5,12 @@
 # - Gerencia o ciclo de vida do backend D-Bus da Kryonix Bar (Rust).
 # - Expõe org.kryonix.Bar para consumo pelo frontend.
 # =============================================================================
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.services.kryonix-bar;
 in

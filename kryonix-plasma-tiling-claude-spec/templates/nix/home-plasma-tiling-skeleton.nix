@@ -1,5 +1,10 @@
 # Skeleton: Home Manager Plasma/KWin tiling config
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 
 let
   cfg = config.kryonix.home.desktop.plasma.tiling;
