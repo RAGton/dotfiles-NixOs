@@ -48,7 +48,13 @@ jobs:
 
 # ============================================================================
 # Job 2: Builda derivações pesadas e faz push para kryonix.cachix.org
-# Matriz: packages do flake + toplevels dos dois hosts
+# Matriz: packages do flake + toplevel do único host deste repo (iso).
+#
+# Os hosts glacier/inspiron NÃO vivem mais aqui — eles foram movidos para o
+# downstream RAGton/Kryonixos (arquitetura dual-flake: este repo é o engine,
+# o downstream importa via `inputs.kryonix`). Build/cache desses toplevels
+# deve acontecer no CI do downstream, não aqui — senão `nix build` falha com
+# "flake does not provide attribute nixosConfigurations.<host>".
 # ============================================================================
   build:
     name: Build — ${{ matrix.target }}
@@ -66,9 +72,8 @@ jobs:
           - 'kryonix-hardware-probe'
           - 'kryonix-disk-planner'
           - 'kryonix-optimizer'
-          # Toplevels NixOS (compilação pesada — valida toda a config dos hosts)
-          - 'nixosConfigurations.glacier.config.system.build.toplevel'
-          - 'nixosConfigurations.inspiron.config.system.build.toplevel'
+          # Toplevel da ISO (único host nixosConfigurations.* deste repo)
+          - 'nixosConfigurations.iso.config.system.build.toplevel'
     steps:
       - uses: actions/checkout@v4
         with:
