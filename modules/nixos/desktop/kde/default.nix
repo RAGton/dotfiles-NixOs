@@ -43,6 +43,26 @@ in
         laptops com login normal, mantenha `null`.
       '';
     };
+
+    theme.colorScheme = lib.mkOption {
+      type = lib.types.enum [
+        "bonafides"
+        "kryonix-dark"
+      ];
+      default = "bonafides";
+      description = ''
+        Esquema de cores aplicado ao KDE Plasma na camada Home Manager.
+
+        - "bonafides": esquema azul BonaFides (default histórico do host, base do
+          Global Theme / Kvantum). Comportamento atual inalterado.
+        - "kryonix-dark": esquema oficial Kryonix com os tokens próprios
+          (background #0B0F14, accent #38BDF8 — ver desktop/kde/scheme.nix e
+          docs/desktop/PLASMA_THEME_KRYONIX_DARK.md). Opt-in; não remove BonaFides
+          (lookAndFeel/Kvantum continuam), apenas troca o color-scheme + accent.
+
+        Consumido por desktop/kde/scheme.nix via `osConfig`.
+      '';
+    };
   };
 
   config = lib.mkIf isKde {
