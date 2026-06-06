@@ -1,0 +1,100 @@
+# =============================================================================
+# windows/glazewm/config.yaml — Tiling WM para Windows (GlazeWM, estilo i3)
+#
+# Bordas/cores nos tokens Kryonix (accent #38BDF8, border #334155).
+# Mapa de teclas alinhado ao KDE/Hyprland (Alt+HJKL no Windows).
+# Instale em: %USERPROFILE%\.glzr\glazewm\config.yaml
+# =============================================================================
+
+general:
+  startup_commands: []
+  shutdown_commands: []
+  config_reload_commands: []
+  focus_follows_cursor: false
+
+gaps:
+  inner_gap: "8px"
+  outer_gap:
+    top: "8px"
+    right: "8px"
+    bottom: "8px"
+    left: "8px"
+
+window_effects:
+  focused_window:
+    border:
+      enabled: true
+      color: "#38BDF8"
+  other_windows:
+    border:
+      enabled: true
+      color: "#334155"
+
+workspaces:
+  - name: "1:term"
+  - name: "2:web"
+  - name: "3:code"
+  - name: "4:chat"
+  - name: "5:media"
+
+keybindings:
+  # --- Foco (vim HJKL) ---
+  - command: "focus --direction left"
+    binding: "Alt+H"
+  - command: "focus --direction down"
+    binding: "Alt+J"
+  - command: "focus --direction up"
+    binding: "Alt+K"
+  - command: "focus --direction right"
+    binding: "Alt+L"
+
+  # --- Mover janela ---
+  - command: "move --direction left"
+    binding: "Alt+Shift+H"
+  - command: "move --direction down"
+    binding: "Alt+Shift+J"
+  - command: "move --direction up"
+    binding: "Alt+Shift+K"
+  - command: "move --direction right"
+    binding: "Alt+Shift+L"
+
+  # --- Redimensionar (alinhado a Meta+Ctrl+HJKL no KDE) ---
+  - command: "resize --width -2%"
+    binding: "Alt+Ctrl+H"
+  - command: "resize --width +2%"
+    binding: "Alt+Ctrl+L"
+  - command: "resize --height +2%"
+    binding: "Alt+Ctrl+J"
+  - command: "resize --height -2%"
+    binding: "Alt+Ctrl+K"
+
+  # --- Workspaces ---
+  - command: "focus --workspace 1:term"
+    binding: "Alt+1"
+  - command: "focus --workspace 2:web"
+    binding: "Alt+2"
+  - command: "focus --workspace 3:code"
+    binding: "Alt+3"
+  - command: "focus --workspace 4:chat"
+    binding: "Alt+4"
+  - command: "focus --workspace 5:media"
+    binding: "Alt+5"
+
+  - command: "move --workspace 1:term"
+    binding: "Alt+Shift+1"
+  - command: "move --workspace 2:web"
+    binding: "Alt+Shift+2"
+  - command: "move --workspace 3:code"
+    binding: "Alt+Shift+3"
+  - command: "move --workspace 4:chat"
+    binding: "Alt+Shift+4"
+  - command: "move --workspace 5:media"
+    binding: "Alt+Shift+5"
+
+  # --- Layout / janela ---
+  - command: "toggle-floating"
+    binding: "Alt+Shift+Space"
+  - command: "toggle-fullscreen"
+    binding: "Alt+F"
+  - command: "wm-reload-config"
+    binding: "Alt+Shift+R"
