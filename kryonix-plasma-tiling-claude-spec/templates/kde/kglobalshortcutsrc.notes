@@ -1,0 +1,10 @@
+# Notas para atalhos globais KDE
+# Evite gerenciar este arquivo inteiro sem teste: Plasma pode sobrescrever.
+#
+# Padrão desejado:
+# Meta+H/J/K/L            foco direcional
+# Meta+Shift+H/J/K/L      mover janela
+# Meta+Ctrl+H/J/K/L       resize
+# Meta+1..9               desktop/workspace
+#
+# Primeiro implemente via GUI/documentação ou plasma-manager se adotado no repo.

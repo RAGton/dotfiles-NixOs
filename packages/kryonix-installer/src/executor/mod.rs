@@ -1,3 +1,4 @@
+pub mod kryonixos;
 pub mod nixos;
 pub mod partition;
 pub mod progress;
@@ -17,6 +18,7 @@ pub async fn run_installation(
     tx: Arc<broadcast::Sender<ProgressEvent>>,
 ) -> Result<(), String> {
     partition::run_disko(plan, tx.clone()).await?;
+    kryonixos::generate_kryonixos_tree(plan, tx.clone()).await?;
     nixos::run_nixos_install(plan, tx.clone()).await?;
 
     // Prova estrutural antes de declarar sucesso: GPT + root populado +

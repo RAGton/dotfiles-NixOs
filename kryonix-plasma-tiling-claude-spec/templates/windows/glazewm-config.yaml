@@ -1,0 +1,63 @@
+general:
+  startup_commands: []
+  shutdown_commands: []
+  config_reload_commands: []
+  focus_follows_cursor: false
+
+gaps:
+  inner_gap: "8px"
+  outer_gap:
+    top: "8px"
+    right: "8px"
+    bottom: "8px"
+    left: "8px"
+
+window_effects:
+  focused_window:
+    border:
+      enabled: true
+      color: "#38BDF8"
+  other_windows:
+    border:
+      enabled: true
+      color: "#334155"
+
+workspaces:
+  - name: "1:term"
+  - name: "2:web"
+  - name: "3:code"
+  - name: "4:chat"
+  - name: "5:media"
+
+keybindings:
+  - command: "focus --direction left"
+    binding: "Alt+H"
+  - command: "focus --direction down"
+    binding: "Alt+J"
+  - command: "focus --direction up"
+    binding: "Alt+K"
+  - command: "focus --direction right"
+    binding: "Alt+L"
+
+  - command: "move --direction left"
+    binding: "Alt+Shift+H"
+  - command: "move --direction down"
+    binding: "Alt+Shift+J"
+  - command: "move --direction up"
+    binding: "Alt+Shift+K"
+  - command: "move --direction right"
+    binding: "Alt+Shift+L"
+
+  - command: "focus --workspace 1:term"
+    binding: "Alt+1"
+  - command: "focus --workspace 2:web"
+    binding: "Alt+2"
+  - command: "focus --workspace 3:code"
+    binding: "Alt+3"
+  - command: "focus --workspace 4:chat"
+    binding: "Alt+4"
+  - command: "focus --workspace 5:media"
+    binding: "Alt+5"
+
+  - command: "toggle-floating"
+    binding: "Alt+Shift+Space"

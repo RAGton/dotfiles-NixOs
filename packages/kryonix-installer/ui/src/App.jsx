@@ -140,11 +140,24 @@ export default function App() {
     [],
   );
 
+  // Força transição automática para a tela de instalação APENAS quando
+  // a instalação real está em andamento (installRunning = true).
+  // O dry-run não deve forçar nem travar a navegação permanentemente.
+  useEffect(() => {
+    if (uiState.installRunning) {
+      setStepIndex(STEPS.length - 1);
+    }
+  }, [uiState.installRunning]);
+
   // Navegação por teclado (Gate 6 — keyboard-only). Atalhos de "Próximo":
   // Enter (fora de campos), Alt+N, Alt+→, Ctrl+Enter. "Voltar": Alt+B, Alt+←, Alt+Backspace.
   // Esc é no-op: nunca sai do kiosk nem fecha o Chromium.
   useEffect(() => {
     const onKeyDown = (event) => {
+      if (uiState.installRunning) {
+        event.preventDefault();
+        return;
+      }
       if (event.key === 'Escape') {
         event.preventDefault();
         return;
@@ -192,7 +205,7 @@ export default function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [canGoNext, step.id, goNext, goBack]);
+  }, [canGoNext, step.id, goNext, goBack, uiState.installRunning]);
 
   // Foco inicial previsível: ao trocar de etapa, foca o primeiro elemento
   // interativo da página (EULA → checkbox, Disks → primeiro card, Users → 1º campo).
@@ -257,8 +270,9 @@ export default function App() {
       stepLabel={`Etapa ${stepIndex + 1} de ${STEPS.length}`}
       steps={stepsWithState}
       currentStepIndex={stepIndex}
-      navigationHint={eulaLocked ? 'Atalhos bloqueados na EULA' : 'Alt + ← / Alt + →'}
+      navigationHint={uiState.installRunning ? 'Navegação bloqueada' : eulaLocked ? 'Atalhos bloqueados na EULA' : 'Alt + ← / Alt + →'}
       onStepJump={(index) => {
+        if (uiState.installRunning) return;
         if (step.id === 'eula') return;
         if (index <= stepIndex || index === stepIndex + 1) {
           setStepIndex(index);
@@ -269,13 +283,17 @@ export default function App() {
           progressLabel={`${step.title} • ${progressValue}%`}
           progressValue={progressValue}
           issues={footerIssues}
-          canBack={stepIndex > 0}
-          canNext={step.id === 'install' ? false : canGoNext}
+          canBack={stepIndex > 0 && !uiState.installRunning}
+          canNext={step.id === 'install' ? false : canGoNext && !uiState.installRunning}
           onBack={() => setStepIndex((previous) => Math.max(0, previous - 1))}
           onNext={() => setStepIndex((previous) => Math.min(STEPS.length - 1, previous + 1))}
-          hintText={step.id === 'eula'
-            ? 'Nesta etapa, o avanço só é permitido pelo botão Próximo após marcar o aceite.'
-            : 'Pronto para avançar. Navegação rápida: Alt + ← / Alt + →'}
+          hintText={
+            uiState.installRunning
+              ? 'Instalação em andamento. Não desligue a VM.'
+              : step.id === 'eula'
+                ? 'Nesta etapa, o avanço só é permitido pelo botão Próximo após marcar o aceite.'
+                : 'Pronto para avançar. Navegação rápida: Alt + ← / Alt + →'
+          }
           nextLabel={step.id === 'summary' ? 'Ir para instalação' : step.id === 'install' ? 'Em execução' : 'Próximo'}
         />
       )}

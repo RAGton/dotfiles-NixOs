@@ -12,20 +12,12 @@ pub async fn run_nixos_install(
 ) -> Result<(), String> {
     let _ = tx.send(ProgressEvent {
         step: "nixos-install".into(),
-        message: "Gerando configuração NixOS...".into(),
-        percent: 40,
-    });
-
-    write_nixos_config(plan).await?;
-
-    let _ = tx.send(ProgressEvent {
-        step: "nixos-install".into(),
         message: "Instalando NixOS (pode demorar)...".into(),
         percent: 50,
     });
 
     let flake =
-        std::env::var("KRYONIX_INSTALLER_FLAKE").unwrap_or_else(|_| "/etc/kryonix".to_string());
+        std::env::var("KRYONIX_INSTALLER_FLAKE").unwrap_or_else(|_| "/mnt/etc/kryonixos".to_string());
     let flake_ref = format!("{flake}#{}", plan.hostname);
 
     let _ = tx.send(ProgressEvent {
@@ -95,32 +87,3 @@ pub async fn run_nixos_install(
     }
 }
 
-async fn write_nixos_config(plan: &InstallPlan) -> Result<(), String> {
-    let config = format!(
-        r#"{{ config, pkgs, ... }}:
-{{
-  i18n.defaultLocale = "{locale}";
-  console.keyMap = "{keyboard}";
-  time.timeZone = "{timezone}";
-  networking.hostName = "{hostname}";
-  users.users.{user} = {{
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
-  }};
-}}
-"#,
-        locale = plan.locale,
-        keyboard = plan.keyboard,
-        timezone = plan.timezone,
-        hostname = plan.hostname,
-        user = plan.user.name,
-    );
-
-    tokio::fs::create_dir_all("/mnt/etc/nixos")
-        .await
-        .map_err(|e| format!("Falha ao criar /mnt/etc/nixos: {e}"))?;
-
-    tokio::fs::write("/mnt/etc/nixos/configuration.nix", config)
-        .await
-        .map_err(|e| format!("Falha ao escrever configuration.nix: {e}"))
-}

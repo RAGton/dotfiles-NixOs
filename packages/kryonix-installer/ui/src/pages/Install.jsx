@@ -19,7 +19,7 @@ function stageTone(state) {
   }
 }
 
-export default function Install({ draft, uiState, validation }) {
+export default function Install({ draft, uiState, validation, onChange }) {
   const logRef = useRef(null);
   const [rebootBusy, setRebootBusy] = useState(false);
   const [showSafetyModal, setShowSafetyModal] = useState(false);
@@ -45,6 +45,12 @@ export default function Install({ draft, uiState, validation }) {
   const installFailed = phase === INSTALL_EXECUTION_PHASES.FAILED;
   const installRunning = phase === INSTALL_EXECUTION_PHASES.RUNNING || phase === INSTALL_EXECUTION_PHASES.VALIDATING;
   const installStarted = executionState.planSubmitted || installRunning || installSucceeded || installFailed;
+
+  useEffect(() => {
+    if (uiState.installRunning !== installRunning) {
+      onChange({ installRunning });
+    }
+  }, [installRunning, uiState.installRunning, onChange]);
 
   const stages = useMemo(() => buildInstallStageList(executionState.status), [executionState.status]);
 

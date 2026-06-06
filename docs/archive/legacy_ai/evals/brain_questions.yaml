@@ -1,0 +1,17 @@
+evaluations:
+  - id: rebuild_glacier_seguro
+    question: "Como faço rebuild seguro do Glacier?"
+    must_contain:
+      - "nix flake check"
+      - "nh os build"
+      - "nh os test"
+      - "nh os switch"
+    must_not_contain:
+      - "ISO live"
+      - "disko"
+      - "mkfs"
+      - "mount manual"
+      - "./run.sh"
+      - "climate"
+      - "ice"
+      - "glacial"

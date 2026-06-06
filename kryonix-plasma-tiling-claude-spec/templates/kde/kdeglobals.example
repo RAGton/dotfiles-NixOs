@@ -1,0 +1,17 @@
+[General]
+ColorScheme=KryonixDark
+Name=Kryonix Dark
+fixed=JetBrainsMono Nerd Font,10,-1,5,50,0,0,0,0,0
+font=Inter,10,-1,5,50,0,0,0,0,0
+menuFont=Inter,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Inter,8,-1,5,50,0,0,0,0,0
+toolBarFont=Inter,10,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=Papirus-Dark
+
+[KDE]
+SingleClick=false
+
+[Mouse]
+cursorTheme=Bibata-Modern-Ice

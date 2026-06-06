@@ -155,6 +155,7 @@ in
         environment = {
           KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
           KRYONIX_INSTALLER_FLAKE = "${inputs.self.outPath}";
+          KRYONIX_ENGINE_SOURCE = "${inputs.self.outPath}";
           KRYONIX_HARDWARE_PROBE = "${pkgs.kryonix-hardware-probe}/bin/kryonix-hardware-probe";
           # O CLI do disko (disko --mode disko <config.nix>) avalia
           # `import <nixpkgs>` em cli.nix; sem NIX_PATH o particionamento falha

@@ -54,6 +54,7 @@ export const UI_TRANSIENT_FIELD_NAMES = [
   'storageBlockingIssues',
   'storageWarnings',
   'destructiveConfirmed',
+  'installRunning',
 ];
 
 const DRAFT_FIELD_SET = new Set(DRAFT_FIELD_NAMES);
@@ -113,6 +114,7 @@ export const INITIAL_UI_TRANSIENT_STATE = {
   storageBlockingIssues: [],
   storageWarnings: [],
   destructiveConfirmed: false,
+  installRunning: false,
 };
 
 function pickFields(source, defaults, allowedFields) {

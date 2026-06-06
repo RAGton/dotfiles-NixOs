@@ -1,0 +1,15 @@
+[Plugins]
+poloniumEnabled=true
+
+[Windows]
+ElectricBorders=0
+BorderSnapZone=10
+WindowSnapZone=10
+CenterSnapZone=0
+
+[Effect-overview]
+BorderActivate=9
+
+[Desktops]
+Number=6
+Rows=1
