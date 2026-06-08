@@ -85,24 +85,105 @@
       translucency.enable = true;
     };
 
-    # --- PAINEL FALLBACK (Fase 1): Ilha minimalista até a Kryonix Bar estar pronta ---
-    # Em vez de panels = [ ], restauramos um painel 'Floating Island' para manter
-    # a usabilidade mínima (Workspaces, Relógio, Tray).
+    # --- PAINEL Kryonix Aurora Bar (PR 8C) ------------------------------------
+    # Floating island premium: 3 zonas (workspaces+título | clock | métricas+tray)
+    # Translucency sem blur (já configurado acima).
+    # plasma-manager instala automaticamente `application-title-bar` quando o
+    # widget `com.github.antroids.application-title-bar` aparece na lista.
     panels = [
       {
         location = "top";
         alignment = "center";
-        height = 38;
+        height = 40;
         floating = true;
-        lengthMode = "fit"; # Estilo ilha (não ocupa 100% da largura)
+        lengthMode = "fit";
         hiding = "none";
         opacity = "translucent";
         widgets = [
-          "org.kde.plasma.kickoff"
-          "org.kde.plasma.pager"
+          # ── Zona esquerda: workspaces + título da janela ─────────────────
+          {
+            pager = {
+              general = {
+                displayedText = "desktopNumber";
+                showWindowOutlines = false;
+              };
+            };
+          }
+          {
+            applicationTitleBar = {
+              windowTitle.source = "appName";
+              layout = {
+                elements = [ "windowTitle" ];
+                horizontalAlignment = "left";
+                fillFreeSpace = false;
+              };
+              overrideForMaximized.enable = false;
+              titleReplacements = [ ];
+            };
+          }
           "org.kde.plasma.marginsseparator"
+
+          # ── Zona centro: relógio com hora + data ─────────────────────────
+          {
+            digitalClock = {
+              date = {
+                enable = true;
+                format = "isoDate";
+                position = "belowTime";
+              };
+              time = {
+                format = "24h";
+                showSeconds = "never";
+              };
+            };
+          }
+
+          "org.kde.plasma.marginsseparator"
+
+          # ── Zona direita: CPU + RAM + rede + áudio + tray ────────────────
+          {
+            systemMonitor = {
+              title = "CPU";
+              showTitle = false;
+              showLegend = false;
+              displayStyle = "org.kde.ksysguard.textonly";
+              totalSensors = [ "cpu/all/usage" ];
+              sensors = [
+                {
+                  name = "cpu/all/usage";
+                  color = "56,189,248";
+                  label = "CPU";
+                }
+              ];
+              textOnlySensors = [
+                "cpu/all/averageFrequency"
+                "cpu/all/averageTemperature"
+              ];
+            };
+          }
+          {
+            systemMonitor = {
+              title = "RAM";
+              showTitle = false;
+              showLegend = false;
+              displayStyle = "org.kde.ksysguard.textonly";
+              totalSensors = [ "memory/physical/usedPercent" ];
+              sensors = [
+                {
+                  name = "memory/physical/usedPercent";
+                  color = "56,189,248";
+                  label = "RAM";
+                }
+              ];
+              textOnlySensors = [
+                "memory/physical/used"
+                "memory/physical/total"
+              ];
+            };
+          }
+          "org.kde.plasma.networkmanagement"
+          "org.kde.plasma.volume"
           "org.kde.plasma.systemtray"
-          "org.kde.plasma.digitalclock"
         ];
       }
     ];
@@ -118,12 +199,13 @@
         BrowseThroughArchives = true;
       };
 
-      # --- Kryonix Glass: accent azul coerente com o Kvantum -------------
-      # (catppuccin mocha blue #89B4FA). O blur é configurado via
-      # kwin.effects.blur.strength acima, não aqui (evita definição dupla).
+      # --- Kryonix Glass: accent azul Kryonix (#38BDF8) ------------------
+      # Coerente com os gauges da barra (56,189,248), o launcher fuzzel e o
+      # esquema "Kryonix Dark". Era #89B4FA (catppuccin) — desalinhado do resto
+      # do desktop. O blur é configurado em kwin.effects acima (evita dupla def).
       kdeglobals.General = {
         accentColorFromWallpaper = false;
-        AccentColor = "137,180,250";
+        AccentColor = "56,189,248";
       };
     };
   };

@@ -173,15 +173,17 @@ in
     # Comandos disparados por atalho (hotkeys.commands)
     # =====================================================================
     hotkeys.commands = moveFollowCommands // {
-      # --- Wofi (launcher de aplicativos, estilo Hyprland/Waybar) ---
-      # Meta+A: Abre o wofi em modo drun (aplicativos). As antigas buscas de
-      #         arquivos/energia eram plugins específicos do Albert (sem equivalente
-      #         direto no Wofi); foram removidas. Se quiser, dá pra recriar um
-      #         power-menu em wofi-dmenu.
-      "wofi-drun" = {
-        name = "Wofi Application Launcher";
+      # --- fuzzel (launcher de aplicativos, Wayland-nativo) ---
+      # Meta+A: Abre o fuzzel em modo drun. Substituiu o rofi em 2026-06: rofi
+      #         rodava via XWayland como janela normal e, sob a política
+      #         FocusFollowsMouse (focus.nix), não pegava o foco de teclado ao
+      #         abrir longe do cursor. fuzzel usa layer-shell com keyboard
+      #         exclusivo → captura o teclado imediatamente. Config declarativa
+      #         em launcher.nix (programs.fuzzel → fuzzel.ini).
+      "fuzzel-drun" = {
+        name = "fuzzel Application Launcher";
         key = "Meta+A";
-        command = "${pkgs.wofi}/bin/wofi --show drun --allow-images --no-colors";
+        command = "${pkgs.fuzzel}/bin/fuzzel";
       };
 
       # Atalhos da Kora removidos (assistente legada → Aura).

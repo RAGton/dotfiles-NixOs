@@ -30,7 +30,6 @@
     kdePackages.qttools # qdbus6 — usado por scratchpad/"mover e seguir"
     playerctl # controle de mídia (Meta+,/. e XF86AudioPlay)
     kryonix-bar-backend
-    wofi
     warp-terminal
   ];
 
