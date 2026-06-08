@@ -17,6 +17,7 @@ lib.forAllSystems (
     kryonixInstaller = pkgs.callPackage ../packages/kryonix-installer.nix { };
     kryonixLlamaCppCuda = pkgs.callPackage ../packages/kryonix-llama-cpp-cuda.nix { };
     kryonixOptimizer = pkgs.callPackage ../packages/kryonix-optimizer { };
+    kryonixSddmTheme = pkgs.callPackage ../packages/kryonix-sddm-theme.nix { };
     kryonixCli = pkgs.callPackage ../packages/kryonix-cli.nix {
       inherit kryonixHome;
       kryonix-hardware-probe = kryonixHardwareProbe;
@@ -35,6 +36,7 @@ lib.forAllSystems (
     kryonix-installer = kryonixInstaller;
     kryonix-llama-cpp-cuda = kryonixLlamaCppCuda;
     kryonix-optimizer = kryonixOptimizer;
+    kryonix-sddm-theme = kryonixSddmTheme;
     "deno-cache-only" = denoCacheOnly;
   }
 )

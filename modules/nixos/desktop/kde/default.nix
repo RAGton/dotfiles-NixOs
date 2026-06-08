@@ -29,6 +29,8 @@
 let
   isKde = config.kryonix.desktop.environment == "kde";
   cfg = config.kryonix.desktop.kde;
+  # Tema SDDM Kryonix Aurora é opt-in; "breeze" (default) preserva o greeter atual.
+  useAuroraSddm = cfg.sddm.theme == "kryonix-aurora";
 in
 {
   options.kryonix.desktop.kde = {
@@ -63,6 +65,27 @@ in
         Consumido por desktop/kde/scheme.nix via `osConfig`.
       '';
     };
+
+    sddm.theme = lib.mkOption {
+      type = lib.types.enum [
+        "breeze"
+        "kryonix-aurora"
+      ];
+      default = "breeze";
+      description = ''
+        Tema do greeter SDDM (login gráfico).
+
+        - "breeze": default seguro — NÃO sobrescreve o tema do SDDM, mantendo o
+          greeter Breeze padrão do Plasma 6 (fallback sempre disponível).
+        - "kryonix-aurora": tema próprio Kryonix (QML, dark navy, accent #38BDF8),
+          empacotado em packages/kryonix-sddm-theme.nix. Opt-in: ativa o pacote,
+          seta services.displayManager.sddm.theme e injeta qtsvg para o SVG.
+
+        Risco (login gráfico): um tema quebrado pode impedir o login pela tela.
+        Validar com sddm-greeter --test-mode e build do host ANTES do switch.
+        Rollback: voltar para "breeze" e rebuild. Ver docs/desktop/KRYONIX_SDDM.md.
+      '';
+    };
   };
 
   config = lib.mkIf isKde {
@@ -71,6 +94,13 @@ in
       enable = true;
       wayland.enable = true;
       autoNumlock = true;
+
+      # Tema opt-in: só sobrescreve quando "kryonix-aurora". Em "breeze" (default)
+      # NÃO definimos `theme`, preservando o greeter Breeze padrão (fallback).
+      theme = lib.mkIf useAuroraSddm "kryonix-aurora";
+
+      # O tema usa SVG (Image) → precisa do plugin qtsvg no ambiente do greeter.
+      extraPackages = lib.mkIf useAuroraSddm [ pkgs.kdePackages.qtsvg ];
     };
 
     # Autologin opcional para hosts headless/remotos (KRDP).
@@ -102,20 +132,25 @@ in
     };
 
     # Pacotes de sistema do ambiente KDE.
-    environment.systemPackages = with pkgs; [
-      # Krohnkite (KWin/Script de tiling) — instalado a nível de sistema para
-      # ficar visível ao KWin; habilitado declarativamente no HM (kwinrc).
-      kdePackages.krohnkite
+    environment.systemPackages =
+      with pkgs;
+      [
+        # Krohnkite (KWin/Script de tiling) — instalado a nível de sistema para
+        # ficar visível ao KWin; habilitado declarativamente no HM (kwinrc).
+        kdePackages.krohnkite
 
-      # Cursor Nordzy (usado pelo SDDM/greeter e disponível ao sistema).
-      nordzy-cursor-theme
+        # Cursor Nordzy (usado pelo SDDM/greeter e disponível ao sistema).
+        nordzy-cursor-theme
 
-      # Utilitários Wayland úteis e ferramentas KDE de linha de comando usadas
-      # pelos atalhos/declarações do Home Manager.
-      wl-clipboard
-      kdePackages.qttools # qdbus6 (usado pelos atalhos "mover e seguir"/scratchpad)
-      playerctl # controle de mídia (atalhos Meta+,/. e XF86AudioPlay)
-    ];
+        # Utilitários Wayland úteis e ferramentas KDE de linha de comando usadas
+        # pelos atalhos/declarações do Home Manager.
+        wl-clipboard
+        kdePackages.qttools # qdbus6 (usado pelos atalhos "mover e seguir"/scratchpad)
+        playerctl # controle de mídia (atalhos Meta+,/. e XF86AudioPlay)
+      ]
+      # Tema SDDM Kryonix Aurora só entra no sistema quando opt-in (instala em
+      # /run/current-system/sw/share/sddm/themes/kryonix-aurora).
+      ++ lib.optional useAuroraSddm pkgs.kryonix-sddm-theme;
 
     # Plasma Manager é Home Manager; quando o host seleciona KDE, o módulo de
     # sistema injeta também a camada HM do Plasma para o usuário do host.

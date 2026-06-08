@@ -277,6 +277,10 @@
   kryonix-themes = final: _prev: {
     bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
 
+    # Tema SDDM "Kryonix Aurora" (QML próprio, dark navy/accent #38BDF8).
+    # Consumido (opt-in) por modules/nixos/desktop/kde/default.nix.
+    kryonix-sddm-theme = final.callPackage ../packages/kryonix-sddm-theme.nix { };
+
     # Backend D-Bus da Kryonix Bar (org.kryonix.Bar). UI (QML) virá depois.
     kryonix-bar-backend = final.callPackage ../packages/kryonix-bar { };
   };
