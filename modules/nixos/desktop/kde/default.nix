@@ -147,6 +147,10 @@ in
         wl-clipboard
         kdePackages.qttools # qdbus6 (usado pelos atalhos "mover e seguir"/scratchpad)
         playerctl # controle de mídia (atalhos Meta+,/. e XF86AudioPlay)
+
+        # Módulo de configuração do SDDM no KDE System Settings
+        # ("Tela de Login" → escolher tema/cursor/usuário sem editor externo).
+        kdePackages.sddm-kcm
       ]
       # Tema SDDM Kryonix Aurora só entra no sistema quando opt-in (instala em
       # /run/current-system/sw/share/sddm/themes/kryonix-aurora).
