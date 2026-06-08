@@ -1,32 +1,54 @@
-#+#+#+#+####################################################################
-# Home Manager: Waybar
-# Autor: rag
+# =============================================================================
+# Home Manager: Kryonix Bar (Waybar — PR 7C)
 #
-# O que é
-# - Configura a barra (Waybar) usada no Hyprland.
+# O que é:
+# - Barra premium do Kryonix Shell sobre Hyprland.
+# - Floating island com border-radius 16px, paleta Kryonix Dark.
+# - CPU per-core via ícones nativos do Waybar ({icon0}…{iconN}).
+# - Desativada automaticamente quando Caelestia está ativa (elle provê sua barra).
 #
-# Por quê
-# - Deixa o status bar declarativo e versionado.
+# Por quê:
+# - Waybar é declarativo via HM, sem daemon extra no V1.
+# - CPU per-core via format-icons é nativo; sem script shell ou D-Bus ainda.
+# - Daemon Rust (kryonix-shell-daemon) integra-se no PR 7D sem mudar este módulo.
 #
-# Como
-# - `programs.waybar.settings` define layout/módulos.
-# - `programs.waybar.style` define CSS.
-#
-# Riscos
-# - Módulos dependem de binários externos (swaync-client, wf-recorder etc.).
+# Como:
+# - Importar em desktop/hyprland/kryonix-bar.nix (opt-in).
+# - Ativado quando kryonix.shell.backend != "caelestia".
+# =============================================================================
 { config, lib, ... }:
-
 let
-  # Regra do repo: não rodar Waybar quando o shell ativo já entrega sua própria barra.
   shellBackend = config.kryonix.shell.backend or null;
   shellProvidesBar = shellBackend == "caelestia";
+
+  # Paleta Kryonix Dark — tokens centrais
+  c = {
+    bg = "rgba(8, 13, 22, 0.84)";
+    bgHover = "rgba(14, 20, 32, 0.90)";
+    surface = "rgba(17, 24, 39, 0.70)";
+    border = "rgba(56, 189, 248, 0.18)";
+    borderHot = "rgba(56, 189, 248, 0.45)";
+    accent = "#38BDF8";
+    accentBg = "rgba(56, 189, 248, 0.15)";
+    text = "#E5E7EB";
+    muted = "#64748B";
+    muted2 = "#94A3B8";
+    success = "#22C55E";
+    successBg = "rgba(34, 197, 94, 0.15)";
+    warning = "#F59E0B";
+    warningBg = "rgba(245, 158, 11, 0.15)";
+    danger = "#F43F5E";
+    dangerBg = "rgba(244, 63, 94, 0.15)";
+    tooltip = "rgba(11, 18, 32, 0.95)";
+    shadow = "rgba(0, 0, 0, 0.50)";
+  };
 in
 {
   config = lib.mkIf (!shellProvidesBar) {
-    # Instala e configura o Waybar via Home Manager.
     programs.waybar = {
       enable = true;
       systemd.enable = true;
+
       settings = {
         mainBar = {
           layer = "top";
@@ -35,329 +57,340 @@ in
           passthrough = false;
           fixed-center = true;
           ipc = true;
-          margin-top = 3;
-          margin-left = 4;
-          margin-right = 4;
 
+          # Floating island: 6px do topo e laterais
+          margin-top = 6;
+          margin-left = 8;
+          margin-right = 8;
+
+          # Layout: workspaces + window | clock | métricas + áudio + tray
           modules-left = [
             "hyprland/workspaces"
-            "cpu"
-            "temperature"
-            "memory"
-            "backlight"
+            "hyprland/window"
           ];
 
           modules-center = [
             "clock"
-            "custom/notification"
           ];
 
           modules-right = [
-            "privacy"
-            "custom/recorder"
-            "hyprland/language"
-            "tray"
-            "bluetooth"
+            "cpu"
+            "memory"
+            "network"
             "pulseaudio"
-            "pulseaudio#microphone"
             "battery"
+            "tray"
           ];
 
-          backlight = {
-            interval = 2;
-            align = 0;
-            rotate = 0;
-            format = "{icon} {percent}%";
-            format-icons = [
-              "󰃞"
-              "󰃟"
-              "󰃝"
-              "󰃠"
-            ];
-            icon-size = 10;
-            on-scroll-up = "brightnessctl set +5%";
-            on-scroll-down = "brightnessctl set 5%-";
-            smooth-scrolling-threshold = 1;
-          };
-
-          battery = {
-            interval = 60;
-            align = 0;
-            rotate = 0;
-            full-at = 100;
-            design-capacity = false;
-            states = {
-              good = 95;
-              warning = 30;
-              critical = 20;
-            };
-            format = "<big>{icon}</big>  {capacity}%";
-            format-charging = " {capacity}%";
-            format-plugged = " {capacity}%";
-            format-full = "{icon} Full";
-            format-alt = "{icon} {time}";
-            format-icons = [
-              ""
-              ""
-              ""
-              ""
-              ""
-            ];
-            format-time = "{H}h {M}min";
-            tooltip = true;
-            tooltip-format = "{timeTo} {power}w";
-          };
-
-          bluetooth = {
-            format = "";
-            format-connected = " {num_connections}";
-            tooltip-format = " {device_alias}";
-            tooltip-format-connected = "{device_enumerate}";
-            tooltip-format-enumerate-connected = "Name: {device_alias}\nBattery: {device_battery_percentage}%";
-            on-click = "blueman-manager";
-          };
-
-          clock = {
-            format = "{:%b %d %H:%M}";
-            format-alt = " {:%H:%M   %Y, %d %B, %A}";
-            tooltip-format = "<tt><small>{calendar}</small></tt>";
-            calendar = {
-              mode = "year";
-              mode-mon-col = 3;
-              weeks-pos = "right";
-              on-scroll = 1;
-              format = {
-                months = "<span color='#f5a97f'><b>{}</b></span>";
-                days = "<span color='#a5adce'><b>{}</b></span>";
-                weeks = "<span color='#8087a2'><b>W{}</b></span>";
-                weekdays = "<span color='#b7bdf8'><b>{}</b></span>";
-                today = "<span color='#ed8796'><b><u>{}</u></b></span>";
-              };
-            };
-          };
-
-          cpu = {
-            format = "󰍛 {usage}%";
-            interval = 1;
-          };
-
-          "hyprland/language" = {
-            format = "{short}";
-          };
-
+          # ── Workspaces ─────────────────────────────────────────────────────
           "hyprland/workspaces" = {
             all-outputs = true;
             format = "{name}";
             on-click = "activate";
             show-special = false;
             sort-by-number = true;
+            on-scroll-up = "hyprctl dispatch workspace e+1";
+            on-scroll-down = "hyprctl dispatch workspace e-1";
           };
 
-          memory = {
-            interval = 10;
-            format = "󰾆 {used:0.1f}G";
-            format-alt = "󰾆 {percentage}%";
-            format-alt-click = "click";
-            tooltip = true;
-            tooltip-format = "{used:0.1f}GB/{total:0.1f}G";
-            on-click-right = "foot --title btop sh -c 'btop'";
+          # ── Título da janela ativa ─────────────────────────────────────────
+          "hyprland/window" = {
+            max-length = 48;
+            separate-outputs = false;
+            rewrite = {
+              "(.*) — Mozilla Firefox" = " $1";
+              "(.*) - fish" = " $1";
+              "(.*) - nvim" = " $1";
+              "kitty" = "";
+              "dolphin" = " Arquivos";
+            };
           };
 
-          privacy = {
-            icon-size = 14;
-            modules = [
-              {
-                type = "screenshare";
-                tooltip = true;
-              }
+          # ── Relógio ────────────────────────────────────────────────────────
+          clock = {
+            format = "<b>{:%H:%M}</b>";
+            format-alt = "{:%A, %d %b %Y}";
+            tooltip-format = "<tt><small>{calendar}</small></tt>";
+            calendar = {
+              mode = "month";
+              weeks-pos = "right";
+              on-scroll = 1;
+              format = {
+                months = "<span color='${c.accent}'><b>{}</b></span>";
+                days = "<span color='${c.text}'>{}</span>";
+                weeks = "<span color='${c.muted2}'><b>W{}</b></span>";
+                weekdays = "<span color='${c.muted2}'><b>{}</b></span>";
+                today = "<span color='${c.accent}'><b><u>{}</u></b></span>";
+              };
+            };
+          };
+
+          # ── CPU — per-core via icons nativos do Waybar ────────────────────
+          # Waybar suporta {icon0}…{iconN} para cada núcleo lógico.
+          # format-icons mapeia % → caractere de bloco Unicode.
+          cpu = {
+            interval = 1;
+            format = "{icon0}{icon1}{icon2}{icon3}{icon4}{icon5}{icon6}{icon7} <span color='${c.muted2}'>{usage}%</span>";
+            format-icons = [
+              "▁"
+              "▂"
+              "▃"
+              "▄"
+              "▅"
+              "▆"
+              "▇"
+              "█"
             ];
+            tooltip = true;
+            tooltip-format = "CPU {usage}%\n{icon0} {usage0}%  {icon1} {usage1}%\n{icon2} {usage2}%  {icon3} {usage3}%\n{icon4} {usage4}%  {icon5} {usage5}%\n{icon6} {usage6}%  {icon7} {usage7}%";
+            on-click-right = "kitty btop";
           };
 
+          # ── RAM ────────────────────────────────────────────────────────────
+          memory = {
+            interval = 5;
+            format = "󰾆 <span color='${c.muted2}'>{percentage}%</span>";
+            format-alt = "󰾆 {used:0.1f}/{total:0.1f}G";
+            tooltip = true;
+            tooltip-format = "RAM: {used:0.1f} GiB usados de {total:0.1f} GiB ({percentage}%)";
+            on-click-right = "kitty btop";
+          };
+
+          # ── Rede ───────────────────────────────────────────────────────────
+          network = {
+            interval = 2;
+            format-wifi = "󰖩 <span color='${c.muted2}'>↑{bandwidthUpBytes} ↓{bandwidthDownBytes}</span>";
+            format-ethernet = "󰈀 <span color='${c.muted2}'>↑{bandwidthUpBytes} ↓{bandwidthDownBytes}</span>";
+            format-disconnected = "<span color='${c.danger}'>󰖪 offline</span>";
+            tooltip-format = "{ifname}: {ipaddr}/{cidr}";
+            tooltip-format-wifi = "{essid} ({signalStrength}%)  {ipaddr}";
+          };
+
+          # ── Áudio ──────────────────────────────────────────────────────────
           pulseaudio = {
-            format = "{icon} {volume}%";
-            format-muted = "";
+            format = "{icon} <span color='${c.muted2}'>{volume}%</span>";
+            format-muted = "<span color='${c.muted}'>󰝟 mudo</span>";
             format-icons = {
               default = [
-                ""
-                ""
-                " "
+                "󰕿"
+                "󰖀"
+                "󰕾"
               ];
             };
             on-click = "pavucontrol";
-            on-scroll-up = "pamixer -i 5";
-            on-scroll-down = "pamixer -d 5";
-            scroll-step = 5;
+            on-scroll-up = "pamixer -i 3";
+            on-scroll-down = "pamixer -d 3";
             on-click-right = "pamixer -t";
             smooth-scrolling-threshold = 1;
             ignored-sinks = [ "Easy Effects Sink" ];
+            tooltip = true;
+            tooltip-format = "{desc}";
           };
 
-          "pulseaudio#microphone" = {
-            format = "{format_source}";
-            format-source = " {volume}%";
-            format-source-muted = "";
-            on-click = "pavucontrol";
-            on-click-right = "pamixer --default-source -t";
-            on-scroll-up = "pamixer --default-source -i 5";
-            on-scroll-down = "pamixer --default-source -d 5";
-          };
-
-          temperature = {
-            interval = 10;
-            tooltip = false;
-            critical-threshold = 82;
-            format-critical = "{icon} {temperatureC}°C";
-            format = "󰈸 {temperatureC}°C";
-          };
-
-          tray = {
-            spacing = 20;
-          };
-
-          "custom/notification" = {
-            tooltip = false;
-            format = "{icon}";
-            format-icons = {
-              notification = "<span foreground='red'><sup></sup></span>";
-              none = "";
-              dnd-notification = "<span foreground='red'><sup></sup></span>";
-              dnd-none = "";
-              inhibited-notification = "<span foreground='red'><sup></sup></span>";
-              inhibited-none = "";
-              dnd-inhibited-notification = "<span foreground='red'><sup></sup></span>";
-              dnd-inhibited-none = "";
+          # ── Bateria ────────────────────────────────────────────────────────
+          battery = {
+            interval = 30;
+            states = {
+              warning = 30;
+              critical = 15;
             };
-            return-type = "json";
-            exec-if = "which swaync-client";
-            exec = "swaync-client -swb";
-            on-click = "swaync-client -t -sw";
-            on-click-right = "swaync-client -d -sw";
-            escape = true;
+            format = "{icon} <span color='${c.muted2}'>{capacity}%</span>";
+            format-charging = "󰂄 {capacity}%";
+            format-plugged = "󰚥 {capacity}%";
+            format-icons = [
+              "󰂎"
+              "󰁺"
+              "󰁻"
+              "󰁼"
+              "󰁽"
+              "󰁾"
+              "󰁿"
+              "󰂀"
+              "󰂁"
+              "󰂂"
+              "󰁹"
+            ];
+            tooltip-format = "{timeTo} — {power:.1f}W";
           };
 
-          "custom/recorder" = {
-            format = "";
-            tooltip = false;
-            return-type = "json";
-            exec = "echo '{\"class\": \"recording\"}'";
-            exec-if = "pgrep wf-recorder";
-            interval = 1;
-            on-click = "screen-recorder";
+          # ── System Tray ────────────────────────────────────────────────────
+          tray = {
+            spacing = 8;
+            icon-size = 16;
           };
         };
       };
+
+      # ── CSS — Kryonix Dark Premium ─────────────────────────────────────────
       style = ''
+        /* Reset global */
         * {
-          font-family: "Monocraft", "CaskaydiaCove Nerd Font";
-          font-weight: bold;
-          min-height: 0;
-          font-size: 100%;
-          font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
-          padding: 0px;
-          margin-top: 1px;
-          margin-bottom: 1px;
+          font-family: "JetBrainsMono Nerd Font", "CaskaydiaCove Nerd Font", monospace;
+          font-size:   12px;
+          font-weight: 400;
+          min-height:  0;
+          padding:     0;
+          margin:      0;
+          border:      none;
+          border-radius: 0;
         }
 
+        /* Janela principal: floating island */
         window#waybar {
-          background: rgba(0, 0, 0, 0);
+          background:    ${c.bg};
+          border:        1px solid ${c.border};
+          border-radius: 16px;
+          box-shadow:    0 4px 24px ${c.shadow}, 0 1px 0 rgba(255,255,255,0.04) inset;
         }
 
-        window#waybar.hidden {
-          opacity: 0.5;
-        }
+        window#waybar.hidden { opacity: 0.3; }
 
-        tooltip {
-          background: #24273A;
-          border-radius: 8px;
-        }
-
-        tooltip label {
-          color: #cad3f5;
-          margin-right: 5px;
-          margin-left: 5px;
-        }
-
-        .modules-right,
+        /* Grupos de módulos: sem fundo próprio (herdam o da janela) */
+        .modules-left,
         .modules-center,
-        .modules-left {
-          background-color: rgba(24, 25, 38, 0.7);
-          border: 0px solid #b4befe;
-          border-radius: 8px;
+        .modules-right {
+          background: transparent;
+          padding: 0 6px;
+        }
+
+        /* Separadores visuais entre grupos */
+        .modules-left   { padding-left: 10px; }
+        .modules-right  { padding-right: 10px; }
+
+        /* ── Tooltip ───────────────────────────────────────────────────── */
+        tooltip {
+          background:    ${c.tooltip};
+          border:        1px solid ${c.border};
+          border-radius: 10px;
+          padding:       6px 10px;
+          color:         ${c.text};
+          box-shadow:    0 4px 16px ${c.shadow};
+        }
+        tooltip label {
+          color: ${c.text};
+          font-size: 11px;
+        }
+
+        /* ── Módulos base ──────────────────────────────────────────────── */
+        #backlight, #battery, #bluetooth, #clock, #cpu,
+        #custom-notification, #language, #memory, #network,
+        #privacy, #pulseaudio, #tray, #temperature, #workspaces,
+        #window {
+          color:         ${c.text};
+          padding:       4px 10px;
+          border-radius: 10px;
+          margin:        3px 1px;
+        }
+
+        /* ── Workspaces ─────────────────────────────────────────────────── */
+        #workspaces {
+          padding: 0 4px;
+          margin:  0;
+          background: transparent;
         }
 
         #workspaces button {
-          padding: 2px;
-          color: #6e738d;
-          margin-right: 5px;
+          color:         ${c.muted};
+          background:    rgba(255,255,255,0.04);
+          border:        1px solid rgba(255,255,255,0.06);
+          border-radius: 10px;
+          padding:       2px 10px;
+          margin:        3px 2px;
+          min-width:     24px;
+          transition:    all 120ms ease;
         }
 
         #workspaces button.active {
-          color: #dfdfdf;
-          border-radius: 3px 3px 3px 3px;
+          color:      ${c.accent};
+          background: ${c.accentBg};
+          border:     1px solid ${c.borderHot};
+          font-weight: 700;
         }
 
-        #workspaces button.focused {
-          color: #d8dee9;
+        #workspaces button.occupied {
+          color:      ${c.muted2};
+          background: rgba(255,255,255,0.07);
+          border:     1px solid rgba(255,255,255,0.09);
         }
 
         #workspaces button.urgent {
-          color: #ed8796;
-          border-radius: 8px;
+          color:      ${c.danger};
+          background: ${c.dangerBg};
+          border:     1px solid ${c.danger};
         }
 
         #workspaces button:hover {
-          color: #dfdfdf;
-          border-radius: 3px;
+          color:      ${c.text};
+          background: rgba(56, 189, 248, 0.08);
+          border:     1px solid rgba(56, 189, 248, 0.22);
         }
 
-        #backlight,
-        #battery,
-        #bluetooth,
-        #clock,
-        #cpu,
-        #custom-notification,
-        #custom-recorder,
-        #language,
-        #memory,
-        #privacy,
-        #pulseaudio,
-        #temperature,
-        #tray,
-        #workspaces {
-          color: #dfdfdf;
-          padding: 0px 10px;
-          border-radius: 8px;
+        /* ── Window title ─────────────────────────────────────────────── */
+        #window {
+          color:    ${c.muted2};
+          font-size: 11px;
+          padding:  4px 8px;
+          background: transparent;
         }
 
-        #temperature.critical {
-          background-color: #ff0000;
+        /* ── Clock ────────────────────────────────────────────────────── */
+        #clock {
+          color:       ${c.text};
+          font-size:   13px;
+          font-weight: 700;
+          padding:     4px 14px;
+          letter-spacing: 0.5px;
+        }
+
+        /* ── CPU — barras por núcleo ──────────────────────────────────── */
+        #cpu {
+          font-size: 11px;
+          letter-spacing: -0.5px; /* empilha os chars de bloco */
+        }
+
+        /* cor dinâmica via classes CSS injetadas pelo Waybar */
+        #cpu.warning  { color: ${c.warning}; }
+        #cpu.critical { color: ${c.danger};  }
+
+        /* ── RAM ───────────────────────────────────────────────────────── */
+        #memory { font-size: 11px; }
+        #memory.warning  { color: ${c.warning}; }
+        #memory.critical { color: ${c.danger};  }
+
+        /* ── Rede ──────────────────────────────────────────────────────── */
+        #network { font-size: 11px; }
+        #network.disconnected { color: ${c.danger}; }
+
+        /* ── Áudio ─────────────────────────────────────────────────────── */
+        #pulseaudio { font-size: 12px; }
+        #pulseaudio.muted { color: ${c.muted}; }
+
+        /* ── Bateria ───────────────────────────────────────────────────── */
+        #battery.charging { color: ${c.success}; }
+        #battery.plugged  { color: ${c.success}; }
+        #battery.warning:not(.charging) {
+          color: ${c.warning};
+          background: ${c.warningBg};
+        }
+        #battery.critical:not(.charging) {
+          color: ${c.danger};
+          background: ${c.dangerBg};
+          animation: blink 800ms steps(1) infinite;
         }
 
         @keyframes blink {
-          to {
-            color: #000000;
-          }
+          50% { opacity: 0.4; }
         }
 
-        #taskbar button.active {
-          background-color: #7f849c;
+        /* ── Tray ──────────────────────────────────────────────────────── */
+        #tray {
+          padding: 4px 8px;
         }
-
-        #battery.critical:not(.charging) {
-          color: #f53c3c;
-          animation-name: blink;
-          animation-duration: 0.5s;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
-          animation-direction: alternate;
-        }
-
-        #custom-recorder {
-          color: #ff2800;
-        }
-
-        #privacy {
-          color: #f5a97f;
+        #tray > .passive { -gtk-icon-effect: dim; }
+        #tray > .needs-attention {
+          -gtk-icon-effect: highlight;
+          background: ${c.dangerBg};
+          border-radius: 8px;
         }
       '';
     };
