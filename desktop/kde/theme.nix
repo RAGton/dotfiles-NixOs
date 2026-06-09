@@ -3,7 +3,8 @@
 #
 # Estética padrão do ambiente principal:
 # - Global Theme BonaFides Dark (lookAndFeel "BonaFides-Dark-Color-Global-6")
-#   + desktoptheme/colorScheme azul Kryonix (override do default cyan)
+#   + desktoptheme "BonaFides-Color-Plasma" + colorScheme "ModerateBlue"
+#   (backgrounds azul-preto profundo: 29,33,47 — mais escuro que BlueDark).
 # - Blur + transparência (efeitos do KWin)
 # - Animações mantidas (não zeramos AnimationDurationFactor)
 # - Cursor Nordzy-cursors (X11, GTK e Wayland), tamanho 24
@@ -44,20 +45,21 @@
   };
 
   programs.plasma = {
-    # --- Tema BonaFides (Dark/Azul/Glass) ----------------------------------
+    # --- Tema BonaFides (Dark/Azul-Preto/Glass) ----------------------------
     # Identidade global completa: o lookAndFeel é o Global Theme BonaFides
     # (Plasma 6 dark), não mais Breeze Dark — era o Breeze que "dominava" o host.
     # Sobre o lookAndFeel ainda fixamos desktoptheme + colorScheme (aplicados,
     # nesta ordem, DEPOIS do lookAndFeel pelo plasma-manager), porque o default
-    # do Global Theme é o esquema CYAN e queremos o azul Kryonix:
+    # do Global Theme é o esquema CYAN e queremos o azul-preto Kryonix:
     #   - lookAndFeel  → share/plasma/look-and-feel/<Id> (Id == nome da pasta)
     #   - theme        → Plasma desktoptheme (share/plasma/desktoptheme/<id>)
-    #   - colorScheme  → base do .colors (share/color-schemes/<base>.colors)
+    #   - colorScheme  → "BonaFidesModerateBlueColorScheme" (bg 29,33,47 —
+    #                    mais próximo do preto que BlueDark 35,47,65).
     # Assets vêm de `pkgs.bonafides-theme` (instalado em kvantum.nix).
     workspace = {
       lookAndFeel = "BonaFides-Dark-Color-Global-6";
       theme = "BonaFides-Color-Plasma";
-      colorScheme = "BonaFidesBlueDarkColorscheme";
+      colorScheme = "BonaFidesModerateBlueColorScheme";
       iconTheme = "breeze-dark";
       cursor = {
         theme = "Nordzy-cursors";

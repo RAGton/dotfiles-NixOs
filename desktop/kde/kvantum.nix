@@ -45,5 +45,12 @@
   xdg.configFile."Kvantum/kvantum.kvconfig".text = ''
     [General]
     theme=BonaFides-Dark-Kvantum
+
+    [BonaFides-Dark-Kvantum]
+    # Aumenta a redu\u00e7\u00e3o de opacidade (20 \u2192 30) para os fundos das janelas
+    # ficarem mais escuros/pretos. O tema base j\u00e1 usa azul-preto (#1c2634),
+    # o override s\u00f3 aprofunda o efeito sem mudar a identidade gr\u00e1fica.
+    reduce_window_opacity=30
+    reduce_menu_opacity=25
   '';
 }
