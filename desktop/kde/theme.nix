@@ -90,16 +90,20 @@
       translucency.enable = true;
     };
 
-    # --- PAINEL Kryonix Aurora Bar (PR 8C) ------------------------------------
-    # Floating island premium: 3 zonas (workspaces+título | clock | métricas+tray)
-    # Translucency sem blur (já configurado acima).
+    # --- PAINEIS Kryonix --------------------------------------------------
+    # TOPO  = "Aurora Bar"  → status bar premium (workspaces+título | clock |
+    #                          CPU/RAM/rede/áudio/tray). Sempre visível.
+    # BAIXO = "Task Dock"   → barra de tarefas (icons-only). Auto-oculta — só
+    #                          aparece quando o mouse encosta na borda inferior.
+    # Ambos floating + translucent (blur configurado em kwin.effects acima).
     # plasma-manager instala automaticamente `application-title-bar` quando o
     # widget `com.github.antroids.application-title-bar` aparece na lista.
     panels = [
       {
+        # ===== PAINEL TOPO: Aurora Bar (status premium) =====================
         location = "top";
         alignment = "center";
-        height = 40;
+        height = 48;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
@@ -189,6 +193,51 @@
           "org.kde.plasma.networkmanagement"
           "org.kde.plasma.volume"
           "org.kde.plasma.systemtray"
+        ];
+      }
+
+      {
+        # ===== PAINEL INFERIOR: Task Dock (icons-only, auto-hide) ============
+        # Aparece quando o mouse encosta na borda inferior; some sozinho.
+        # Mostra apenas ícones de janelas abertas (icons-only-task-manager).
+        # 56px de altura dá um dock confortável; floating + translucent batem
+        # com o painel topo. lengthMode=fit segue a quantidade de ícones.
+        location = "bottom";
+        alignment = "center";
+        height = 56;
+        floating = true;
+        lengthMode = "fit";
+        hiding = "autohide";
+        opacity = "translucent";
+        widgets = [
+          {
+            iconTasks = {
+              launchers = [
+                "applications:dolphin.desktop"
+                "applications:code-insiders.desktop"
+                "applications:warp-terminal.desktop"
+              ];
+              appearance = {
+                showTooltips = true;
+                indicateAudioStreams = true;
+                fill = false;
+              };
+              behavior = {
+                grouping = {
+                  method = "byProgramName";
+                  clickAction = "cycle";
+                };
+                sortingMethod = "manually";
+                showTasks = {
+                  onlyInCurrentScreen = false;
+                  onlyInCurrentDesktop = false;
+                  onlyInCurrentActivity = true;
+                  onlyMinimized = false;
+                };
+                newTasksAppearOn = "right";
+              };
+            };
+          }
         ];
       }
     ];
