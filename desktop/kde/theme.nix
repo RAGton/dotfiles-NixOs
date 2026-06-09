@@ -212,6 +212,16 @@
         accentColorFromWallpaper = false;
         AccentColor = "56,189,248";
       };
+
+      # --- Sessão limpa (sem restaurar janelas da última sessão) ----------
+      # Default do Plasma 6 tenta restaurar Firefox/VSCode/Dolphin do logout
+      # anterior — quebra a impressão de "abre limpo". emptySession = sempre
+      # começar zerado. confirmLogout=false porque o atalho de reboot (Meta+
+      # Ctrl+Esc) já vai por LogoutPrompt.promptReboot (keybinds.nix).
+      ksmserverrc.General = {
+        loginMode = "emptySession";
+        confirmLogout = false;
+      };
     };
   };
 
