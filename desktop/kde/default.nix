@@ -27,7 +27,7 @@
     kdePackages.dolphin
     kdePackages.konsole
     kdePackages.spectacle
-    kdePackages.qttools # qdbus6 — usado por scratchpad/"mover e seguir"
+    kdePackages.qttools # qdbus/qdbusviewer (uso manual; atalhos usam gdbus — ver keybinds.nix)
     playerctl # controle de mídia (Meta+,/. e XF86AudioPlay)
     kryonix-bar-backend
     warp-terminal

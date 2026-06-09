@@ -3,13 +3,27 @@ let
   range = lib.range 1 10;
   digit = i: if i == 10 then "0" else toString i;
 
+  # D-Bus via gdbus (glib), NÃO qdbus. Motivos:
+  #  1. O binário `qdbus6` referenciado antes NÃO existe no qttools atual (só
+  #     `qdbus`) → os atalhos ficavam quebrados (command not found).
+  #  2. O `qdbus` do qttools 6.11.0 segfaulta no exit (destrutor estático de
+  #     tipo D-Bus complexo: registerComplexDBusType::Hash::~Hash →
+  #     QMetaType::unregisterMetaType) → coredump + popup do drkonqi.
+  # gdbus é glib (sem Qt), robusto e sempre presente. Interface/método
+  # confirmados via `gdbus introspect` (org.kde.kglobalaccel.Component).
+  gdbus = "${pkgs.glib.bin}/bin/gdbus";
+
   # Comandos com operadores de shell / aspas NÃO podem ir direto no Exec de um
   # .desktop (caracteres reservados: '&', aspas, etc.). Por isso usamos wrappers
   # writeShellScript e referenciamos o caminho do script no hotkey.
   moveFollow = pkgs.writeShellScript "kryonix-move-follow" ''
     d="$1"
-    qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut "Window to Desktop $d"
-    qdbus6 org.kde.kglobalaccel /component/kwin invokeShortcut "Switch to Desktop $d"
+    ${gdbus} call --session --dest org.kde.kglobalaccel \
+      --object-path /component/kwin \
+      --method org.kde.kglobalaccel.Component.invokeShortcut "Window to Desktop $d"
+    ${gdbus} call --session --dest org.kde.kglobalaccel \
+      --object-path /component/kwin \
+      --method org.kde.kglobalaccel.Component.invokeShortcut "Switch to Desktop $d"
   '';
 
   # Terminal default Kryonix em KDE = Warp. O wrapper kryonix-terminal vem
@@ -237,7 +251,7 @@ in
       "reboot" = {
         name = "Reiniciar sistema";
         key = "Meta+Ctrl+Escape";
-        command = "qdbus6 org.kde.LogoutPrompt /LogoutPrompt promptReboot";
+        command = "${gdbus} call --session --dest org.kde.LogoutPrompt --object-path /LogoutPrompt --method org.kde.LogoutPrompt.promptReboot";
       };
 
       # --- Mídia (playerctl) ---
