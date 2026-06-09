@@ -47,10 +47,11 @@
     theme=BonaFides-Dark-Kvantum
 
     [BonaFides-Dark-Kvantum]
-    # Aumenta a redu\u00e7\u00e3o de opacidade (20 \u2192 30) para os fundos das janelas
-    # ficarem mais escuros/pretos. O tema base j\u00e1 usa azul-preto (#1c2634),
-    # o override s\u00f3 aprofunda o efeito sem mudar a identidade gr\u00e1fica.
-    reduce_window_opacity=30
-    reduce_menu_opacity=25
+    # Opacidade calibrada apos o 30/25 ficar ilegivel em Dolphin/System Settings/
+    # Konsole. Janelas quase opacas (legibilidade primeiro); menus levemente
+    # translucidos para combinar com o blur do KWin (theme.nix -> blur.enable=true).
+    # Para "mais glass" subir gradualmente (ex.: 12/18); para opaco total = 0/0.
+    reduce_window_opacity=8
+    reduce_menu_opacity=12
   '';
 }
