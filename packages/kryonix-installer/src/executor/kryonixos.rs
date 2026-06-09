@@ -19,7 +19,10 @@ pub async fn generate_kryonixos_tree(
         .unwrap_or_else(|_| "/run/current-system/sw/share/kryonix-engine".to_string());
 
     if !std::path::Path::new(&engine_source).exists() {
-        return Err(format!("KRYONIX_ENGINE_SOURCE not found at {}", engine_source));
+        return Err(format!(
+            "KRYONIX_ENGINE_SOURCE not found at {}",
+            engine_source
+        ));
     }
 
     let _ = tx.send(ProgressEvent {
@@ -27,6 +30,13 @@ pub async fn generate_kryonixos_tree(
         message: format!("Copiando engine de {}...", engine_source),
         percent: 31,
     });
+
+    // `cp -aT <src> /mnt/etc/kryonix` falha se /mnt/etc não existir (cp exige
+    // que o pai do destino exista). Em ISO recém-particionada, /mnt só tem o
+    // root do FS recém-montado. Garantir o pai antes evita aborto silencioso.
+    tokio::fs::create_dir_all("/mnt/etc")
+        .await
+        .map_err(|e| format!("Falha ao criar /mnt/etc: {}", e))?;
 
     let cp_status = Command::new("cp")
         .args(["-aT", &engine_source, "/mnt/etc/kryonix"])
@@ -162,7 +172,10 @@ pub async fn generate_kryonixos_tree(
     }
 
     tokio::fs::write(
-        format!("/mnt/etc/kryonixos/hosts/{}/hardware-configuration.nix", plan.hostname),
+        format!(
+            "/mnt/etc/kryonixos/hosts/{}/hardware-configuration.nix",
+            plan.hostname
+        ),
         hw_output.stdout,
     )
     .await
@@ -172,7 +185,7 @@ pub async fn generate_kryonixos_tree(
     let disko_config = tokio::fs::read_to_string("/tmp/kryonix-disko-config.nix")
         .await
         .unwrap_or_else(|_| "{}".to_string());
-    
+
     tokio::fs::write(
         format!("/mnt/etc/kryonixos/hosts/{}/disks.nix", plan.hostname),
         disko_config,
