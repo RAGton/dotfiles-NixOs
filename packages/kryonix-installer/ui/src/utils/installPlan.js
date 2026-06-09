@@ -223,7 +223,7 @@ export function buildInstallPlanPayload(draftInput) {
       layout: (diskProfile === 'raid' || diskProfile === 'manual' || diskMode === 'one') ? 'btrfs-simple' : 'btrfs-split',
       target: selectedDisks[0] || '',
       enableSrvData,
-      srvDataMode: enableSrvData ? 'enabled' : 'disabled',
+      srvDataMode: enableSrvData ? 'btrfs-subvolume' : 'disabled',
       enableAiModels: features.system['storage.ai-models'] === true,
     },
     security: {
