@@ -5,6 +5,8 @@ import {
   createInstallPlanDraft,
   extractUiTransientState,
 } from '../state/wizardState.js';
+import { FEATURE_CATALOG } from '../data/featureCatalog.js';
+import { PROFILE_CATALOG } from '../data/profileCatalog.js';
 
 export const INSTALL_PLAN_VERSION = 1;
 
@@ -139,7 +141,7 @@ export function buildInstallPlanPayload(draftInput) {
   const dataDiskCandidate = sanitizeString(draft.dataDisk);
   const raidMembers = uniqueStrings(draft.selectedDisks);
   const diskMode = (diskProfile === 'raid' || diskProfile === 'manual') ? 'one' : requestedDiskMode;
-  
+
   const selectedDisks = diskProfile === 'raid'
     ? uniqueStrings([sysDisk, ...raidMembers].filter(Boolean))
     : diskProfile === 'manual'
@@ -153,8 +155,84 @@ export function buildInstallPlanPayload(draftInput) {
   const wanEnabled = wanInterface !== '';
   const wanMode = wanEnabled ? sanitizeString(draft.wanMode) || 'dhcp' : 'dhcp';
 
+  const profileObj = PROFILE_CATALOG.find(p => p.id === draft.profileId) || PROFILE_CATALOG.find(p => p.id === 'desktop-plasma');
+  const selectedFeatures = Array.isArray(draft.selectedFeatures) ? draft.selectedFeatures : [];
+
+  const features = {
+    system: {},
+    user: {},
+    storage: {},
+    security: {},
+    remote: {},
+    ai: {},
+    server: {},
+    desktop: {},
+    dev: {},
+    mcp: {},
+    virtualization: {},
+    network: {},
+    observability: {},
+    shell: {},
+    terminal: {},
+    editor: {},
+    obsidian: {}
+  };
+
+  for (const featId of selectedFeatures) {
+    const feat = FEATURE_CATALOG.find(f => f.id === featId);
+    if (feat) {
+      if (features[feat.level]) {
+        features[feat.level][featId] = true;
+      }
+      if (features[feat.domain]) {
+        features[feat.domain][featId] = true;
+      }
+    }
+  }
+
+  // /srv/data ativa para: features de IA que exigem volume persistente,
+  // storage.srv-data explicito, e perfis ai-local/kryonix-full.
+  // Profile "server" exige selecao manual de storage.srv-data (nao auto-ativa).
+  const enableSrvData =
+    features.system['storage.srv-data'] === true ||
+    features.system['ai.ollama'] === true ||
+    features.system['ai.kryonix-brain'] === true ||
+    features.system['ai.neo4j'] === true ||
+    features.system['ai.lightrag'] === true ||
+    features.system['ai.open-webui'] === true ||
+    draft.profileId === 'ai-local' ||
+    draft.profileId === 'kryonix-full';
+
   return {
     version: INSTALL_PLAN_VERSION,
+    source: {
+      kind: 'offline-defaults',
+      repo: null,
+      branch: null,
+      commit: null,
+      host: sanitizeString(draft.hostName),
+      profile: profileObj.id,
+    },
+    profile: {
+      id: profileObj.id,
+      name: profileObj.name,
+      mode: profileObj.mode,
+    },
+    features,
+    storage: {
+      layout: (diskProfile === 'raid' || diskProfile === 'manual' || diskMode === 'one') ? 'btrfs-simple' : 'btrfs-split',
+      target: selectedDisks[0] || '',
+      enableSrvData,
+      srvDataMode: enableSrvData ? 'enabled' : 'disabled',
+      enableAiModels: features.system['storage.ai-models'] === true,
+    },
+    security: {
+      allowWeakPassword: Boolean(draft.allowWeakPassword),
+    },
+    remoteAccess: {
+      enabled: Boolean(draft.remoteAccessEnabled),
+      port: 8080,
+    },
     disk: {
       mode: diskMode,
       profile: (diskProfile === 'raid' || diskProfile === 'manual') ? diskProfile : 'single',
@@ -354,6 +432,9 @@ export function validateStep(stepId, draftInput, uiInput = {}) {
       if (!uiState.eulaAccepted) {
         addBlockingIssue(result, 'É necessário aceitar os termos e o aviso de destruição de dados.');
       }
+      return result;
+    case 'source':
+      // Em P1, source é sempre offline-defaults
       return result;
     case 'localization':
       if (!payload.locale.country) addFieldError(result, 'country', 'Selecione um país/região.');

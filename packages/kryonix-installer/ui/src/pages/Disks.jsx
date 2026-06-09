@@ -233,9 +233,21 @@ function TabDiscos({ diskInventory, loadingDisks, diskError, partitions, wizard,
 /* ── aba Layout ── */
 
 function TabLayout({ layoutMode, onLayoutChange, wizard, diskInventory, splitSummary, raidSummary, raidOptions }) {
+  // Mantem coerencia com buildInstallPlanPayload (installPlan.js):
+  // /srv/data preview segue a mesma regra central.
+  const enableSrvData =
+    (wizard.selectedFeatures || []).some(id =>
+      ['storage.srv-data', 'ai.ollama', 'ai.kryonix-brain', 'ai.neo4j', 'ai.lightrag', 'ai.open-webui'].includes(id)
+    ) || ['ai-local', 'kryonix-full'].includes(wizard.profileId);
+
+  const subvolumes = enableSrvData ? '@, @home, @nix, @log, @srv' : '@, @home, @nix, @log';
+  const splitDesc = enableSrvData
+    ? 'Sistema em disco 1 · disco 2 montado em /srv/data (Recomendado para IA/Server)'
+    : 'Sistema em disco 1 · disco 2 dedicado a dados extras';
+
   const modes = [
-    { id: 'single', label: 'Apagar tudo', desc: 'Um disco · EFI + / BTRFS · subvolumes @, @home, @nix, @log' },
-    { id: 'split',  label: 'Dois discos', desc: 'Sistema em disco 1 · disco 2 dedicado a dados (montado em /srv/data, opcional para desktop)' },
+    { id: 'single', label: 'Apagar tudo', desc: `Um disco · EFI + / BTRFS · subvolumes ${subvolumes}` },
+    { id: 'split',  label: 'Dois discos', desc: splitDesc },
     { id: 'raid',   label: 'RAID / LVM',  desc: 'Múltiplos discos · redundância ou expansão de capacidade' },
     { id: 'manual', label: 'Manual',      desc: 'Particionamento customizado · controle total de montagem' },
   ];
@@ -286,11 +298,11 @@ function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content glass-panel" style={{ width: 420 }} onClick={e => e.stopPropagation()}>
         <h3 className="modal-title">{initialData ? 'Editar Partição' : 'Nova Partição'}</h3>
-        
+
         <div className="form-group">
           <label>Disco Alvo</label>
-          <select 
-            value={formData.device} 
+          <select
+            value={formData.device}
             onChange={e => setFormData({...formData, device: e.target.value})}
             className="input-shell"
             style={{ width: '100%' }}
@@ -303,8 +315,8 @@ function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
 
         <div className="form-group">
           <label>Ponto de Montagem</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Ex: /, /home, /boot/efi"
             value={formData.mountpoint}
             onChange={e => setFormData({...formData, mountpoint: e.target.value})}
@@ -316,7 +328,7 @@ function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
         <div className="form-grid">
           <div className="form-group">
             <label>Filesystem</label>
-            <select 
+            <select
               value={formData.fstype}
               onChange={e => setFormData({...formData, fstype: e.target.value})}
               className="input-shell"
@@ -331,8 +343,8 @@ function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
           </div>
           <div className="form-group">
             <label>Tamanho</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Ex: 512M, 20G, 100%"
               value={formData.size}
               onChange={e => setFormData({...formData, size: e.target.value})}
@@ -343,8 +355,8 @@ function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
         </div>
 
         <label className="flex-row gap-8" style={{ marginTop: 8, cursor: 'pointer', userSelect: 'none' }}>
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={formData.format}
             onChange={e => setFormData({...formData, format: e.target.checked})}
           />
@@ -353,9 +365,9 @@ function PartitionModal({ onClose, onSave, initialData, eligibleDisks }) {
 
         <div className="modal-actions">
           <button className="btn-secondary" onClick={onClose}>Cancelar</button>
-          <button 
-            className="btn-primary" 
-            disabled={!isValid} 
+          <button
+            className="btn-primary"
+            disabled={!isValid}
             onClick={() => onSave(formData)}
           >
             {initialData ? 'Atualizar' : 'Adicionar'}
@@ -532,14 +544,14 @@ function TabRAID({ wizard, onChange, eligibleDisks }) {
         <label style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, textTransform: 'uppercase' }}>Selecionar Discos</label>
         <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {eligibleDisks.map(d => (
-            <label 
-              key={d.path} 
+            <label
+              key={d.path}
               className={`flex-between glass-panel${selectedDisks.includes(d.path) ? ' border-primary' : ''}`}
               style={{ padding: '10px 16px', cursor: 'pointer', border: '1px solid var(--border1)' }}
             >
               <div className="flex-row gap-8">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={selectedDisks.includes(d.path)}
                   onChange={() => toggleDisk(d.path)}
                 />
