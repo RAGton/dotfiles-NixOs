@@ -1,11 +1,13 @@
 // =============================================================================
 // Main.qml — Kryonix Aurora (tema SDDM, QtQuick)
 //
-// Raiz do greeter. SDDM injeta como context properties globais (acessíveis em
-// QUALQUER componente): sddm, userModel, sessionModel, keyboard, screenModel,
-// config (theme.conf). Importa só QtQuick 2.15 + a pasta components/ (sem
-// QtQuick.Controls) para minimizar dependências de módulos QML no greeter.
-// SVG via Image requer o plugin qtsvg (declarado em sddm.extraPackages).
+// Layout em duas zonas separadas por uma DIVISÓRIA vertical:
+//   - Esquerda: marca (logo) + relógio/data + hostname.
+//   - Direita:  card de login (avatar REAL do usuário + senha + Entrar).
+//
+// SDDM injeta como context properties globais: sddm, userModel, sessionModel,
+// keyboard, screenModel, config. Imports: QtQuick 2.15 + components/. SVG via
+// Image requer qtsvg (sddm.extraPackages).
 // =============================================================================
 import QtQuick 2.15
 import "components"
@@ -15,13 +17,11 @@ Rectangle {
     id: root
     color: Colors.background
 
-    // SDDM redimensiona o root para o tamanho da tela (SizeRootObjectToView);
-    // os filhos usam âncoras relativas a `parent` (== root).
     property string bgSource: (typeof config !== "undefined" && config.background)
                               ? config.background
                               : "assets/background.svg"
 
-    // --- Fundo SVG (fallback gracioso: cor base se qtsvg/arquivo faltar) ---
+    // --- Fundo SVG (fallback gracioso) ---
     Image {
         anchors.fill: parent
         source: root.bgSource
@@ -31,55 +31,101 @@ Rectangle {
         onStatusChanged: if (status === Image.Error) visible = false
     }
 
-    // --- Logo discreto (topo esquerdo) ---
-    Image {
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.margins: 28
-        source: "assets/logo.svg"
-        sourceSize: Qt.size(40, 40)
-        width: 40
-        height: 40
-        opacity: 0.9
+    // ===== Zona ESQUERDA: marca + relógio =====
+    Item {
+        id: leftZone
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
+        width: parent.width * 0.58
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 20
+
+            Image {
+                anchors.horizontalCenter: parent.horizontalCenter
+                source: "assets/logo.svg"
+                sourceSize: Qt.size(76, 76)
+                width: 76
+                height: 76
+            }
+            Clock { anchors.horizontalCenter: parent.horizontalCenter }
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: (typeof sddm !== "undefined" && sddm.hostName) ? sddm.hostName : ""
+                color: Colors.muted
+                font.pixelSize: 14
+            }
+        }
     }
 
-    // --- Relógio + data (terço superior) ---
-    Clock {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: Math.round(parent.height * 0.16)
+    // ===== DIVISÓRIA vertical (linha + glow accent) =====
+    Rectangle {
+        id: divider
+        anchors {
+            left: leftZone.right
+            verticalCenter: parent.verticalCenter
+        }
+        width: 1
+        height: parent.height * 0.64
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "transparent" }
+            GradientStop { position: 0.5; color: Colors.border }
+            GradientStop { position: 1.0; color: "transparent" }
+        }
+    }
+    Rectangle {
+        anchors {
+            horizontalCenter: divider.horizontalCenter
+            verticalCenter: parent.verticalCenter
+        }
+        width: 3
+        height: 92
+        radius: 1.5
+        opacity: 0.55
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "transparent" }
+            GradientStop { position: 0.5; color: Colors.accent }
+            GradientStop { position: 1.0; color: "transparent" }
+        }
     }
 
-    // --- Card central de login ---
-    LoginCard {
-        id: loginCard
-        anchors.centerIn: parent
-        sessionIndex: sessionSelector.currentIndex
+    // ===== Zona DIREITA: login =====
+    Item {
+        id: rightZone
+        anchors {
+            left: divider.right
+            right: parent.right
+            top: parent.top
+            bottom: parent.bottom
+        }
+
+        LoginCard {
+            id: loginCard
+            anchors.centerIn: parent
+            sessionIndex: sessionSelector.currentIndex
+        }
+
+        SessionSelector {
+            id: sessionSelector
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                bottom: parent.bottom
+                bottomMargin: 28
+            }
+        }
     }
 
-    // --- Hostname (rodapé centro) ---
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 26
-        text: (typeof sddm !== "undefined" && sddm.hostName) ? sddm.hostName : ""
-        color: Colors.muted
-        font.pixelSize: 13
-    }
-
-    // --- Seletor de sessão (rodapé esquerdo) ---
-    SessionSelector {
-        id: sessionSelector
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.margins: 28
-    }
-
-    // --- Energia: suspender / reiniciar / desligar (rodapé direito) ---
+    // ===== Energia (rodapé direito) =====
     PowerBar {
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.margins: 28
+        anchors {
+            right: parent.right
+            bottom: parent.bottom
+            margins: 28
+        }
     }
 
     // Entrada animada do card.

@@ -1,31 +1,56 @@
-// LoginCard.qml — card central de login.
-// Avatar + usuário (pré-preenchido com userModel.lastUser) + senha + Entrar.
-// Conecta nos sinais do `sddm` para erro/sucesso. Enter na senha faz login.
+// LoginCard.qml — card de login (zona direita).
+// Mostra o AVATAR REAL do usuário (userModel.icon, recortado em círculo via
+// OpacityMask), nome, campo de senha e Entrar. Setas trocam de usuário quando
+// há mais de um. Login via sddm.login(name, senha, sessionIndex).
 import QtQuick 2.15
+import Qt5Compat.GraphicalEffects
 import "../Colors.js" as Colors
 
 Rectangle {
     id: card
-    width: 380
-    height: content.implicitHeight + 52
+    width: 340
+    height: content.implicitHeight + 56
     radius: 20
     color: Colors.surface
     border.color: Colors.border
     border.width: 1
 
-    // Índice da sessão escolhida (ligado pelo Main ao SessionSelector).
     property int sessionIndex: 0
 
-    function takeFocus() {
-        if (userField.text.length > 0) passwordField.focusInput()
-        else userField.focusInput()
-    }
-    function doLogin() {
-        errorText.text = ""
-        sddm.login(userField.text, passwordField.text, card.sessionIndex)
+    // --- Usuários: array {name, realName, icon} montado a partir do userModel ---
+    property var users: []
+    property int userIndex: (typeof userModel !== "undefined" && userModel.lastIndex >= 0)
+                            ? userModel.lastIndex : 0
+    property var currentUser: (users.length > 0 && userIndex >= 0 && userIndex < users.length)
+                              ? users[userIndex]
+                              : ({ name: "", realName: "", icon: "" })
+
+    Repeater {
+        model: userModel
+        Item {
+            Component.onCompleted: {
+                var a = card.users.slice()
+                a[index] = {
+                    name: ("" + model.name),
+                    realName: (model.realName && ("" + model.realName).length > 0)
+                              ? ("" + model.realName) : ("" + model.name),
+                    icon: ("" + model.icon)
+                }
+                card.users = a
+            }
+        }
     }
 
-    // Shake horizontal em falha (via transform, não interfere nas âncoras).
+    function takeFocus() { passwordField.focusInput() }
+    function doLogin() {
+        errorText.text = ""
+        var u = (card.currentUser.name && card.currentUser.name.length > 0)
+                ? card.currentUser.name
+                : ((typeof userModel !== "undefined" && userModel.lastUser) ? userModel.lastUser : "")
+        sddm.login(u, passwordField.text, card.sessionIndex)
+    }
+
+    // Shake horizontal em falha (transform, não interfere nas âncoras).
     transform: Translate { id: shakeT; x: 0 }
     SequentialAnimation {
         id: shake
@@ -50,31 +75,85 @@ Rectangle {
     Column {
         id: content
         anchors.centerIn: parent
-        width: parent.width - 56
+        width: parent.width - 48
         spacing: 14
 
-        Image {
+        // ---- Avatar real + setas (multiusuário) ----
+        Row {
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "../assets/avatar.svg"
-            sourceSize: Qt.size(84, 84)
-            width: 84
-            height: 84
+            spacing: 12
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: card.users.length > 1
+                text: "‹"
+                color: Colors.muted
+                font.pixelSize: 30
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: card.userIndex = (card.userIndex - 1 + card.users.length) % card.users.length
+                }
+            }
+
+            Item {
+                id: avatarBox
+                width: 96
+                height: 96
+                anchors.verticalCenter: parent.verticalCenter
+
+                Image {
+                    id: avatarImg
+                    anchors.fill: parent
+                    source: (card.currentUser.icon && card.currentUser.icon.length > 0)
+                            ? card.currentUser.icon : "../assets/avatar.svg"
+                    fillMode: Image.PreserveAspectCrop
+                    sourceSize: Qt.size(96, 96)
+                    visible: false
+                    onStatusChanged: if (status === Image.Error) source = "../assets/avatar.svg"
+                }
+                Rectangle {
+                    id: avatarMask
+                    anchors.fill: parent
+                    radius: width / 2
+                    visible: false
+                }
+                OpacityMask {
+                    anchors.fill: parent
+                    source: avatarImg
+                    maskSource: avatarMask
+                }
+                Rectangle {
+                    anchors.fill: parent
+                    radius: width / 2
+                    color: "transparent"
+                    border.color: Colors.accent
+                    border.width: 2
+                }
+            }
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: card.users.length > 1
+                text: "›"
+                color: Colors.muted
+                font.pixelSize: 30
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: card.userIndex = (card.userIndex + 1) % card.users.length
+                }
+            }
         }
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Bem-vindo"
+            text: (card.currentUser.realName && card.currentUser.realName.length > 0)
+                  ? card.currentUser.realName : "Usuário"
             color: Colors.text
-            font.pixelSize: 20
+            font.pixelSize: 19
             font.weight: Font.Medium
-            bottomPadding: 4
-        }
-
-        InputField {
-            id: userField
-            placeholder: "Usuário"
-            text: (typeof userModel !== "undefined" && userModel.lastUser) ? userModel.lastUser : ""
-            onAccepted: passwordField.focusInput()
+            bottomPadding: 2
         }
 
         InputField {

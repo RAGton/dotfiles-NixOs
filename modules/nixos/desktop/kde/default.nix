@@ -99,8 +99,13 @@ in
       # NÃO definimos `theme`, preservando o greeter Breeze padrão (fallback).
       theme = lib.mkIf useAuroraSddm "kryonix-aurora";
 
-      # O tema usa SVG (Image) → precisa do plugin qtsvg no ambiente do greeter.
-      extraPackages = lib.mkIf useAuroraSddm [ pkgs.kdePackages.qtsvg ];
+      # Deps QML do tema no ambiente do greeter:
+      # - qtsvg:     renderiza a arte SVG (Image).
+      # - qt5compat: OpacityMask (Qt5Compat.GraphicalEffects) p/ avatar circular.
+      extraPackages = lib.mkIf useAuroraSddm [
+        pkgs.kdePackages.qtsvg
+        pkgs.kdePackages.qt5compat
+      ];
     };
 
     # Autologin opcional para hosts headless/remotos (KRDP).
