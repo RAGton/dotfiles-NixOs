@@ -30,10 +30,12 @@ let
   active = selected == "kryonix-dark";
 
   # --- Tokens Kryonix (hex → "R,G,B" para o formato .colors) ----------------
-  background = "11,15,20"; # #0B0F14
-  surface = "17,24,39"; # #111827
-  surfaceAlt = "31,41,55"; # #1F2937
-  border = "51,65,85"; # #334155
+  # Paleta "navy profundo": background/surface/border puxados para azul
+  # escuro saturado (Aurora-like). Mantém o accent #38BDF8 — base do desktop.
+  background = "10,20,35"; # #0A1423  (era #0B0F14, quase-preto neutro)
+  surface = "18,28,46"; # #121C2E  (era #111827)
+  surfaceAlt = "26,40,64"; # #1A2840  (era #1F2937)
+  border = "51,75,108"; # #334B6C  (era #334155)
   text = "229,231,235"; # #E5E7EB
   textMuted = "148,163,184"; # #94A3B8
   accent = "56,189,248"; # #38BDF8

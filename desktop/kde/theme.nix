@@ -77,11 +77,14 @@
     # borda de todas as janelas, então a decoração não é exibida de qualquer
     # forma; deixamos o lookAndFeel cuidar do default e evitamos definição dupla.
 
-    # --- Transparência sem blur (Kryonix Glass plano) ---------------------
-    # Blur desativado: o painel/menus continuam translúcidos (translucency),
-    # mas mostram o wallpaper sem desfoque (efeito "flat glass").
+    # --- Transparência com blur (Kryonix Glass profundo) ------------------
+    # Blur + translucency ligados: painel/menus mostram o wallpaper desfocado
+    # atrás, dando profundidade (visual "macOS escuro"). Combinado com o
+    # scheme navy de scheme.nix dá o efeito azul/translúcido pedido.
+    # Desempenho: aceitável no iGPU Intel do inspiron; se notar lag, basta
+    # voltar `blur.enable = false`.
     kwin.effects = {
-      blur.enable = false;
+      blur.enable = true;
       translucency.enable = true;
     };
 

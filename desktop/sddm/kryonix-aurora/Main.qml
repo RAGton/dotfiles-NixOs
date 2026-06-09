@@ -2,7 +2,9 @@
 // Main.qml — Kryonix Aurora (tema SDDM, QtQuick)
 //
 // Layout em duas zonas separadas por uma DIVISÓRIA vertical:
-//   - Esquerda: marca (logo) + relógio/data + hostname.
+//   - Esquerda: marca (logo) + relógio/data + hostname + indicadores
+//               (Caps Lock + layout do teclado) + seletor de sessão +
+//               botões de energia (suspender/reiniciar/desligar).
 //   - Direita:  card de login (avatar REAL do usuário + senha + Entrar).
 //
 // SDDM injeta como context properties globais: sddm, userModel, sessionModel,
@@ -31,7 +33,7 @@ Rectangle {
         onStatusChanged: if (status === Image.Error) visible = false
     }
 
-    // ===== Zona ESQUERDA: marca + relógio =====
+    // ===== Zona ESQUERDA: marca + relógio + indicadores + sessão =====
     Item {
         id: leftZone
         anchors {
@@ -58,6 +60,20 @@ Rectangle {
                 text: (typeof sddm !== "undefined" && sddm.hostName) ? sddm.hostName : ""
                 color: Colors.muted
                 font.pixelSize: 14
+            }
+            Indicators { anchors.horizontalCenter: parent.horizontalCenter }
+            SessionSelector {
+                id: sessionSelector
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        // Botões de energia: canto inferior ESQUERDO da zona esquerda.
+        PowerBar {
+            anchors {
+                left: parent.left
+                bottom: parent.bottom
+                margins: 28
             }
         }
     }
@@ -93,7 +109,7 @@ Rectangle {
         }
     }
 
-    // ===== Zona DIREITA: login =====
+    // ===== Zona DIREITA: APENAS o login =====
     Item {
         id: rightZone
         anchors {
@@ -107,24 +123,6 @@ Rectangle {
             id: loginCard
             anchors.centerIn: parent
             sessionIndex: sessionSelector.currentIndex
-        }
-
-        SessionSelector {
-            id: sessionSelector
-            anchors {
-                horizontalCenter: parent.horizontalCenter
-                bottom: parent.bottom
-                bottomMargin: 28
-            }
-        }
-    }
-
-    // ===== Energia (rodapé direito) =====
-    PowerBar {
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            margins: 28
         }
     }
 
