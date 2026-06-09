@@ -95,7 +95,7 @@ function isValidHostname(value) {
   return /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/.test(host);
 }
 
-function isStrongPassword(value) {
+export function isStrongPassword(value) {
   const password = String(value || '');
   if (password.length < 12) {
     return false;
@@ -284,6 +284,20 @@ function appendStorageUiValidation(result, uiState) {
   }
 }
 
+// Regra de senha unica: vazia nunca aceita; confirmacao sempre obrigatoria;
+// regra de FORCA so cai sob allowWeakPassword (modo laboratorio).
+function validatePasswordRules(secrets, allowWeak, result) {
+  if (!secrets.adminPassword) {
+    addFieldError(result, 'adminPassword', 'Informe a senha do administrador.');
+  } else if (!allowWeak && !isStrongPassword(secrets.adminPassword)) {
+    addFieldError(result, 'adminPassword', 'Use uma senha forte com 12+ caracteres e 3 classes de caracteres.');
+  }
+
+  if (secrets.adminPassword !== secrets.adminPasswordConfirm) {
+    addFieldError(result, 'adminPasswordConfirm', 'Senha e confirmação não conferem.');
+  }
+}
+
 function validateFinalDraft(draft, payload, secrets, result) {
   try {
     validateInstallPlanPayload(payload);
@@ -299,12 +313,10 @@ function validateFinalDraft(draft, payload, secrets, result) {
     addFieldError(result, 'timeZone', 'Selecione um timezone IANA canônico.');
   }
 
-  if (!isStrongPassword(secrets.adminPassword)) {
-    addFieldError(result, 'adminPassword', 'Use uma senha forte com 12+ caracteres e 3 classes de caracteres.');
-  }
+  validatePasswordRules(secrets, Boolean(draft.allowWeakPassword), result);
 
-  if (secrets.adminPassword !== secrets.adminPasswordConfirm) {
-    addFieldError(result, 'adminPasswordConfirm', 'Senha e confirmação não conferem.');
+  if (draft.allowWeakPassword) {
+    addWarning(result, 'Senha forte ignorada por modo laboratório (allowWeakPassword).');
   }
 
   if (payload.admin.uid < 1000) {
@@ -316,7 +328,7 @@ function validateFinalDraft(draft, payload, secrets, result) {
   }
 }
 
-function validateAdminStep(payload, secrets, result) {
+function validateAdminStep(payload, secrets, result, draft) {
   if (!payload.admin.user) addFieldError(result, 'adminUser', 'Informe o usuário administrador.');
   if (payload.admin.uid < 1000) addFieldError(result, 'adminUid', 'UID do administrador deve ser 1000 ou maior.');
   if (!payload.admin.email) {
@@ -325,13 +337,7 @@ function validateAdminStep(payload, secrets, result) {
     addFieldError(result, 'adminEmail', 'Informe um e-mail válido.');
   }
 
-  if (!isStrongPassword(secrets.adminPassword)) {
-    addFieldError(result, 'adminPassword', 'Use uma senha forte com 12+ caracteres e 3 classes de caracteres.');
-  }
-
-  if (secrets.adminPassword !== secrets.adminPasswordConfirm) {
-    addFieldError(result, 'adminPasswordConfirm', 'Senha e confirmação não conferem.');
-  }
+  validatePasswordRules(secrets, Boolean(draft?.allowWeakPassword), result);
 }
 
 export function validateStep(stepId, draftInput, uiInput = {}) {
@@ -458,7 +464,7 @@ export function validateStep(stepId, draftInput, uiInput = {}) {
       return result;
     }
     case 'users':
-      validateAdminStep(payload, secrets, result);
+      validateAdminStep(payload, secrets, result, draft);
       return result;
     case 'summary':
       validateFinalDraft(draft, payload, secrets, result);

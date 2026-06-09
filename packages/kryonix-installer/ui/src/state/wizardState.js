@@ -36,6 +36,7 @@ export const DRAFT_FIELD_NAMES = [
   'adminEmail',
   'adminPassword',
   'adminPasswordConfirm',
+  'allowWeakPassword',
   'adminAuthorizedKeys',
 ];
 
@@ -96,6 +97,7 @@ export const INITIAL_INSTALL_PLAN_DRAFT = {
   adminEmail: 'admin@localhost',
   adminPassword: '',
   adminPasswordConfirm: '',
+  allowWeakPassword: false,
   adminAuthorizedKeys: '',
 };
 

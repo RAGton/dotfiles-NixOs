@@ -1,3 +1,5 @@
+import { isStrongPassword } from '../utils/installPlan.js';
+
 export default function Summary({ wizard, uiState, onChange, validation }) {
   const sshCount = String(wizard.adminAuthorizedKeys || '')
     .split('\n')
@@ -9,6 +11,25 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
     : wizard.diskMode === 'two'
       ? 'split disks'
       : 'single disk';
+
+  // DHCP-aware: em DHCP os campos serverIp/mgmtGateway são placeholders do
+  // draft (192.168.100.2/192.168.100.1) — pintar deles no summary engana o
+  // usuário ("usei DHCP mas o resumo mostra IP estático?"). Mostrar a verdade.
+  const networkSummary = wizard.mgmtMode === 'dhcp'
+    ? 'DHCP (automático)'
+    : `IP: ${wizard.serverIp || 'pendente'} • GW: ${wizard.mgmtGateway || 'pendente'}`;
+
+  // /srv/data profile-aware: aparece quando ha disco de dados separado
+  // (split disks ou RAID). No single disk puro, a montagem ainda existe mas
+  // como subvol no mesmo BTRFS — mostrar como "interno", nao como destino.
+  const hasDedicatedData = wizard.diskMode === 'two' || wizard.diskProfile === 'raid';
+
+  const adminPassword = String(wizard.adminPassword || '');
+  const adminPasswordConfirm = String(wizard.adminPasswordConfirm || '');
+  const passwordFilled = adminPassword.length > 0;
+  const passwordStrong = isStrongPassword(adminPassword);
+  const passwordMatches = passwordFilled && adminPassword === adminPasswordConfirm;
+  const allowWeak = Boolean(wizard.allowWeakPassword);
 
   return (
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -34,7 +55,7 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
             <div className="mt-2 text-sm text-white">{wizard.hostName}</div>
             <div className="mt-1 text-sm text-slate-300">WAN: {wizard.wanInterface ? `${wizard.wanInterface} • modo ${wizard.wanMode}` : 'opcional / desabilitada'}</div>
             <div className="mt-1 text-sm text-slate-300">LAN/PXE: {wizard.mgmtInterface || 'sem interface'}</div>
-            <div className="mt-1 text-sm text-slate-400">IP: {wizard.serverIp} • GW: {wizard.mgmtGateway}</div>
+            <div className="mt-1 text-sm text-slate-400">{networkSummary}</div>
             <div className="mt-2 text-xs text-amber-200">A WAN continua opcional; LAN/PXE, IP, gateway e DNS seguem o contrato real auditado.</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
@@ -44,9 +65,9 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
             <div className="mt-1 text-sm text-slate-400">
               {wizard.diskProfile === 'raid'
                 ? `Membros: ${(wizard.selectedDisks || []).join(', ') || '—'}`
-                : wizard.diskMode === 'two'
+                : hasDedicatedData
                   ? `Dados: ${wizard.dataDisk || '—'} -> /srv/data`
-                  : 'Dados: mesmo BTRFS da raiz -> /srv/data'}
+                  : 'Dados: subvol interno no mesmo BTRFS (sem disco dedicado)'}
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
@@ -74,9 +95,22 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
               <li>• LAN/PXE confirmada fisicamente: {uiState.lanIdentified ? 'sim' : 'não'}</li>
               <li>• Timezone: {wizard.timeZone}</li>
               <li>• Coordenadas TZ: {uiState.timeZoneLatitude !== null && uiState.timeZoneLongitude !== null ? `${Number(uiState.timeZoneLatitude).toFixed(4)}, ${Number(uiState.timeZoneLongitude).toFixed(4)}` : 'pendente'}</li>
-              <li>• Senha definida: {wizard.adminPassword ? 'sim' : 'não'}</li>
+              <li>• Senha preenchida: {passwordFilled ? 'sim' : 'não'}</li>
+              <li>
+                • Senha forte:{' '}
+                {allowWeak
+                  ? 'ignorada por modo laboratório'
+                  : passwordStrong ? 'sim' : 'não'}
+              </li>
+              <li>• Senha confere: {passwordMatches ? 'sim' : 'não'}</li>
               <li>• Plano destrutivo entendido: {uiState.destructiveConfirmed ? 'sim' : 'não'}</li>
             </ul>
+
+            {allowWeak ? (
+              <div className="mt-3 rounded-xl border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs text-amber-100">
+                Modo laboratório ativo: regra de senha forte desativada. Não use este perfil para uso real.
+              </div>
+            ) : null}
             {validation?.warnings?.length > 0 ? (
               <div className="mt-4 rounded-xl border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-amber-100">
                 {validation.warnings[0]}

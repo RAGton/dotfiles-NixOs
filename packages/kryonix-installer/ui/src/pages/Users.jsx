@@ -66,6 +66,22 @@ export default function Users({ wizard, onChange, validation }) {
             <div className="h-full rounded-full bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400" style={{ width: `${strength.pct}%` }} />
           </div>
         </div>
+
+        <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4">
+          <input
+            type="checkbox"
+            className="mt-1 h-5 w-5 rounded border-white/20 bg-slate-950 text-accent-500"
+            checked={Boolean(wizard.allowWeakPassword)}
+            onChange={(event) => onChange({ allowWeakPassword: event.target.checked })}
+          />
+          <div>
+            <div className="font-semibold text-white">Permitir senha fraca / modo laboratório</div>
+            <div className="mt-1 text-sm text-amber-100">
+              Não recomendado para uso real. Use apenas em VM, laboratório ou teste rápido.
+              Senha vazia continua bloqueada; a confirmação ainda precisa bater.
+            </div>
+          </div>
+        </label>
       </section>
 
       <section className="section-panel flex min-h-0 flex-col overflow-hidden">

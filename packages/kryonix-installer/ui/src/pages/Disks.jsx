@@ -235,7 +235,7 @@ function TabDiscos({ diskInventory, loadingDisks, diskError, partitions, wizard,
 function TabLayout({ layoutMode, onLayoutChange, wizard, diskInventory, splitSummary, raidSummary, raidOptions }) {
   const modes = [
     { id: 'single', label: 'Apagar tudo', desc: 'Um disco · EFI + / BTRFS · subvolumes @, @home, @nix, @log' },
-    { id: 'split',  label: 'Dois discos', desc: 'Sistema em disco 1 · dados em /srv/data no disco 2' },
+    { id: 'split',  label: 'Dois discos', desc: 'Sistema em disco 1 · disco 2 dedicado a dados (montado em /srv/data, opcional para desktop)' },
     { id: 'raid',   label: 'RAID / LVM',  desc: 'Múltiplos discos · redundância ou expansão de capacidade' },
     { id: 'manual', label: 'Manual',      desc: 'Particionamento customizado · controle total de montagem' },
   ];
