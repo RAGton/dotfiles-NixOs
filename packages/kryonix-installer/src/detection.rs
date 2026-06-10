@@ -1,7 +1,7 @@
-use serde::Serialize;
-use std::process::Command;
-use std::path::Path;
 use crate::disk;
+use serde::Serialize;
+use std::path::Path;
+use std::process::Command;
 
 #[derive(Serialize, Debug, Clone)]
 pub struct InstallationMatch {
@@ -18,7 +18,7 @@ pub fn detect_existing_installations() -> Result<Vec<InstallationMatch>, String>
     for disk in disks {
         // Obter todas as partições do disco
         let partitions_json = disk::get_partitions(&disk.name)?;
-        
+
         // Extrair nomes de partições (ex: sda1, nvme0n1p2)
         if let Some(blockdevices) = partitions_json.get("blockdevices") {
             if let Some(children) = blockdevices.get(0).and_then(|d| d.get("children")) {
@@ -62,9 +62,15 @@ fn check_partition_for_kryonix(name: &str) -> Result<Option<InstallationMatch>, 
                         .map(|s| s.trim().to_string())
                         .unwrap_or_else(|_| "unknown".to_string());
 
-                    let version = std::fs::read_to_string(Path::new(&mount_point).join("etc/kryonix-version"))
-                        .ok()
-                        .and_then(|s| s.lines().find(|l| l.starts_with("VERSION=")).map(|l| l.replace("VERSION=", "").replace("\"", "")));
+                    let version = std::fs::read_to_string(
+                        Path::new(&mount_point).join("etc/kryonix-version"),
+                    )
+                    .ok()
+                    .and_then(|s| {
+                        s.lines()
+                            .find(|l| l.starts_with("VERSION="))
+                            .map(|l| l.replace("VERSION=", "").replace("\"", ""))
+                    });
 
                     return Some(InstallationMatch {
                         device: dev_path.clone(),

@@ -1,7 +1,12 @@
-use axum::{Json, extract::{State, Query}, http::StatusCode, response::IntoResponse};
+use axum::{
+    Json,
+    extract::{Query, State},
+    http::StatusCode,
+    response::IntoResponse,
+};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::process::Command;
 
 use crate::AppState;
@@ -144,7 +149,7 @@ fn parse_interfaces(raw: &str, managed_in_input: bool) -> Vec<InterfaceEntry> {
         .filter_map(|line| {
             // nmcli -t usa '\:' para colons nos valores
             let parts: Vec<String> = line.split(':').map(|s| s.replace("\\:", ":")).collect();
-            
+
             let min_expected = if managed_in_input { 5 } else { 4 };
             if parts.len() < min_expected {
                 return None;
@@ -163,7 +168,7 @@ fn parse_interfaces(raw: &str, managed_in_input: bool) -> Vec<InterfaceEntry> {
             let managed = if managed_in_input {
                 parts[4].trim().to_lowercase() == "yes"
             } else {
-                true 
+                true
             };
 
             if name.is_empty() || raw_type == "loopback" {
@@ -177,7 +182,13 @@ fn parse_interfaces(raw: &str, managed_in_input: bool) -> Vec<InterfaceEntry> {
             }
             .to_string();
 
-            Some(InterfaceEntry { name, kind, state, connection, managed })
+            Some(InterfaceEntry {
+                name,
+                kind,
+                state,
+                connection,
+                managed,
+            })
         })
         .collect()
 }
@@ -188,7 +199,10 @@ pub async fn wifi_scan(
     _: State<Arc<AppState>>,
     Query(params): Query<HashMap<String, String>>,
 ) -> impl IntoResponse {
-    let iface = params.get("interface").cloned().unwrap_or_else(|| "wlan0".to_string());
+    let iface = params
+        .get("interface")
+        .cloned()
+        .unwrap_or_else(|| "wlan0".to_string());
     let mut warning = None;
 
     // Rescan é best-effort; se falhar (ex: VM sem wifi), prosseguimos para list.
@@ -222,7 +236,7 @@ pub async fn wifi_scan(
             if parts.len() < 4 {
                 return None;
             }
-            
+
             let mut ssid = parts[0].trim().to_string();
             if ssid.is_empty() {
                 ssid = "Rede oculta".to_string();
@@ -231,7 +245,12 @@ pub async fn wifi_scan(
             let security = parts[2].trim().to_string();
             let in_use = parts[3].trim() == "*";
 
-            Some(WifiEntry { ssid, signal, security, in_use })
+            Some(WifiEntry {
+                ssid,
+                signal,
+                security,
+                in_use,
+            })
         })
         .collect();
 
@@ -259,7 +278,7 @@ pub async fn wifi_connect(
     Json(req): Json<ConnectRequest>,
 ) -> impl IntoResponse {
     // SEGURANÇA: NUNCA logar req.password ou o corpo da requisição.
-    
+
     let mut args = vec![
         "--wait".to_string(),
         "15".to_string(),
@@ -275,7 +294,7 @@ pub async fn wifi_connect(
             args.push(pw.clone());
         }
     }
-    
+
     args.push("ifname".into());
     args.push(req.interface.clone());
 
@@ -292,7 +311,7 @@ pub async fn wifi_connect(
             let stderr = String::from_utf8_lossy(&o.stderr).into_owned();
             let stdout = String::from_utf8_lossy(&o.stdout).into_owned();
             let combined = format!("{}{}", stdout, stderr);
-            
+
             // Sanitização: remove a senha de qualquer saída acidental
             let sanitized = if let Some(ref pw) = req.password {
                 if !pw.is_empty() {
@@ -331,8 +350,11 @@ pub async fn wifi_disconnect(
     _: State<Arc<AppState>>,
     Json(req): Json<HashMap<String, String>>,
 ) -> impl IntoResponse {
-    let iface = req.get("interface").cloned().unwrap_or_else(|| "wlan0".to_string());
-    
+    let iface = req
+        .get("interface")
+        .cloned()
+        .unwrap_or_else(|| "wlan0".to_string());
+
     let output = Command::new("nmcli")
         .args(["device", "disconnect", &iface])
         .output()
@@ -410,7 +432,8 @@ mod tests {
 
     #[test]
     fn test_parse_interfaces_full() {
-        let raw = "enp1s0:ethernet:connected:Wired connection 1:yes\nwlan0:wifi:disconnected:--:yes\n";
+        let raw =
+            "enp1s0:ethernet:connected:Wired connection 1:yes\nwlan0:wifi:disconnected:--:yes\n";
         let list = parse_interfaces(raw, true);
         assert_eq!(list.len(), 2);
         assert_eq!(list[0].name, "enp1s0");
@@ -433,16 +456,28 @@ mod tests {
         // ":70:WPA2:*"
         let raw = ":70:WPA2:*\nMySSID:90:WPA1: \n";
         // Simulando o parsing interno que faremos em wifi_scan
-        let entries: Vec<WifiEntry> = raw.lines().filter_map(|line| {
-            let parts: Vec<String> = line.split(':').map(|s| s.replace("\\:", ":")).collect();
-            if parts.len() < 4 { return None; }
-            let mut ssid = parts[0].trim().to_string();
-            if ssid.is_empty() { ssid = "Rede oculta".into(); }
-            let signal: u8 = parts[1].trim().parse().unwrap_or(0);
-            let security = parts[2].trim().to_string();
-            let in_use = parts[3].trim() == "*";
-            Some(WifiEntry { ssid, signal, security, in_use })
-        }).collect();
+        let entries: Vec<WifiEntry> = raw
+            .lines()
+            .filter_map(|line| {
+                let parts: Vec<String> = line.split(':').map(|s| s.replace("\\:", ":")).collect();
+                if parts.len() < 4 {
+                    return None;
+                }
+                let mut ssid = parts[0].trim().to_string();
+                if ssid.is_empty() {
+                    ssid = "Rede oculta".into();
+                }
+                let signal: u8 = parts[1].trim().parse().unwrap_or(0);
+                let security = parts[2].trim().to_string();
+                let in_use = parts[3].trim() == "*";
+                Some(WifiEntry {
+                    ssid,
+                    signal,
+                    security,
+                    in_use,
+                })
+            })
+            .collect();
 
         assert_eq!(entries[0].ssid, "Rede oculta");
         assert_eq!(entries[1].ssid, "MySSID");
