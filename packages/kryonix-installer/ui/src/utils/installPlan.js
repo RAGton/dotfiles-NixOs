@@ -256,7 +256,7 @@ export function buildInstallPlanPayload(draftInput) {
       hostname: sanitizeString(draft.hostName),
       interface: sanitizeString(draft.mgmtInterface),
       mode: draft.mgmtMode === 'static' ? 'static' : 'dhcp',
-      serverIp: sanitizeString(draft.serverIp),
+      serverIp: sanitizeString(draft.serverIp) || '0.0.0.0',
       prefixLength: mgmtPrefix,
       gateway: sanitizeString(draft.mgmtGateway),
       dns: sanitizeDnsList(draft.mgmtDns),
