@@ -62,16 +62,8 @@ pub async fn generate_kryonixos_tree(
         return Err("Falha ao aplicar permissões no engine copiado".into());
     }
 
-    let hostname = plan
-        .network
-        .get("hostname")
-        .and_then(|v| v.as_str())
-        .unwrap_or("kryonix");
-    let user_name = plan
-        .admin
-        .get("user")
-        .and_then(|v| v.as_str())
-        .unwrap_or("kryonix");
+    let hostname = plan.hostname.trim();
+    let user_name = plan.user.name.trim();
 
     tokio::fs::create_dir_all(format!("/mnt/etc/kryonixos/hosts/{}", hostname))
         .await
@@ -111,21 +103,9 @@ pub async fn generate_kryonixos_tree(
         .await
         .map_err(|e| format!("Falha ao criar flake.nix: {}", e))?;
 
-    let timezone = plan
-        .locale
-        .get("timezone")
-        .and_then(|v| v.as_str())
-        .unwrap_or("America/Cuiaba");
-    let locale = plan
-        .locale
-        .get("locale")
-        .and_then(|v| v.as_str())
-        .unwrap_or("pt_BR.UTF-8");
-    let keyboard = plan
-        .locale
-        .get("keymap")
-        .and_then(|v| v.as_str())
-        .unwrap_or("br-abnt2");
+    let timezone = plan.timezone.trim();
+    let locale = plan.locale.trim();
+    let keyboard = plan.keyboard.trim();
 
     let host_config_content = format!(
         r#"{{ config, pkgs, inputs, ... }}:
@@ -325,36 +305,30 @@ fn build_home_features_nix(plan: &InstallPlan) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{InstallPlan, PlanDisk};
+    use crate::{InstallPlan, PlanDisk, PlanUser};
 
     fn make_test_plan() -> InstallPlan {
         InstallPlan {
             version: 1,
-            source: None,
-            profile: None,
-            features: serde_json::json!({}),
-            storage: None,
-            security: None,
-            remote_access: None,
+            hostname: "test-host".into(),
+            timezone: "America/Sao_Paulo".into(),
+            locale: "pt_BR.UTF-8".into(),
+            keyboard: "br-abnt2".into(),
             disk: PlanDisk {
                 mode: "install".into(),
+                target: "/dev/null".into(),
+                layout: "btrfs-simple".into(),
+                boot_mode: "uefi".into(),
                 profile: "single".into(),
                 selected_disks: vec![],
-                sys_disk: Some("/dev/null".into()),
-                data_disk: None,
                 raid_level: None,
                 manual_partitions: None,
             },
-            network: serde_json::json!({ "hostname": "test-host" }),
-            locale: serde_json::json!({
-                "timezone": "America/Sao_Paulo",
-                "locale": "pt_BR.UTF-8",
-                "keymap": "br-abnt2"
-            }),
-            admin: serde_json::json!({
-                "user": "test-user",
-                "admin": true
-            }),
+            user: PlanUser {
+                name: "test-user".into(),
+                admin: true,
+            },
+            features: serde_json::json!({}),
         }
     }
 

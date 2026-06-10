@@ -10,11 +10,7 @@ pub async fn run_nixos_install(
     plan: &InstallPlan,
     tx: Arc<broadcast::Sender<ProgressEvent>>,
 ) -> Result<(), String> {
-    let hostname = plan
-        .network
-        .get("hostname")
-        .and_then(|v| v.as_str())
-        .unwrap_or("kryonix");
+    let hostname = plan.hostname.trim();
     let flake = "/mnt/etc/kryonixos";
     let flake_ref = format!("{flake}#{hostname}");
 
