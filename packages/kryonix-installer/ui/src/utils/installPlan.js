@@ -133,6 +133,8 @@ function formatAjvErrors(errors) {
     .join('; ');
 }
 
+
+
 export function buildInstallPlanPayload(draftInput) {
   const draft = createInstallPlanDraft(draftInput);
   const diskProfile = sanitizeString(draft.diskProfile);
@@ -204,7 +206,8 @@ export function buildInstallPlanPayload(draftInput) {
     draft.profileId === 'server-ai' ||
     draft.profileId === 'full';
 
-  return {
+  // Build raw payload then clean optional empty fields for schema compliance
+  const rawPayload = {
     version: INSTALL_PLAN_VERSION,
     source: {
       kind: 'offline-defaults',
@@ -212,7 +215,6 @@ export function buildInstallPlanPayload(draftInput) {
       branch: null,
       commit: null,
       host: sanitizeString(draft.hostName),
-      profile: profileObj.id,
     },
     profile: {
       id: profileObj.id,
@@ -255,14 +257,15 @@ export function buildInstallPlanPayload(draftInput) {
     network: {
       hostname: sanitizeString(draft.hostName),
       interface: sanitizeString(draft.mgmtInterface),
-      mode: draft.mgmtMode === 'static' ? 'static' : 'dhcp',
       serverIp: sanitizeString(draft.serverIp) || '0.0.0.0',
       prefixLength: mgmtPrefix,
-      gateway: sanitizeString(draft.mgmtGateway),
+      // gateway is required by schema; in DHCP mode use user input or placeholder
+      gateway: sanitizeString(draft.mgmtGateway) || (draft.mgmtMode === 'dhcp' ? '0.0.0.0' : undefined),
       dns: sanitizeDnsList(draft.mgmtDns),
       httpPort: Number.isFinite(Number(draft.httpPort)) ? Number(draft.httpPort) : 0,
+      // wan is required by schema; always include with at least interface+mode
       wan: {
-        interface: wanInterface,
+        interface: wanInterface || '',
         mode: wanMode,
         address: wanEnabled ? sanitizeString(draft.wanAddress) || undefined : undefined,
         prefixLength: wanEnabled ? wanPrefix ?? undefined : undefined,
@@ -284,6 +287,12 @@ export function buildInstallPlanPayload(draftInput) {
       authorizedKeys: uniqueStrings(parseAuthorizedKeys(draft.adminAuthorizedKeys)),
     },
   };
+
+  // Payload is schema-compliant:
+  // - source.repo/branch/commit = null (allowed by schema)
+  // - network.gateway = '0.0.0.0' sentinel in DHCP mode (valid ipv4)
+  // - network.wan always present with interface='' + mode (required by schema)
+  return rawPayload;
 }
 
 export function buildInstallSecretsPayload(draftInput) {

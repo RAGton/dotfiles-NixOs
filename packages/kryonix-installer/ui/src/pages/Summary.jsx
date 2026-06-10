@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { isStrongPassword, buildInstallPlanPayload } from '../utils/installPlan.js';
 import { FEATURE_CATALOG } from '../data/featureCatalog.js';
 import { getProfileById } from '../data/profileCatalog.js';
@@ -45,16 +45,115 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
     return { systemFeatures: sys, homeFeatures: home };
   }, [wizard.selectedFeatures]);
 
-  const handleExportPlan = () => {
+  const [importError, setImportError] = useState('');
+
+  const handleExportPlan = useCallback(async () => {
     const payload = buildInstallPlanPayload(wizard);
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const content = JSON.stringify(payload, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+
+    // Try File System Access API (showSaveFilePicker)
+    if ('showSaveFilePicker' in window) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: 'kryonix-install-plan.json',
+          types: [{
+            description: 'JSON Plan',
+            accept: { 'application/json': ['.json'] }
+          }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.warn('[Summary] showSaveFilePicker failed, falling back:', err);
+        }
+      }
+    }
+
+    // Fallback: classic download
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'kryonix-install-plan.json';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, [wizard]);
+
+  const handleImportPlan = useCallback((event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        // Basic validation: check required top-level fields
+        if (!json.version || !json.network || !json.disk || !json.admin) {
+          throw new Error('JSON não contém campos obrigatórios do plano de instalação.');
+        }
+        // Convert payload back to wizard draft fields where possible
+        const draftPatch = {};
+        if (json.network) {
+          if (json.network.hostname) draftPatch.hostName = json.network.hostname;
+          if (json.network.interface) draftPatch.mgmtInterface = json.network.interface;
+          if (json.network.mode) draftPatch.mgmtMode = json.network.mode === 'static' ? 'static' : 'dhcp';
+          if (json.network.serverIp && json.network.serverIp !== '0.0.0.0') draftPatch.serverIp = json.network.serverIp;
+          if (json.network.gateway) draftPatch.mgmtGateway = json.network.gateway;
+          if (json.network.dns?.length) draftPatch.mgmtDns = json.network.dns.join(',');
+          if (json.network.httpPort) draftPatch.httpPort = json.network.httpPort;
+          if (json.network.wan) {
+            if (json.network.wan.interface) draftPatch.wanInterface = json.network.wan.interface;
+            if (json.network.wan.mode) draftPatch.wanMode = json.network.wan.mode;
+            if (json.network.wan.address) draftPatch.wanAddress = json.network.wan.address;
+            if (json.network.wan.gateway) draftPatch.wanGateway = json.network.wan.gateway;
+            if (json.network.wan.dns?.length) draftPatch.wanDns = json.network.wan.dns.join(',');
+            if (json.network.wan.pppoeUser) draftPatch.pppoeUser = json.network.wan.pppoeUser;
+          }
+        }
+        if (json.disk) {
+          if (json.disk.mode) draftPatch.diskMode = json.disk.mode;
+          if (json.disk.profile) draftPatch.diskProfile = json.disk.profile;
+          if (json.disk.sysDisk) draftPatch.sysDisk = json.disk.sysDisk;
+          if (json.disk.dataDisk) draftPatch.dataDisk = json.disk.dataDisk;
+          if (json.disk.selectedDisks) draftPatch.selectedDisks = json.disk.selectedDisks;
+          if (json.disk.raidLevel) draftPatch.raidLevel = json.disk.raidLevel;
+          if (json.disk.luksEnabled !== undefined) draftPatch.luksEnabled = json.disk.luksEnabled;
+          if (json.disk.rootFs) draftPatch.rootFs = json.disk.rootFs;
+          if (json.disk.dataFs) draftPatch.dataFs = json.disk.dataFs;
+        }
+        if (json.locale) {
+          if (json.locale.country) draftPatch.country = json.locale.country;
+          if (json.locale.timezone) draftPatch.timeZone = json.locale.timezone;
+          if (json.locale.locale) draftPatch.locale = json.locale.locale;
+          if (json.locale.keymap) draftPatch.keyMap = json.locale.keymap;
+        }
+        if (json.admin) {
+          if (json.admin.user) draftPatch.adminUser = json.admin.user;
+          if (json.admin.uid) draftPatch.adminUid = json.admin.uid;
+          if (json.admin.email) draftPatch.adminEmail = json.admin.email;
+          if (json.admin.authorizedKeys) draftPatch.adminAuthorizedKeys = json.admin.authorizedKeys.join('\n');
+        }
+        if (json.profile?.id) draftPatch.profileId = json.profile.id;
+        if (json.remoteAccess?.enabled !== undefined) draftPatch.remoteAccessEnabled = json.remoteAccess.enabled;
+        if (json.security?.allowWeakPassword !== undefined) draftPatch.allowWeakPassword = json.security.allowWeakPassword;
+
+        onChange(draftPatch);
+        setImportError('');
+        // Reset file input so same file can be imported again if needed
+        event.target.value = '';
+      } catch (err) {
+        console.error('[Summary] Import error:', err);
+        setImportError(err instanceof Error ? err.message : 'Falha ao importar JSON.');
+      }
+    };
+    reader.onerror = () => setImportError('Erro ao ler arquivo.');
+    reader.readAsText(file);
+  }, [onChange]);
 
   return (
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -187,17 +286,33 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
               <div className="font-semibold text-white">Confirmo que este plano pode apagar dados</div>
               <div className="mt-1 text-sm text-slate-300">Entendo que os discos selecionados serão alterados pela instalação unattended.</div>
             </div>
-          </label>
+            </label>
         </div>
 
-        <div className="flex gap-4">
-          <button
-            type="button"
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors"
-            onClick={handleExportPlan}
-          >
-            Exportar plano JSON
-          </button>
+        <div className="flex flex-col gap-3 mt-4">
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors"
+              onClick={handleExportPlan}
+            >
+              Exportar plano JSON
+            </button>
+            <label className="flex items-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors cursor-pointer">
+              <input
+                type="file"
+                accept="application/json,.json"
+                className="sr-only"
+                onChange={handleImportPlan}
+              />
+              Importar plano JSON
+            </label>
+          </div>
+          {importError && (
+            <div className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-sm text-rose-100">
+              {importError}
+            </div>
+          )}
           <div className="flex-1 rounded-xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-50">
             A próxima etapa gera o plano via backend e permite iniciar a instalação com logs ao vivo.
           </div>

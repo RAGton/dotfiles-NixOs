@@ -4,6 +4,7 @@ import {
   buildInstallPlanPayload,
   buildInstallSecretsPayload,
   validateStep,
+  validateInstallPlanPayload,
 } from '../utils/installPlan.js';
 import {
   INITIAL_INSTALL_PLAN_DRAFT,
@@ -264,4 +265,107 @@ test('storage blocking issues vindos da UI bloqueiam summary e install', () => {
 
   assert.ok(summaryValidation.blockingIssues.includes('Os discos selecionados nao sao suficientemente homogeneos para RAID 5.'));
   assert.ok(summaryValidation.warnings.includes('Capacidade acima do menor disco sera desperdicada.'));
+});
+
+
+test('buildInstallPlanPayload usa 0.0.0.0 como sentinela gateway no modo DHCP (schema exige IPv4)', () => {
+  // O schema atual exige network.gateway (required, format ipv4).
+  // Em DHCP usamos 0.0.0.0 como sentinela técnica temporária.
+  const draft = createValidDraft({
+    mgmtMode: 'dhcp',
+    mgmtGateway: '',
+    wanInterface: '',
+    serverIp: '10.0.0.10',
+  });
+
+  const plan = buildInstallPlanPayload(draft);
+
+  // gateway presente como sentinela IPv4 válida
+  assert.equal(plan.network.gateway, '0.0.0.0');
+  // wan segue esperado no teste separado
+  assert.ok(plan.network.wan);
+});
+
+test('buildInstallPlanPayload inclui gateway quando preenchido no modo static', () => {
+  const draft = createValidDraft({
+    mgmtMode: 'static',
+    mgmtGateway: '10.0.0.1',
+    serverIp: '10.0.0.10',
+  });
+
+  const plan = buildInstallPlanPayload(draft);
+
+  assert.equal(plan.network.gateway, '10.0.0.1');
+});
+
+test('buildInstallPlanPayload mantém wan objeto vazio quando não há WAN configurada (schema exige wan)', () => {
+  // O schema atual exige network.wan (required com interface + mode).
+  // Sem WAN configurada, mantemos objeto sentinela com interface='' e mode='dhcp'.
+  const draft = createValidDraft({
+    wanInterface: '',
+    wanMode: 'dhcp',
+  });
+
+  const plan = buildInstallPlanPayload(draft);
+
+  // wan presente como objeto sentinela
+  assert.ok(plan.network.wan);
+  assert.equal(plan.network.wan.interface, '');
+  assert.equal(plan.network.wan.mode, 'dhcp');
+});
+
+test('buildInstallPlanPayload inclui wan quando interface preenchida', () => {
+  const draft = createValidDraft({
+    wanInterface: 'enp2s0',
+    wanMode: 'dhcp',
+  });
+
+  const plan = buildInstallPlanPayload(draft);
+
+  assert.ok(plan.network.wan);
+  assert.equal(plan.network.wan.interface, 'enp2s0');
+  assert.equal(plan.network.wan.mode, 'dhcp');
+});
+
+test('buildInstallPlanPayload não vaza campos extras em source', () => {
+  const draft = createValidDraft();
+  const plan = buildInstallPlanPayload(draft);
+
+  // source deve conter apenas campos do schema
+  const allowedSourceKeys = ['kind', 'repo', 'branch', 'commit', 'host', 'profile'];
+  for (const key of Object.keys(plan.source)) {
+    assert.ok(allowedSourceKeys.includes(key), `source contém chave extra: ${key}`);
+  }
+  // repo, branch, commit devem ser null
+  assert.equal(plan.source.repo, null);
+  assert.equal(plan.source.branch, null);
+  assert.equal(plan.source.commit, null);
+});
+
+test('schema validation passa para payload DHCP com gateway omitido', () => {
+  const draft = createValidDraft({
+    mgmtMode: 'dhcp',
+    mgmtGateway: '',
+    wanInterface: '',
+  });
+
+  const plan = buildInstallPlanPayload(draft);
+
+  // Não deve lançar erro de validação
+  assert.doesNotThrow(() => validateInstallPlanPayload(plan));
+});
+
+test('schema validation passa para payload static com gateway', () => {
+  const draft = createValidDraft({
+    mgmtMode: 'static',
+    mgmtGateway: '10.0.0.1',
+    serverIp: '10.0.0.10',
+    mgmtNetmask: '255.255.255.0',
+    mgmtDns: '1.1.1.1,8.8.8.8',
+    wanInterface: '',
+  });
+
+  const plan = buildInstallPlanPayload(draft);
+
+  assert.doesNotThrow(() => validateInstallPlanPayload(plan));
 });
