@@ -1,6 +1,12 @@
 export const WIZARD_STORAGE_KEY = 'kryonix.installer.wizard.v1';
 
 export const DRAFT_FIELD_NAMES = [
+  'sourceKind',
+  'githubRepo',
+  'githubBranch',
+  'profileId',
+  'selectedFeatures',
+  'remoteAccessEnabled',
   'country',
   'locale',
   'keyMap',
@@ -62,11 +68,17 @@ const DRAFT_FIELD_SET = new Set(DRAFT_FIELD_NAMES);
 const UI_TRANSIENT_FIELD_SET = new Set(UI_TRANSIENT_FIELD_NAMES);
 
 export const INITIAL_INSTALL_PLAN_DRAFT = {
+  sourceKind: 'offline-defaults',
+  githubRepo: 'https://github.com/Kryonix/kryonixos',
+  githubBranch: 'main',
+  profileId: 'desktop',
+  selectedFeatures: [],
+  remoteAccessEnabled: false,
   country: 'BR',
   locale: 'pt_BR.UTF-8',
   keyMap: 'br-abnt2',
   timeZone: 'America/Cuiaba',
-  hostName: 'srv-rag',
+  hostName: 'kryonix-e2e',
   mgmtInterface: '',
   mgmtMode: 'dhcp',
   wanInterface: '',
@@ -129,6 +141,10 @@ function pickFields(source, defaults, allowedFields) {
     if (Object.prototype.hasOwnProperty.call(source, field)) {
       next[field] = source[field];
     }
+  }
+
+  if (allowedFields.includes('selectedFeatures') && !Array.isArray(next.selectedFeatures)) {
+    next.selectedFeatures = [];
   }
 
   if (allowedFields.includes('selectedDisks') && !Array.isArray(next.selectedDisks)) {

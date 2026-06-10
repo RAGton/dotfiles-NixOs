@@ -8,6 +8,7 @@ import {
   getRaidOptionsForSelection,
   getSelectedDiskRecords,
   normalizeDiskInventory,
+  shouldRecommendSrvData,
   validateRaidSelection,
   validateSingleDiskLayout,
   validateSplitDiskLayout,
@@ -235,10 +236,7 @@ function TabDiscos({ diskInventory, loadingDisks, diskError, partitions, wizard,
 function TabLayout({ layoutMode, onLayoutChange, wizard, diskInventory, splitSummary, raidSummary, raidOptions }) {
   // Mantem coerencia com buildInstallPlanPayload (installPlan.js):
   // /srv/data preview segue a mesma regra central.
-  const enableSrvData =
-    (wizard.selectedFeatures || []).some(id =>
-      ['storage.srv-data', 'ai.ollama', 'ai.kryonix-brain', 'ai.neo4j', 'ai.lightrag', 'ai.open-webui'].includes(id)
-    ) || ['ai-local', 'kryonix-full'].includes(wizard.profileId);
+  const enableSrvData = shouldRecommendSrvData(wizard.profileId, wizard.selectedFeatures);
 
   const subvolumes = enableSrvData ? '@, @home, @nix, @log, @srv' : '@, @home, @nix, @log';
   const splitDesc = enableSrvData

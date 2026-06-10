@@ -155,7 +155,7 @@ export function buildInstallPlanPayload(draftInput) {
   const wanEnabled = wanInterface !== '';
   const wanMode = wanEnabled ? sanitizeString(draft.wanMode) || 'dhcp' : 'dhcp';
 
-  const profileObj = PROFILE_CATALOG.find(p => p.id === draft.profileId) || PROFILE_CATALOG.find(p => p.id === 'desktop-plasma');
+  const profileObj = PROFILE_CATALOG.find(p => p.id === draft.profileId) || PROFILE_CATALOG.find(p => p.id === 'desktop');
   const selectedFeatures = Array.isArray(draft.selectedFeatures) ? draft.selectedFeatures : [];
 
   const features = {
@@ -191,7 +191,7 @@ export function buildInstallPlanPayload(draftInput) {
   }
 
   // /srv/data ativa para: features de IA que exigem volume persistente,
-  // storage.srv-data explicito, e perfis ai-local/kryonix-full.
+  // storage.srv-data explicito, e perfis ai-local/full.
   // Profile "server" exige selecao manual de storage.srv-data (nao auto-ativa).
   const enableSrvData =
     features.system['storage.srv-data'] === true ||
@@ -201,7 +201,8 @@ export function buildInstallPlanPayload(draftInput) {
     features.system['ai.lightrag'] === true ||
     features.system['ai.open-webui'] === true ||
     draft.profileId === 'ai-local' ||
-    draft.profileId === 'kryonix-full';
+    draft.profileId === 'server-ai' ||
+    draft.profileId === 'full';
 
   return {
     version: INSTALL_PLAN_VERSION,

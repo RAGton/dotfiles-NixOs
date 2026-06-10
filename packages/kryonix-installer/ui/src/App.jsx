@@ -3,9 +3,13 @@ import Layout from './components/Layout.jsx';
 import FooterFixed from './components/FooterFixed.jsx';
 import Welcome from './pages/Welcome.jsx';
 import Eula from './pages/Eula.jsx';
-import Localization from './pages/Localization.jsx';
-import Timezone from './pages/Timezone.jsx';
 import Network from './pages/Network.jsx';
+import Source from './pages/Source.jsx';
+import RemoteAccess from './pages/RemoteAccess.jsx';
+import HostSelection from './pages/HostSelection.jsx';
+import MachineProfile from './pages/MachineProfile.jsx';
+import SystemFeatures from './pages/SystemFeatures.jsx';
+import UserFeatures from './pages/UserFeatures.jsx';
 import Disks from './pages/Disks.jsx';
 import Users from './pages/Users.jsx';
 import Summary from './pages/Summary.jsx';
@@ -34,19 +38,39 @@ const STEPS = [
     subtitle: 'Aceite explícito antes de qualquer ação destrutiva ou configuração do sistema.',
   },
   {
-    id: 'localization',
-    title: 'Localização',
-    subtitle: 'Todos os países, idiomas/locales e keymaps em listas pesquisáveis, como installers completos.',
-  },
-  {
-    id: 'timezone',
-    title: 'Fuso Horário',
-    subtitle: '',
-  },
-  {
     id: 'network',
     title: 'Topologia de Rede',
-    subtitle: 'WAN, LAN, hostname e parâmetros essenciais do servidor sem navegação ambígua.',
+    subtitle: 'WAN, LAN e parâmetros essenciais de rede.',
+  },
+  {
+    id: 'source',
+    title: 'Fonte de Instalação',
+    subtitle: 'Offline ou repositório GitHub remoto.',
+  },
+  {
+    id: 'remoteAccess',
+    title: 'Acesso Remoto',
+    subtitle: 'Habilitar o instalador na rede local (VNC/Web).',
+  },
+  {
+    id: 'hostSelection',
+    title: 'Identificação',
+    subtitle: 'Nome da máquina na rede.',
+  },
+  {
+    id: 'profile',
+    title: 'Perfil',
+    subtitle: 'Carga inicial de configurações para o seu caso de uso.',
+  },
+  {
+    id: 'systemFeatures',
+    title: 'Features de Sistema',
+    subtitle: 'Ferramentas globais, IA, virtualização e acesso remoto.',
+  },
+  {
+    id: 'userFeatures',
+    title: 'Features de Usuário',
+    subtitle: 'Editores, shells, temas e ferramentas de desenvolvimento.',
   },
   {
     id: 'disks',
@@ -244,12 +268,20 @@ export default function App() {
         return <Welcome />;
       case 'eula':
         return <Eula {...pageProps} />;
-      case 'localization':
-        return <Localization {...pageProps} />;
-      case 'timezone':
-        return <Timezone {...pageProps} />;
       case 'network':
         return <Network {...pageProps} />;
+      case 'source':
+        return <Source {...pageProps} />;
+      case 'remoteAccess':
+        return <RemoteAccess {...pageProps} />;
+      case 'hostSelection':
+        return <HostSelection {...pageProps} />;
+      case 'profile':
+        return <MachineProfile {...pageProps} />;
+      case 'systemFeatures':
+        return <SystemFeatures {...pageProps} />;
+      case 'userFeatures':
+        return <UserFeatures {...pageProps} />;
       case 'disks':
         return <Disks {...pageProps} />;
       case 'users':

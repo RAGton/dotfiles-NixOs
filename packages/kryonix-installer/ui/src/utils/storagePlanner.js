@@ -635,3 +635,45 @@ export function getStorageRecommendation(disks) {
     rationale: 'Nenhum perfil seguro esta apto com a selecao atual. Revise elegibilidade e homogeneidade.',
   };
 }
+
+/* ── /srv/data decision helpers ── */
+
+const SRV_DATA_PROFILES = ['server', 'server-dev', 'ai-local', 'server-ai', 'full'];
+
+const SRV_DATA_FEATURE_TRIGGERS = [
+  'storage.srv-data',
+  'ai.neo4j',
+  'ai.lightrag',
+  'ai.kryonix-brain',
+  'ai.open-webui',
+  'server.database',
+];
+
+export function shouldRecommendSrvData(profileId, selectedFeatures) {
+  if (!profileId) return false;
+  if (SRV_DATA_PROFILES.includes(profileId)) return true;
+  const selected = new Set(Array.isArray(selectedFeatures) ? selectedFeatures : []);
+  return SRV_DATA_FEATURE_TRIGGERS.some((id) => selected.has(id));
+}
+
+export function isSrvDataMandatory(profileId) {
+  return profileId === 'ai-local' || profileId === 'server-ai';
+}
+
+export function explainSrvDataReason(profileId, selectedFeatures) {
+  const reasons = [];
+  if (!profileId) return '';
+  if (isSrvDataMandatory(profileId)) {
+    reasons.push(`perfil = ${profileId} (obrigatorio)`);
+  } else if (SRV_DATA_PROFILES.includes(profileId)) {
+    reasons.push(`perfil = ${profileId}`);
+  }
+  const selected = new Set(Array.isArray(selectedFeatures) ? selectedFeatures : []);
+  for (const id of SRV_DATA_FEATURE_TRIGGERS) {
+    if (selected.has(id)) {
+      reasons.push(`feature ${id} marcada`);
+    }
+  }
+  if (reasons.length === 0) return 'nao ativado para este perfil';
+  return reasons.join(' + ');
+}

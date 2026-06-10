@@ -10,15 +10,19 @@ pub async fn run_nixos_install(
     plan: &InstallPlan,
     tx: Arc<broadcast::Sender<ProgressEvent>>,
 ) -> Result<(), String> {
+    let hostname = plan
+        .network
+        .get("hostname")
+        .and_then(|v| v.as_str())
+        .unwrap_or("kryonix");
+    let flake = "/mnt/etc/kryonixos";
+    let flake_ref = format!("{flake}#{hostname}");
+
     let _ = tx.send(ProgressEvent {
         step: "nixos-install".into(),
         message: "Instalando NixOS (pode demorar)...".into(),
         percent: 50,
     });
-
-    let flake =
-        std::env::var("KRYONIX_INSTALLER_FLAKE").unwrap_or_else(|_| "/mnt/etc/kryonixos".to_string());
-    let flake_ref = format!("{flake}#{}", plan.hostname);
 
     let _ = tx.send(ProgressEvent {
         step: "nixos-install".into(),
@@ -86,4 +90,3 @@ pub async fn run_nixos_install(
         Err("nixos-install falhou com código de erro não-zero".into())
     }
 }
-

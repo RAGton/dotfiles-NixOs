@@ -1,4 +1,8 @@
-import { isStrongPassword } from '../utils/installPlan.js';
+import { useMemo } from 'react';
+import { isStrongPassword, buildInstallPlanPayload } from '../utils/installPlan.js';
+import { FEATURE_CATALOG } from '../data/featureCatalog.js';
+import { getProfileById } from '../data/profileCatalog.js';
+import { shouldRecommendSrvData, explainSrvDataReason } from '../utils/storagePlanner.js';
 
 export default function Summary({ wizard, uiState, onChange, validation }) {
   const sshCount = String(wizard.adminAuthorizedKeys || '')
@@ -12,16 +16,10 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
       ? 'split disks'
       : 'single disk';
 
-  // DHCP-aware: em DHCP os campos serverIp/mgmtGateway são placeholders do
-  // draft (192.168.100.2/192.168.100.1) — pintar deles no summary engana o
-  // usuário ("usei DHCP mas o resumo mostra IP estático?"). Mostrar a verdade.
   const networkSummary = wizard.mgmtMode === 'dhcp'
     ? 'DHCP (automático)'
     : `IP: ${wizard.serverIp || 'pendente'} • GW: ${wizard.mgmtGateway || 'pendente'}`;
 
-  // /srv/data profile-aware: aparece quando ha disco de dados separado
-  // (split disks ou RAID). No single disk puro, a montagem ainda existe mas
-  // como subvol no mesmo BTRFS — mostrar como "interno", nao como destino.
   const hasDedicatedData = wizard.diskMode === 'two' || wizard.diskProfile === 'raid';
 
   const adminPassword = String(wizard.adminPassword || '');
@@ -30,6 +28,33 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
   const passwordStrong = isStrongPassword(adminPassword);
   const passwordMatches = passwordFilled && adminPassword === adminPasswordConfirm;
   const allowWeak = Boolean(wizard.allowWeakPassword);
+
+  const srvDataActive = shouldRecommendSrvData(wizard.profileId, wizard.selectedFeatures);
+  const srvDataReason = explainSrvDataReason(wizard.profileId, wizard.selectedFeatures);
+  const profileObj = getProfileById(wizard.profileId);
+
+  const { systemFeatures, homeFeatures } = useMemo(() => {
+    const sys = [];
+    const home = [];
+    for (const id of (wizard.selectedFeatures || [])) {
+      const f = FEATURE_CATALOG.find(x => x.id === id);
+      if (!f) continue;
+      if (f.level === 'system') sys.push(f);
+      else if (f.level === 'user') home.push(f);
+    }
+    return { systemFeatures: sys, homeFeatures: home };
+  }, [wizard.selectedFeatures]);
+
+  const handleExportPlan = () => {
+    const payload = buildInstallPlanPayload(wizard);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kryonix-install-plan.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="grid h-full min-h-0 gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -41,22 +66,19 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Localização</div>
-            <div className="mt-2 text-sm text-white">{wizard.country} • {wizard.locale} • {wizard.keyMap}</div>
-            <div className="mt-1 text-sm text-slate-400">Timezone: {wizard.timeZone}</div>
-            {uiState.timeZoneLatitude !== null && uiState.timeZoneLongitude !== null ? (
-              <div className="mt-1 text-sm text-slate-500">
-                Coordenadas: {Number(uiState.timeZoneLatitude).toFixed(4)}, {Number(uiState.timeZoneLongitude).toFixed(4)}
-              </div>
-            ) : null}
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Instalação & Host</div>
+            <div className="mt-2 text-sm text-white">Hostname: {wizard.hostName || 'pendente'}</div>
+            <div className="mt-1 text-sm text-slate-300">Fonte: {wizard.sourceKind === 'offline-defaults' ? 'Offline (ISO base)' : wizard.sourceKind}</div>
+            <div className="mt-1 text-sm text-slate-400">Acesso Remoto: {wizard.remoteAccessEnabled ? 'Ativado' : 'Desativado'}</div>
+            <div className="mt-1 text-sm text-slate-400">
+              Perfil: {profileObj ? `${profileObj.name} (${profileObj.id})` : (wizard.profileId || 'Nenhum')}
+            </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Rede</div>
-            <div className="mt-2 text-sm text-white">{wizard.hostName}</div>
-            <div className="mt-1 text-sm text-slate-300">WAN: {wizard.wanInterface ? `${wizard.wanInterface} • modo ${wizard.wanMode}` : 'opcional / desabilitada'}</div>
+            <div className="mt-2 text-sm text-white">WAN: {wizard.wanInterface ? `${wizard.wanInterface} • modo ${wizard.wanMode}` : 'opcional / desabilitada'}</div>
             <div className="mt-1 text-sm text-slate-300">LAN/PXE: {wizard.mgmtInterface || 'sem interface'}</div>
             <div className="mt-1 text-sm text-slate-400">{networkSummary}</div>
-            <div className="mt-2 text-xs text-amber-200">A WAN continua opcional; LAN/PXE, IP, gateway e DNS seguem o contrato real auditado.</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Discos</div>
@@ -77,6 +99,45 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
           </div>
         </div>
 
+        {/* /srv/data panel */}
+        <div className={`mt-4 rounded-2xl border p-4 text-sm ${srvDataActive ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100' : 'border-slate-400/20 bg-slate-400/5 text-slate-300'}`}>
+          <div className="font-bold flex items-center gap-2">
+            <span>{srvDataActive ? '✓' : '○'}</span>
+            /srv/data {srvDataActive ? 'ativado' : 'não ativado'}
+          </div>
+          <p className="mt-2">
+            {srvDataActive
+              ? `Motivo: ${srvDataReason}. /srv/data será usado para dados de servidor, bancos, modelos, RAG, Neo4j, LightRAG e serviços persistentes.`
+              : `Motivo: ${srvDataReason}. Este perfil não requer volume de dados persistente separado.`}
+          </p>
+        </div>
+
+        {/* Features separadas */}
+        {systemFeatures.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Features de Sistema</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {systemFeatures.map(f => (
+                <span key={f.id} className="px-2.5 py-1 text-xs rounded-lg font-medium bg-blue-500/15 text-blue-300 border border-blue-500/20">
+                  {f.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {homeFeatures.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Features Home Manager</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {homeFeatures.map(f => (
+                <span key={f.id} className="px-2.5 py-1 text-xs rounded-lg font-medium bg-purple-500/15 text-purple-300 border border-purple-500/20">
+                  {f.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-5 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-100">
           <div className="font-bold">Plano final de disco com confirmação destrutiva</div>
           <p className="mt-2">Os discos selecionados podem ser limpos e reformatados. Confira novamente sistema, dados, rede e usuário antes de prosseguir.</p>
@@ -89,15 +150,12 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Checklist crítico</div>
             <ul className="mt-3 space-y-2 text-sm text-slate-300">
               <li>• EULA aceito: {uiState.eulaAccepted ? 'sim' : 'não'}</li>
-              <li>• WAN: {wizard.wanInterface || 'nao configurada'}</li>
-              <li>• LAN/PXE selecionada: {wizard.mgmtInterface || 'pendente'}</li>
-              <li>• WAN confirmada fisicamente: {wizard.wanInterface ? (uiState.wanIdentified ? 'sim' : 'nao') : 'n/a'}</li>
-              <li>• LAN/PXE confirmada fisicamente: {uiState.lanIdentified ? 'sim' : 'não'}</li>
-              <li>• Timezone: {wizard.timeZone}</li>
-              <li>• Coordenadas TZ: {uiState.timeZoneLatitude !== null && uiState.timeZoneLongitude !== null ? `${Number(uiState.timeZoneLatitude).toFixed(4)}, ${Number(uiState.timeZoneLongitude).toFixed(4)}` : 'pendente'}</li>
-              <li>• Senha preenchida: {passwordFilled ? 'sim' : 'não'}</li>
-              <li>
-                • Senha forte:{' '}
+              <li>• Hostname: {wizard.hostName ? 'sim' : 'não'}</li>
+              <li>• Perfil selecionado: {wizard.profileId ? 'sim' : 'não'}</li>
+              <li>• Features sistema: {systemFeatures.length} ativadas</li>
+              <li>• Features usuário: {homeFeatures.length} ativadas</li>
+              <li>• /srv/data: {srvDataActive ? 'sim' : 'não'}</li>
+              <li>• Senha forte:{' '}
                 {allowWeak
                   ? 'ignorada por modo laboratório'
                   : passwordStrong ? 'sim' : 'não'}
@@ -132,8 +190,17 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
           </label>
         </div>
 
-        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-50">
-          A próxima etapa gera o plano via backend e permite iniciar a instalação com logs ao vivo.
+        <div className="flex gap-4">
+          <button
+            type="button"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors"
+            onClick={handleExportPlan}
+          >
+            Exportar plano JSON
+          </button>
+          <div className="flex-1 rounded-xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-50">
+            A próxima etapa gera o plano via backend e permite iniciar a instalação com logs ao vivo.
+          </div>
         </div>
       </section>
     </div>
