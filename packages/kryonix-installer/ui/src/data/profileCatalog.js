@@ -3,57 +3,122 @@ export const PROFILE_CATALOG = [
     id: 'minimal',
     name: 'Minimal',
     mode: 'server',
-    description: 'Sistema base CLI puro. Sem desktop, sem /srv/data, servicos extras opcionais. Ideal para VMs leves e containers.',
+    description: 'Base NixOS mínima. Sem desktop, sem gamer, sem IA, sem /srv/data. Ideal para VMs leves e containers.',
     icon: '',
-    badges: ['Rapido', 'CLI']
+    badges: ['Rápido', 'CLI'],
+    enableSrvData: false,
+    srvDataRecommended: false,
+    defaultFeatures: ['network.openssh', 'security.firewall']
   },
   {
-    id: 'desktop-plasma',
+    id: 'desktop',
     name: 'Desktop Plasma',
     mode: 'desktop',
-    description: 'KDE Plasma Wayland completo. Apps de usuario, sem /srv/data por padrao. Ideal para uso diario.',
+    description: 'KDE Plasma, áudio, bluetooth, navegador, terminal, tema Kryonix. Sem /srv/data.',
     icon: '',
-    badges: ['Wayland', 'GUI']
+    badges: ['Wayland', 'GUI'],
+    enableSrvData: false,
+    srvDataRecommended: false,
+    defaultFeatures: ['desktop.plasma', 'desktop.audio', 'desktop.bluetooth', 'security.firewall', 'network.openssh', 'shell.zsh', 'shell.starship', 'terminal.warp', 'browser.firefox']
   },
   {
-    id: 'developer',
+    id: 'development',
     name: 'Developer Workstation',
     mode: 'desktop',
-    description: 'Plasma + Rust, Python, Nix, Jupyter, VSCode, Antigravity. Otimizado para engenharia de software.',
+    description: 'Desktop/dev workstation. Rust, Python, Nix tooling, VSCode, Jupyter. Sem /srv/data por padrão.',
     icon: '',
-    badges: ['Dev', 'Produtividade']
+    badges: ['Dev', 'Produtividade'],
+    enableSrvData: false,
+    srvDataRecommended: false,
+    defaultFeatures: ['desktop.plasma', 'desktop.audio', 'desktop.bluetooth', 'security.firewall', 'network.openssh', 'shell.zsh', 'shell.starship', 'terminal.warp', 'editor.vscode-insiders', 'dev.rust', 'dev.python', 'dev.nix', 'dev.jupyter', 'virtualization.podman']
+  },
+  {
+    id: 'gamer',
+    name: 'Gamer Desktop',
+    mode: 'desktop',
+    description: 'Desktop gamer. Steam, GameMode, MangoHud, drivers, suporte a controles. Sem /srv/data.',
+    icon: '',
+    badges: ['Gaming', 'Steam'],
+    enableSrvData: false,
+    srvDataRecommended: false,
+    defaultFeatures: ['desktop.plasma', 'desktop.audio', 'desktop.bluetooth', 'security.firewall', 'network.openssh', 'shell.zsh', 'terminal.warp', 'gamer.steam', 'gamer.gamemode', 'gamer.mangohud', 'gamer.proton', 'gamer.controllers']
+  },
+  {
+    id: 'gamer-dev',
+    name: 'Gamer + Dev',
+    mode: 'desktop',
+    description: 'Desktop gamer + desenvolvimento. Steam, GameMode, Rust, Python, VSCode. Sem /srv/data.',
+    icon: '',
+    badges: ['Gaming', 'Dev'],
+    enableSrvData: false,
+    srvDataRecommended: false,
+    defaultFeatures: ['desktop.plasma', 'desktop.audio', 'desktop.bluetooth', 'security.firewall', 'network.openssh', 'shell.zsh', 'terminal.warp', 'editor.vscode-insiders', 'dev.rust', 'dev.python', 'dev.nix', 'gamer.steam', 'gamer.gamemode', 'gamer.mangohud', 'gamer.proton', 'gamer.controllers', 'virtualization.podman']
   },
   {
     id: 'server',
     name: 'Server Node',
     mode: 'server',
-    description: 'Foco em estabilidade, firewall, containers, observabilidade e acesso remoto. /srv/data altamente recomendado.',
+    description: 'Servidor. SSH, firewall, containers, observabilidade básica. /srv/data recomendado.',
     icon: '',
-    badges: ['Headless', 'Rede']
+    badges: ['Headless', 'Rede'],
+    enableSrvData: false,
+    srvDataRecommended: true,
+    defaultFeatures: ['security.firewall', 'network.openssh', 'security.fail2ban', 'virtualization.podman', 'server.containers', 'observability.prometheus', 'storage.srv-data']
+  },
+  {
+    id: 'server-dev',
+    name: 'Server + Dev',
+    mode: 'server',
+    description: 'Servidor + ferramentas de desenvolvimento/admin. /srv/data recomendado.',
+    icon: '',
+    badges: ['Headless', 'DevOps'],
+    enableSrvData: false,
+    srvDataRecommended: true,
+    defaultFeatures: ['security.firewall', 'network.openssh', 'security.fail2ban', 'virtualization.podman', 'server.containers', 'observability.prometheus', 'storage.srv-data', 'dev.git', 'dev.github-cli', 'dev.nix', 'shell.zsh']
   },
   {
     id: 'ai-local',
     name: 'AI Local Edge',
     mode: 'server',
-    description: 'Ollama, Brain, Neo4j, LightRAG pre-configurados. Exige /srv/data para bancos de vetores e modelos.',
+    description: 'IA local. Ollama, Open WebUI, Neo4j, LightRAG, Kryonix Brain. /srv/data obrigatório.',
     icon: '',
-    badges: ['Exige GPU', 'IA Local']
+    badges: ['Exige GPU', 'IA Local'],
+    enableSrvData: true,
+    srvDataRecommended: true,
+    defaultFeatures: ['security.firewall', 'network.openssh', 'ai.ollama', 'ai.open-webui', 'ai.neo4j', 'ai.lightrag', 'ai.kryonix-brain', 'storage.srv-data', 'virtualization.podman']
   },
   {
-    id: 'kryonix-full',
+    id: 'server-ai',
+    name: 'Server AI',
+    mode: 'server',
+    description: 'Servidor de IA. AI local + server stack. /srv/data obrigatório.',
+    icon: '',
+    badges: ['Headless', 'IA', 'Servidor'],
+    enableSrvData: true,
+    srvDataRecommended: true,
+    defaultFeatures: ['security.firewall', 'network.openssh', 'security.fail2ban', 'ai.ollama', 'ai.open-webui', 'ai.neo4j', 'ai.lightrag', 'ai.kryonix-brain', 'storage.srv-data', 'virtualization.podman', 'server.containers', 'observability.prometheus', 'observability.grafana']
+  },
+  {
+    id: 'full',
     name: 'Kryonix Full',
     mode: 'desktop',
-    description: 'Desktop + Dev + AI + Server. Instalacao maxima (a.k.a The Glacier). /srv/data obrigatorio.',
+    description: 'Desktop + Dev + Gamer + Server + AI. Instalação máxima. /srv/data recomendado.',
     icon: '',
-    badges: ['Massivo', 'Completo']
+    badges: ['Massivo', 'Completo'],
+    enableSrvData: true,
+    srvDataRecommended: true,
+    defaultFeatures: ['desktop.plasma', 'desktop.audio', 'desktop.bluetooth', 'desktop.printing', 'security.firewall', 'network.openssh', 'shell.zsh', 'shell.starship', 'terminal.warp', 'editor.vscode-insiders', 'dev.rust', 'dev.python', 'dev.nix', 'dev.jupyter', 'gamer.steam', 'gamer.gamemode', 'gamer.mangohud', 'gamer.proton', 'gamer.controllers', 'ai.ollama', 'ai.open-webui', 'ai.neo4j', 'ai.lightrag', 'ai.kryonix-brain', 'virtualization.podman', 'virtualization.libvirt', 'storage.srv-data', 'observability.prometheus', 'observability.grafana', 'mcp.filesystem', 'mcp.neo4j', 'mcp.ollama', 'server.containers', 'server.database', 'server.reverse-proxy', 'server.backups']
   },
   {
     id: 'custom',
     name: 'Custom',
     mode: 'server',
-    description: 'Nenhum padrao assumido. Voce escolhe feature por feature de forma granular na proxima etapa.',
+    description: 'Nenhum padrão assumido. Você escolhe feature por feature de forma granular.',
     icon: '',
-    badges: ['Avancado']
+    badges: ['Avançado'],
+    enableSrvData: false,
+    srvDataRecommended: false,
+    defaultFeatures: []
   }
 ];
 
@@ -61,78 +126,10 @@ export function getProfileById(id) {
   return PROFILE_CATALOG.find((p) => p.id === id) || null;
 }
 
-// Todas as features retornadas DEVEM existir em FEATURE_CATALOG.
-// IDs mortos removidos: network.networkmanager, dev.rust (nao, existe sim), server.openssh, server.docker
-// /srv/data: desktop-plasma e developer NAO ativam por padrao.
-// ai-local e kryonix-full ativam storage.srv-data.
-// server recomenda mas nao forca — so ativa se usuario selecionar storage.srv-data.
 export function getFeaturesForProfile(id) {
-  switch (id) {
-    case 'minimal':
-      return [];
-    case 'desktop-plasma':
-      return [
-        'desktop.plasma',
-        'desktop.audio',
-        'security.firewall',
-        'network.openssh'
-      ];
-    case 'developer':
-      return [
-        'desktop.plasma',
-        'desktop.audio',
-        'security.firewall',
-        'network.openssh',
-        'shell.zsh',
-        'dev.rust',
-        'dev.python',
-        'dev.nix',
-        'editor.vscode-insiders',
-        'virtualization.podman'
-      ];
-    case 'server':
-      return [
-        'security.firewall',
-        'network.openssh',
-        'virtualization.podman',
-        'observability.prometheus'
-      ];
-    case 'ai-local':
-      return [
-        'security.firewall',
-        'network.openssh',
-        'ai.ollama',
-        'ai.open-webui',
-        'ai.neo4j',
-        'ai.kryonix-brain',
-        'storage.srv-data',
-        'virtualization.podman'
-      ];
-    case 'kryonix-full':
-      return [
-        'desktop.plasma',
-        'desktop.audio',
-        'security.firewall',
-        'network.openssh',
-        'shell.zsh',
-        'dev.rust',
-        'dev.python',
-        'dev.nix',
-        'editor.vscode-insiders',
-        'ai.ollama',
-        'ai.open-webui',
-        'ai.neo4j',
-        'ai.kryonix-brain',
-        'virtualization.podman',
-        'virtualization.libvirt',
-        'storage.srv-data',
-        'observability.prometheus',
-        'observability.grafana',
-        'mcp.filesystem',
-        'mcp.neo4j',
-        'mcp.ollama'
-      ];
-    default:
-      return [];
+  const profile = PROFILE_CATALOG.find(p => p.id === id);
+  if (profile && Array.isArray(profile.defaultFeatures)) {
+    return [...profile.defaultFeatures];
   }
+  return [];
 }
