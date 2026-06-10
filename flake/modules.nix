@@ -26,6 +26,13 @@
         ];
       };
 
+    # Features opt-in do Kryonix (desktop, gamer, ai, servidores, etc.)
+    features =
+      { ... }:
+      {
+        imports = [ ../modules/nixos/features ];
+      };
+
     # Perfis isolados para patching dinâmico
     profile-gamer =
       { ... }:
@@ -57,6 +64,13 @@
   };
 
   homeManagerModules = {
+    # Features opt-in do Kryonix (shell, dev, editor, etc.)
+    features =
+      { ... }:
+      {
+        imports = [ ../modules/home-manager/features ];
+      };
+
     # Base HM compartilhada (programas, serviços, aliases comuns)
     common =
       { nhModules, ... }:
