@@ -229,6 +229,12 @@ in
         nixos-install-tools
       ];
 
+      # Quando o backend escuta em todas as interfaces (RemoteAccess),
+      # abrir a porta no firewall automaticamente.
+      networking.firewall.allowedTCPPorts = lib.mkIf (cfg.listenAddress != "127.0.0.1") [
+        cfg.port
+      ];
+
       hardware.graphics.enable = lib.mkDefault true;
 
       # Fontes do kiosk: a base installation-cd não traz fontes GUI, então o
