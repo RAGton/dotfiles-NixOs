@@ -2,6 +2,19 @@ import { useCallback, useEffect, useState } from 'react';
 import FieldError from '../components/FieldError.jsx';
 import { installerApi, getInstallerApiErrorMessage } from '../utils/installerApi.js';
 
+function sanitizeIp(value) {
+  return String(value || '').split('/')[0].trim();
+}
+
+function isUsableRemoteIp(value) {
+  const ip = sanitizeIp(value);
+  if (!ip) return false;
+  if (ip === '0.0.0.0') return false;
+  if (ip.startsWith('127.')) return false;
+  if (ip.startsWith('169.254.')) return false;
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(ip);
+}
+
 function formatIpv4Input(nextValue, previousValue = '') {
   const raw = String(nextValue || '');
   const previous = String(previousValue || '');
@@ -67,6 +80,7 @@ export default function Network({ wizard, onChange, validation }) {
   const [error, setError] = useState('');
   const [showHelp, setShowHelp] = useState(false);
   const [showPppoePassword, setShowPppoePassword] = useState(false);
+  const [showWanAdvanced, setShowWanAdvanced] = useState(false);
 
   // Conectividade (Wi-Fi + status). 
   // SECURITY: Senha só em estado local — nunca persistida no wizardState/localStorage.
@@ -98,6 +112,10 @@ export default function Network({ wizard, onChange, validation }) {
       setNetStatus(status);
       if (status.connected) {
         onChange({ netConnected: true, netOffline: false });
+        // Propagar IP detectado via DHCP para wizard.serverIp
+        if (status.ip && isUsableRemoteIp(status.ip)) {
+          onChange({ serverIp: sanitizeIp(status.ip) });
+        }
       } else {
         onChange({ netConnected: false });
       }
@@ -371,11 +389,6 @@ export default function Network({ wizard, onChange, validation }) {
 
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="label-text" htmlFor="hostName">Hostname</label>
-                <input id="hostName" className="input-shell" value={wizard.hostName} onChange={(event) => onChange({ hostName: event.target.value })} />
-                <FieldError message={fieldErrors.hostName} />
-              </div>
-              <div>
                 <label className="label-text" htmlFor="mgmtInterface">Interface LAN/PXE</label>
                 <select
                   id="mgmtInterface"
@@ -450,114 +463,122 @@ export default function Network({ wizard, onChange, validation }) {
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">WAN opcional</div>
-                <p className="mt-2 text-sm text-slate-400">Preencha apenas se houver uma segunda interface dedicada para uplink.</p>
-              </div>
-              <div className={`metric-chip ${wanEnabled ? 'text-emerald-300' : 'text-slate-400'}`}>
-                {wanEnabled ? wizard.wanInterface : 'Sem WAN'}
-              </div>
-            </div>
+            <details className="group" onToggle={(e) => setShowWanAdvanced(e.currentTarget.open)} open={showWanAdvanced}>
+              <summary className="flex items-center justify-between gap-4 cursor-pointer list-none select-none">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">WAN opcional</span>
+                  <span className={`metric-chip ${wanEnabled ? 'text-emerald-300' : 'text-slate-400'}`}>
+                    {wanEnabled ? wizard.wanInterface + ' (' + wizard.wanMode + ')' : 'Sem WAN'}
+                  </span>
+                </div>
+                <svg className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
 
-            <div className="mt-4">
-              <label className="label-text" htmlFor="wanInterface">Interface WAN</label>
-              <select id="wanInterface" className="input-shell" value={wizard.wanInterface} onChange={(event) => handleWanInterfaceChange(event.target.value)}>
-                <option value="">Sem uplink dedicado</option>
-                {ifaceNames
-                  .filter((item) => item !== wizard.mgmtInterface)
-                  .map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                  ))}
-              </select>
-              <FieldError message={fieldErrors.wanInterface} />
-            </div>
+              <div className="mt-4 space-y-4">
+                <div className="text-sm text-slate-400">Preencha apenas se houver uma segunda interface dedicada para uplink.</div>
 
-            {wanEnabled ? (
-              <>
-                <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                  <button type="button" className={wizard.wanMode === 'dhcp' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'dhcp' })}>
-                    DHCP
-                  </button>
-                  <button type="button" className={wizard.wanMode === 'static' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'static' })}>
-                    IP estático
-                  </button>
-                  <button type="button" className={wizard.wanMode === 'pppoe' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'pppoe' })}>
-                    PPPoE
-                  </button>
+                <div>
+                  <label className="label-text" htmlFor="wanInterface">Interface WAN</label>
+                  <select id="wanInterface" className="input-shell" value={wizard.wanInterface} onChange={(event) => handleWanInterfaceChange(event.target.value)}>
+                    <option value="">Sem uplink dedicado</option>
+                    {ifaceNames
+                      .filter((item) => item !== wizard.mgmtInterface)
+                      .map((item) => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                  </select>
+                  <FieldError message={fieldErrors.wanInterface} />
                 </div>
 
-                {wizard.wanMode === 'static' ? (
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="label-text" htmlFor="wanAddress">IP WAN</label>
-                      <input id="wanAddress" className="input-shell" value={wizard.wanAddress} onChange={handleIpv4Change('wanAddress')} inputMode="numeric" />
-                      <FieldError message={fieldErrors.wanAddress} />
+                {wanEnabled ? (
+                  <>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <button type="button" className={wizard.wanMode === 'dhcp' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'dhcp' })}>
+                        DHCP
+                      </button>
+                      <button type="button" className={wizard.wanMode === 'static' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'static' })}>
+                        IP estático
+                      </button>
+                      <button type="button" className={wizard.wanMode === 'pppoe' ? 'btn-primary' : 'btn-secondary'} onClick={() => onChange({ wanMode: 'pppoe' })}>
+                        PPPoE
+                      </button>
                     </div>
-                    <div>
-                      <label className="label-text" htmlFor="wanNetmask">Mascara WAN</label>
-                      <select id="wanNetmask" className="input-shell" value={wizard.wanNetmask} onChange={(event) => onChange({ wanNetmask: event.target.value })}>
-                        <option value="255.255.255.0">255.255.255.0 (/24)</option>
-                        <option value="255.255.255.128">255.255.255.128 (/25)</option>
-                        <option value="255.255.255.252">255.255.255.252 (/30)</option>
-                        <option value="255.255.0.0">255.255.0.0 (/16)</option>
-                      </select>
-                      <FieldError message={fieldErrors.wanNetmask} />
-                    </div>
-                    <div>
-                      <label className="label-text" htmlFor="wanGateway">Gateway WAN</label>
-                      <input id="wanGateway" className="input-shell" value={wizard.wanGateway} onChange={handleIpv4Change('wanGateway')} inputMode="numeric" />
-                      <FieldError message={fieldErrors.wanGateway} />
-                    </div>
-                    <div>
-                      <label className="label-text" htmlFor="wanDns">DNS WAN</label>
-                      <input id="wanDns" className="input-shell" value={wizard.wanDns} onChange={(event) => onChange({ wanDns: event.target.value })} />
-                      <FieldError message={fieldErrors.wanDns} />
-                    </div>
-                  </div>
-                ) : null}
 
-                {wizard.wanMode === 'pppoe' ? (
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="label-text" htmlFor="pppoeUser">Usuário PPPoE</label>
-                      <input id="pppoeUser" className="input-shell" value={wizard.pppoeUser || ''} onChange={(event) => onChange({ pppoeUser: event.target.value })} />
-                      <FieldError message={fieldErrors.pppoeUser} />
-                    </div>
-                    <div>
-                      <label className="label-text" htmlFor="pppoePassword">Senha PPPoE</label>
-                      <div className="flex gap-2">
-                        <input
-                          id="pppoePassword"
-                          type={showPppoePassword ? 'text' : 'password'}
-                          className="input-shell flex-1"
-                          value={wizard.pppoePassword || ''}
-                          onChange={(event) => onChange({ pppoePassword: event.target.value })}
-                        />
-                        <button type="button" className="btn-secondary !px-3 !py-2" onClick={() => setShowPppoePassword((previous) => !previous)}>
-                          {showPppoePassword ? '󰈈' : '󰈉'}
-                        </button>
+                    {wizard.wanMode === 'static' ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="label-text" htmlFor="wanAddress">IP WAN</label>
+                          <input id="wanAddress" className="input-shell" value={wizard.wanAddress} onChange={handleIpv4Change('wanAddress')} inputMode="numeric" />
+                          <FieldError message={fieldErrors.wanAddress} />
+                        </div>
+                        <div>
+                          <label className="label-text" htmlFor="wanNetmask">Mascara WAN</label>
+                          <select id="wanNetmask" className="input-shell" value={wizard.wanNetmask} onChange={(event) => onChange({ wanNetmask: event.target.value })}>
+                            <option value="255.255.255.0">255.255.255.0 (/24)</option>
+                            <option value="255.255.255.128">255.255.255.128 (/25)</option>
+                            <option value="255.255.255.252">255.255.255.252 (/30)</option>
+                            <option value="255.255.0.0">255.255.0.0 (/16)</option>
+                          </select>
+                          <FieldError message={fieldErrors.wanNetmask} />
+                        </div>
+                        <div>
+                          <label className="label-text" htmlFor="wanGateway">Gateway WAN</label>
+                          <input id="wanGateway" className="input-shell" value={wizard.wanGateway} onChange={handleIpv4Change('wanGateway')} inputMode="numeric" />
+                          <FieldError message={fieldErrors.wanGateway} />
+                        </div>
+                        <div>
+                          <label className="label-text" htmlFor="wanDns">DNS WAN</label>
+                          <input id="wanDns" className="input-shell" value={wizard.wanDns} onChange={(event) => onChange({ wanDns: event.target.value })} />
+                          <FieldError message={fieldErrors.wanDns} />
+                        </div>
                       </div>
-                      <FieldError message={fieldErrors.pppoePassword} />
-                    </div>
-                  </div>
-                ) : null}
+                    ) : null}
 
-                <label className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-200">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 rounded"
-                    checked={Boolean(wizard.wanIdentified)}
-                    onChange={(event) => onChange({ wanIdentified: event.target.checked })}
-                  />
-                  Confirmei fisicamente a interface WAN ({wizard.wanInterface || 'não selecionada'}).
-                </label>
-              </>
-            ) : (
-              <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
-                Sem WAN dedicada: o servidor usará apenas a interface LAN/PXE.
+                    {wizard.wanMode === 'pppoe' ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="label-text" htmlFor="pppoeUser">Usuário PPPoE</label>
+                          <input id="pppoeUser" className="input-shell" value={wizard.pppoeUser || ''} onChange={(event) => onChange({ pppoeUser: event.target.value })} />
+                          <FieldError message={fieldErrors.pppoeUser} />
+                        </div>
+                        <div>
+                          <label className="label-text" htmlFor="pppoePassword">Senha PPPoE</label>
+                          <div className="flex gap-2">
+                            <input
+                              id="pppoePassword"
+                              type={showPppoePassword ? 'text' : 'password'}
+                              className="input-shell flex-1"
+                              value={wizard.pppoePassword || ''}
+                              onChange={(event) => onChange({ pppoePassword: event.target.value })}
+                            />
+                            <button type="button" className="btn-secondary !px-3 !py-2" onClick={() => setShowPppoePassword((previous) => !previous)}>
+                              {showPppoePassword ? '󰈈' : '󰈉'}
+                            </button>
+                          </div>
+                          <FieldError message={fieldErrors.pppoePassword} />
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-200">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded"
+                        checked={Boolean(wizard.wanIdentified)}
+                        onChange={(event) => onChange({ wanIdentified: event.target.checked })}
+                      />
+                      Confirmei fisicamente a interface WAN ({wizard.wanInterface || 'não selecionada'}).
+                    </label>
+                  </>
+                ) : (
+                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-100">
+                    Sem WAN dedicada: o servidor usará apenas a interface LAN/PXE.
+                  </div>
+                )}
               </div>
-            )}
+            </details>
           </div>
         </div>
       </section>

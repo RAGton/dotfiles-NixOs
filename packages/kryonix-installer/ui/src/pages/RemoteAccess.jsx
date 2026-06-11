@@ -1,24 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { installerApi } from '../utils/installerApi.js';
 
-function isValidPrivateIp(ip) {
-  if (!ip) return false;
-  // Ignore loopback, link-local, and 0.0.0.0
-  if (ip.startsWith('127.')) return false;
-  if (ip.startsWith('169.254.')) return false;
-  if (ip === '0.0.0.0') return false;
-  // Prefer private IPv4 ranges
-  const parts = ip.split('.').map(Number);
-  if (parts[0] === 10) return true;
-  if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
-  if (parts[0] === 192 && parts[1] === 168) return true;
-  return false;
+function sanitizeIp(value) {
+  return String(value || '').split('/')[0].trim();
 }
 
-function extractIpFromStatus(status) {
-  if (!status?.ip) return null;
-  // nmcli may return "192.168.122.45/24" - strip CIDR
-  return status.ip.split('/')[0];
+function isValidIp(raw) {
+  const ip = sanitizeIp(raw);
+  if (!ip) return false;
+  // Ignore loopback, link-local, and sentinel 0.0.0.0
+  if (ip === '0.0.0.0') return false;
+  if (ip.startsWith('127.')) return false;
+  if (ip.startsWith('169.254.')) return false;
+  // Accept any valid IPv4 (private or public)
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(ip);
 }
 
 export default function RemoteAccess({ wizard, onChange }) {
@@ -32,16 +27,19 @@ export default function RemoteAccess({ wizard, onChange }) {
     setDetectError('');
     try {
       const status = await installerApi.getNetworkStatus();
-      const ip = extractIpFromStatus(status);
+      const ip = sanitizeIp(status?.ip || '');
 
-      if (ip && isValidPrivateIp(ip)) {
+      if (ip && isValidIp(ip)) {
         setDetectedIp(ip);
+        // Save detected IP to wizard so it's available for other screens
+        onChange({ serverIp: ip });
         setLastAttempt(new Date().toLocaleTimeString('pt-BR'));
       } else if (!status?.connected) {
         setDetectError('Sem conectividade de rede detectada.');
       } else if (ip) {
         // IP found but not in preferred private ranges
         setDetectedIp(ip);
+        onChange({ serverIp: ip });
         setDetectError(`IP detectado (${ip}) não está em faixa privada preferida.`);
         setLastAttempt(new Date().toLocaleTimeString('pt-BR'));
       } else {
@@ -53,7 +51,7 @@ export default function RemoteAccess({ wizard, onChange }) {
     } finally {
       setDetecting(false);
     }
-  }, []);
+  }, [onChange]);
 
   // Auto-detect when remote access is enabled
   useEffect(() => {
@@ -62,9 +60,10 @@ export default function RemoteAccess({ wizard, onChange }) {
     }
   }, [wizard.remoteAccessEnabled, detectIp]);
 
-  const accessIp = wizard.serverIp || detectedIp;
+  // Determine effective IP: prefer wizard.serverIp if valid, else detectedIp
+  const effectiveIp = isValidIp(wizard.serverIp) ? wizard.serverIp : (isValidIp(detectedIp) ? detectedIp : '');
   const accessPort = wizard.httpPort || 8080;
-  const accessUrl = accessIp ? `http://${accessIp}:${accessPort}` : '';
+  const accessUrl = effectiveIp ? `http://${effectiveIp}:${accessPort}` : '';
 
   return (
     <div className="wizard-content">
@@ -86,7 +85,7 @@ export default function RemoteAccess({ wizard, onChange }) {
               Habilitar instalador remoto
             </span>
             <span className="block text-sm text-gray-400">
-              Permite acessar este assistente via navegador (porta {accessPort}) de outra máquina.
+              Permite acessar a interface a partir de outro dispositivo usando os endereços IP desta máquina na porta {accessPort}.
               <br />
               <strong className="text-yellow-500 mt-2 block">Aviso: Use apenas em rede confiável.</strong>
             </span>
@@ -119,16 +118,16 @@ export default function RemoteAccess({ wizard, onChange }) {
             </div>
           )}
 
-          {detectedIp && !wizard.serverIp ? (
+          {detectedIp ? (
             <div className="text-emerald-200 text-xs mb-4">
               IP detectado automaticamente: {detectedIp}
-              {lastAttempt ? ` (atualizado em {lastAttempt})` : ''}
+              {lastAttempt ? ` (atualizado em ${lastAttempt})` : ''}
             </div>
           ) : null}
 
-          {wizard.serverIp ? (
+          {wizard.serverIp && isValidIp(wizard.serverIp) ? (
             <div className="text-cyan-200 text-xs mb-4">
-              IP configurado manualmente: {wizard.serverIp}
+              IP configurado: {wizard.serverIp}
             </div>
           ) : null}
 
