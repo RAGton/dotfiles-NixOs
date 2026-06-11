@@ -866,16 +866,22 @@ async fn get_ip_for_interface(interface: &str) -> Option<String> {
         .output()
         .await
         .ok()?;
+
     let stdout = String::from_utf8_lossy(&output.stdout);
+
     for line in stdout.lines() {
-        if line.starts_with("IP4.ADDRESS:") {
-            let ip_cidr = line.split(':').nth(1)?.trim();
-            if !ip_cidr.is_empty() {
-                // Strip CIDR suffix
-                return Some(ip_cidr.split('/').next()?.to_string());
-            }
+        if !line.starts_with("IP4.ADDRESS") {
+            continue;
+        }
+
+        let (_, value) = line.split_once(':')?;
+        let ip = value.trim().split('/').next()?.trim();
+
+        if is_valid_dhcp_ip(ip) {
+            return Some(ip.to_string());
         }
     }
+
     None
 }
 
