@@ -155,7 +155,7 @@ in
         environment = {
           KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
           KRYONIX_INSTALLER_FLAKE = "${inputs.self.outPath}";
-          KRYONIX_ENGINE_SOURCE = "${inputs.self.outPath}";
+          KRYONIX_ENGINE_SOURCE = "/etc/kryonix";
           KRYONIX_HARDWARE_PROBE = "${pkgs.kryonix-hardware-probe}/bin/kryonix-hardware-probe";
           # O CLI do disko (disko --mode disko <config.nix>) avalia
           # `import <nixpkgs>` em cli.nix; sem NIX_PATH o particionamento falha
@@ -248,6 +248,24 @@ in
           inter
           nerd-fonts.jetbrains-mono
         ];
+      };
+
+      # Copia o source do engine para /etc/kryonix para que o instalador
+      # tenha um caminho gravável e relativo a usar como input do target
+      # flake v2 (path:./engine). Sem isto, o engine só existiria em
+      # /nix/store, o que ressuscita o vazamento de pure-eval.
+      #
+      # IMPORTANTE: o flake.lock é PRESERVADO. Ele pina nixpkgs/home-manager/
+      # plasma-manager nos mesmos SRI hashes que já estão no store da ISO
+      # — o que permite `nix flake metadata --offline` no preflight e o
+      # nixos-install offline. Apagar o lock força re-fetch via internet e
+      # derruba a UI com "Failed to fetch" antes do install começar.
+      system.activationScripts.kryonix-engine-source = {
+        text = ''
+          mkdir -p /etc/kryonix
+          cp -r ${inputs.self.outPath}/. /etc/kryonix/
+        '';
+        deps = [ "etc" ];
       };
     }
   );

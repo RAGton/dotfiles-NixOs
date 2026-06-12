@@ -3,6 +3,7 @@ mod detection;
 mod disk;
 mod executor;
 mod network;
+use network::apply_network;
 mod profiles;
 
 use axum::{
@@ -15,7 +16,7 @@ use axum::{
     },
     routing::{get, post},
 };
-use executor::{ProgressEvent, SafetyCheck};
+use executor::{ProgressEvent, SafetyCheck, run_preflight};
 use futures_util::stream::Stream;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
@@ -92,6 +93,33 @@ pub struct InstallPlan {
     pub disk: PlanDisk,
     pub user: PlanUser,
     pub features: serde_json::Value,
+    #[serde(default)]
+    pub network: NetworkPlan,
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
+pub struct NetworkPlan {
+    pub hostname: String,
+    pub interface: String,
+    pub server_ip: String,
+    pub prefix_length: u8,
+    pub mode: String,
+    pub gateway: String,
+    pub dns: Vec<String>,
+    pub http_port: u16,
+    #[serde(default)]
+    pub wan: WanPlan,
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
+pub struct WanPlan {
+    pub interface: String,
+    pub mode: String,
+    pub address: Option<String>,
+    pub prefix_length: Option<u8>,
+    pub gateway: Option<String>,
+    pub dns: Vec<String>,
+    pub pppoe_user: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -213,6 +241,7 @@ async fn main() {
         .route("/network/wifi/scan", get(network::wifi_scan))
         .route("/network/wifi/connect", post(network::wifi_connect))
         .route("/network/wifi/disconnect", post(network::wifi_disconnect))
+        .route("/network/apply", post(apply_network))
         // Step 1 — GitHub OAuth Device Flow
         .route("/auth/github/device", post(auth::start_device_flow))
         .route("/auth/github/poll", get(auth::poll_device_flow))
@@ -226,6 +255,8 @@ async fn main() {
         .route("/install/progress", get(install_progress))
         // Profiles
         .route("/profile/apply", post(apply_profile_endpoint))
+        // Debug — inspeção do target flake gerado em /mnt/etc/kryonixos
+        .route("/debug/target", get(debug_target))
         // Detection
         .route("/api/detection", get(detection_handler))
         // Disk Planner
@@ -329,6 +360,50 @@ async fn apply_profile_endpoint(
         })))
 }
 
+// ── GET /debug/target ─────────────────────────────────────────────────────────
+//
+// Inspeção do target flake gerado, sem listar /mnt inteiro nem expor segredos.
+// Usado pelo loop de debug do instalador para provar que `/mnt/etc/kryonixos`
+// está autocontido antes do `nixos-install` rodar.
+async fn debug_target() -> Result<Json<serde_json::Value>, ApiError> {
+    let report = run_preflight()
+        .await
+        .map_err(|e| err500("DEBUG_TARGET_FAILED", Some(e)))?;
+
+    // Tail do log do nixos-install (se houver). Útil quando o SSE perdeu a
+    // conexão durante a fase de evaluation.
+    let install_log_tail = match tokio::fs::read_to_string(executor::nixos::NIXOS_INSTALL_LOG).await
+    {
+        Ok(s) => {
+            const MAX: usize = 6000;
+            if s.len() > MAX {
+                format!("...{}", &s[s.len() - MAX..])
+            } else {
+                s
+            }
+        }
+        Err(_) => "(sem log — nixos-install ainda não rodou)".into(),
+    };
+
+    Ok(Json(serde_json::json!({
+        "passed": report.passed(),
+        "files": {
+            "target_flake": report.target_flake_exists,
+            "engine_flake": report.engine_flake_exists,
+            "features_generated": report.features_generated_exists,
+            "hardware_generated": report.hardware_generated_exists,
+            "legacy_symlink": report.legacy_symlink_ok,
+        },
+        "bad_references": report.bad_references,
+        "flake_metadata": {
+            "ok": report.flake_metadata_ok,
+            "output": report.flake_metadata_output,
+        },
+        "target_flake_preview": report.target_flake_preview,
+        "nixos_install_log_tail": install_log_tail,
+    })))
+}
+
 async fn detection_handler() -> Result<Json<Vec<detection::InstallationMatch>>, ApiError> {
     detection::detect_existing_installations()
         .map(Json)
@@ -422,6 +497,7 @@ async fn plan(Json(req): Json<PlanRequest>) -> Json<InstallPlan> {
             admin: req.user.admin.unwrap_or(true),
         },
         features: req.features.unwrap_or(serde_json::json!({})),
+        network: Default::default(),
     })
 }
 
@@ -837,6 +913,7 @@ mod tests {
                 admin: true,
             },
             features: serde_json::json!({}),
+            network: Default::default(),
         }
     }
 

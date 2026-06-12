@@ -279,6 +279,7 @@ mod tests {
                 admin: true,
             },
             features: serde_json::json!({}),
+            network: Default::default(),
         };
         let checks = run_safety_checks(&plan);
         assert_eq!(checks.len(), 7);

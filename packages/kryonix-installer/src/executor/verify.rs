@@ -131,6 +131,7 @@ mod tests {
                 admin: true,
             },
             features: serde_json::json!({}),
+            network: Default::default(),
         }
     }
 
