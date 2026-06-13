@@ -259,6 +259,7 @@ export function buildInstallPlanPayload(draftInput) {
       interface: sanitizeString(draft.mgmtInterface),
       serverIp: sanitizeString(draft.serverIp) || '0.0.0.0',
       prefixLength: mgmtPrefix,
+      mode: sanitizeString(draft.mgmtMode) || 'dhcp',
       // gateway is required by schema; in DHCP mode use user input or placeholder
       gateway: sanitizeString(draft.mgmtGateway) || (draft.mgmtMode === 'dhcp' ? '0.0.0.0' : undefined),
       dns: sanitizeDnsList(draft.mgmtDns),

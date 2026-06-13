@@ -189,6 +189,10 @@
           "minimum": 1,
           "maximum": 65535
         },
+        "mode": {
+          "type": "string",
+          "enum": ["dhcp", "static"]
+        },
         "wan": {
           "type": "object",
           "additionalProperties": false,
