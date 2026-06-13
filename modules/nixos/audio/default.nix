@@ -122,6 +122,7 @@
     wireplumber
     crosspipe
     qpwgraph
+    portaudio  # PortAudio library for voice/STT/TTS (e.g., Hermes agent)
   ];
 
   # =========================

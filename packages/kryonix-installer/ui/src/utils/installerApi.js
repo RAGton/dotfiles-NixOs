@@ -98,6 +98,13 @@ export const installerApi = {
   // { interfaces: [{ name, type, state }] } — fonte de verdade = backend (nmcli)
   getNetworkInterfaces() { return requestJson('/network/interfaces'); },
   getNetworkStatus() { return requestJson('/network/status'); },
+  applyNetwork(params) {
+    return requestJson('/network/apply', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+  },
   scanWifi(iface) {
     const path = iface ? `/network/wifi/scan?interface=${encodeURIComponent(iface)}` : '/network/wifi/scan';
     return requestJson(path);

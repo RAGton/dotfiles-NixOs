@@ -33,6 +33,7 @@
 
   networking.hostName = lib.mkForce "kryonix";
   kryonix.installer.kiosk.enable = true;
+  kryonix.installer.kiosk.listenAddress = "0.0.0.0";
   kryonix.branding.enable = true;
 
   # Se estiver em modo offline, garante que o closure esteja no store da ISO.
