@@ -23,6 +23,8 @@ KRYONIX_REGISTRY=(
   "home|check||Valida integridade do projeto|--flake||low|any|none|false|home|stable"
   "home|fmt||Auto-formatação de código Nix|--flake||low|any|none|false|home|stable"
   "home|git-status||Status do git do repositório|||low|any|none|false|home|stable"
+  "home|env||Mostra ambiente DEV/PROD do repositorio atual|status|kryonix env status|low|any|none|false|home|stable"
+  "home|env|status|Detalha ambiente DEV/PROD detectado||kryonix env status|low|any|none|false|home|stable"
 
   # --- Brain ---
   "brain|brain||Busca e diagnósticos RAG||kryonix brain --help|low|glacier|brain-api|false|ai|stable"

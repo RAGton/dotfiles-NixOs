@@ -352,7 +352,7 @@ case "$subcommand" in
     exit 0
     ;;
 
-  clean|vm|git-status|pull|deploy|sync|brain|graph|mcp|vault|rgb|ollama|ai|remote|install|hardware|disk)
+  clean|vm|git-status|pull|deploy|sync|brain|graph|mcp|vault|rgb|ollama|ai|remote|install|hardware|disk|env)
     needs_flake=0
     ;;
 
@@ -503,7 +503,20 @@ case "$subcommand" in
     ;;
 
   update)
-    update_flake_lock 1
+    # Em PROD, `kryonix update` jamais roda `nix flake update`. Faz apenas
+    # `git pull --ff-only` + check + diff. Detalhes em
+    # docs/operations/KRYONIX_UPDATE_POLICY.md.
+    update_env="$(kryonix_detect_env "${flake_workdir:-$PWD}")"
+    if kryonix_env_is_prod "$update_env"; then
+      blue_line "kryonix update (PROD): git pull --ff-only + check + diff"
+      kryonix_pull_repo || exit $?
+      cmd=(nix flake check "$flake_ref" --keep-going "${verbose_args[@]}")
+      run_flake_command "${cmd[@]}" || exit $?
+      target_path="$(capture_flake_command nix build --no-link --print-out-paths "${flake_ref}#nixosConfigurations.${flake_host}.config.system.build.toplevel")"
+      run_command nvd diff /run/current-system "$target_path"
+    else
+      update_flake_lock 1
+    fi
     ;;
 
   clean)
@@ -651,6 +664,20 @@ case "$subcommand" in
   git-status)
     print_kryonix_git_status
     ;;
+
+  env)
+    env_sub="${extra_args[0]:-status}"
+    case "$env_sub" in
+      status|"")
+        print_kryonix_env_status
+        ;;
+      *)
+        printf 'kryonix env: subcomando desconhecido "%s" (use: status)\n' "$env_sub" >&2
+        exit 2
+        ;;
+    esac
+    ;;
+
 
   vm)
     run_command virsh list --all
