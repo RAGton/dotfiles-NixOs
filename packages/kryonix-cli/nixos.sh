@@ -418,6 +418,18 @@ update_flake_lock() {
   local before_hash=""
   local after_hash=""
   local update_args=()
+  local env
+
+  # Política DEV/PROD (ver docs/operations/KRYONIX_UPDATE_POLICY.md).
+  # PROD nunca roda `nix flake update`; flake.lock em PROD é resultado
+  # de um pull, não objeto de escrita local.
+  env="$(kryonix_detect_env "${flake_workdir:-$PWD}")"
+  if kryonix_env_is_prod "$env"; then
+    printf '%s\n' "ERRO: nix flake update bloqueado em $env." >&2
+    printf '%s\n' "       Em producao, atualize com: sudo git pull --ff-only origin main" >&2
+    printf '%s\n' "       Detalhes: docs/operations/KRYONIX_UPDATE_POLICY.md" >&2
+    return 1
+  fi
 
   update_args+=("${verbose_args[@]}")
   if (( include_extra )); then
