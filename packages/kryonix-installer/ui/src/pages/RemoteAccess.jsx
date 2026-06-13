@@ -53,12 +53,13 @@ export default function RemoteAccess({ wizard, onChange }) {
     }
   }, [onChange]);
 
-  // Auto-detect when remote access is enabled
+  // Auto-detect IP no mount, independente do toggle remoteAccessEnabled.
+  // Faz o usuário ver imediatamente o endereço de acesso atual; se ele
+  // habilitar remoto depois, o accessUrl já está pronto sem nova espera.
   useEffect(() => {
-    if (wizard.remoteAccessEnabled) {
-      detectIp();
-    }
-  }, [wizard.remoteAccessEnabled, detectIp]);
+    detectIp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Determine effective IP: prefer wizard.serverIp if valid, else detectedIp
   const effectiveIp = isValidIp(wizard.serverIp) ? wizard.serverIp : (isValidIp(detectedIp) ? detectedIp : '');
@@ -118,16 +119,16 @@ export default function RemoteAccess({ wizard, onChange }) {
             </div>
           )}
 
-          {detectedIp ? (
+          {/*
+            Mostramos APENAS um bloco. `detectIp` sempre grava o IP detectado
+            em `wizard.serverIp`, então os dois textos antigos ("detectado
+            automaticamente" + "configurado") sempre apontavam para o mesmo
+            valor — só ruído visual. Aqui o `effectiveIp` é a fonte única.
+          */}
+          {effectiveIp ? (
             <div className="text-emerald-200 text-xs mb-4">
-              IP detectado automaticamente: {detectedIp}
-              {lastAttempt ? ` (atualizado em ${lastAttempt})` : ''}
-            </div>
-          ) : null}
-
-          {wizard.serverIp && isValidIp(wizard.serverIp) ? (
-            <div className="text-cyan-200 text-xs mb-4">
-              IP configurado: {wizard.serverIp}
+              IP do servidor: <b className="text-emerald-100">{effectiveIp}</b>
+              {lastAttempt ? ` · atualizado em ${lastAttempt}` : ''}
             </div>
           ) : null}
 

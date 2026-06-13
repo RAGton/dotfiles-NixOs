@@ -15,6 +15,7 @@ import Users from './pages/Users.jsx';
 import Summary from './pages/Summary.jsx';
 import Install from './pages/Install.jsx';
 import { validateStep } from './utils/installPlan.js';
+import { installerApi } from './utils/installerApi.js';
 import {
   createInstallPlanDraft,
   extractUiTransientState,
@@ -25,6 +26,32 @@ import {
   splitWizardPatch,
   writeStoredWizardState,
 } from './state/wizardState.js';
+
+// Converte máscara IPv4 dotted-decimal em prefix length (/N).
+// Default 24 quando a máscara é inválida — alinhado com o catálogo de
+// opções da página Network ("/24" como primeiro valor).
+function netmaskToPrefix(netmask) {
+  const normalized = (netmask || '').trim();
+  if (!normalized) return 24;
+  const parts = normalized.split('.');
+  if (parts.length !== 4) return 24;
+  let bits = 0;
+  let seenZero = false;
+  for (const part of parts) {
+    const octet = Number(part);
+    if (!Number.isInteger(octet) || octet < 0 || octet > 255) return 24;
+    for (let bit = 7; bit >= 0; bit -= 1) {
+      const current = (octet >> bit) & 1;
+      if (current === 1) {
+        if (seenZero) return 24;
+        bits += 1;
+      } else {
+        seenZero = true;
+      }
+    }
+  }
+  return bits;
+}
 
 const STEPS = [
   {
@@ -159,6 +186,83 @@ export default function App() {
     () => setStepIndex((previous) => Math.min(STEPS.length - 1, previous + 1)),
     [],
   );
+
+  // Handle network step next: apply network config before advancing
+  const handleNetworkNext = useCallback(async () => {
+    if (step.id !== 'network') {
+      goNext();
+      return;
+    }
+
+    const { applyNetwork } = installerApi;
+    const mode = draft.mgmtMode || 'dhcp';
+    const iface = draft.mgmtInterface;
+
+    if (!iface) {
+      // No interface selected, just advance
+      goNext();
+      return;
+    }
+
+    let applyResult;
+    try {
+      if (mode === 'dhcp') {
+        // Apply DHCP
+        applyResult = await applyNetwork({
+          iface,
+          mode: 'dhcp',
+          address: '',
+          prefixLength: 24,
+          gateway: '',
+          dns: (draft.mgmtDns || '1.1.1.1,8.8.8.8').split(',').map(d => d.trim()).filter(Boolean),
+        });
+
+        if (applyResult?.applied && applyResult?.ip && applyResult.ip !== '0.0.0.0') {
+          // Save detected IP to wizard
+          updateWizard({ serverIp: applyResult.ip, mgmtGateway: applyResult.gateway || '', mgmtDns: applyResult.dns?.join(',') || draft.mgmtDns });
+        } else {
+          // DHCP didn't get IP yet - show warning but allow continuing
+          updateWizard({ networkDhcpPending: true });
+        }
+      } else {
+        // Static mode - validate and apply
+        const address = draft.serverIp;
+        const prefix = draft.mgmtNetmask ? netmaskToPrefix(draft.mgmtNetmask) : 24;
+        const gateway = draft.mgmtGateway;
+        const dns = draft.mgmtDns || '1.1.1.1,8.8.8.8';
+
+        if (!address || !gateway) {
+          // Validation will catch this, but just in case
+          goNext();
+          return;
+        }
+
+        applyResult = await applyNetwork({
+          iface,
+          mode: 'static',
+          address,
+          prefixLength: prefix,
+          gateway,
+          dns: dns.split(',').map(d => d.trim()).filter(Boolean),
+        });
+
+        if (applyResult?.applied) {
+          updateWizard({ serverIp: applyResult.ip, mgmtGateway: applyResult.gateway || gateway, mgmtDns: applyResult.dns?.join(',') || dns });
+        } else {
+          // Failed to apply - don't advance
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('[Network] applyNetwork failed:', err);
+      // On error, don't advance
+      return;
+    }
+
+    // Advance to next step
+    goNext();
+  }, [step.id, draft, goNext, updateWizard]);
+
   const goBack = useCallback(
     () => setStepIndex((previous) => Math.max(0, previous - 1)),
     [],
@@ -318,7 +422,10 @@ export default function App() {
           canBack={stepIndex > 0 && !uiState.installRunning}
           canNext={step.id === 'install' ? false : canGoNext && !uiState.installRunning}
           onBack={() => setStepIndex((previous) => Math.max(0, previous - 1))}
-          onNext={() => setStepIndex((previous) => Math.min(STEPS.length - 1, previous + 1))}
+          // handleNetworkNext já encapsula goNext + chamada /network/apply
+          // quando step.id === 'network'; nos demais passos ele apenas
+          // delega para goNext, mantendo paridade com o comportamento antigo.
+          onNext={handleNetworkNext}
           hintText={
             uiState.installRunning
               ? 'Instalação em andamento. Não desligue a VM.'
