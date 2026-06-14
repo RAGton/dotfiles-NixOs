@@ -8,7 +8,7 @@ pub mod verify;
 
 pub use progress::ProgressEvent;
 pub use safety::{SafetyCheck, run_safety_checks};
-pub use target_tree::{run_preflight, run_preflight_install_gate};
+pub use target_tree::run_preflight;
 
 use std::sync::Arc;
 use tokio::sync::broadcast;

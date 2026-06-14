@@ -163,11 +163,11 @@ pub async fn status(_: State<Arc<AppState>>) -> impl IntoResponse {
                 let conn_name = parts[3].trim();
                 if state == "connected" && !conn_name.is_empty() && conn_name != "--" {
                     // Found the connected interface, try to get its IP
-                    if let Some(device_ip) = get_ip_for_interface(device).await {
-                        if is_valid_dhcp_ip(&device_ip) {
-                            ip = Some(device_ip);
-                            break;
-                        }
+                    if let Some(device_ip) = get_ip_for_interface(device).await
+                        && is_valid_dhcp_ip(&device_ip)
+                    {
+                        ip = Some(device_ip);
+                        break;
                     }
                 }
             }
@@ -315,7 +315,7 @@ pub async fn wifi_scan(
         })
         .collect();
 
-    entries.sort_by(|a, b| b.signal.cmp(&a.signal));
+    entries.sort_by_key(|e| std::cmp::Reverse(e.signal));
     entries.dedup_by(|a, b| {
         if a.ssid == b.ssid {
             b.in_use = b.in_use || a.in_use;
@@ -349,11 +349,11 @@ pub async fn wifi_connect(
         req.ssid.clone(),
     ];
 
-    if let Some(ref pw) = req.password {
-        if !pw.is_empty() {
-            args.push("password".into());
-            args.push(pw.clone());
-        }
+    if let Some(ref pw) = req.password
+        && !pw.is_empty()
+    {
+        args.push("password".into());
+        args.push(pw.clone());
     }
 
     args.push("ifname".into());
@@ -755,10 +755,10 @@ async fn wait_for_dhcp_ip(interface: &str, timeout_seconds: u64) -> Result<Strin
 
     let start = std::time::Instant::now();
     while start.elapsed() < Duration::from_secs(timeout_seconds) {
-        if let Some(ip) = get_ip_for_interface(interface).await {
-            if is_valid_dhcp_ip(&ip) {
-                return Ok(ip);
-            }
+        if let Some(ip) = get_ip_for_interface(interface).await
+            && is_valid_dhcp_ip(&ip)
+        {
+            return Ok(ip);
         }
         sleep(Duration::from_millis(1000)).await;
     }
@@ -780,16 +780,8 @@ fn is_valid_ipv4(ip: &str) -> bool {
     if parts.len() != 4 {
         return false;
     }
-    for part in parts {
-        if let Ok(num) = part.parse::<u8>() {
-            if num > 255 {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-    true
+    // `parse::<u8>()` já cobre o range 0..=255; comparação extra é redundante.
+    parts.iter().all(|p| p.parse::<u8>().is_ok())
 }
 
 async fn get_ip_for_interface(interface: &str) -> Option<String> {

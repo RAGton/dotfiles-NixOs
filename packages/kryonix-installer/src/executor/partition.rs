@@ -70,7 +70,11 @@ fn generate_disko_config_manual(plan: &InstallPlan) -> String {
 
     let mut disk_configs = Vec::new();
     for (device, p_list) in disks {
-        let name = device.split('/').last().unwrap_or("disk").replace('.', "_");
+        let name = device
+            .split('/')
+            .next_back()
+            .unwrap_or("disk")
+            .replace('.', "_");
         let mut part_configs = Vec::new();
 
         for (idx, p) in p_list.iter().enumerate() {

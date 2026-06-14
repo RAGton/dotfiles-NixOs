@@ -601,7 +601,7 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
             ok = false;
         }
 
-        if level == "raid10" && count % 2 != 0 {
+        if level == "raid10" && !count.is_multiple_of(2) {
             checks.push(Check::fail("RAID 10 exige número par de discos"));
             ok = false;
         }

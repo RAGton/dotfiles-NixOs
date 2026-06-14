@@ -104,6 +104,18 @@ pub async fn verify_disk_install(plan: &InstallPlan) -> Result<(), String> {
     }
 }
 
+/// Cria a flag de instalação no caminho vivo, somente após a verificação passar.
+/// Antes, esta flag só existia em `install.rs` (código morto), tornando o gate
+/// `/api/validate-install` inalcançável.
+pub async fn write_install_flag() -> Result<(), String> {
+    tokio::fs::create_dir_all("/mnt/etc")
+        .await
+        .map_err(|e| format!("Falha ao criar /mnt/etc: {e}"))?;
+    tokio::fs::write("/mnt/etc/kryonix-installed", "ok\n")
+        .await
+        .map_err(|e| format!("Falha ao criar flag /mnt/etc/kryonix-installed: {e}"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,16 +161,4 @@ mod tests {
             vec!["/dev/vda".to_string(), "/dev/vdb".to_string()]
         );
     }
-}
-
-/// Cria a flag de instalação no caminho vivo, somente após a verificação passar.
-/// Antes, esta flag só existia em `install.rs` (código morto), tornando o gate
-/// `/api/validate-install` inalcançável.
-pub async fn write_install_flag() -> Result<(), String> {
-    tokio::fs::create_dir_all("/mnt/etc")
-        .await
-        .map_err(|e| format!("Falha ao criar /mnt/etc: {e}"))?;
-    tokio::fs::write("/mnt/etc/kryonix-installed", "ok\n")
-        .await
-        .map_err(|e| format!("Falha ao criar flag /mnt/etc/kryonix-installed: {e}"))
 }

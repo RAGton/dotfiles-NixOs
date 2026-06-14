@@ -84,7 +84,7 @@ const COPY_DENYLIST: &[&str] = &[
 ];
 
 fn is_denied(name: &str) -> bool {
-    if COPY_DENYLIST.iter().any(|d| *d == name) {
+    if COPY_DENYLIST.contains(&name) {
         return true;
     }
     if name.starts_with("result-") {
@@ -553,14 +553,14 @@ fn render_features(plan: &InstallPlan) -> String {
         "mcp",
     ];
     for d in domains {
-        if let Some(val) = plan.features.get(d) {
-            if let Some(obj) = val.as_object() {
-                for (k, v) in obj {
-                    if v.as_bool() == Some(true) {
-                        let parts: Vec<&str> = k.split('.').collect();
-                        if parts.len() == 2 {
-                            lines.push(format!("    {}.{}.enable = true;", parts[0], parts[1]));
-                        }
+        if let Some(val) = plan.features.get(d)
+            && let Some(obj) = val.as_object()
+        {
+            for (k, v) in obj {
+                if v.as_bool() == Some(true) {
+                    let parts: Vec<&str> = k.split('.').collect();
+                    if parts.len() == 2 {
+                        lines.push(format!("    {}.{}.enable = true;", parts[0], parts[1]));
                     }
                 }
             }
