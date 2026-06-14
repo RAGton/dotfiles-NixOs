@@ -515,6 +515,23 @@ async fn dry_run(Json(plan): Json<InstallPlan>) -> impl IntoResponse {
     (status, Json(result))
 }
 
+/// Verifica se o hostname está dentro do subset seguro (RFC-1123 light):
+/// 1..=63 caracteres, apenas `[A-Za-z0-9-]`, e não começa/termina com `-`.
+/// Rejeita explicitamente shell metas (`;`, `$`, `` ` ``, `\n`, espaços) e
+/// path traversal (`..`, `/`) — qualquer um deles cai pelo filtro acima.
+fn is_valid_hostname(s: &str) -> bool {
+    let bytes = s.as_bytes();
+    if bytes.is_empty() || bytes.len() > 63 {
+        return false;
+    }
+    if bytes[0] == b'-' || bytes[bytes.len() - 1] == b'-' {
+        return false;
+    }
+    bytes
+        .iter()
+        .all(|b| b.is_ascii_alphanumeric() || *b == b'-')
+}
+
 fn validate_plan(plan: &InstallPlan) -> DryRunResult {
     let mut checks = vec![];
     let mut ok = true;
@@ -602,11 +619,17 @@ fn validate_plan(plan: &InstallPlan) -> DryRunResult {
         }
     }
 
-    if !plan.hostname.trim().is_empty() {
-        checks.push(Check::pass(format!("Hostname: {}", plan.hostname)));
-    } else {
+    let hostname = plan.hostname.trim();
+    if hostname.is_empty() {
         checks.push(Check::fail("Hostname não pode ser vazio"));
         ok = false;
+    } else if !is_valid_hostname(hostname) {
+        checks.push(Check::fail(format!(
+            "Hostname contém caracteres inválidos: {hostname}"
+        )));
+        ok = false;
+    } else {
+        checks.push(Check::pass(format!("Hostname: {hostname}")));
     }
 
     let user = plan.user.name.trim();
@@ -1069,5 +1092,41 @@ mod tests {
         let mut plan = make_plan("/dev/null", "kryonix", "admin");
         plan.disk.mode = "install".into();
         assert_ne!(plan.disk.mode, "dry-run");
+    }
+
+    #[test]
+    fn test_dry_run_rejects_hostname_with_shell_metas() {
+        // Cobrir shell metas e command substitution que poderiam vazar para
+        // /etc/hostname ou para argumentos de programas em pipeline.
+        for bad in [
+            "evil; rm -rf /",
+            "host$()",
+            "with`cmd`",
+            "spaces here",
+            "newline\nhost",
+        ] {
+            let result = validate_plan(&make_plan("/dev/null", bad, "admin"));
+            assert!(
+                !result.ok,
+                "hostname \"{bad}\" deveria ter sido rejeitado pelo validate_plan"
+            );
+            assert!(
+                result
+                    .checks
+                    .iter()
+                    .any(|c| !c.ok && c.message.contains("caracteres inválidos")),
+                "hostname \"{bad}\" deveria ter uma falha sobre caracteres inválidos"
+            );
+        }
+    }
+
+    #[test]
+    fn test_dry_run_rejects_hostname_with_path_traversal() {
+        // `..` e `/` não pertencem ao charset de hostname e poderiam ser
+        // explorados em paths construídos pelo executor.
+        for bad in ["..", "../etc", "foo/bar", "..-..-"] {
+            let result = validate_plan(&make_plan("/dev/null", bad, "admin"));
+            assert!(!result.ok, "hostname \"{bad}\" deveria ter sido rejeitado");
+        }
     }
 }

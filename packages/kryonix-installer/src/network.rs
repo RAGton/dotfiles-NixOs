@@ -270,10 +270,12 @@ pub async fn wifi_scan(
         .output()
         .await;
 
-    if let Err(e) = rescan_res {
-        warning = Some(format!("Falha ao invocar nmcli rescan: {e}"));
-    } else if !rescan_res.unwrap().status.success() {
-        warning = Some("Interface Wi-Fi não suporta rescan imediato.".into());
+    match rescan_res {
+        Err(e) => warning = Some(format!("Falha ao invocar nmcli rescan: {e}")),
+        Ok(out) if !out.status.success() => {
+            warning = Some("Interface Wi-Fi não suporta rescan imediato.".into());
+        }
+        Ok(_) => {}
     }
 
     let raw = nmcli(&[
@@ -491,8 +493,9 @@ pub async fn apply_network(
     _: State<Arc<AppState>>,
     Json(req): Json<ApplyNetworkRequest>,
 ) -> impl IntoResponse {
-    // Validate interface
-    if req.interface.trim().is_empty() {
+    // Validação pura — extraída para `validate_apply_network_request` para
+    // permitir cobertura por testes unitários sem precisar de runtime axum.
+    if let Err((code, msg)) = validate_apply_network_request(&req) {
         return Json(ApplyNetworkResponse {
             interface: req.interface,
             mode: req.mode,
@@ -500,84 +503,13 @@ pub async fn apply_network(
             ip: None,
             gateway: None,
             dns: req.dns,
-            message: "Interface não informada".into(),
-            error: Some("INTERFACE_EMPTY".into()),
+            message: msg.into(),
+            error: Some(code.into()),
         })
         .into_response();
     }
 
-    // Validate mode
     let mode = req.mode.to_lowercase();
-    if mode != "dhcp" && mode != "static" {
-        return Json(ApplyNetworkResponse {
-            interface: req.interface,
-            mode: req.mode,
-            applied: false,
-            ip: None,
-            gateway: None,
-            dns: req.dns,
-            message: "Modo deve ser 'dhcp' ou 'static'".into(),
-            error: Some("INVALID_MODE".into()),
-        })
-        .into_response();
-    }
-
-    // Validate static mode requirements
-    if mode == "static" {
-        if req.address.trim().is_empty() {
-            return Json(ApplyNetworkResponse {
-                interface: req.interface,
-                mode: mode.clone(),
-                applied: false,
-                ip: None,
-                gateway: None,
-                dns: req.dns,
-                message: "IP address é obrigatório no modo static".into(),
-                error: Some("MISSING_ADDRESS".into()),
-            })
-            .into_response();
-        }
-        if req.prefix_length == 0 || req.prefix_length > 32 {
-            return Json(ApplyNetworkResponse {
-                interface: req.interface,
-                mode: mode.clone(),
-                applied: false,
-                ip: None,
-                gateway: None,
-                dns: req.dns,
-                message: "Prefix length deve ser entre 1 e 32".into(),
-                error: Some("INVALID_PREFIX".into()),
-            })
-            .into_response();
-        }
-        if req.gateway.trim().is_empty() {
-            return Json(ApplyNetworkResponse {
-                interface: req.interface,
-                mode: mode.clone(),
-                applied: false,
-                ip: None,
-                gateway: None,
-                dns: req.dns,
-                message: "Gateway é obrigatório no modo static".into(),
-                error: Some("MISSING_GATEWAY".into()),
-            })
-            .into_response();
-        }
-        // Validate IPv4 format for address and gateway
-        if !is_valid_ipv4(&req.address) || !is_valid_ipv4(&req.gateway) {
-            return Json(ApplyNetworkResponse {
-                interface: req.interface,
-                mode: mode.clone(),
-                applied: false,
-                ip: None,
-                gateway: None,
-                dns: req.dns,
-                message: "IP address ou gateway com formato IPv4 inválido".into(),
-                error: Some("INVALID_IPV4".into()),
-            })
-            .into_response();
-        }
-    }
 
     // Find the NetworkManager connection name for this interface
     let interface_name = req.interface.clone();
@@ -933,6 +865,48 @@ async fn get_dns_for_interface(interface: &str) -> Vec<String> {
     dns
 }
 
+/// Validação pura para `ApplyNetworkRequest`. Retorna `Ok(())` quando o
+/// payload é aceitável; senão um par `(error_code, mensagem)` que o handler
+/// `apply_network` repassa em `ApplyNetworkResponse`.
+///
+/// Erros de DNS rejeitam apenas valores não-vazios mal-formatados; strings
+/// vazias no array são ignoradas (compat com o front).
+pub(crate) fn validate_apply_network_request(
+    req: &ApplyNetworkRequest,
+) -> Result<(), (&'static str, &'static str)> {
+    if req.interface.trim().is_empty() {
+        return Err(("INTERFACE_EMPTY", "Interface não informada"));
+    }
+    let mode = req.mode.to_lowercase();
+    if mode != "dhcp" && mode != "static" {
+        return Err(("INVALID_MODE", "Modo deve ser 'dhcp' ou 'static'"));
+    }
+    if mode == "static" {
+        if req.address.trim().is_empty() {
+            return Err(("MISSING_ADDRESS", "IP address é obrigatório no modo static"));
+        }
+        if req.prefix_length == 0 || req.prefix_length > 32 {
+            return Err(("INVALID_PREFIX", "Prefix length deve ser entre 1 e 32"));
+        }
+        if req.gateway.trim().is_empty() {
+            return Err(("MISSING_GATEWAY", "Gateway é obrigatório no modo static"));
+        }
+        if !is_valid_ipv4(&req.address) || !is_valid_ipv4(&req.gateway) {
+            return Err((
+                "INVALID_IPV4",
+                "IP address ou gateway com formato IPv4 inválido",
+            ));
+        }
+    }
+    for d in &req.dns {
+        let t = d.trim();
+        if !t.is_empty() && !is_valid_ipv4(t) {
+            return Err(("INVALID_DNS", "DNS contém endereço IPv4 inválido"));
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -988,5 +962,84 @@ mod tests {
 
         assert_eq!(entries[0].ssid, "Rede oculta");
         assert_eq!(entries[1].ssid, "MySSID");
+    }
+
+    fn make_apply_req(mode: &str) -> ApplyNetworkRequest {
+        ApplyNetworkRequest {
+            interface: "enp1s0".into(),
+            mode: mode.into(),
+            address: String::new(),
+            prefix_length: 0,
+            gateway: String::new(),
+            dns: vec![],
+        }
+    }
+
+    fn make_static_req() -> ApplyNetworkRequest {
+        ApplyNetworkRequest {
+            interface: "enp1s0".into(),
+            mode: "static".into(),
+            address: "192.168.1.10".into(),
+            prefix_length: 24,
+            gateway: "192.168.1.1".into(),
+            dns: vec!["1.1.1.1".into(), "8.8.8.8".into()],
+        }
+    }
+
+    #[test]
+    fn test_validate_apply_dhcp_ok() {
+        let req = make_apply_req("dhcp");
+        assert!(validate_apply_network_request(&req).is_ok());
+    }
+
+    #[test]
+    fn test_validate_apply_static_ok() {
+        let req = make_static_req();
+        assert!(validate_apply_network_request(&req).is_ok());
+    }
+
+    #[test]
+    fn test_validate_apply_rejects_invalid_ipv4_address() {
+        let mut req = make_static_req();
+        req.address = "999.0.0.1".into();
+        let err = validate_apply_network_request(&req).unwrap_err();
+        assert_eq!(err.0, "INVALID_IPV4");
+    }
+
+    #[test]
+    fn test_validate_apply_rejects_invalid_gateway() {
+        let mut req = make_static_req();
+        req.gateway = "not.an.ip".into();
+        let err = validate_apply_network_request(&req).unwrap_err();
+        assert_eq!(err.0, "INVALID_IPV4");
+    }
+
+    #[test]
+    fn test_validate_apply_rejects_invalid_prefix() {
+        let mut req = make_static_req();
+        req.prefix_length = 33;
+        let err = validate_apply_network_request(&req).unwrap_err();
+        assert_eq!(err.0, "INVALID_PREFIX");
+
+        req.prefix_length = 0;
+        let err = validate_apply_network_request(&req).unwrap_err();
+        assert_eq!(err.0, "INVALID_PREFIX");
+    }
+
+    #[test]
+    fn test_validate_apply_rejects_invalid_dns() {
+        let mut req = make_static_req();
+        req.dns = vec!["1.1.1.1".into(), "bogus".into()];
+        let err = validate_apply_network_request(&req).unwrap_err();
+        assert_eq!(err.0, "INVALID_DNS");
+    }
+
+    #[test]
+    fn test_validate_apply_dns_empty_strings_are_ignored() {
+        // Front pode mandar `dns: [""]` quando o usuário deixa o campo em branco.
+        // Esses entries vazios não devem disparar INVALID_DNS.
+        let mut req = make_apply_req("dhcp");
+        req.dns = vec!["".into(), "  ".into()];
+        assert!(validate_apply_network_request(&req).is_ok());
     }
 }
