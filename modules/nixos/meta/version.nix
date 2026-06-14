@@ -20,10 +20,19 @@ let
   # Captura a revisão do commit do input 'self' (o próprio repositório)
   commit = self.rev or self.dirtyRev or "dirty-${self.lastModifiedDate or "unknown"}";
   timestamp = self.lastModifiedDate or "unknown";
+
+  # Consome o branding quando o módulo correspondente está importado.
+  # O `or "Kryonix"` mantém a string sã quando o host não carrega branding.
+  brandingPrettyName = (config.kryonix.branding or { }).prettyName or "Kryonix";
+
+  # Mantém prefixo "KryonixOS" para tooling que faz match no /etc/kryonix-version
+  # mesmo quando o host customiza a edição (ex.: "Kryonix Glacier").
+  prettyName = "KryonixOS ${brandingPrettyName} (v${lib.substring 0 8 commit})";
+
   versionContent = ''
     KRYONIX_REV=${commit}
     KRYONIX_BUILD_TIME=${timestamp}
-    KRYONIX_PRETTY_NAME="Kryonix Distro (v${lib.substring 0 8 commit})"
+    KRYONIX_PRETTY_NAME="${prettyName}"
   '';
 in
 {
@@ -50,8 +59,7 @@ in
 
     # Exporta para acessibilidade via Nix
     system.build.kryonix-version = {
-      inherit commit timestamp;
-      prettyName = "Kryonix Distro (v${lib.substring 0 8 commit})";
+      inherit commit timestamp prettyName;
     };
 
     # 2. Telemetria Semanal
