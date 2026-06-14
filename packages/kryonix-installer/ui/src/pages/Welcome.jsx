@@ -24,7 +24,7 @@ export default function Welcome() {
         <div>
           <div className="metric-chip">Build focado em servidor</div>
           <h2 className="mt-5 text-2xl font-black tracking-tight text-white">Instalador redesenhado para estabilidade operacional</h2>
-          
+
           {hasKryonix && (
             <div className="mt-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 animate-pulse">
               <div className="flex items-center gap-2 text-cyan-400 font-bold">
@@ -66,8 +66,30 @@ export default function Welcome() {
       </section>
 
       <section className="section-panel flex min-h-0 flex-col justify-center overflow-hidden">
-        <div className="mx-auto flex h-full max-h-[420px] w-full max-w-[520px] items-center justify-center rounded-[28px] border border-white/10 bg-black/20 p-8">
-          <img src="/imgs/kryonix.png" alt="Kryonix" className="max-h-full w-auto object-contain opacity-95" />
+        <div className="mx-auto flex h-full max-h-[420px] w-full max-w-[520px] items-center justify-center">
+          <div className="w-full max-w-xl text-center">
+            <svg viewBox="0 0 200 80" className="w-full h-auto mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#22d3ee" stop-opacity="1"/>
+                  <stop offset="100%" stop-color="#a855f7" stop-opacity="1"/>
+                </linearGradient>
+              </defs>
+              <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
+                    font-family="system-ui, sans-serif" font-size="42" font-weight="800"
+                    fill="url(#grad)" letter-spacing="-0.02em">Kryonix</text>
+              <text x="50%" y="75%" dominant-baseline="middle" text-anchor="middle"
+                    font-family="system-ui, sans-serif" font-size="11" font-weight="500"
+                    fill="#64748b" letter-spacing="0.08em" text-transform="uppercase">Installer</text>
+              <circle cx="35" cy="25" r="12" fill="url(#grad)" opacity="0.3"/>
+              <circle cx="165" cy="55" r="8" fill="#22d3ee" opacity="0.4"/>
+              <circle cx="25" cy="65" r="6" fill="#a855f7" opacity="0.3"/>
+            </svg>
+            <p className="mt-6 text-slate-400 text-sm leading-relaxed max-w-md mx-auto">
+              Instalador redesenhado para estabilidade operacional. Fluxo imersivo,
+              validações em tempo real e geração declarativa de configuração NixOS.
+            </p>
+          </div>
         </div>
       </section>
     </div>

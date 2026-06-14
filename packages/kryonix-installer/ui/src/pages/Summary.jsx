@@ -4,6 +4,19 @@ import { FEATURE_CATALOG } from '../data/featureCatalog.js';
 import { getProfileById } from '../data/profileCatalog.js';
 import { shouldRecommendSrvData, explainSrvDataReason } from '../utils/storagePlanner.js';
 
+// Mapeia os ids internos do `sourceKind` para rótulos amigáveis. Evita que
+// slugs cruos como "offline-cache" ou strings vazias vazem para o Summary.
+const SOURCE_KIND_LABELS = {
+  'offline-defaults': 'Offline (ISO base)',
+  'offline-cache': 'Offline (cache local)',
+  'remote-github': 'GitHub (remoto)',
+};
+
+function formatSourceKind(value) {
+  if (!value) return 'Não selecionada';
+  return SOURCE_KIND_LABELS[value] || 'Não selecionada';
+}
+
 export default function Summary({ wizard, uiState, onChange, validation }) {
   const sshCount = String(wizard.adminAuthorizedKeys || '')
     .split('\n')
@@ -167,10 +180,10 @@ export default function Summary({ wizard, uiState, onChange, validation }) {
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Instalação & Host</div>
             <div className="mt-2 text-sm text-white">Hostname: {wizard.hostName || 'pendente'}</div>
-            <div className="mt-1 text-sm text-slate-300">Fonte: {wizard.sourceKind === 'offline-defaults' ? 'Offline (ISO base)' : wizard.sourceKind}</div>
+            <div className="mt-1 text-sm text-slate-300">Fonte: {formatSourceKind(wizard.sourceKind)}</div>
             <div className="mt-1 text-sm text-slate-400">Acesso Remoto: {wizard.remoteAccessEnabled ? 'Ativado' : 'Desativado'}</div>
             <div className="mt-1 text-sm text-slate-400">
-              Perfil: {profileObj ? `${profileObj.name} (${profileObj.id})` : (wizard.profileId || 'Nenhum')}
+              Perfil: {profileObj ? profileObj.name : 'Nenhum'}
             </div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">

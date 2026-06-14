@@ -247,8 +247,16 @@ export default function Network({ wizard, onChange, validation }) {
           <div className="flex items-center justify-between gap-3">
             <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Status do Instalador</div>
             <div className="flex gap-2">
-               <button type="button" className="btn-secondary !px-2 !py-1 text-xs" onClick={loadInterfaces} disabled={loading}>
-                 {loading ? '↻' : '↻ Atualizar'}
+               <button
+                 type="button"
+                 className="btn-secondary !px-2 !py-1 text-xs"
+                 onClick={loadInterfaces}
+                 disabled={loading}
+                 aria-busy={loading}
+                 aria-label={loading ? 'Atualizando interfaces' : 'Atualizar lista de interfaces'}
+               >
+                 <span className={loading ? 'inline-block animate-spin' : 'inline-block'}>↻</span>
+                 <span className="ml-1">{loading ? 'Atualizando…' : 'Atualizar'}</span>
                </button>
                <span className={`metric-chip ${wizard.netConnected ? 'text-emerald-300' : wizard.netOffline ? 'text-amber-300' : 'text-slate-400'}`}>
                 {wizard.netConnected
