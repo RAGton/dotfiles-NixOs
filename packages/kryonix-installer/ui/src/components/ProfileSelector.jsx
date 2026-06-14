@@ -234,7 +234,7 @@ const ProfileSelector = ({ host }) => {
                                 onClick={finalizeInstall}
                                 className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold shadow-lg"
                             >
-                                ✨ Finalizar Instalação do NixOS
+                                ✨ Finalizar Instalação do KryonixOS
                             </button>
                         </div>
                     </div>
