@@ -288,10 +288,10 @@ pub fn is_system_disk(path: &str) -> Result<bool, String> {
         if source_base == target_base || source_base.starts_with(&format!("{target_base}p")) {
             return Ok(true);
         }
-        if target_base.starts_with("sd") || target_base.starts_with("vd") {
-            if source_base.starts_with(target_base) {
-                return Ok(true);
-            }
+        if (target_base.starts_with("sd") || target_base.starts_with("vd"))
+            && source_base.starts_with(target_base)
+        {
+            return Ok(true);
         }
 
         let parent = Command::new("lsblk")
@@ -424,7 +424,7 @@ mod tests {
         // exercita o deserializer via JSON real do lsblk (bool e "0"/"1")
         let j = r#"{"blockdevices":[{"name":"vda","size":32212254720,"type":"disk","mountpoint":null,"model":"X","rm":false,"ro":"0"}]}"#;
         let out: LsblkOutput = serde_json::from_str(j).expect("parse lsblk json");
-        assert_eq!(out.blockdevices[0].rm, false);
-        assert_eq!(out.blockdevices[0].ro, false);
+        assert!(!out.blockdevices[0].rm);
+        assert!(!out.blockdevices[0].ro);
     }
 }
