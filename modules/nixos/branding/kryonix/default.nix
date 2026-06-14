@@ -167,8 +167,10 @@ let
 
   # Conteúdo do /etc/os-release.
   # Usamos um conjunto pequeno e compatível (muitas ferramentas só precisam disso).
+  # ID=nixos é mantido propositalmente: ferramentas de desktop e Nix tooling
+  # detectam a distro por este campo. O branding visível vai em NAME/PRETTY_NAME.
   osReleaseText = ''
-    NAME="NixOS (Kryonix)"
+    NAME="KryonixOS"
     PRETTY_NAME=${lib.escapeShellArg displayName}
     ID=nixos
     ID_LIKE=nixos
@@ -187,7 +189,7 @@ in
 
     prettyName = lib.mkOption {
       type = lib.types.str;
-      default = "Kryonix";
+      default = "KryonixOS";
       description = "Nome amigável (PRETTY_NAME) exibido por ferramentas/GUI.";
     };
 

@@ -69,7 +69,7 @@ const UI_TRANSIENT_FIELD_SET = new Set(UI_TRANSIENT_FIELD_NAMES);
 
 export const INITIAL_INSTALL_PLAN_DRAFT = {
   sourceKind: 'offline-defaults',
-  githubRepo: 'https://github.com/Kryonix/kryonixos',
+  githubRepo: 'https://github.com/RAGton/Kryonixos',
   githubBranch: 'main',
   profileId: 'desktop',
   selectedFeatures: [],
