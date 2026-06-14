@@ -219,6 +219,21 @@ in
         - \m: arquitetura
       '';
     };
+
+    motd = lib.mkOption {
+      type = lib.types.nullOr lib.types.lines;
+      default = null;
+      description = ''
+        Texto para /etc/motd (message of the day, exibido pós-login).
+
+        Quando `null` e `enable = true`, é gerado automaticamente um motd
+        curto no formato "Welcome to <displayName>" + dica do comando
+        `kryonix --help`.
+
+        Defina como string vazia (`""`) para suprimir o motd sem precisar
+        desabilitar todo o módulo branding.
+      '';
+    };
   };
 
   config = lib.mkMerge [
@@ -233,9 +248,19 @@ in
           cfg.issueText
         else
           ''
-            ${displayName}
+            Welcome to ${displayName}
             Kernel: \r \m
             Host: \n
+          '';
+
+      # Mensagem do dia pós-login. Pequeno, sem dependência de rede.
+      environment.etc."motd".text =
+        if cfg.motd != null then
+          cfg.motd
+        else
+          ''
+            Welcome to ${displayName}.
+            Run `kryonix --help` for system commands.
           '';
 
       programs.dconf.profiles.gdm.databases = [

@@ -17,9 +17,29 @@
 #
 # Riscos
 # - Se `fastfetch` falhar, ele é ignorado (`|| true`) para não quebrar o shell.
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  config,
+  ...
+}:
+let
+  cfg = config.kryonix.programs.zsh;
+in
+{
+  options.kryonix.programs.zsh.welcomeBanner.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = true;
+    description = ''
+      Mostra um welcome banner curto KryonixOS (uma linha) no startup
+      do zsh interativo. Sem custo de rede.
+
+      Pode ser suprimido em runtime com `export KRYONIX_NO_WELCOME=1`
+      antes do shell, ou desabilitado declarativamente com
+      `kryonix.programs.zsh.welcomeBanner.enable = false`.
+    '';
+  };
+
   home.activation.create-p10k-dir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p "$HOME/.config/zsh"
   '';
@@ -64,10 +84,26 @@
 
     initContent = ''
       # =========================
+      # Welcome banner curto (KryonixOS)
+      # =========================
+      # Banner sem custo de rede, default-on. Opt-out:
+      #   - declarativo: kryonix.programs.zsh.welcomeBanner.enable = false
+      #   - runtime:     export KRYONIX_NO_WELCOME=1
+      ${lib.optionalString cfg.welcomeBanner.enable ''
+        if [[ -o interactive ]] && [[ -t 1 ]] \
+            && [[ -z "''${KRYONIX_NO_WELCOME-}" ]] \
+            && [[ -z "''${KRYONIX_WELCOME_DONE-}" ]]; then
+          export KRYONIX_WELCOME_DONE=1
+          printf '\033[36m%s\033[0m \033[2m·\033[0m \033[35m%s\033[0m\n' \
+            'KryonixOS' "$(hostname -s 2>/dev/null || echo localhost)"
+        fi
+      ''}
+
+      # =========================
       # Startup (interativo)
       # =========================
-      # Nota: fastfetch pode travar/demorAR dependendo de rede (ex.: publicip).
-      # Então o banner agora é OPT-IN.
+      # Nota: fastfetch pode travar/demorar dependendo de rede (ex.: publicip).
+      # Então o banner completo continua sendo OPT-IN.
       # Para reativar: export RAG_ZSH_STARTUP_BANNER=1
       if [[ -o interactive ]] && [[ -t 1 ]] && [[ -n "''${RAG_ZSH_STARTUP_BANNER-}" ]] && [[ -z "''${RAG_ZSH_STARTUP_BANNER_DONE-}" ]]; then
         export RAG_ZSH_STARTUP_BANNER_DONE=1
