@@ -126,6 +126,27 @@ reject_unexpected_positional_args() {
   done
 }
 
+run_post_switch_gc() {
+  if [[ "${KRYONIX_POST_SWITCH_GC:-1}" == "0" ]]; then
+    printf 'Limpeza automática pós-switch desativada via KRYONIX_POST_SWITCH_GC=0.\n'
+    return 0
+  fi
+
+  printf 'Executando limpeza automática pós-switch (removendo gerações > 2 dias)...\n'
+
+  if command -v nh >/dev/null 2>&1; then
+    if ! run_command nh clean all --keep-since 2d; then
+      printf '\033[33m[warn]\033[0m Falha na limpeza automática pós-switch via nh.\n' >&2
+    fi
+    return 0
+  fi
+
+  if ! run_command nix-collect-garbage --delete-older-than 2d; then
+    printf '\033[33m[warn]\033[0m Falha na limpeza automática pós-switch via nix-collect-garbage.\n' >&2
+  fi
+}
+
+
 # --- Inicialização ---
 init_colors
 
@@ -424,7 +445,11 @@ case "$subcommand" in
     if [[ "${#extra_args[@]}" -gt 0 ]]; then
       cmd+=("--" "${extra_args[@]}")
     fi
-    run_flake_command "${cmd[@]}" || exit $?
+    run_flake_command "${cmd[@]}"
+    switch_rc=$?
+    if (( switch_rc != 0 )); then
+      exit "$switch_rc"
+    fi
 
     # Se 'all' for usado, aplica Home Manager em seguida
     if (( apply_all )); then
@@ -432,6 +457,10 @@ case "$subcommand" in
       cmd=(nh home switch "$flake_ref" -c "$home_target" -b hm-old)
       cmd+=("${verbose_args[@]}" "${dry_args[@]}")
       run_flake_command "${cmd[@]}"
+    fi
+
+    if [[ "$subcommand" == "switch" ]]; then
+      run_post_switch_gc
     fi
     ;;
 
@@ -442,7 +471,11 @@ case "$subcommand" in
     # OS Switch
     cmd=(nh os switch "$flake_ref" -H "$flake_host")
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
-    run_flake_command "${cmd[@]}" || exit $?
+    run_flake_command "${cmd[@]}"
+    all_switch_rc=$?
+    if (( all_switch_rc != 0 )); then
+      exit "$all_switch_rc"
+    fi
 
     # Home Switch — falha não-fatal: sistema funcional mesmo se HM falhar
     home_target="${user_arg}@${flake_host}"
@@ -453,6 +486,8 @@ case "$subcommand" in
       printf '\033[33m[warn]\033[0m NixOS OK, mas HM falhou — sistema funcional, home config desatualizada.\n' >&2
       printf '\033[33m[warn]\033[0m Execute: home-manager switch --flake %s#%s -b hm-old\n' "$flake_ref" "$home_target" >&2
     fi
+
+    run_post_switch_gc
 
     # ── Post-switch: sincronização do grafo Neo4j ──
     # PENDÊNCIA (Kora removida): o sync pós-switch do grafo era feito por
