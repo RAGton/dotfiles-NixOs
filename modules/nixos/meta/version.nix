@@ -22,12 +22,14 @@ let
   timestamp = self.lastModifiedDate or "unknown";
 
   # Consome o branding quando o módulo correspondente está importado.
-  # O `or "Kryonix"` mantém a string sã quando o host não carrega branding.
-  brandingPrettyName = (config.kryonix.branding or { }).prettyName or "Kryonix";
+  # O default `"KryonixOS"` mantém a string sã quando o host não carrega
+  # branding (e bate com o default atual de `kryonix.branding.prettyName`).
+  brandingPrettyName = (config.kryonix.branding or { }).prettyName or "KryonixOS";
 
-  # Mantém prefixo "KryonixOS" para tooling que faz match no /etc/kryonix-version
-  # mesmo quando o host customiza a edição (ex.: "Kryonix Glacier").
-  prettyName = "KryonixOS ${brandingPrettyName} (v${lib.substring 0 8 commit})";
+  # `brandingPrettyName` já carrega a identidade KryonixOS — sem prefixo
+  # duplicado. Quando o host customiza a edição (ex.: "Kryonix Glacier"),
+  # o texto sai como "Kryonix Glacier (v<sha>)".
+  prettyName = "${brandingPrettyName} (v${lib.substring 0 8 commit})";
 
   versionContent = ''
     KRYONIX_REV=${commit}

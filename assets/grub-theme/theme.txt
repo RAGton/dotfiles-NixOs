@@ -1,4 +1,4 @@
-# Kryonix GRUB2 Theme
+# KryonixOS GRUB2 Theme
 desktop-color: "#081018"
 
 + boot_menu {
@@ -20,7 +20,7 @@ desktop-color: "#081018"
   top     = 6%
   width   = 100%
   align   = "center"
-  text    = "K R Y O N I X"
+  text    = "KryonixOS"
   font    = "Unifont Regular 24"
   color   = "#00d4ff"
 }

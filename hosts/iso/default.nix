@@ -66,8 +66,8 @@
   ];
 
   # ISO identity
-  system.nixos.distroName = lib.mkForce "Kryonix";
-  system.nixos.label = lib.mkForce "Kryonix-Installer";
+  system.nixos.distroName = lib.mkForce "KryonixOS";
+  system.nixos.label = lib.mkForce "KryonixOS-Installer";
   image.baseName = lib.mkForce "kryonix";
   isoImage.volumeID = lib.mkForce "KRYONIX";
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
