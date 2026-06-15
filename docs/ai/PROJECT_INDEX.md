@@ -8,7 +8,7 @@ Use este mapa para navegar pela base de código de forma rápida e precisa. Nunc
 - `/etc/kryonix/modules/nixos/services/brain.nix` → Core IA, define systemd services.
 - `/etc/kryonix/packages/kryonix-brain-lightrag/` → Código Python da IA.
 - `/etc/kryonix/packages/kryonix-cli/` → Ferramenta de linha de comando.
-- `/etc/kryonix/packages/kryonix-installer/` → Backend em Rust do Instalador.
+- **`github:RAGton/kryonix-installer`** (flake input externo, rev pinada em `flake.lock`) → Backend Axum (Rust) + UI Vite/React do Instalador. Acessível via `pkgs.kryonix-installer`. Para DEV local, clone em `/home/rocha/kryonix/kryonix-installer/` e use `--override-input kryonix-installer path:/home/rocha/kryonix/kryonix-installer`.
 - `/etc/kryonix/desktop/hyprland/core/keybinds.nix` → Atalhos do Hyprland.
 - `/etc/kryonix/.mcp.example.json` → Template MCP limpo.
 
