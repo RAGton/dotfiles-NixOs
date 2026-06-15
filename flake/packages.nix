@@ -14,7 +14,7 @@ lib.forAllSystems (
     };
     kryonixHardwareProbe = pkgs.callPackage ../packages/kryonix-hardware-probe.nix { };
     kryonixDiskPlanner = pkgs.callPackage ../packages/kryonix-disk-planner.nix { };
-    kryonixInstaller = pkgs.callPackage ../packages/kryonix-installer.nix { };
+    kryonixInstaller = inputs.kryonix-installer.packages.${system}.kryonix-installer;
     kryonixLlamaCppCuda = pkgs.callPackage ../packages/kryonix-llama-cpp-cuda.nix { };
     kryonixOptimizer = pkgs.callPackage ../packages/kryonix-optimizer { };
     kryonixSddmTheme = pkgs.callPackage ../packages/kryonix-sddm-theme.nix { };
