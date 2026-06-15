@@ -104,6 +104,18 @@
       url = "github:RAGEnterprise/kryonix-brain-lightrag";
       flake = false;
     };
+
+    # Kryonix Installer — backend Axum (Rust) + web UI (Vite/React).
+    # Repo standalone: o source vive fora do motor para não vazar para o
+    # sistema instalado (ver target_tree.rs). Consumido aqui apenas como
+    # binário via overlay `kryonix-installer-tools`.
+    # Usa git+https em vez do shorthand `github:` para não depender da API
+    # REST do GitHub (que apresentou 504 intermitente logo após o repo
+    # virar público); o protocolo git é mais robusto e o lock pina o rev.
+    kryonix-installer = {
+      url = "git+https://github.com/RAGton/kryonix-installer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # =============================

@@ -217,6 +217,26 @@
         "type": "github"
       }
     },
+    "kryonix-installer": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781496136,
+        "narHash": "sha256-oSpLvPPQAKHPq3v5iZOV6U7jjWBe80+5S0NZr3RwdHA=",
+        "ref": "refs/heads/main",
+        "rev": "5b663b691e51f3cd87f8d90bc2f4475b39af8f0d",
+        "revCount": 53,
+        "type": "git",
+        "url": "https://github.com/RAGton/kryonix-installer"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/RAGton/kryonix-installer"
+      }
+    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1767983141,
@@ -334,6 +354,7 @@
         "home-manager": "home-manager",
         "kryonix-brain-lightrag": "kryonix-brain-lightrag",
         "kryonix-home": "kryonix-home",
+        "kryonix-installer": "kryonix-installer",
         "nix-flatpak": "nix-flatpak",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-stable": "nixpkgs-stable",
