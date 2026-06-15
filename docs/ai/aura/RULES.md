@@ -44,16 +44,22 @@ Validação padrão:
 ```bash
 git diff --check
 
-cd packages/kryonix-installer/ui
+# Installer vive em repo separado (consumido pelo motor como flake input).
+# Para mexer no código do installer:
+cd /home/rocha/kryonix/kryonix-installer/ui
 npm test -- --passWithNoTests
 npm run build
 
-cd /etc/kryonix/packages/kryonix-installer
+cd /home/rocha/kryonix/kryonix-installer
 cargo fmt --check
 cargo test --locked
+cargo clippy --all-targets --all-features -- -D warnings
 
-cd /etc/kryonix
-nix build .#kryonix-installer --no-link -L
+# No motor (DEV), valida a integração end-to-end:
+cd /home/rocha/kryonix/kryonix
+nix build .#kryonix-installer --no-link -L           # vem do flake input
+nix build .#kryonix --no-link -L                     # CLI com installer injetado
+nix build .#nixosConfigurations.iso.config.system.build.toplevel --no-link -L
 ```
 
 ## Commit

@@ -6,12 +6,12 @@ on:
       - main
     paths:
       - 'hosts/iso/**'
-      - 'packages/kryonix-installer/**'
+      - 'flake.lock'
       - 'scripts/test-iso-boot.sh'
   pull_request:
     paths:
       - 'hosts/iso/**'
-      - 'packages/kryonix-installer/**'
+      - 'flake.lock'
       - 'scripts/test-iso-boot.sh'
   workflow_dispatch:
 

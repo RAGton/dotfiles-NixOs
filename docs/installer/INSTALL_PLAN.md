@@ -29,7 +29,10 @@ O arquivo `install-plan.json` é a especificação declarativa de como o sistema
 
 ## Schema
 
-O schema oficial encontra-se em `packages/kryonix-installer/schemas/install-plan.schema.json`.
+O schema oficial vive no repo externo do installer:
+`github:RAGton/kryonix-installer` → `schemas/install-plan.schema.json`.
+Para inspeção local após `nix flake lock`, o tree do input está disponível em
+`/nix/store/<hash>-source/schemas/install-plan.schema.json` (rev pinada em `flake.lock`).
 
 ### Campos Principais
 
