@@ -106,7 +106,7 @@
     ];
     # Remove quiet/splash para ver os logs de boot
     boot.plymouth.enable = lib.mkOverride 10 false;
-    isoImage.appendToMenuLabel = lib.mkForce "Installer (Remote Web)";
+    isoImage.appendToMenuLabel = lib.mkOverride 10 "Installer (Remote Web)";
   };
 
   # NOTE: o bloco de "Early KMS" (boot.initrd.kernelModules=[virtio_gpu] +
