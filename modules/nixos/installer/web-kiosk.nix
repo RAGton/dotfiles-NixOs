@@ -29,6 +29,15 @@ in
 
   config = lib.mkIf cfg.enable (
     let
+      startInstallerBackend = pkgs.writeShellScriptBin "start-installer-backend" ''
+        if grep -qw 'kryonix.installer.mode=remote' /proc/cmdline; then
+          export KRYONIX_INSTALLER_BIND="0.0.0.0:${toString cfg.port}"
+        else
+          export KRYONIX_INSTALLER_BIND="${cfg.listenAddress}:${toString cfg.port}"
+        fi
+
+        exec ${pkgs.kryonix-installer}/bin/kryonix-installer
+      '';
       startKiosk =
         (pkgs.writeShellScriptBin "start-kiosk" ''
           # Cage (Wayland) needs XDG_RUNTIME_DIR — getty autologin does not set it
@@ -65,18 +74,8 @@ in
                 IP_ADDR="<aguardando-rede>"
             fi
 
-            echo "Aguardando geração do Session Token de segurança..."
-            for i in $(seq 1 90); do
-                if [ -f /run/kryonix-installer/session-token ]; then
-                    TOKEN=$(cat /run/kryonix-installer/session-token)
-                    break
-                fi
-                sleep 1
-            done
-
             echo -e "\nPara instalar, acesse de outro computador na rede:"
             echo -e "\n  ->  http://$IP_ADDR:${toString cfg.port}"
-            echo -e "\nSession Token:  \e[1;32m$TOKEN\e[0m"
             echo -e "\n======================================================="
 
             exec ${pkgs.bash}/bin/bash
@@ -177,12 +176,11 @@ in
           config.nix.package
         ];
         serviceConfig = {
-          ExecStart = "${pkgs.kryonix-installer}/bin/kryonix-installer";
+          ExecStart = "${startInstallerBackend}/bin/start-installer-backend";
           Restart = "on-failure";
           User = "root";
         };
         environment = {
-          KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
           KRYONIX_INSTALLER_FLAKE = "${inputs.self.outPath}";
           KRYONIX_ENGINE_SOURCE = "/etc/kryonix";
           KRYONIX_HARDWARE_PROBE = "${pkgs.kryonix-hardware-probe}/bin/kryonix-hardware-probe";
