@@ -95,7 +95,19 @@
     "rd.udev.log_level=3"
     "vt.global_cursor_default=0"
     "plymouth.ignore-serial-consoles"
+    "kryonix.installer.mode=local"
   ];
+
+  specialisation."remote".configuration = {
+    # Em modo remote, o usuário precisa ver o TTY para ler o Session Token.
+    # Desabilitamos o splash e ativamos loglevel adequado, além de definir o mode.
+    boot.kernelParams = [
+      "kryonix.installer.mode=remote"
+    ];
+    # Remove quiet/splash para ver os logs de boot
+    boot.plymouth.enable = lib.mkOverride 10 false;
+    isoImage.appendToMenuLabel = lib.mkForce "Installer (Remote Web)";
+  };
 
   # NOTE: o bloco de "Early KMS" (boot.initrd.kernelModules=[virtio_gpu] +
   # availableKernelModules amdgpu/radeon/nouveau/i915) foi removido. Não era a

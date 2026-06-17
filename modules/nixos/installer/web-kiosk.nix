@@ -54,6 +54,34 @@ in
             sleep 1
           done
 
+          if grep -q "kryonix.installer.mode=remote" /proc/cmdline; then
+            echo -e "\n======================================================="
+            echo -e "        KRYONIX OS - REMOTE INSTALLER MODE             "
+            echo -e "=======================================================\n"
+            echo -e "O instalador está rodando no modo remoto.\n"
+
+            IP_ADDR=$(${pkgs.iproute2}/bin/ip -4 -o addr show scope global | awk '{print $4}' | cut -d/ -f1 | head -n 1)
+            if [ -z "$IP_ADDR" ]; then
+                IP_ADDR="<aguardando-rede>"
+            fi
+
+            echo "Aguardando geração do Session Token de segurança..."
+            for i in $(seq 1 90); do
+                if [ -f /run/kryonix-installer/session-token ]; then
+                    TOKEN=$(cat /run/kryonix-installer/session-token)
+                    break
+                fi
+                sleep 1
+            done
+
+            echo -e "\nPara instalar, acesse de outro computador na rede:"
+            echo -e "\n  ->  http://$IP_ADDR:${toString cfg.port}"
+            echo -e "\nSession Token:  \e[1;32m$TOKEN\e[0m"
+            echo -e "\n======================================================="
+
+            exec ${pkgs.bash}/bin/bash
+          fi
+
           # --app=URL forces app mode: no tab bar, no address bar, no browser chrome.
           # --kiosk alone is insufficient on many Chromium builds inside Cage.
           echo "Starting cage + chromium..."
@@ -145,6 +173,7 @@ in
           pkgs.curl
           pkgs.disko
           pkgs.nixos-install-tools
+          pkgs.iproute2
           config.nix.package
         ];
         serviceConfig = {
@@ -229,9 +258,9 @@ in
         nixos-install-tools
       ];
 
-      # Quando o backend escuta em todas as interfaces (RemoteAccess),
-      # abrir a porta no firewall automaticamente.
-      networking.firewall.allowedTCPPorts = lib.mkIf (cfg.listenAddress != "127.0.0.1") [
+      # O backend controla internamente o bind (127.0.0.1 vs 0.0.0.0) baseado no modo remoto,
+      # então sempre abrimos a porta no firewall.
+      networking.firewall.allowedTCPPorts = [
         cfg.port
       ];
 
