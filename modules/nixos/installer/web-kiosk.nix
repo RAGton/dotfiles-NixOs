@@ -134,6 +134,11 @@ in
       services.seatd.enable = true;
       security.polkit.enable = true;
 
+      # Permitir SSH na live ISO para auditoria
+      users.users.root.password = "kryonix";
+      services.openssh.enable = true;
+      services.openssh.settings.PermitRootLogin = "yes";
+
       # Web Terminal (ttyd) para modo Manual
       systemd.services.kryonix-installer-terminal = {
         description = "Kryonix Installer Web Terminal";

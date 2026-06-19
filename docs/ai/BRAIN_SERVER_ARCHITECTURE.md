@@ -49,7 +49,6 @@ Kryonix uses a distributed Brain architecture to separate heavy AI workloads fro
 
 - **Location**: Managed via `kryonix.services.brain` options.
   - Storage: `/var/lib/kryonix/brain/storage`
-  - Vault: `/var/lib/kryonix/vault`
 - **Format**: LightRAG Knowledge Graph (GraphML) + NanoVectorDB.
 - **Integrity**: Guaranteed by atomic writes and validated via `kryonix brain health`.
 

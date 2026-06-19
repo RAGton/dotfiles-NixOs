@@ -1,4 +1,4 @@
-﻿# Prompt: Use Obsidian Brain
+# Prompt: Use Obsidian Brain
 
 Use this prompt when starting a Codex session that needs the Kryonix Obsidian brain.
 
@@ -25,7 +25,7 @@ obsidian help
 
 Vault:
 
-/home/rocha/Documents/kryonix-vault
+/home/rocha/kryonix/kryonix-vault
 
 Rules:
 

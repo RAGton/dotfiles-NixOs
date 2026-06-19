@@ -1,4 +1,4 @@
-﻿# Obsidian CLI Policy
+# Obsidian CLI Policy
 
 ## Objective
 
@@ -6,7 +6,7 @@ The Obsidian vault is the technical brain for this project.
 
 Vault path:
 
-/home/rocha/Documents/kryonix-vault
+/home/rocha/kryonix/kryonix-vault
 
 This project requires agents to use Obsidian CLI as the official access gate for the vault.
 

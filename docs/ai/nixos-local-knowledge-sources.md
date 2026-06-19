@@ -39,9 +39,8 @@ Prioridade de resposta:
 
 1. Documentação canônica do Kryonix em `/etc/kryonix/docs`.
 2. Configuração declarativa em `/etc/kryonix`.
-3. Vault local em `/var/lib/kryonix/vault`.
-4. Fontes locais em `/var/lib/kryonix/sources/nixos`.
-5. Se não houver grounding, responder que não há contexto suficiente.
+3. Fontes locais em `/var/lib/kryonix/sources/nixos`.
+4. Se não houver grounding, responder que não há contexto suficiente.
 
 ## Política operacional
 

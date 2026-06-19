@@ -8,12 +8,8 @@ Os arquivos reais `.nix`, `.sh` e `.py` dentro de `/etc/kryonix/`. Eles represen
 ## 2. Docs Canônicos (O Intérprete)
 Arquivos em `/etc/kryonix/docs/` e `docs/ai/` que refletem explicitamente o que foi auditado no Código Fonte. Exemplo: `docs/CURRENT_STATE.md`.
 
-## 3. Obsidian Vault (As Ideias)
-As notas no cofre do usuário (tipicamente `/var/lib/kryonix/vault/`). Refletem ideias antigas, planos, design ou pesquisas soltas.
-> Nunca sobrescreva o código fonte assumindo que uma anotação avulsa no Obsidian é a versão "mais nova". Trate o Vault como rascunho de intenções.
-
-## 4. Chats Antigos e Context Files
+## 3. Chats Antigos e Context Files
 Os arquivos em `docs/archive/` refletem logs passados.
 
 ## Regra Operacional para Agentes
-Se você notar uma divergência entre a intenção descrita no Vault e a implementação do código, **apresente o código** e aponte que a documentação da memória pessoal está defasada.
+Se você notar uma divergência entre as discussões passadas e a implementação do código, **apresente o código** atual.
