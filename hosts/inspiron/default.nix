@@ -64,6 +64,7 @@
 
   # Features e ajustes finos
   kryonix.features.remoteDesktop.client.enable = true;
+  kryonix.features.browserAutomation.enable = true;
   kryonix.features.ai.brain = {
     enable = true;
     role = "client";
