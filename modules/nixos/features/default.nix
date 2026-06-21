@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -11,5 +16,6 @@
     ./remote.nix
     ./observability.nix
     ./mcp.nix
+    ./browser-automation.nix
   ];
 }
