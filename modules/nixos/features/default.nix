@@ -16,5 +16,6 @@
     ./remote.nix
     ./observability.nix
     ./mcp.nix
+    ./browser-automation.nix
   ];
 }
