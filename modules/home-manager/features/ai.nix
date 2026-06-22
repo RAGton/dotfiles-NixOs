@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.ai; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.ai;
+in
 {
   options.kryonix.home.features.ai = {
     claude.enable = lib.mkEnableOption "Claude Desktop";

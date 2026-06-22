@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.features.security; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.features.security;
+in
 {
   options.kryonix.features.security = {
     firewall.enable = lib.mkEnableOption "Strict firewall";

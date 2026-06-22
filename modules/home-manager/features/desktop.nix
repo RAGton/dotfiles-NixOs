@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.desktop; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.desktop;
+in
 {
   options.kryonix.home.features.desktop = {
     kdeShortcuts.enable = lib.mkEnableOption "KDE expert shortcuts";
