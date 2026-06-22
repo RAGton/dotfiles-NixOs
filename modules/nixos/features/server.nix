@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.features.server; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.features.server;
+in
 {
   options.kryonix.features.server = {
     containers.enable = lib.mkEnableOption "Container runtime (Podman)";

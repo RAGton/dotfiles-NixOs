@@ -42,6 +42,9 @@ stdenvNoCC.mkDerivation {
   meta = {
     description = "Pack de wallpapers Kryonix Aurora — anime, space e abstract, paleta navy/verde, logo águia";
     license = "CC0-1.0";
-    platforms = [ "x86_64-linux" "aarch64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
   };
 }

@@ -41,6 +41,5 @@
 
   # Wallpaper padrão: anime cidade futurista verde com logo Kryonix.
   # Troque o basename para qualquer outro wallpaper listado acima.
-  programs.plasma.workspace.wallpaper =
-    "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora/kryonix-anime-city-01.png";
+  programs.plasma.workspace.wallpaper = "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora/kryonix-anime-city-01.png";
 }

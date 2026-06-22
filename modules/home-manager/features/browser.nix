@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.browser; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.browser;
+in
 {
   options.kryonix.home.features.browser = {
     firefox.enable = lib.mkEnableOption "Firefox browser";
