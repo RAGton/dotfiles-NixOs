@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.features.ai; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.features.ai;
+in
 {
   options.kryonix.features.ai = {
     ollama.enable = lib.mkEnableOption "Ollama LLM runtime";

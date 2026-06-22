@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.features.mcp; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.features.mcp;
+in
 {
   options.kryonix.features.mcp = {
     filesystem.enable = lib.mkEnableOption "Filesystem MCP integration";
@@ -7,5 +14,5 @@ let cfg = config.kryonix.features.mcp; in
     neo4j.enable = lib.mkEnableOption "Neo4j MCP integration";
     ollama.enable = lib.mkEnableOption "Ollama MCP integration";
   };
-  config = {};
+  config = { };
 }
