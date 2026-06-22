@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.shell; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.shell;
+in
 {
   options.kryonix.home.features.shell = {
     zsh.enable = lib.mkEnableOption "ZSH with Oh My Zsh";
@@ -11,7 +18,10 @@ let cfg = config.kryonix.home.features.shell; in
       programs.zsh.oh-my-zsh = {
         enable = true;
         theme = "robbyrussell";
-        plugins = [ "git" "sudo" ];
+        plugins = [
+          "git"
+          "sudo"
+        ];
       };
     })
     (lib.mkIf cfg.starship.enable {

@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.editor; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.editor;
+in
 {
   options.kryonix.home.features.editor = {
     vscodeInsiders.enable = lib.mkEnableOption "VSCode Insiders";

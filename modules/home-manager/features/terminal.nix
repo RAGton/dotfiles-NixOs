@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.terminal; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.terminal;
+in
 {
   options.kryonix.home.features.terminal = {
     warp.enable = lib.mkEnableOption "Warp Terminal";

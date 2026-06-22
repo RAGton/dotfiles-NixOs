@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.home.features.dev; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.home.features.dev;
+in
 {
   options.kryonix.home.features.dev = {
     git.enable = lib.mkEnableOption "Git tools";
@@ -18,13 +25,25 @@ let cfg = config.kryonix.home.features.dev; in
       home.packages = with pkgs; [ gh ];
     })
     (lib.mkIf cfg.nix.enable {
-      home.packages = with pkgs; [ nil nixfmt-rfc-style ];
+      home.packages = with pkgs; [
+        nil
+        nixfmt-rfc-style
+      ];
     })
     (lib.mkIf cfg.rust.enable {
-      home.packages = with pkgs; [ rustup cargo rustc rust-analyzer ];
+      home.packages = with pkgs; [
+        rustup
+        cargo
+        rustc
+        rust-analyzer
+      ];
     })
     (lib.mkIf cfg.python.enable {
-      home.packages = with pkgs; [ python3 uv ruff ];
+      home.packages = with pkgs; [
+        python3
+        uv
+        ruff
+      ];
     })
     (lib.mkIf cfg.nodejs.enable {
       home.packages = with pkgs; [ nodejs_22 ];

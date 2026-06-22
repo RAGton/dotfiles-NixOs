@@ -1,5 +1,12 @@
-{ config, lib, pkgs, ... }:
-let cfg = config.kryonix.features.observability; in
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.kryonix.features.observability;
+in
 {
   options.kryonix.features.observability = {
     prometheus.enable = lib.mkEnableOption "Prometheus metrics";
