@@ -9,6 +9,7 @@
   imports = [
     ./desktop.nix
     ./gamer.nix
+    ./kernel.nix
     ./server.nix
     ./ai.nix
     ./storage.nix
