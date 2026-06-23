@@ -1,8 +1,0 @@
-
-[submodule "packages/kryonix-brain-lightrag"]
-	path = packages/kryonix-brain-lightrag
-	url = https://github.com/RAGEnterprise/kryonix-brain-lightrag.git
-[submodule "packages/kryonix-home"]
-	path = packages/kryonix-home
-	url = https://github.com/RAGton/KRYONIX-HOME.git
-	branch = main
