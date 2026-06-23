@@ -243,12 +243,15 @@ in
               intel-media-driver
               libvdpau-va-gl
             ])
+
             (lib.optionals cfg.intel.quickSync.enable [
               vpl-gpu-rt
             ])
+
             (lib.optionals cfg.intel.compute.enable [
               intel-compute-runtime
             ])
+
             (lib.optionals cfg.intel.legacyVaapi.enable [
               intel-vaapi-driver
             ])
@@ -312,18 +315,21 @@ in
         );
 
       # NVIDIA driver package selection (only if not "default")
+      # Uses mkDefault to coexist with profiles that set package directly.
       hardware.nvidia.package = lib.mkIf (cfg.nvidia.package != "default") (
-        let
-          packages = config.boot.kernelPackages.nvidiaPackages;
-        in
-        if cfg.nvidia.package == "stable" then
-          packages.stable
-        else if cfg.nvidia.package == "production" then
-          packages.production
-        else if cfg.nvidia.package == "beta" then
-          packages.beta
-        else
-          packages.stable
+        lib.mkDefault (
+          let
+            packages = config.boot.kernelPackages.nvidiaPackages;
+          in
+          if cfg.nvidia.package == "stable" then
+            packages.stable
+          else if cfg.nvidia.package == "production" then
+            packages.production
+          else if cfg.nvidia.package == "beta" then
+            packages.beta
+          else
+            packages.stable
+        )
       );
     })
 
