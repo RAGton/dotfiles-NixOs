@@ -30,6 +30,7 @@
     ./virtualization.nix
     ./development.nix
     ./ai.nix
+    ./remote.nix
     ./remote-desktop.nix
     ./f5-tts-server
   ];
