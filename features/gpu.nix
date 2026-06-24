@@ -28,6 +28,16 @@
 }:
 let
   cfg = config.kryonix.features.gpu;
+
+  # Composição centralizada de drivers de vídeo.
+  # Cada GPU habilitada contribui com seus próprios drivers.
+  # lib.unique remove duplicatas intra-feature.
+  # Duplicatas externas (ex: nixos-hardware) não são afetadas.
+  gpuVideoDrivers = lib.unique (
+    lib.optionals cfg.intel.enable cfg.intel.videoDrivers
+    ++ lib.optionals cfg.nvidia.enable [ "nvidia" ]
+    ++ lib.optionals cfg.amd.enable cfg.amd.videoDrivers
+  );
 in
 {
   options.kryonix.features.gpu = {
@@ -241,7 +251,7 @@ in
         default = [ "amdgpu" ];
         description =
           "Xorg/Wayland compatible AMDGPU display driver list. "
-          + "When combined with NVIDIA, the host must set videoDrivers = [ \"nvidia\" \"amdgpu\" ] explicitly.";
+          + "Composição com NVIDIA é automática via bloco centralizado em features/gpu.nix.";
       };
 
       initrd = {
@@ -296,10 +306,16 @@ in
 
   config = lib.mkMerge [
     # ===================================================================
+    # GPU Video Drivers — composição centralizada
+    # ===================================================================
+    (lib.mkIf (gpuVideoDrivers != [ ]) {
+      services.xserver.videoDrivers = lib.mkDefault gpuVideoDrivers;
+    })
+
+    # ===================================================================
     # Intel GPU implementation
     # ===================================================================
     (lib.mkIf cfg.intel.enable {
-      services.xserver.videoDrivers = lib.mkDefault cfg.intel.videoDrivers;
 
       hardware.graphics = {
         enable = lib.mkDefault true;
@@ -352,9 +368,6 @@ in
         enable = lib.mkDefault true;
         enable32Bit = lib.mkDefault true;
       };
-
-      # Xorg display driver
-      services.xserver.videoDrivers = lib.mkDefault [ "nvidia" ];
 
       # NVIDIA driver settings
       hardware.nvidia = {
@@ -447,8 +460,6 @@ in
     # AMD GPU implementation
     # ===================================================================
     (lib.mkIf cfg.amd.enable {
-      services.xserver.videoDrivers = lib.mkDefault cfg.amd.videoDrivers;
-
       hardware.graphics = {
         enable = lib.mkDefault true;
         enable32Bit = lib.mkDefault cfg.amd.enable32Bit;
