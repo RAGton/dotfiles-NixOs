@@ -77,7 +77,11 @@ in
         };
 
         mode = lib.mkOption {
-          type = lib.types.enum [ "active" "passive" "guided" ];
+          type = lib.types.enum [
+            "active"
+            "passive"
+            "guided"
+          ];
           default = "active";
           description = "AMD P-State mode when pstate.enable is true.";
         };
@@ -102,14 +106,19 @@ in
         enable = true;
       };
 
-      environment.systemPackages = with pkgs;
-        lib.optionals cfg.intel.diagnostics.enable (lib.flatten [
-          (lib.optional (lib.hasAttrByPath [ "pciutils" ] pkgs) pciutils)
-          (lib.optional (lib.hasAttrByPath [ "usbutils" ] pkgs) usbutils)
-          (lib.optional (lib.hasAttrByPath [ "lshw" ] pkgs) lshw)
-          (lib.optional (lib.hasAttrByPath [ "dmidecode" ] pkgs) dmidecode)
-          (lib.optional (lib.hasAttrByPath [ "linuxPackages" ] pkgs && pkgs.linuxPackages ? cpupower) pkgs.linuxPackages.cpupower)
-        ]);
+      environment.systemPackages =
+        with pkgs;
+        lib.optionals cfg.intel.diagnostics.enable (
+          lib.flatten [
+            (lib.optional (lib.hasAttrByPath [ "pciutils" ] pkgs) pciutils)
+            (lib.optional (lib.hasAttrByPath [ "usbutils" ] pkgs) usbutils)
+            (lib.optional (lib.hasAttrByPath [ "lshw" ] pkgs) lshw)
+            (lib.optional (lib.hasAttrByPath [ "dmidecode" ] pkgs) dmidecode)
+            (lib.optional (
+              lib.hasAttrByPath [ "linuxPackages" ] pkgs && pkgs.linuxPackages ? cpupower
+            ) pkgs.linuxPackages.cpupower)
+          ]
+        );
     })
 
     # AMD CPU
@@ -120,15 +129,20 @@ in
         "amd_pstate=${cfg.amd.pstate.mode}"
       ];
 
-      environment.systemPackages = with pkgs;
-        lib.optionals cfg.amd.diagnostics.enable (lib.flatten [
-          (lib.optional (lib.hasAttrByPath [ "pciutils" ] pkgs) pciutils)
-          (lib.optional (lib.hasAttrByPath [ "usbutils" ] pkgs) usbutils)
-          (lib.optional (lib.hasAttrByPath [ "lshw" ] pkgs) lshw)
-          (lib.optional (lib.hasAttrByPath [ "dmidecode" ] pkgs) dmidecode)
-          (lib.optional (lib.hasAttrByPath [ "linuxPackages" ] pkgs && pkgs.linuxPackages ? cpupower) pkgs.linuxPackages.cpupower)
-          (lib.optional (lib.hasAttrByPath [ "zenmonitor" ] pkgs) zenmonitor)
-        ]);
+      environment.systemPackages =
+        with pkgs;
+        lib.optionals cfg.amd.diagnostics.enable (
+          lib.flatten [
+            (lib.optional (lib.hasAttrByPath [ "pciutils" ] pkgs) pciutils)
+            (lib.optional (lib.hasAttrByPath [ "usbutils" ] pkgs) usbutils)
+            (lib.optional (lib.hasAttrByPath [ "lshw" ] pkgs) lshw)
+            (lib.optional (lib.hasAttrByPath [ "dmidecode" ] pkgs) dmidecode)
+            (lib.optional (
+              lib.hasAttrByPath [ "linuxPackages" ] pkgs && pkgs.linuxPackages ? cpupower
+            ) pkgs.linuxPackages.cpupower)
+            (lib.optional (lib.hasAttrByPath [ "zenmonitor" ] pkgs) zenmonitor)
+          ]
+        );
     })
   ];
 }
