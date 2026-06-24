@@ -223,6 +223,75 @@ in
         };
       };
     };
+
+    # =====================================================================
+    # AMD GPU
+    # =====================================================================
+    amd = {
+      enable = lib.mkEnableOption "AMD GPU / AMDGPU support (drivers, Mesa/RADV, diagnostics)";
+
+      enable32Bit = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable 32-bit graphics stack for Steam/Wine compatibility.";
+      };
+
+      videoDrivers = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ "amdgpu" ];
+        description =
+          "Xorg/Wayland compatible AMDGPU display driver list. "
+          + "When combined with NVIDIA, the host must set videoDrivers = [ \"nvidia\" \"amdgpu\" ] explicitly.";
+      };
+
+      initrd = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Load amdgpu kernel module in initrd. Useful for early KMS or low-resolution initramfs issues.";
+        };
+      };
+
+      opencl = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable AMD OpenCL support. Disabled by default to keep the base lighter.";
+        };
+      };
+
+      rocmSupport = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable nixpkgs.config.rocmSupport globally. Heavy; disabled by default.";
+        };
+      };
+
+      legacySupport = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Enable AMDGPU legacy support for older SI/CIK cards. Disabled by default.";
+        };
+      };
+
+      amdvlk = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Install AMDVLK Vulkan driver. Disabled by default; RADV/Mesa should remain the default path.";
+        };
+      };
+
+      diagnostics = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Install AMDGPU diagnostic tools (radeontop, clinfo, vulkan-tools).";
+        };
+      };
+    };
   };
 
   config = lib.mkMerge [
@@ -370,6 +439,51 @@ in
               "cudaPackages"
               "cuda_cudart"
             ] pkgs) pkgs.cudaPackages.cuda_cudart)
+          ]
+        );
+    })
+
+    # ===================================================================
+    # AMD GPU implementation
+    # ===================================================================
+    (lib.mkIf cfg.amd.enable {
+      services.xserver.videoDrivers = lib.mkDefault cfg.amd.videoDrivers;
+
+      hardware.graphics = {
+        enable = lib.mkDefault true;
+        enable32Bit = lib.mkDefault cfg.amd.enable32Bit;
+
+        extraPackages =
+          with pkgs;
+          lib.optionals cfg.amd.amdvlk.enable [
+            amdvlk
+          ];
+
+        extraPackages32 =
+          with pkgs;
+          lib.optionals cfg.amd.amdvlk.enable [
+            driversi686Linux.amdvlk
+          ];
+      };
+
+      hardware.amdgpu = {
+        initrd.enable = lib.mkDefault cfg.amd.initrd.enable;
+        opencl.enable = lib.mkDefault cfg.amd.opencl.enable;
+        legacySupport.enable = lib.mkDefault cfg.amd.legacySupport.enable;
+      };
+
+      nixpkgs.config.rocmSupport = lib.mkIf cfg.amd.rocmSupport.enable true;
+
+      environment.systemPackages =
+        with pkgs;
+        lib.optionals cfg.amd.diagnostics.enable (
+          lib.flatten [
+            (lib.optional (lib.hasAttrByPath [ "pciutils" ] pkgs) pkgs.pciutils)
+            (lib.optional (lib.hasAttrByPath [ "vulkan-tools" ] pkgs) pkgs.vulkan-tools)
+            (lib.optional (lib.hasAttrByPath [ "mesa-demos" ] pkgs) pkgs.mesa-demos)
+            (lib.optional (lib.hasAttrByPath [ "clinfo" ] pkgs) pkgs.clinfo)
+            (lib.optional (lib.hasAttrByPath [ "radeontop" ] pkgs) pkgs.radeontop)
+            (lib.optional (lib.hasAttrByPath [ "nvtopPackages" "amd" ] pkgs) pkgs.nvtopPackages.amd)
           ]
         );
     })
