@@ -7,7 +7,11 @@
 
 {
   imports = [
+    ./schema.nix
+    ./registry.nix
     ./desktop.nix
+    ./development.nix
+    ./virtualization.nix
     ./gaming.nix
     ./server.nix
     ./ai.nix

@@ -115,4 +115,11 @@ Toda instância Kryonix reporta sua identidade técnica em `/etc/kryonix-version
 
 ---
 
+## 📚 Catálogo de Features
+
+A lista oficial de features canônicas (como `desktop`, `gaming`, `virtualization`, etc) e seus estados de migração está documentada no nosso Vault de arquitetura:
+[Catálogo de Features do Kryonix](../kryonix-vault/02-Areas/Kryonix/canonical/EXISTING_FEATURES_CATALOG.md)
+
+---
+
 **Equipe Kryonix** | *Reprodutibilidade não é um desejo, é o padrão.*
