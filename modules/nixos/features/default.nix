@@ -8,6 +8,7 @@
 {
   imports = [
     ./desktop.nix
+    ./development.nix
     ./gamer.nix
     ./server.nix
     ./ai.nix
