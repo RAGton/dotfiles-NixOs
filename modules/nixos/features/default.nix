@@ -12,7 +12,7 @@
     ./desktop.nix
     ./development.nix
     ./virtualization.nix
-    ./gamer.nix
+    ./gaming.nix
     ./server.nix
     ./ai.nix
     ./storage.nix
