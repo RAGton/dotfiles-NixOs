@@ -41,6 +41,7 @@ let
       experimental ? false,
       requiresReboot ? false,
       affects ? [ ],
+      status ? "canonical",
     }:
     {
       inherit
@@ -56,6 +57,7 @@ let
         experimental
         requiresReboot
         affects
+        status
         ;
     };
 in
@@ -139,6 +141,16 @@ in
               );
               default = [ ];
               description = "Domínios do sistema afetados por esta feature";
+            };
+            status = lib.mkOption {
+              type = lib.types.enum [
+                "canonical"
+                "partial"
+                "stub"
+                "legacy"
+              ];
+              default = "canonical";
+              description = "Migration status: canonical (fully migrated), partial (namespace only / compat runtime), stub (option declared, no implementation), legacy (deprecated compat shim)";
             };
           };
         }
@@ -558,8 +570,9 @@ in
         id = "ai.brain.client";
         label = "Brain Client";
         category = "ai";
-        description = "Cliente do Kryonix Brain (conecta ao servidor remoto)";
+        description = "Cliente do Kryonix Brain (conecta ao servidor remoto). Namespace declarado em schema.nix, runtime pendente.";
         risk = "low";
+        status = "partial";
         affects = [ ];
       })
 
@@ -567,8 +580,9 @@ in
         id = "ai.brain.server";
         label = "Brain Server";
         category = "ai";
-        description = "Servidor do Kryonix Brain (Ollama, LightRAG, Neo4j)";
+        description = "Servidor do Kryonix Brain (Ollama, LightRAG, Neo4j). Namespace declarado em schema.nix, runtime pendente.";
         risk = "high";
+        status = "partial";
         requires = [ "gpu.cuda" ];
         requiresReboot = true;
         affects = [
@@ -582,8 +596,9 @@ in
         id = "ai.ollama";
         label = "Ollama";
         category = "ai";
-        description = "Motor de inferência local Ollama (LLMs)";
+        description = "Motor de inferência local Ollama (LLMs). Compat runtime em ai.nix, migração canônica pendente.";
         risk = "medium";
+        status = "partial";
         requires = [ "gpu.cuda" ];
         affects = [
           "gpu"
@@ -592,11 +607,24 @@ in
       })
 
       (mkFeature {
+        id = "ai.openWebui";
+        label = "Open WebUI";
+        category = "ai";
+        description = "Interface web para Ollama. Opção declarada em ai.nix, sem implementação.";
+        risk = "low";
+        status = "stub";
+        installerVisible = false;
+        requires = [ "ai.ollama" ];
+        affects = [ ];
+      })
+
+      (mkFeature {
         id = "ai.lightrag";
         label = "LightRAG";
         category = "ai";
-        description = "Motor de Retrieval-Augmented Generation baseado em grafos";
+        description = "Motor de Retrieval-Augmented Generation baseado em grafos. Opção declarada em ai.nix, sem implementação.";
         risk = "medium";
+        status = "stub";
         requires = [ "ai.ollama" ];
         affects = [ "storage" ];
       })
@@ -605,8 +633,9 @@ in
         id = "ai.neo4j";
         label = "Neo4j";
         category = "ai";
-        description = "Banco de dados em grafo Neo4j";
+        description = "Banco de dados em grafo Neo4j. Compat runtime em ai.nix, migração canônica pendente.";
         risk = "medium";
+        status = "partial";
         affects = [ "storage" ];
       })
 
@@ -660,6 +689,49 @@ in
         description = "Overlay de FPS MangoHud";
         risk = "low";
         requires = [ "gaming" ];
+        affects = [ "gpu" ];
+      })
+
+      (mkFeature {
+        id = "gaming.heroic";
+        label = "Heroic Launcher";
+        category = "gaming";
+        description = "Heroic Games Launcher (Epic/GOG)";
+        risk = "low";
+        requires = [ "gaming" ];
+        affects = [ ];
+      })
+
+      (mkFeature {
+        id = "gaming.wineTools";
+        label = "Wine Tools";
+        category = "gaming";
+        description = "Ferramentas Wine/Proton (protontricks, DXVK, VKD3D)";
+        risk = "low";
+        requires = [ "gaming" ];
+        affects = [ ];
+      })
+
+      (mkFeature {
+        id = "gaming.sunshine";
+        label = "Sunshine";
+        category = "gaming";
+        description = "Servidor de game streaming Sunshine";
+        risk = "low";
+        requires = [ "gaming" ];
+        affects = [ "network" ];
+      })
+
+      (mkFeature {
+        id = "gaming.nvtop";
+        label = "nvtop";
+        category = "gaming";
+        description = "Monitor GPU nvtop (requer NVIDIA/CUDA)";
+        risk = "low";
+        requires = [
+          "gaming"
+          "gpu.nvidia"
+        ];
         affects = [ "gpu" ];
       })
 
@@ -717,7 +789,7 @@ in
       # =====================================================================
       (mkFeature {
         id = "security.firewall";
-        label = "Strict Firewall (legacy)";
+        label = "Strict Firewall";
         category = "security";
         description = "Firewall estrito permitindo apenas serviços explícitos";
         risk = "high";
