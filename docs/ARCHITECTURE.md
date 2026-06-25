@@ -11,7 +11,8 @@ A estrutura de diretórios foi pensada para maximizar reuso e separação de con
 ├── flake.nix             # Ponto de entrada do Nix
 ├── flake/                # Lógica de integração e helpers (lib.nix)
 ├── modules/              # Funcionalidades atômicas e configuráveis (NixOS / Home Manager)
-├── features/             # Combinações coesas de módulos (ex: ai.nix, gaming.nix)
+├── modules/nixos/features/ # Árvore canônica de features (schema.nix, registry.nix, etc)
+├── features/             # (LEGACY/COMPAT) Combinações coesas de módulos a serem migradas
 ├── profiles/             # Casos de uso de alto nível que ativam features (ex: glacier-ai, laptop)
 ├── packages/             # Derivações customizadas de pacotes (ex: kryonix-cli, kryonix-brain-lightrag)
 ├── desktop/              # Configuração visual do sistema (Hyprland/KDE)
@@ -69,3 +70,18 @@ O Kryonix Engine fornece a infraestrutura completa para IA nativa, conhecida com
 - **Grafo:** Neo4j Community (local-only, restrito a Tailscale).
 - **Dados:** Persistência padronizada em `/var/lib/kryonix/brain/`.
 - **Topologia:** Suporte a separação Cliente/Servidor (ex: Inspiron atuando como cliente via túnel SSH/Tailscale acessando o Glacier como servidor IA).
+
+## Feature architecture status
+
+`modules/nixos/features/` is the canonical feature tree.
+
+Current foundation:
+
+- `schema.nix`: common namespace declarations
+- `registry.nix`: feature metadata registry
+- `development.nix`: canonical development feature
+- `virtualization.nix`: canonical virtualization feature
+- `gaming.nix`: canonical gaming feature
+- `ai.nix`: partial namespace/compat layer, no runtime migration yet
+
+Legacy wrappers remain under `features/` for compatibility during migration.
