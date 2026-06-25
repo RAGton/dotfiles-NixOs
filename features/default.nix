@@ -23,6 +23,8 @@
   # Cada um define suas próprias opções e só ativa quando enable = true
   imports = [
     ./workstation.nix
+    ./cpu.nix
+    ./gpu.nix
     ./gaming.nix
     ./openrgb.nix
     ./virtualization.nix

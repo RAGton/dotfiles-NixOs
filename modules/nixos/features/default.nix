@@ -7,8 +7,8 @@
 
 {
   imports = [
-    ./registry.nix
     ./schema.nix
+    ./registry.nix
     ./desktop.nix
     ./gamer.nix
     ./server.nix

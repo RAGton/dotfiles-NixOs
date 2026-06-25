@@ -29,25 +29,16 @@ in
     # Performance de servidor
     powerManagement.cpuFreqGovernor = lib.mkDefault "performance";
 
-    # NVIDIA RTX 4060 — driver proprietário, sem PRIME (desktop fixo) + iGPU AMD
-    services.xserver.videoDrivers = [
-      "nvidia"
-      "amdgpu"
-    ];
+    # NVIDIA config — removida, agora gerenciada por kryonix.features.gpu.nvidia
+    # (declarado em hosts/glacier/default.nix)
+    #
+    # PRIME disables preservados para RTX 4060 (desktop fixo, sem Optimus).
+    # TODO: migrar para feature gpu.prime quando existir.
     hardware.nvidia = {
-      modesetting.enable = true;
-      open = false;
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
       prime = {
         sync.enable = lib.mkForce false;
         offload.enable = lib.mkForce false;
       };
-    };
-
-    # 32-bit graphics (necessário para Steam/Wine e apps legacy)
-    hardware.graphics = {
-      enable = true;
-      enable32Bit = true;
     };
 
     # SSH habilitado (portas e settings ficam em rve-compat.nix)
