@@ -10,6 +10,7 @@
     ./schema.nix
     ./registry.nix
     ./desktop.nix
+    ./development.nix
     ./gamer.nix
     ./server.nix
     ./ai.nix
