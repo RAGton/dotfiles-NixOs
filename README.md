@@ -68,18 +68,18 @@ O instalador é "consciente" do estado atual dos discos. Ele detecta instalaçõ
 
 O Kryonix utiliza um sistema de perfis modulares que podem ser ativados via `patching` declarativo no `flake.nix` do host.
 
-### Perfis Disponíveis:
-- **Gamer**: Kernel zen/low-latency, `gamemode`, Steam e otimizações de scheduler.
-- **Dev-Rust**: Toolchain completa (cargo, rustc, analyzer, clippy) pré-configurada.
+### Features Disponíveis (Exemplos):
+- **Gaming**: Stack completo de gaming (`steam`, `lutris`, `gamemode`, `mangohud`, etc). *Nota: a feature legada `gamer` / `profile-gamer` foi descontinuada e substituída pela canônica `gaming`.*
+- **Development**: Stack modular de desenvolvimento (`rust`, `python`, `nix`, etc).
 
 ### Ativação Manual (Exemplo):
 No arquivo `/etc/kryonixos/hosts/<host>/default.nix`:
 ```nix
-{ inputs, ... }: {
-  imports = [
-    inputs.kryonix.nixosModules.profile-gamer
-    inputs.kryonix.nixosModules.profile-dev-rust
-  ];
+{ config, lib, pkgs, ... }: {
+  # Ativando features canônicas
+  kryonix.features.gaming.enable = true;
+  kryonix.features.development.enable = true;
+  kryonix.features.development.languages.rust.enable = true;
 }
 ```
 
