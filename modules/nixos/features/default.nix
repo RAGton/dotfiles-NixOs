@@ -7,6 +7,7 @@
 
 {
   imports = [
+    ./schema.nix
     ./desktop.nix
     ./gamer.nix
     ./server.nix
