@@ -7,8 +7,12 @@
 
 {
   imports = [
+    ./schema.nix
+    ./registry.nix
     ./desktop.nix
-    ./gamer.nix
+    ./development.nix
+    ./virtualization.nix
+    ./gaming.nix
     ./server.nix
     ./ai.nix
     ./storage.nix
