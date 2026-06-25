@@ -410,7 +410,8 @@ in
         id = "remote.ssh";
         label = "OpenSSH Server";
         category = "remote";
-        description = "Servidor OpenSSH para acesso remoto";
+        status = "canonical";
+        description = "Servidor OpenSSH declarativo e seguro, com openFirewall controlado";
         risk = "medium";
         affects = [
           "ssh"

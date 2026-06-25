@@ -124,12 +124,6 @@
     remote = {
       ssh = {
         enable = lib.mkEnableOption "OpenSSH server daemon";
-
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = 22;
-          description = "Port for SSH server (only applies when remote.ssh.enable = true)";
-        };
       };
 
       desktop = {
