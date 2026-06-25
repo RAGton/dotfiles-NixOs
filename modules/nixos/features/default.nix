@@ -7,6 +7,8 @@
 
 {
   imports = [
+    ./schema.nix
+    ./registry.nix
     ./desktop.nix
     ./development.nix
     ./virtualization.nix
