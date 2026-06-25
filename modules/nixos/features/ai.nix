@@ -9,11 +9,15 @@ let
 in
 {
   options.kryonix.features.ai = {
+    brain = {
+      client.enable = lib.mkEnableOption "Kryonix Brain client";
+      server.enable = lib.mkEnableOption "Kryonix Brain server";
+    };
     ollama.enable = lib.mkEnableOption "Ollama LLM runtime";
     openWebui.enable = lib.mkEnableOption "Open WebUI for Ollama";
     neo4j.enable = lib.mkEnableOption "Neo4j graph database";
     lightrag.enable = lib.mkEnableOption "LightRAG retrieval engine";
-    kryonixBrain.enable = lib.mkEnableOption "Kryonix Brain AI ecosystem";
+    kryonixBrain.enable = lib.mkEnableOption "Kryonix Brain AI ecosystem (legacy/compat)";
   };
   config = lib.mkMerge [
     (lib.mkIf cfg.ollama.enable {
