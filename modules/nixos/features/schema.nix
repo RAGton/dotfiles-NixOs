@@ -141,11 +141,6 @@
     # Development — editors
     # =========================
     development = {
-      editors = {
-        vscode = {
-          enable = lib.mkEnableOption "Visual Studio Code (or VSCodium) editor";
-        };
-      };
     };
 
     # =========================

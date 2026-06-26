@@ -13,8 +13,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    kryonix.features.workstation.enable = lib.mkDefault true;
-
     kryonix.features.gaming = {
       enable = lib.mkDefault true;
       steam.gamescope = lib.mkDefault true;
