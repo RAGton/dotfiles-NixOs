@@ -8,6 +8,7 @@
 {
   imports = [
     ./schema.nix
+    ./removed-options.nix
     ./registry.nix
     ./desktop.nix
     ./development.nix
