@@ -6,6 +6,7 @@ in
   imports = [
     ./caelestia
     ./kde
+    ./sddm
     ../../../desktop/hyprland/system.nix
   ];
 
