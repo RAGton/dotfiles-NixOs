@@ -31,11 +31,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Desktop/workstation (Hyprland/Caelestia + apps produtividade)
-    kryonix.features.workstation.enable = true;
-
-    # OpenRGB (controle de LED do hardware)
-    kryonix.features.openrgb.enable = true;
 
     # Stack completo de gaming — todos os valores explícitos, sem mkDefault
     kryonix.features.gaming = {
