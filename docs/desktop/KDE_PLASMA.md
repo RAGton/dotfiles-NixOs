@@ -51,6 +51,17 @@ A configuração do Plasma é declarativa via **plasma-manager**
 
 ## Tema / color-scheme
 
+O preset visual principal do KDE agora é selecionável por
+`kryonix.desktop.kde.theme.preset`:
+
+- `"bonafides"` (default): mantém o tema histórico do host.
+- `"kryonix-blue-glass-dark"`: preset opt-in Blue Glass escuro.
+- `"kryonix-blue-glass-light"`: preset opt-in Blue Glass claro.
+
+O Blue Glass é package-backed e não altera o layout do painel por SVG; a
+aparência vem do Plasma Style e o layout continua em `desktop/kde/theme.nix`
+via `plasma-manager`. Ver [KRYONIX_BLUE_GLASS.md](KRYONIX_BLUE_GLASS.md).
+
 O esquema de cores é selecionável por `kryonix.desktop.kde.theme.colorScheme`:
 
 - `"bonafides"` (default): esquema azul BonaFides — comportamento atual.
