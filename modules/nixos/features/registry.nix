@@ -403,6 +403,19 @@ in
         ];
       })
 
+      (mkFeature {
+        id = "network.virtualBridges";
+        label = "Virtual bridge networks";
+        category = "network";
+        status = "stub";
+        description = "Named Libvirt NAT virtual bridge networks for local VM/lab isolation.";
+        risk = "medium";
+        affects = [
+          "network"
+          "virtualization"
+        ];
+      })
+
       # =====================================================================
       # Remote access
       # =====================================================================

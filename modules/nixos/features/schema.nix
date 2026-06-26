@@ -116,6 +116,71 @@
           enable = lib.mkEnableOption "Strict firewall (default deny, explicit allow)";
         };
       };
+
+      virtualBridges = lib.mkOption {
+        default = { };
+        description = "Named virtual Libvirt NAT bridge networks for local VM/lab isolation.";
+        type = lib.types.attrsOf (
+          lib.types.submodule (
+            { name, ... }:
+            {
+              options = {
+                enable = lib.mkEnableOption "virtual Libvirt bridge network ${name}";
+
+                bridgeName = lib.mkOption {
+                  type = lib.types.str;
+                  default = "virbr-${name}";
+                  description = "Linux bridge interface name created by Libvirt.";
+                };
+
+                networkName = lib.mkOption {
+                  type = lib.types.str;
+                  default = "net-${name}";
+                  description = "Libvirt network name.";
+                };
+
+                address = lib.mkOption {
+                  type = lib.types.str;
+                  default = "192.168.100.1";
+                  description = "Host IP address assigned to the virtual bridge.";
+                };
+
+                netmask = lib.mkOption {
+                  type = lib.types.str;
+                  default = "255.255.255.0";
+                  description = "IPv4 netmask assigned to the virtual bridge.";
+                };
+
+                nat = lib.mkOption {
+                  type = lib.types.bool;
+                  default = true;
+                  description = "Enable Libvirt NAT forwarding for this virtual network.";
+                };
+
+                dhcp = {
+                  enable = lib.mkOption {
+                    type = lib.types.bool;
+                    default = false;
+                    description = "Enable Libvirt-managed DHCP for guests on this bridge.";
+                  };
+
+                  start = lib.mkOption {
+                    type = lib.types.str;
+                    default = "192.168.100.2";
+                    description = "DHCP range start address.";
+                  };
+
+                  end = lib.mkOption {
+                    type = lib.types.str;
+                    default = "192.168.100.254";
+                    description = "DHCP range end address.";
+                  };
+                };
+              };
+            }
+          )
+        );
+      };
     };
 
     # =========================
