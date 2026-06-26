@@ -113,6 +113,10 @@ in
       };
     };
 
+    programs.virt-manager = lib.mkIf (cfg.kvm.enable && cfg.libvirt.enable) {
+      enable = true;
+    };
+
     # =========================
     # Docker
     # =========================
@@ -180,7 +184,6 @@ in
       lib.flatten [
         # KVM/QEMU tools
         (lib.optionals (cfg.kvm.enable && cfg.libvirt.enable) [
-          virt-manager
           virt-viewer
           virtiofsd
           spice
