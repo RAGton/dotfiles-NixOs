@@ -159,12 +159,6 @@
       brain = {
         client = {
           enable = lib.mkEnableOption "Kryonix Brain client mode (connects to remote Brain server)";
-
-          serverAddress = lib.mkOption {
-            type = lib.types.str;
-            default = "127.0.0.1";
-            description = "Endereço ou IP do servidor Brain (ex: hostname ou IP Tailscale)";
-          };
         };
 
         server = {

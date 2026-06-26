@@ -1,26 +1,17 @@
 # =============================================================================
-# packages/kryonix-sddm-theme.nix — Tema SDDM "Kryonix Aurora"
+# packages/kryonix-sddm-theme.nix — Temas SDDM versionados do Kryonix
 #
 # O que é:
-# - Empacota o tema QML em desktop/sddm/kryonix-aurora/ como derivação,
-#   instalando em share/sddm/themes/kryonix-aurora (layout que o SDDM espera).
+# - Empacota os temas QML em desktop/sddm/* como derivação única, instalando em
+#   share/sddm/themes/<theme-id> (layout que o SDDM espera).
 #
 # Por quê:
-# - Tema próprio (dark navy, accent #38BDF8), versionado no repo, sem editor
-#   gráfico (sddm-config-editor) e sem assets externos baixados da internet —
-#   a arte é SVG própria em desktop/sddm/kryonix-aurora/assets/.
+# - Mantém Aurora (legado opt-in) e Clean (novo preset opt-in) versionados no
+#   repo, sem depender de download externo nem editor gráfico.
 #
-# Como ativar (opt-in, NÃO troca o default global):
-# - kryonix.desktop.kde.sddm.theme = "kryonix-aurora";
-#   (módulo modules/nixos/desktop/kde/default.nix adiciona este pacote ao
-#    sistema e seta services.displayManager.sddm.theme + qtsvg para o SVG.)
-#
-# Notas:
-# - src é o diretório do tema NO REPO (caminho local), então o conteúdo entra
-#   no /nix/store sem fetch externo. Para o build via flake (git+file) enxergar
-#   os arquivos, eles precisam estar tracked pelo git.
-# - O greeter usa Qt6 (Plasma 6); o SVG via Image requer o plugin qtsvg,
-#   injetado por sddm.extraPackages no módulo.
+# Como ativar:
+# - Legado KDE: kryonix.desktop.kde.sddm.theme = "kryonix-aurora";
+# - Novo caminho canônico: kryonix.desktop.sddm.theme.preset = "kryonix-clean";
 # =============================================================================
 {
   lib,
@@ -28,9 +19,9 @@
 }:
 stdenvNoCC.mkDerivation {
   pname = "kryonix-sddm-theme";
-  version = "1.0";
+  version = "1.1";
 
-  src = ../desktop/sddm/kryonix-aurora;
+  src = ../desktop/sddm;
 
   dontConfigure = true;
   dontBuild = true;
@@ -38,15 +29,20 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
 
-    dest="$out/share/sddm/themes/kryonix-aurora"
-    mkdir -p "$dest"
-    cp -r "$src/." "$dest/"
+    themesRoot="$out/share/sddm/themes"
+    mkdir -p "$themesRoot"
+
+    for theme in kryonix-aurora kryonix-clean; do
+      dest="$themesRoot/$theme"
+      mkdir -p "$dest"
+      cp -r "$src/$theme/." "$dest/"
+    done
 
     runHook postInstall
   '';
 
   meta = {
-    description = "Tema SDDM Kryonix Aurora — dark navy, accent #38BDF8, QtQuick (sem assets externos)";
+    description = "Temas SDDM do Kryonix: Aurora (legado) e Clean (preset moderno e sobrio)";
     homepage = "https://github.com/RAGton/kryonix";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;
