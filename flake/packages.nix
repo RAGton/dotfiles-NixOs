@@ -18,6 +18,9 @@ lib.forAllSystems (
     kryonixLlamaCppCuda = pkgs.callPackage ../packages/kryonix-llama-cpp-cuda.nix { };
     kryonixOptimizer = pkgs.callPackage ../packages/kryonix-optimizer { };
     kryonixBranding = pkgs.callPackage ../packages/kryonix-branding.nix { };
+    kryonixWaywallen = pkgs.callPackage ../packages/kryonix-waywallen.nix { };
+    kryonixOpenWallpaperEngine = pkgs.callPackage ../packages/kryonix-open-wallpaper-engine.nix { };
+    kryonixWaywallenDisplayKde = pkgs.callPackage ../packages/kryonix-waywallen-display-kde.nix { };
     kryonixPlasmaTheme = pkgs.callPackage ../packages/kryonix-plasma-theme.nix {
       inherit kryonixBranding;
     };
@@ -44,6 +47,9 @@ lib.forAllSystems (
     kryonix-llama-cpp-cuda = kryonixLlamaCppCuda;
     kryonix-optimizer = kryonixOptimizer;
     kryonix-branding = kryonixBranding;
+    kryonix-waywallen = kryonixWaywallen;
+    kryonix-open-wallpaper-engine = kryonixOpenWallpaperEngine;
+    kryonix-waywallen-display-kde = kryonixWaywallenDisplayKde;
     kryonix-plasma-theme = kryonixPlasmaTheme;
     kryonix-sddm-theme = kryonixSddmTheme;
     kryonix-wallpapers = kryonixWallpapers;

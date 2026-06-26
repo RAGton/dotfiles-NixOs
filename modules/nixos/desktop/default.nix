@@ -7,6 +7,7 @@ in
     ./caelestia
     ./kde
     ./sddm
+    ./wallpaper
     ../../../desktop/hyprland/system.nix
   ];
 
