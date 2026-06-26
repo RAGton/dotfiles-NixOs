@@ -1,4 +1,5 @@
 {
+  kryonixBranding,
   lib,
   stdenvNoCC,
 }:
@@ -22,8 +23,11 @@ stdenvNoCC.mkDerivation {
 
     cp -r desktoptheme/kryonix-blue-glass "$out/share/plasma/desktoptheme/"
     cp color-schemes/*.colors "$out/share/color-schemes/"
-    cp wallpapers/* "$out/share/wallpapers/kryonix-blue-glass/"
     cp mascot/* "$out/share/kryonix/mascot/"
+    cp ${kryonixBranding}/share/backgrounds/kryonix/kryonix-blue-glass-dark.svg \
+      "$out/share/wallpapers/kryonix-blue-glass/"
+    cp ${kryonixBranding}/share/backgrounds/kryonix/kryonix-blue-glass-light.svg \
+      "$out/share/wallpapers/kryonix-blue-glass/"
 
     runHook postInstall
   '';

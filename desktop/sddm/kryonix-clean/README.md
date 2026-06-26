@@ -19,10 +19,10 @@ desktop/sddm/kryonix-clean/
 ├── theme.conf
 └── assets/
     ├── avatar-placeholder.svg
-    ├── background-dark.svg
-    ├── background-light.svg
-    └── logo.svg
 ```
+
+Os arquivos `background-*.svg` e `logo.svg` sao injetados no build a partir de
+`desktop/branding/kryonix/`.
 
 ## Preview local
 

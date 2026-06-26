@@ -14,6 +14,7 @@
 # - Novo caminho canônico: kryonix.desktop.sddm.theme.preset = "kryonix-clean";
 # =============================================================================
 {
+  kryonixBranding,
   lib,
   stdenvNoCC,
 }:
@@ -37,6 +38,14 @@ stdenvNoCC.mkDerivation {
       mkdir -p "$dest"
       cp -r "$src/$theme/." "$dest/"
     done
+
+    chmod u+w "$themesRoot/kryonix-clean/assets"
+    cp ${kryonixBranding}/share/pixmaps/kryonix/logo.svg \
+      "$themesRoot/kryonix-clean/assets/logo.svg"
+    cp ${kryonixBranding}/share/backgrounds/kryonix/kryonix-clean-dark.svg \
+      "$themesRoot/kryonix-clean/assets/background-dark.svg"
+    cp ${kryonixBranding}/share/backgrounds/kryonix/kryonix-clean-light.svg \
+      "$themesRoot/kryonix-clean/assets/background-light.svg"
 
     runHook postInstall
   '';

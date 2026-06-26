@@ -28,21 +28,20 @@
 let
   selected = osConfig.kryonix.desktop.kde.theme.colorScheme or "bonafides";
   active = selected == "kryonix-dark";
+  palette = import ../branding/kryonix/palette.nix;
 
   # --- Tokens Kryonix (hex → "R,G,B" para o formato .colors) ----------------
-  # Paleta "navy profundo": background/surface/border puxados para azul
-  # escuro saturado (Aurora-like). Mantém o accent #38BDF8 — base do desktop.
-  background = "10,20,35"; # #0A1423  (era #0B0F14, quase-preto neutro)
-  surface = "18,28,46"; # #121C2E  (era #111827)
-  surfaceAlt = "26,40,64"; # #1A2840  (era #1F2937)
-  border = "51,75,108"; # #334B6C  (era #334155)
-  text = "229,231,235"; # #E5E7EB
-  textMuted = "148,163,184"; # #94A3B8
-  accent = "56,189,248"; # #38BDF8
-  accentStrong = "14,165,233"; # #0EA5E9
-  danger = "239,68,68"; # #EF4444
-  warning = "245,158,11"; # #F59E0B
-  success = "34,197,94"; # #22C55E
+  background = palette.dark.backgroundDeep.rgb;
+  surface = palette.dark.backgroundSoft.rgb;
+  surfaceAlt = palette.dark.surface.rgb;
+  border = palette.dark.borderSubtle.rgb;
+  text = palette.dark.textPrimary.rgb;
+  textMuted = palette.dark.textMuted.rgb;
+  accent = palette.dark.accentBlue.rgb;
+  accentStrong = palette.dark.accentCyan.rgb;
+  danger = palette.dark.danger.rgb;
+  warning = palette.dark.warning.rgb;
+  success = palette.dark.success.rgb;
 
   # Bloco de papéis de cor reutilizado pelas seções de superfície
   # (Window/View/Tooltip/Complementary). bg/alt variam por seção.

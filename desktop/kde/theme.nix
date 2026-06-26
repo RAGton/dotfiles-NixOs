@@ -23,9 +23,9 @@ let
   useBlueGlass = useBlueGlassDark || useBlueGlassLight;
   blueGlassWallpaper =
     if useBlueGlassLight then
-      "${pkgs.kryonix-plasma-theme}/share/wallpapers/kryonix-blue-glass/kryonix-blue-glass-light.svg"
+      "${pkgs.kryonix-branding}/share/backgrounds/kryonix/kryonix-blue-glass-light.svg"
     else
-      "${pkgs.kryonix-plasma-theme}/share/wallpapers/kryonix-blue-glass/kryonix-blue-glass-dark.svg";
+      "${pkgs.kryonix-branding}/share/backgrounds/kryonix/kryonix-blue-glass-dark.svg";
 in
 {
   # --- Cursor Nordzy (X11 / GTK / Wayland) ---------------------------------
