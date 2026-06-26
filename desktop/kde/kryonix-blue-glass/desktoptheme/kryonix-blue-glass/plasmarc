@@ -1,0 +1,11 @@
+[Theme]
+defaultWallpaperTheme=kryonix-blue-glass
+
+[ContrastEffect]
+enabled=true
+contrast=0.82
+intensity=1.15
+saturation=1.05
+
+[BlurBehindEffect]
+enabled=true

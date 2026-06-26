@@ -276,6 +276,7 @@
   #   wallpapers) é usado em desktop/kde/{kvantum,theme,tiling}.nix.
   kryonix-themes = final: _prev: {
     bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
+    kryonix-plasma-theme = final.callPackage ../packages/kryonix-plasma-theme.nix { };
 
     # Tema SDDM "Kryonix Aurora" (QML próprio, dark navy/accent #38BDF8).
     # Consumido (opt-in) por modules/nixos/desktop/kde/default.nix.

@@ -1,0 +1,16 @@
+{
+  "KPlugin": {
+    "Id": "kryonix-blue-glass",
+    "Name": "Kryonix Blue Glass",
+    "Description": "Plasma Style opt-in do Kryonix com glass azul, contraste alto e painéis translúcidos.",
+    "Version": "1.0.0",
+    "Category": "Plasma Theme",
+    "License": "CC-BY-4.0",
+    "Authors": [
+      {
+        "Name": "Kryonix"
+      }
+    ]
+  },
+  "X-Plasma-API": "5.0"
+}

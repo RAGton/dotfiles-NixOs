@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <defs>
+    <linearGradient id="panelFill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1b30" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#10294a" stop-opacity="0.78"/>
+    </linearGradient>
+    <linearGradient id="panelBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#020817" flood-opacity="0.35"/>
+    </filter>
+    <symbol id="tile">
+      <rect x="6" y="6" width="48" height="48" rx="14" ry="14" fill="url(#panelFill)" stroke="url(#panelBorder)" stroke-width="1.2" filter="url(#shadow)"/>
+    </symbol>
+  </defs>
+  <g id="center"><use href="#tile"/></g>
+  <g id="top"><use href="#tile"/></g>
+  <g id="topleft"><use href="#tile"/></g>
+  <g id="topright"><use href="#tile"/></g>
+  <g id="left"><use href="#tile"/></g>
+  <g id="right"><use href="#tile"/></g>
+  <g id="bottom"><use href="#tile"/></g>
+  <g id="bottomleft"><use href="#tile"/></g>
+  <g id="bottomright"><use href="#tile"/></g>
+  <g id="north-center"><use href="#tile"/></g>
+  <g id="north-west"><use href="#tile"/></g>
+  <g id="north-east"><use href="#tile"/></g>
+  <g id="south-center"><use href="#tile"/></g>
+  <g id="south-west"><use href="#tile"/></g>
+  <g id="south-east"><use href="#tile"/></g>
+  <g id="east-center"><use href="#tile"/></g>
+  <g id="west-center"><use href="#tile"/></g>
+</svg>
