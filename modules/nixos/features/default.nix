@@ -14,6 +14,7 @@
     ./virtualization.nix
     ./gaming.nix
     ./server.nix
+    ./network.nix
     ./ai.nix
     ./storage.nix
     ./security.nix
