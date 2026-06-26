@@ -50,6 +50,8 @@ lib.mkIf (enabledVirtualBridges != { }) {
         pkgs.libvirt
         pkgs.coreutils
         pkgs.gnugrep
+        pkgs.gnused
+        pkgs.diffutils
       ];
 
       script = ''
@@ -58,9 +60,37 @@ lib.mkIf (enabledVirtualBridges != { }) {
         NETWORK="${bridgeCfg.networkName}"
         XML="${xmlFile}"
 
+        normalize_xml() {
+          sed \
+            -e "/<uuid>.*<\/uuid>/d" \
+            -e "/<mac address=.*\/>/d" \
+            -e "s/[[:space:]]\+$//"
+        }
+
         # Define the network if it does not exist
         if ! virsh -c qemu:///system net-info "$NETWORK" >/dev/null 2>&1; then
           virsh -c qemu:///system net-define "$XML"
+        else
+          current="$(mktemp)"
+          desired="$(mktemp)"
+          current_norm="$(mktemp)"
+          desired_norm="$(mktemp)"
+
+          trap 'rm -f "$current" "$desired" "$current_norm" "$desired_norm"' EXIT
+
+          virsh -c qemu:///system net-dumpxml "$NETWORK" > "$current"
+          cp "$XML" "$desired"
+
+          normalize_xml < "$current" > "$current_norm"
+          normalize_xml < "$desired" > "$desired_norm"
+
+          if ! diff -u "$current_norm" "$desired_norm"; then
+            echo "ERROR: Libvirt network '$NETWORK' already exists but differs from Kryonix desired XML." >&2
+            echo "This service will not destroy or undefine existing networks automatically." >&2
+            echo "Manual migration is required." >&2
+            echo "Desired XML: $XML" >&2
+            exit 1
+          fi
         fi
 
         # Start the network if it is not active

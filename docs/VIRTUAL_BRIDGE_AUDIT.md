@@ -35,3 +35,11 @@ NAT -> via Libvirt
 - [ ] 4. Validate with `nixos-rebuild test`
 - [ ] 5. Migrate `glacier` separately
 - [ ] 6. Deprecate `net-ragthink.nix`
+
+## Drift detection
+
+The virtual bridge backend intentionally does not destroy or undefine existing Libvirt networks. If a network already exists but its XML differs from the Kryonix-generated XML, the systemd service fails with a clear message and requires manual migration.
+
+This prevents silently keeping an old non-NAT network while the NixOS configuration declares `nat = true`.
+
+On existing hosts, `net-ragthink` may already exist without NAT because it was created by the legacy module. In that case, enabling `virtualBridges.ragthink.nat = true` requires a one-time manual migration while dependent VMs are shut down.
