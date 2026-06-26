@@ -1,16 +1,22 @@
 # =============================================================================
 # Module: Feature Network Backend
 # =============================================================================
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.kryonix.features.network;
   enabledVirtualBridges = lib.filterAttrs (_: bridgeCfg: bridgeCfg.enable) cfg.virtualBridges;
 in
-lib.mkIf (enabledVirtualBridges != {}) {
+lib.mkIf (enabledVirtualBridges != { }) {
   virtualisation.libvirtd.enable = true;
 
-  systemd.services = lib.mapAttrs' (name: bridgeCfg:
+  systemd.services = lib.mapAttrs' (
+    name: bridgeCfg:
     let
       xmlContent = ''
         <network>
@@ -26,7 +32,7 @@ lib.mkIf (enabledVirtualBridges != {}) {
           </ip>
         </network>
       '';
-      
+
       xmlFile = pkgs.writeText "${bridgeCfg.networkName}.xml" xmlContent;
     in
     lib.nameValuePair "kryonix-libvirt-network-${name}" {

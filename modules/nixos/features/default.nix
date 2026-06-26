@@ -10,6 +10,7 @@
     ./schema.nix
     ./removed-options.nix
     ./registry.nix
+    ./network.nix
     ./desktop.nix
     ./development.nix
     ./virtualization.nix
