@@ -29,9 +29,9 @@ NAT -> via Libvirt
 
 ## Migration plan
 
-1. Add schema for `kryonix.features.network.virtualBridges`
-2. Implement Libvirt network generation in core
-3. Migrate `inspiron` only
-4. Validate with `nixos-rebuild test`
-5. Migrate `glacier` separately
-6. Deprecate `net-ragthink.nix`
+- [x] 1. Add schema for `kryonix.features.network.virtualBridges`
+- [x] 2. Implement Libvirt network generation in core
+- [ ] 3. Migrate `inspiron` only
+- [ ] 4. Validate with `nixos-rebuild test`
+- [ ] 5. Migrate `glacier` separately
+- [ ] 6. Deprecate `net-ragthink.nix`
