@@ -66,6 +66,26 @@ in
       '';
     };
 
+    theme.preset = lib.mkOption {
+      type = lib.types.enum [
+        "bonafides"
+        "kryonix-blue-glass-dark"
+        "kryonix-blue-glass-light"
+      ];
+      default = "bonafides";
+      description = ''
+        Preset visual principal do KDE Plasma.
+
+        - "bonafides": mantém o tema histórico do host como default efetivo.
+        - "kryonix-blue-glass-dark": preset opt-in Blue Glass escuro.
+        - "kryonix-blue-glass-light": preset opt-in Blue Glass claro.
+
+        O preset Blue Glass altera apenas assets e seleção visual declarativa.
+        O layout do painel continua controlado em desktop/kde/theme.nix via
+        plasma-manager, sem editar plasma-org.kde.plasma.desktop-appletsrc.
+      '';
+    };
+
     sddm.theme = lib.mkOption {
       type = lib.types.enum [
         "breeze"
@@ -152,6 +172,10 @@ in
         wl-clipboard
         kdePackages.qttools # qdbus6 (usado pelos atalhos "mover e seguir"/scratchpad)
         playerctl # controle de mídia (atalhos Meta+,/. e XF86AudioPlay)
+        kdePackages.plasma-nm
+        kdePackages.plasma-pa
+        kdePackages.plasma-systemmonitor
+        kryonix-plasma-theme
 
         # Módulo de configuração do SDDM no KDE System Settings
         # ("Tela de Login" → escolher tema/cursor/usuário sem editor externo).

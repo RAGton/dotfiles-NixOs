@@ -11,7 +11,22 @@
 # - SEM painel KDE (panels=[]) — topo reservado para a Kryonix Bar (Rust)
 # - Dolphin otimizado (caminho completo, navegação em arquivos)
 # =============================================================================
-{ pkgs, ... }:
+{
+  osConfig,
+  pkgs,
+  ...
+}:
+let
+  preset = osConfig.kryonix.desktop.kde.theme.preset or "bonafides";
+  useBlueGlassDark = preset == "kryonix-blue-glass-dark";
+  useBlueGlassLight = preset == "kryonix-blue-glass-light";
+  useBlueGlass = useBlueGlassDark || useBlueGlassLight;
+  blueGlassWallpaper =
+    if useBlueGlassLight then
+      "${pkgs.kryonix-plasma-theme}/share/wallpapers/kryonix-blue-glass/kryonix-blue-glass-light.svg"
+    else
+      "${pkgs.kryonix-plasma-theme}/share/wallpapers/kryonix-blue-glass/kryonix-blue-glass-dark.svg";
+in
 {
   # --- Cursor Nordzy (X11 / GTK / Wayland) ---------------------------------
   home.pointerCursor = {
@@ -58,8 +73,14 @@
     # Assets vêm de `pkgs.bonafides-theme` (instalado em kvantum.nix).
     workspace = {
       lookAndFeel = "BonaFides-Dark-Color-Global-6";
-      theme = "BonaFides-Color-Plasma";
-      colorScheme = "BonaFidesModerateBlueColorScheme";
+      theme = if useBlueGlass then "kryonix-blue-glass" else "BonaFides-Color-Plasma";
+      colorScheme =
+        if useBlueGlassDark then
+          "KryonixBlueGlassDark"
+        else if useBlueGlassLight then
+          "KryonixBlueGlassLight"
+        else
+          "BonaFidesModerateBlueColorScheme";
       iconTheme = "breeze-dark";
       cursor = {
         theme = "Nordzy-cursors";
@@ -69,7 +90,7 @@
       # Wallpaper padrão do Kryonix (assets/wallpaper/12.png — mesmo default do
       # módulo modules/home-manager/misc/wallpaper, que não é importado na sessão
       # KDE; por isso referenciamos o arquivo diretamente).
-      wallpaper = ../../assets/wallpaper/12.png;
+      wallpaper = if useBlueGlass then blueGlassWallpaper else ../../assets/wallpaper/12.png;
     };
 
     # NOTA: as decorações Aurorae BonaFides são instaladas pelo pacote
@@ -190,8 +211,6 @@
               ];
             };
           }
-          "org.kde.plasma.networkmanagement"
-          "org.kde.plasma.volume"
           "org.kde.plasma.systemtray"
         ];
       }
