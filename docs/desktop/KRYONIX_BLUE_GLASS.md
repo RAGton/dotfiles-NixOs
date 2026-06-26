@@ -15,7 +15,9 @@ Preset opt-in para KDE Plasma 6 no Kryonix. O default do sistema continua
 ## Estrutura
 
 - Package: `packages/kryonix-plasma-theme.nix`
+- Branding base: `packages/kryonix-branding.nix`
 - Assets: `desktop/kde/kryonix-blue-glass/`
+- Branding canônico: `desktop/branding/kryonix/`
 - Preset NixOS: `kryonix.desktop.kde.theme.preset`
 
 Conteúdo do package:
@@ -25,6 +27,12 @@ Conteúdo do package:
 - `share/color-schemes/KryonixBlueGlassLight.colors`
 - `share/wallpapers/kryonix-blue-glass/*.svg`
 - `share/kryonix/mascot/*`
+
+Conteúdo do branding base:
+
+- `share/backgrounds/kryonix/kryonix-blue-glass-dark.svg`
+- `share/backgrounds/kryonix/kryonix-blue-glass-light.svg`
+- `share/pixmaps/kryonix/logo.svg`
 
 ## Como ativar
 
@@ -43,6 +51,7 @@ kryonix.desktop.kde.theme.preset = "kryonix-blue-glass-light";
 ## Layout vs aparência
 
 - Aparência: `desktoptheme`, `plasmarc`, SVGs e color schemes do package.
+- Wallpapers canônicos e paleta oficial: `desktop/branding/kryonix/`.
 - Layout: `desktop/kde/theme.nix` via `plasma-manager`.
 - O Kryonix não edita `plasma-org.kde.plasma.desktop-appletsrc` manualmente
   nesta implementação.
@@ -63,6 +72,7 @@ Correção aplicada:
 
 ## Validação esperada
 
+- `nix build .#kryonix-branding --no-link -L --show-trace`
 - `nix flake check --keep-going` em `repos/kryonixos`
 - `nix flake show --all-systems` em `repos/kryonix`
 - `nix build .#kryonix-plasma-theme --no-link -L --show-trace`

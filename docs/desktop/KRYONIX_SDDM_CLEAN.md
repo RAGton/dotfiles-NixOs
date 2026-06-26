@@ -23,16 +23,19 @@ desktop/sddm/kryonix-clean/
 ├── theme.conf
 ├── README.md
 └── assets/
-    ├── avatar-placeholder.svg
-    ├── background-dark.svg
-    ├── background-light.svg
-    └── logo.svg
+    └── avatar-placeholder.svg
 ```
+
+Assets canônicos consumidos no build:
+
+- `desktop/branding/kryonix/assets/logo.svg`
+- `desktop/branding/kryonix/wallpapers/kryonix-clean-dark.svg`
+- `desktop/branding/kryonix/wallpapers/kryonix-clean-light.svg`
 
 ## Comportamento tecnico
 
 - QML simples, sem dependencia de internet;
-- assets locais versionados;
+- assets canônicos versionados via `kryonix-branding`;
 - mensagem de erro de login permanece visivel;
 - usuario, sessao e teclado continuam expostos no greeter;
 - a aparencia glass usa fallback visual sem exigir blur real do compositor;
@@ -52,6 +55,11 @@ O default continua preservado em `"default"`.
 THEME_PATH="$(nix build .#kryonix-sddm-theme --no-link --print-out-paths)/share/sddm/themes/kryonix-clean"
 sddm-greeter --test-mode --theme "$THEME_PATH"
 ```
+
+## Dependencias
+
+- `kryonix-sddm-theme`
+- `kryonix-branding`
 
 ## Rollback
 
