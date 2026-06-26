@@ -37,7 +37,7 @@
     ../../modules/nixos/meta
     ../../modules/nixos/desktop
     ../../modules/kernel/zen.nix
-    ../../features
+    ../../modules/nixos/features
     ../../profiles
   ];
 
