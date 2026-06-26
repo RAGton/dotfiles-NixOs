@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F8FAFC"/>
+      <stop offset="0.58" stop-color="#EEF6FF"/>
+      <stop offset="1" stop-color="#FFFFFF"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.18" cy="0.18" r="0.6">
+      <stop offset="0" stop-color="#93C5FD" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#93C5FD" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.84" cy="0.82" r="0.55">
+      <stop offset="0" stop-color="#2563EB" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#2563EB" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#glowA)"/>
+  <rect width="1920" height="1080" fill="url(#glowB)"/>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M-80 760 C 300 660 700 850 1040 740 C 1420 620 1730 720 2060 640"
+          stroke="#334155" stroke-opacity="0.10" stroke-width="2"/>
+    <path d="M-120 860 C 280 760 680 960 1080 860 C 1460 760 1760 860 2100 790"
+          stroke="#0891B2" stroke-opacity="0.10" stroke-width="1.5"/>
+  </g>
+</svg>

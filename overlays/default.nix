@@ -276,11 +276,16 @@
   #   wallpapers) é usado em desktop/kde/{kvantum,theme,tiling}.nix.
   kryonix-themes = final: _prev: {
     bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
-    kryonix-plasma-theme = final.callPackage ../packages/kryonix-plasma-theme.nix { };
+    kryonix-branding = final.callPackage ../packages/kryonix-branding.nix { };
+    kryonix-plasma-theme = final.callPackage ../packages/kryonix-plasma-theme.nix {
+      kryonixBranding = final.kryonix-branding;
+    };
 
     # Tema SDDM "Kryonix Aurora" (QML próprio, dark navy/accent #38BDF8).
     # Consumido (opt-in) por modules/nixos/desktop/kde/default.nix.
-    kryonix-sddm-theme = final.callPackage ../packages/kryonix-sddm-theme.nix { };
+    kryonix-sddm-theme = final.callPackage ../packages/kryonix-sddm-theme.nix {
+      kryonixBranding = final.kryonix-branding;
+    };
 
     # Backend D-Bus da Kryonix Bar (org.kryonix.Bar). UI (QML) virá depois.
     kryonix-bar-backend = final.callPackage ../packages/kryonix-bar { };

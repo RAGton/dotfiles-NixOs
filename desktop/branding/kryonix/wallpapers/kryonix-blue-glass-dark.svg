@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.92" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="0.52" stop-color="#111827"/>
+      <stop offset="1" stop-color="#172033"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.16" cy="0.18" r="0.65">
+      <stop offset="0" stop-color="#22D3EE" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.85" cy="0.78" r="0.60">
+      <stop offset="0" stop-color="#3B82F6" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panelA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#93C5FD" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#glowA)"/>
+  <rect width="1920" height="1080" fill="url(#glowB)"/>
+
+  <g transform="translate(1240 120) rotate(-8)">
+    <rect x="0" y="0" width="520" height="780" rx="42" fill="url(#panelA)" stroke="#93C5FD" stroke-opacity="0.18"/>
+    <rect x="-120" y="120" width="420" height="620" rx="32" fill="#172033" fill-opacity="0.22" stroke="#22D3EE" stroke-opacity="0.12"/>
+  </g>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M-120 300 C 340 180 720 520 1140 360 C 1500 220 1800 360 2100 270"
+          stroke="#22D3EE" stroke-opacity="0.10" stroke-width="2.2"/>
+    <path d="M-120 430 C 360 310 760 650 1180 500 C 1540 370 1840 520 2120 430"
+          stroke="#93C5FD" stroke-opacity="0.08" stroke-width="1.8"/>
+  </g>
+</svg>
