@@ -125,7 +125,7 @@ in
           "KrohnkiteFocusLeft" = "Meta+H";
           "KrohnkiteFocusDown" = "Meta+J";
           "KrohnkiteFocusUp" = "Meta+K";
-          "KrohnkiteFocusRight" = "Meta+L";
+          "KrohnkiteFocusRight" = "none";
           # --- Krohnkite: mover janela ---
           "KrohnkiteShiftLeft" = "Meta+Shift+H";
           "KrohnkiteShiftDown" = "Meta+Shift+J";
@@ -172,8 +172,8 @@ in
       # ---- ksmserver: sessão ----
       # "Lock Session" realocado p/ Meta+Escape (libera o default Meta+L p/ Krohnkite).
       ksmserver = {
-        "Lock Session" = "Meta+Escape";
-        "Log Out" = "Shift+Escape";
+        "Lock Session" = "Ctrl+Esc";
+        "Log Out" = "Ctrl+Alt+Del";
       };
 
       # ---- plasmashell: limpa Meta+1..0 (task manager) e conflitos ----
@@ -247,7 +247,12 @@ in
         command = "code-insiders";
       };
 
-      # --- Sessão: reiniciar com diálogo de confirmação ---
+      # --- Sessão: suspender e reiniciar ---
+      "suspend" = {
+        name = "Suspender sistema";
+        key = "Meta+L";
+        command = "systemctl suspend";
+      };
       "reboot" = {
         name = "Reiniciar sistema";
         key = "Meta+Ctrl+Escape";
