@@ -224,11 +224,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781498344,
-        "narHash": "sha256-tKmijBVDqsSFrTIyfqe8o3xxx8EcY0GvlCT93exNYRo=",
+        "lastModified": 1782519520,
+        "narHash": "sha256-pLhP4a9qzap1azpWHYMKbKN4khB42ocze0S4Qtw2Y3o=",
         "ref": "refs/heads/main",
-        "rev": "9ab49ea1eba09558525152e8bca59f8f14d99385",
-        "revCount": 55,
+        "rev": "67f0c2088126ba63c01192c949b35496f945f05c",
+        "revCount": 72,
         "type": "git",
         "url": "https://github.com/RAGton/kryonix-installer"
       },
