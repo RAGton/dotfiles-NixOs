@@ -42,6 +42,8 @@ in
           export WLR_RENDERER=pixman
           export LIBSEAT_BACKEND=seatd
           export XDG_SESSION_TYPE=wayland
+          export XCURSOR_THEME="Nordzy-cursors"
+          export XCURSOR_SIZE=24
 
           # Wait up to 90s for the backend (/health) before opening the browser.
           # Full store path avoids relying on PATH being set up during autologin.
@@ -227,6 +229,7 @@ in
         kryonix-installer
         disko
         nixos-install-tools
+        nordzy-cursor-theme
       ];
 
       # Quando o backend escuta em todas as interfaces (RemoteAccess),
@@ -247,6 +250,7 @@ in
         packages = with pkgs; [
           inter
           nerd-fonts.jetbrains-mono
+          nerd-fonts.symbols-only
         ];
       };
 
