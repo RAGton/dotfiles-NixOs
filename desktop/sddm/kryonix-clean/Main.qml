@@ -272,6 +272,7 @@ Rectangle {
                 }
 
                 Column {
+                    width: parent.width
                     spacing: 8
 
                     Text {
