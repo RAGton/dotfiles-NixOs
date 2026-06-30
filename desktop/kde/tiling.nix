@@ -26,7 +26,7 @@
       # Convenção Kryonix: 10 desktops virtuais nomeados (0/10 = Scratchpad).
       virtualDesktops = {
         number = 10;
-        rows = 2;
+        rows = 1;
         names = [
           "Browser" # 1
           "Terminal" # 2

@@ -8,7 +8,8 @@
 # - Blur + transparência (efeitos do KWin)
 # - Animações mantidas (não zeramos AnimationDurationFactor)
 # - Cursor Nordzy-cursors (X11, GTK e Wayland), tamanho 24
-# - SEM painel KDE (panels=[]) — topo reservado para a Kryonix Bar (Rust)
+# - Painel topo: "Aurora Bar" — glass compacto (32px), floating pill
+# - Painel baixo: "Task Dock" — icons-only auto-hide (44px), floating glass
 # - Dolphin otimizado (caminho completo, navegação em arquivos)
 # =============================================================================
 {
@@ -61,16 +62,6 @@ in
 
   programs.plasma = {
     # --- Tema BonaFides (Dark/Azul-Preto/Glass) ----------------------------
-    # Identidade global completa: o lookAndFeel é o Global Theme BonaFides
-    # (Plasma 6 dark), não mais Breeze Dark — era o Breeze que "dominava" o host.
-    # Sobre o lookAndFeel ainda fixamos desktoptheme + colorScheme (aplicados,
-    # nesta ordem, DEPOIS do lookAndFeel pelo plasma-manager), porque o default
-    # do Global Theme é o esquema CYAN e queremos o azul-preto Kryonix:
-    #   - lookAndFeel  → share/plasma/look-and-feel/<Id> (Id == nome da pasta)
-    #   - theme        → Plasma desktoptheme (share/plasma/desktoptheme/<id>)
-    #   - colorScheme  → "BonaFidesModerateBlueColorScheme" (bg 29,33,47 —
-    #                    mais próximo do preto que BlueDark 35,47,65).
-    # Assets vêm de `pkgs.bonafides-theme` (instalado em kvantum.nix).
     workspace = {
       lookAndFeel = "BonaFides-Dark-Color-Global-6";
       theme = if useBlueGlass then "kryonix-blue-glass" else "BonaFides-Color-Plasma";
@@ -86,51 +77,41 @@ in
         theme = "Nordzy-cursors";
         size = 24;
       };
-
-      # Wallpaper padrão do Kryonix (assets/wallpaper/12.png — mesmo default do
-      # módulo modules/home-manager/misc/wallpaper, que não é importado na sessão
-      # KDE; por isso referenciamos o arquivo diretamente).
       wallpaper = if useBlueGlass then blueGlassWallpaper else ../../assets/wallpaper/12.png;
     };
 
-    # NOTA: as decorações Aurorae BonaFides são instaladas pelo pacote
-    # (share/aurorae/themes/) e o Global Theme já define a Aurorae
-    # "BonaFides-Color-Dark-Aurorae-6" como decoração. NÃO forçamos
-    # windowDecorations aqui: a regra global `noborder` (tiling.nix) remove a
-    # borda de todas as janelas, então a decoração não é exibida de qualquer
-    # forma; deixamos o lookAndFeel cuidar do default e evitamos definição dupla.
-
     # --- Transparência com blur (Kryonix Glass profundo) ------------------
-    # Blur + translucency ligados: painel/menus mostram o wallpaper desfocado
-    # atrás, dando profundidade (visual "macOS escuro"). Combinado com o
-    # scheme navy de scheme.nix dá o efeito azul/translúcido pedido.
-    # Desempenho: aceitável no iGPU Intel do inspiron; se notar lag, basta
-    # voltar `blur.enable = false`.
     kwin.effects = {
       blur.enable = true;
       translucency.enable = true;
     };
 
-    # --- PAINEIS Kryonix --------------------------------------------------
-    # TOPO  = "Aurora Bar"  → status bar premium (workspaces+título | clock |
-    #                          CPU/RAM/rede/áudio/tray). Sempre visível.
-    # BAIXO = "Task Dock"   → barra de tarefas (icons-only). Auto-oculta — só
-    #                          aparece quando o mouse encosta na borda inferior.
-    # Ambos floating + translucent (blur configurado em kwin.effects acima).
-    # plasma-manager instala automaticamente `application-title-bar` quando o
-    # widget `com.github.antroids.application-title-bar` aparece na lista.
+    # --- PAINEIS Kryonix (Glass Compact Design) ----------------------------
+    #
+    # TOPO  = "Aurora Bar"  → glass pill compacto (32px). Layout limpo:
+    #                          [pager | título] | clock | [systemtray]
+    #                          Sem monitores CPU/RAM (disponíveis no tray).
+    #
+    # BAIXO = "Task Dock"   → icons-only (44px). Auto-oculta, floating glass.
+    #
+    # Design rationale:
+    #   - 32px topo = fino como macOS/GNOME, não compete com o conteúdo
+    #   - pager single-row (tiling.nix rows=1) → strip horizontal compacto
+    #   - data ao lado da hora (besideTime) — compacto numa única linha
+    #   - CPU/RAM removidos da barra — limpo e minimalista
+    #   - 44px dock inferior = ícones visíveis mas discreto
     panels = [
       {
-        # ===== PAINEL TOPO: Aurora Bar (status premium) =====================
+        # ===== PAINEL TOPO: Aurora Bar (glass pill compacto) ==================
         location = "top";
         alignment = "center";
-        height = 48;
+        height = 32;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
         opacity = "translucent";
         widgets = [
-          # ── Zona esquerda: workspaces + título da janela ─────────────────
+          # ── Esquerda: workspaces (strip horizontal compacto) ──────────────
           {
             pager = {
               general = {
@@ -153,13 +134,13 @@ in
           }
           "org.kde.plasma.marginsseparator"
 
-          # ── Zona centro: relógio com hora + data ─────────────────────────
+          # ── Centro: relógio compacto (hora + data ao lado) ────────────────
           {
             digitalClock = {
               date = {
                 enable = true;
                 format = "isoDate";
-                position = "belowTime";
+                position = "besideTime";
               };
               time = {
                 format = "24h";
@@ -170,60 +151,16 @@ in
 
           "org.kde.plasma.marginsseparator"
 
-          # ── Zona direita: CPU + RAM + rede + áudio + tray ────────────────
-          {
-            systemMonitor = {
-              title = "CPU";
-              showTitle = false;
-              showLegend = false;
-              displayStyle = "org.kde.ksysguard.textonly";
-              totalSensors = [ "cpu/all/usage" ];
-              sensors = [
-                {
-                  name = "cpu/all/usage";
-                  color = "56,189,248";
-                  label = "CPU";
-                }
-              ];
-              textOnlySensors = [
-                "cpu/all/averageFrequency"
-                "cpu/all/averageTemperature"
-              ];
-            };
-          }
-          {
-            systemMonitor = {
-              title = "RAM";
-              showTitle = false;
-              showLegend = false;
-              displayStyle = "org.kde.ksysguard.textonly";
-              totalSensors = [ "memory/physical/usedPercent" ];
-              sensors = [
-                {
-                  name = "memory/physical/usedPercent";
-                  color = "56,189,248";
-                  label = "RAM";
-                }
-              ];
-              textOnlySensors = [
-                "memory/physical/used"
-                "memory/physical/total"
-              ];
-            };
-          }
+          # ── Direita: system tray ──────────────────────────────────────────
           "org.kde.plasma.systemtray"
         ];
       }
 
       {
-        # ===== PAINEL INFERIOR: Task Dock (icons-only, auto-hide) ============
-        # Aparece quando o mouse encosta na borda inferior; some sozinho.
-        # Mostra apenas ícones de janelas abertas (icons-only-task-manager).
-        # 56px de altura dá um dock confortável; floating + translucent batem
-        # com o painel topo. lengthMode=fit segue a quantidade de ícones.
+        # ===== PAINEL INFERIOR: Task Dock (glass auto-hide) ==================
         location = "bottom";
         alignment = "center";
-        height = 56;
+        height = 44;
         floating = true;
         lengthMode = "fit";
         hiding = "autohide";
@@ -262,40 +199,24 @@ in
     ];
 
     configFile = {
-      # --- Dolphin otimizado ---------------------------------------------
-      # Previews habilitados por padrão; reforçamos caminho completo, info de
-      # espaço e navegação em arquivos compactados. (Split view é ação por-janela
-      # em Ctrl+F3, não estado persistente.)
+      # --- Dolphin otimizado -----------------------------------------------
       dolphinrc.General = {
         ShowFullPath = true;
         ShowSpaceInfo = true;
         BrowseThroughArchives = true;
       };
 
-      # --- Kryonix Glass: accent azul Kryonix (#38BDF8) ------------------
-      # Coerente com os gauges da barra (56,189,248), o launcher fuzzel e o
-      # esquema "Kryonix Dark". Era #89B4FA (catppuccin) — desalinhado do resto
-      # do desktop. O blur é configurado em kwin.effects acima (evita dupla def).
+      # --- Kryonix Glass: accent azul Kryonix (#38BDF8) --------------------
       kdeglobals.General = {
         accentColorFromWallpaper = false;
         AccentColor = "56,189,248";
       };
 
-      # --- Sessão limpa (sem restaurar janelas da última sessão) ----------
-      # Default do Plasma 6 tenta restaurar Firefox/VSCode/Dolphin do logout
-      # anterior — quebra a impressão de "abre limpo". emptySession = sempre
-      # começar zerado. confirmLogout=false porque o atalho de reboot (Meta+
-      # Ctrl+Esc) já vai por LogoutPrompt.promptReboot (keybinds.nix).
+      # --- Sessão limpa (sem restaurar janelas da última sessão) ------------
       ksmserverrc.General = {
         loginMode = "emptySession";
         confirmLogout = false;
       };
     };
   };
-
-  # NOTA: não rodamos plasma-apply-lookandfeel via home.activation. O próprio
-  # plasma-manager (programs.plasma) já aplica o lookAndFeel acima no activation
-  # do módulo. A activation extra usava ID errado ("BonaFides-Color-Plasma" — o
-  # ID real do Global Theme é "BonaFides-Dark-Color-Global-6", definido em
-  # workspace.lookAndFeel acima) e só gerava warning no journal sem efeito útil.
 }
