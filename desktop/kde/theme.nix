@@ -86,32 +86,20 @@ in
       translucency.enable = true;
     };
 
-    # --- PAINEIS Kryonix (Glass Compact Design) ----------------------------
-    #
-    # TOPO  = "Aurora Bar"  → glass pill compacto (32px). Layout limpo:
-    #                          [pager | título] | clock | [systemtray]
-    #                          Sem monitores CPU/RAM (disponíveis no tray).
-    #
-    # BAIXO = "Task Dock"   → icons-only (44px). Auto-oculta, floating glass.
-    #
-    # Design rationale:
-    #   - 32px topo = fino como macOS/GNOME, não compete com o conteúdo
-    #   - pager single-row (tiling.nix rows=1) → strip horizontal compacto
-    #   - data ao lado da hora (besideTime) — compacto numa única linha
-    #   - CPU/RAM removidos da barra — limpo e minimalista
-    #   - 44px dock inferior = ícones visíveis mas discreto
+    # --- PAINEIS Kryonix (Caelestia-style 3-Pill Layout) -------------------
+    # Layout dividido em 3 ilhas flutuantes (pills) para visual ultra-minimalista,
+    # imitando o Caelestia Shell do Hyprland.
     panels = [
+      # 1. Pill Esquerda (Workspaces + Window Title)
       {
-        # ===== PAINEL TOPO: Aurora Bar (glass pill compacto) ==================
         location = "top";
-        alignment = "center";
+        alignment = "left";
         height = 32;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
         opacity = "translucent";
         widgets = [
-          # ── Esquerda: workspaces (strip horizontal compacto) ──────────────
           {
             pager = {
               general = {
@@ -132,9 +120,19 @@ in
               titleReplacements = [ ];
             };
           }
-          "org.kde.plasma.marginsseparator"
+        ];
+      }
 
-          # ── Centro: relógio compacto (hora + data ao lado) ────────────────
+      # 2. Pill Central (Relógio)
+      {
+        location = "top";
+        alignment = "center";
+        height = 32;
+        floating = true;
+        lengthMode = "fit";
+        hiding = "none";
+        opacity = "translucent";
+        widgets = [
           {
             digitalClock = {
               date = {
@@ -148,14 +146,24 @@ in
               };
             };
           }
+        ];
+      }
 
-          "org.kde.plasma.marginsseparator"
-
-          # ── Direita: system tray ──────────────────────────────────────────
+      # 3. Pill Direita (System Tray)
+      {
+        location = "top";
+        alignment = "right";
+        height = 32;
+        floating = true;
+        lengthMode = "fit";
+        hiding = "none";
+        opacity = "translucent";
+        widgets = [
           "org.kde.plasma.systemtray"
         ];
       }
 
+      # 4. Dock Inferior (Auto-hide)
       {
         # ===== PAINEL INFERIOR: Task Dock (glass auto-hide) ==================
         location = "bottom";
