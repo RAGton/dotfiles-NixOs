@@ -28,16 +28,16 @@
         number = 10;
         rows = 1;
         names = [
-          "Browser" # 1
-          "Terminal" # 2
-          "Development" # 3
-          "Communication" # 4
-          "Infrastructure" # 5
-          "AI" # 6
-          "Media" # 7
-          "VM" # 8
-          "Temporary" # 9
-          "Scratchpad" # 10 (Meta+S / Meta+Shift+S)
+          "一" # 1
+          "二" # 2
+          "三" # 3
+          "四" # 4
+          "五" # 5
+          "六" # 6
+          "七" # 7
+          "八" # 8
+          "九" # 9
+          "○" # 10 (Scratchpad)
         ];
       };
     };

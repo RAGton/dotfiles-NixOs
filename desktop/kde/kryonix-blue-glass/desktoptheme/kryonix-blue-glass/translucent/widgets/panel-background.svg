@@ -1,15 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
   <defs>
-    <linearGradient id="panelFill" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a1e3d" stop-opacity="0.48"/>
-      <stop offset="100%" stop-color="#0f2a4d" stop-opacity="0.38"/>
-    </linearGradient>
-    <linearGradient id="panelBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.65"/>
-      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.20"/>
-    </linearGradient>
     <symbol id="tile">
-      <rect x="6" y="6" width="48" height="48" rx="20" ry="20" fill="url(#panelFill)" stroke="url(#panelBorder)" stroke-width="0.8"/>
+      <rect x="4" y="4" width="52" height="52" rx="9" ry="9" fill="rgba(3, 10, 24, 0.58)" stroke="rgba(100, 190, 255, 0.22)" stroke-width="1"/>
     </symbol>
   </defs>
   <g id="center"><use href="#tile"/></g>

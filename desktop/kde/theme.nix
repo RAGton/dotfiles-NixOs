@@ -94,7 +94,7 @@ in
       {
         location = "top";
         alignment = "left";
-        height = 32;
+        height = 28;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
@@ -127,7 +127,7 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 32;
+        height = 28;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
@@ -153,7 +153,7 @@ in
       {
         location = "top";
         alignment = "right";
-        height = 32;
+        height = 28;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
