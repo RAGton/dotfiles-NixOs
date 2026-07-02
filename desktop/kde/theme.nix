@@ -86,20 +86,20 @@ in
       translucency.enable = true;
     };
 
-    # --- PAINEIS Kryonix (Caelestia-style 3-Pill Layout) -------------------
-    # Layout dividido em 3 ilhas flutuantes (pills) para visual ultra-minimalista,
-    # imitando o Caelestia Shell do Hyprland.
+    # --- PAINEL Kryonix (macOS-style Unified Top Bar) -------------------
+    # Layout unificado com altura reduzida, ocupando a barra superior inteira.
     panels = [
-      # 1. Pill Esquerda (Workspaces + Window Title)
+      # 1. Top Bar
       {
         location = "top";
         alignment = "left";
-        height = 32;
-        floating = true;
-        lengthMode = "fit";
+        height = 28;
+        floating = false;
+        lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
         widgets = [
+          # --- Left ---
           {
             pager = {
               general = {
@@ -120,19 +120,8 @@ in
               titleReplacements = [ ];
             };
           }
-        ];
-      }
-
-      # 2. Pill Central (Relógio)
-      {
-        location = "top";
-        alignment = "center";
-        height = 32;
-        floating = true;
-        lengthMode = "fit";
-        hiding = "none";
-        opacity = "translucent";
-        widgets = [
+          # --- Center ---
+          "org.kde.plasma.panelspacer"
           {
             digitalClock = {
               date = {
@@ -146,19 +135,8 @@ in
               };
             };
           }
-        ];
-      }
-
-      # 3. Pill Direita (System Tray)
-      {
-        location = "top";
-        alignment = "right";
-        height = 32;
-        floating = true;
-        lengthMode = "fit";
-        hiding = "none";
-        opacity = "translucent";
-        widgets = [
+          "org.kde.plasma.panelspacer"
+          # --- Right ---
           "org.kde.plasma.systemtray"
         ];
       }
