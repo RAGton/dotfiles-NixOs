@@ -91,14 +91,15 @@ lib.mkIf (enabledVirtualBridges != { }) {
             REQUIRE_NO_RUNNING="${lib.boolToString bridgeCfg.migration.requireNoRunningDomains}"
             BACKUP_DIR="${bridgeCfg.migration.backupDir}"
 
-            if [ "$ALLOW_DESTRUCTIVE" != "1" ]; then
+            if [ "$ALLOW_DESTRUCTIVE" != "true" ]; then
+              echo "ERROR: Libvirt network '$NETWORK' already exists but differs from Kryonix desired XML." >&2
               echo "ERROR: migration.allowDestructiveReconcile is false." >&2
               echo "Manual migration is required or set allowDestructiveReconcile to true temporarily." >&2
               echo "Desired XML: $XML" >&2
               exit 1
             fi
 
-            if [ "$REQUIRE_NO_RUNNING" = "1" ]; then
+            if [ "$REQUIRE_NO_RUNNING" = "true" ]; then
               RUNNING_DOMAINS=$(virsh -c qemu:///system list --name --state-running)
               for dom in $RUNNING_DOMAINS; do
                 # Check if the domain's XML contains a network interface connected to this network
