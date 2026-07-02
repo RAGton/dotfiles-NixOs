@@ -94,7 +94,7 @@ in
       {
         location = "top";
         alignment = "left";
-        height = 28;
+        height = 32;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
@@ -127,7 +127,7 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 28;
+        height = 32;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
@@ -153,7 +153,7 @@ in
       {
         location = "top";
         alignment = "right";
-        height = 28;
+        height = 32;
         floating = true;
         lengthMode = "fit";
         hiding = "none";
@@ -168,7 +168,7 @@ in
         # ===== PAINEL INFERIOR: Task Dock (glass auto-hide) ==================
         location = "bottom";
         alignment = "center";
-        height = 44;
+        height = 38;
         floating = true;
         lengthMode = "fit";
         hiding = "autohide";

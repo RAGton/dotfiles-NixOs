@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
   <defs>
     <symbol id="tile">
-      <rect x="4" y="4" width="52" height="52" rx="9" ry="9" fill="rgba(3, 10, 24, 0.95)" stroke="rgba(100, 190, 255, 0.22)" stroke-width="1"/>
+      <rect x="4" y="4" width="52" height="52" rx="14" ry="14" fill="rgba(3, 10, 24, 0.65)" stroke="rgba(255, 255, 255, 0.1)" stroke-width="1"/>
     </symbol>
   </defs>
   <g id="center"><use href="#tile"/></g>
