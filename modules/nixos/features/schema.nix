@@ -176,6 +176,26 @@
                     description = "DHCP range end address.";
                   };
                 };
+
+                migration = {
+                  allowDestructiveReconcile = lib.mkOption {
+                    type = lib.types.bool;
+                    default = false;
+                    description = "Temporarily allow destroying and undefining the network to migrate to the desired XML. Use with caution.";
+                  };
+
+                  requireNoRunningDomains = lib.mkOption {
+                    type = lib.types.bool;
+                    default = true;
+                    description = "Fail migration if any domains are currently running and using this network.";
+                  };
+
+                  backupDir = lib.mkOption {
+                    type = lib.types.str;
+                    default = "/var/lib/kryonix/libvirt-network-backups";
+                    description = "Directory to store XML backups before destructive migration.";
+                  };
+                };
               };
             }
           )
