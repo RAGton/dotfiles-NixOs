@@ -61,6 +61,8 @@ in
   };
 
   programs.plasma = {
+    overrideConfig = true;
+    
     # --- Tema BonaFides (Dark/Azul-Preto/Glass) ----------------------------
     workspace = {
       lookAndFeel = "BonaFides-Dark-Color-Global-6";
@@ -93,9 +95,9 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 28;
-        floating = false;
-        lengthMode = "fill";
+        height = 30;
+        floating = true; # "borda móvel que destaca e volta" (Floating mode in Plasma 6)
+        lengthMode = "fill"; # "completa na tela inteira"
         hiding = "none";
         opacity = "translucent";
         widgets = [
