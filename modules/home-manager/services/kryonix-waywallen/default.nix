@@ -1,13 +1,13 @@
 {
   config,
   lib,
-  osConfig,
+  osConfig ? null,
   pkgs,
   ...
 }:
 let
-  cfg = osConfig.kryonix.desktop.wallpaper.dynamic;
-  env = osConfig.kryonix.desktop.environment;
+  cfg = if osConfig != null then osConfig.kryonix.desktop.wallpaper.dynamic else { enable = false; defaultWallpaper = null; wallpaperEngine = { enable = false; }; };
+  env = if osConfig != null then osConfig.kryonix.desktop.environment else "";
   isHyprland = env == "hyprland";
   fallbackWallpaper =
     if cfg.defaultWallpaper != null then
