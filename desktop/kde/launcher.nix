@@ -66,7 +66,7 @@
 
       # Paleta Kryonix Glass (RRGGBBAA).
       colors = {
-        background = "0b1017f0"; # navy ~94% (flat glass, sem blur)
+        background = "0b1017aa"; # dark glass translúcido (~66%)
         text = "c0caf5ff";
         prompt = "38bdf8ff"; # accent
         placeholder = "6b7280ff";
