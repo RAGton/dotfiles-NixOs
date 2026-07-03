@@ -2,8 +2,8 @@
   "KPlugin": {
     "Id": "kryonix-blue-glass",
     "Name": "Kryonix Blue Glass",
-    "Description": "Plasma Style opt-in do Kryonix com glass azul, contraste alto e painéis translúcidos.",
-    "Version": "1.0.0",
+    "Description": "Kryonix dark blue glass Plasma style. Inherits panel/dialog assets from BonaFides-Color-Plasma and applies Kryonix color scheme.",
+    "Version": "2.0.0",
     "Category": "Plasma Theme",
     "License": "CC-BY-4.0",
     "Authors": [
@@ -12,5 +12,7 @@
       }
     ]
   },
-  "X-Plasma-API": "5.0"
+  "X-Plasma-API": "5.0",
+  "X-KDE-PluginInfo-EnabledByDefault": true,
+  "X-Plasma-FallbackTheme": "BonaFides-Color-Plasma"
 }

@@ -1,16 +1,17 @@
 # =============================================================================
-# desktop/kde/theme.nix — Camada visual moderna do KDE (Home Manager)
+# desktop/kde/theme.nix — Camada visual do KDE (Home Manager)
 #
-# Estética padrão do ambiente principal:
-# - Global Theme BonaFides Dark (lookAndFeel "BonaFides-Dark-Color-Global-6")
-#   + desktoptheme "BonaFides-Color-Plasma" + colorScheme "ModerateBlue"
-#   (backgrounds azul-preto profundo: 29,33,47 — mais escuro que BlueDark).
-# - Blur + transparência (efeitos do KWin)
-# - Animações mantidas (não zeramos AnimationDurationFactor)
-# - Cursor Nordzy-cursors (X11, GTK e Wayland), tamanho 24
-# - Painel topo: "Aurora Bar" — glass compacto (32px), floating pill
-# - Painel baixo: "Task Dock" — icons-only auto-hide (44px), floating glass
-# - Dolphin otimizado (caminho completo, navegação em arquivos)
+# Arquitetura visual:
+# - Global Theme: BonaFides Dark (lookAndFeel "BonaFides-Dark-Color-Global-6")
+# - Desktop Theme: BonaFides-Color-Plasma (FrameSVG profissional completo)
+#   ou kryonix-blue-glass (herda SVGs do BonaFides via fallback, aplica paleta
+#   Kryonix navy: 11,18,32 / accent 59,130,246 via ColorScheme-Background)
+# - Blur + transparência (KWin effects)
+# - Cursor Nordzy-cursors, tamanho 24
+# - Top bar: 28px, fixa, full-width, sem pager
+# - Dock: 40px, flutuante, auto-hide, icons-only
+# - Dolphin otimizado
+# =============================================================================
 # =============================================================================
 {
   osConfig,
