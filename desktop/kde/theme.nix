@@ -92,9 +92,9 @@ in
       # 1. Top Bar
       {
         location = "top";
-        alignment = "left";
-        height = 28;
-        floating = false;
+        alignment = "center";
+        height = 32;
+        floating = true;
         lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";

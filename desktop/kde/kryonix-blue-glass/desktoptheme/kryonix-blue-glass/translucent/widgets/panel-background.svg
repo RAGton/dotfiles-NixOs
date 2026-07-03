@@ -1,24 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <symbol id="tile">
-      <rect x="0" y="0" width="60" height="60" rx="0" ry="0" fill="rgba(0, 0, 0, 0.25)" stroke="none"/>
-    </symbol>
+    <style>
+      .bg { fill: rgba(4, 10, 22, 0.46); }
+      .border { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 1; }
+    </style>
   </defs>
-  <g id="center"><use href="#tile"/></g>
-  <g id="top"><use href="#tile"/></g>
-  <g id="topleft"><use href="#tile"/></g>
-  <g id="topright"><use href="#tile"/></g>
-  <g id="left"><use href="#tile"/></g>
-  <g id="right"><use href="#tile"/></g>
-  <g id="bottom"><use href="#tile"/></g>
-  <g id="bottomleft"><use href="#tile"/></g>
-  <g id="bottomright"><use href="#tile"/></g>
-  <g id="north-center"><use href="#tile"/></g>
-  <g id="north-west"><use href="#tile"/></g>
-  <g id="north-east"><use href="#tile"/></g>
-  <g id="south-center"><use href="#tile"/></g>
-  <g id="south-west"><use href="#tile"/></g>
-  <g id="south-east"><use href="#tile"/></g>
-  <g id="east-center"><use href="#tile"/></g>
-  <g id="west-center"><use href="#tile"/></g>
+  
+  <g id="topleft" transform="translate(0, 0)">
+    <path class="bg" d="M16 16 V0 C7.163 0 0 7.163 0 16 Z"/>
+    <path class="border" d="M16 0.5 C7.44 0.5 0.5 7.44 0.5 16"/>
+  </g>
+  <g id="top" transform="translate(16, 0)">
+    <rect class="bg" width="32" height="16"/>
+    <line class="border" x1="0" y1="0.5" x2="32" y2="0.5"/>
+  </g>
+  <g id="topright" transform="translate(48, 0)">
+    <path class="bg" d="M0 16 V0 C8.837 0 16 7.163 16 16 Z"/>
+    <path class="border" d="M0 0.5 C8.56 0.5 15.5 7.44 15.5 16"/>
+  </g>
+  <g id="left" transform="translate(0, 16)">
+    <rect class="bg" width="16" height="32"/>
+    <line class="border" x1="0.5" y1="0" x2="0.5" y2="32"/>
+  </g>
+  <g id="center" transform="translate(16, 16)">
+    <rect class="bg" width="32" height="32"/>
+  </g>
+  <g id="right" transform="translate(48, 16)">
+    <rect class="bg" width="16" height="32"/>
+    <line class="border" x1="15.5" y1="0" x2="15.5" y2="32"/>
+  </g>
+  <g id="bottomleft" transform="translate(0, 48)">
+    <path class="bg" d="M16 0 V16 C7.163 16 0 8.837 0 0 Z"/>
+    <path class="border" d="M16 15.5 C7.44 15.5 0.5 8.56 0.5 0"/>
+  </g>
+  <g id="bottom" transform="translate(16, 48)">
+    <rect class="bg" width="32" height="16"/>
+    <line class="border" x1="0" y1="15.5" x2="32" y2="15.5"/>
+  </g>
+  <g id="bottomright" transform="translate(48, 48)">
+    <path class="bg" d="M0 0 V16 C8.837 16 16 8.837 16 0 Z"/>
+    <path class="border" d="M0 15.5 C8.56 15.5 15.5 8.56 15.5 0"/>
+  </g>
 </svg>
