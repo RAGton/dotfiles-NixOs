@@ -1,37 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <g id="topleft" transform="translate(0, 0)">
-    <path fill="#000000" opacity="0.25" d="M16 16 V0 C7.163 0 0 7.163 0 16 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M16 0.5 C7.44 0.5 0.5 7.44 0.5 16"/>
+    <path style="fill:#000000;fill-opacity:0.4" d="M10 10 V0 C4.477 0 0 4.477 0 10 Z"/>
+    <path style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" d="M10 0.5 C4.75 0.5 0.5 4.75 0.5 10"/>
   </g>
-  <g id="top" transform="translate(16, 0)">
-    <rect fill="#000000" opacity="0.25" width="32" height="16"/>
-    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="0" y1="0.5" x2="32" y2="0.5"/>
+  <g id="top" transform="translate(10, 0)">
+    <rect style="fill:#000000;fill-opacity:0.4" width="12" height="10"/>
+    <line style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" x1="0" y1="0.5" x2="12" y2="0.5"/>
   </g>
-  <g id="topright" transform="translate(48, 0)">
-    <path fill="#000000" opacity="0.25" d="M0 16 V0 C8.837 0 16 7.163 16 16 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M0 0.5 C8.56 0.5 15.5 7.44 15.5 16"/>
+  <g id="topright" transform="translate(22, 0)">
+    <path style="fill:#000000;fill-opacity:0.4" d="M0 10 V0 C5.523 0 10 4.477 10 10 Z"/>
+    <path style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" d="M0 0.5 C5.25 0.5 9.5 4.75 9.5 10"/>
   </g>
-  <g id="left" transform="translate(0, 16)">
-    <rect fill="#000000" opacity="0.25" width="16" height="32"/>
-    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="0.5" y1="0" x2="0.5" y2="32"/>
+  
+  <g id="left" transform="translate(0, 10)">
+    <rect style="fill:#000000;fill-opacity:0.4" width="10" height="12"/>
+    <line style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" x1="0.5" y1="0" x2="0.5" y2="12"/>
   </g>
-  <g id="center" transform="translate(16, 16)">
-    <rect fill="#000000" opacity="0.25" width="32" height="32"/>
+  <g id="center" transform="translate(10, 10)">
+    <rect style="fill:#000000;fill-opacity:0.4" width="12" height="12"/>
   </g>
-  <g id="right" transform="translate(48, 16)">
-    <rect fill="#000000" opacity="0.25" width="16" height="32"/>
-    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="15.5" y1="0" x2="15.5" y2="32"/>
+  <g id="right" transform="translate(22, 10)">
+    <rect style="fill:#000000;fill-opacity:0.4" width="10" height="12"/>
+    <line style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" x1="9.5" y1="0" x2="9.5" y2="12"/>
   </g>
-  <g id="bottomleft" transform="translate(0, 48)">
-    <path fill="#000000" opacity="0.25" d="M16 0 V16 C7.163 16 0 8.837 0 0 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M16 15.5 C7.44 15.5 0.5 8.56 0.5 0"/>
+  
+  <g id="bottomleft" transform="translate(0, 22)">
+    <path style="fill:#000000;fill-opacity:0.4" d="M10 0 V10 C4.477 10 0 5.523 0 0 Z"/>
+    <path style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" d="M10 9.5 C4.75 9.5 0.5 5.25 0.5 0"/>
   </g>
-  <g id="bottom" transform="translate(16, 48)">
-    <rect fill="#000000" opacity="0.25" width="32" height="16"/>
-    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="0" y1="15.5" x2="32" y2="15.5"/>
+  <g id="bottom" transform="translate(10, 22)">
+    <rect style="fill:#000000;fill-opacity:0.4" width="12" height="10"/>
+    <line style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" x1="0" y1="9.5" x2="12" y2="9.5"/>
   </g>
-  <g id="bottomright" transform="translate(48, 48)">
-    <path fill="#000000" opacity="0.25" d="M0 0 V16 C8.837 16 16 8.837 16 0 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M0 15.5 C8.56 15.5 15.5 8.56 15.5 0"/>
+  <g id="bottomright" transform="translate(22, 22)">
+    <path style="fill:#000000;fill-opacity:0.4" d="M0 0 V10 C5.523 10 10 5.523 10 0 Z"/>
+    <path style="fill:none;stroke:#ffffff;stroke-opacity:0.15;stroke-width:1" d="M0 9.5 C5.25 9.5 9.5 5.25 9.5 0"/>
   </g>
+
+  <!-- PADDING HINTS TO PREVENT THICKNESS/FATNESS -->
+  <rect id="hint-top-margin" width="1" height="2" style="fill:none"/>
+  <rect id="hint-bottom-margin" width="1" height="2" style="fill:none"/>
+  <rect id="hint-left-margin" width="6" height="1" style="fill:none"/>
+  <rect id="hint-right-margin" width="6" height="1" style="fill:none"/>
 </svg>
