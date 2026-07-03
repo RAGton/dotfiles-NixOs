@@ -93,8 +93,8 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 30;
-        floating = true;
+        height = 28;
+        floating = false;
         lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
@@ -108,6 +108,7 @@ in
               };
             };
           }
+          "org.kde.plasma.marginsseparator"
           {
             applicationTitleBar = {
               windowTitle.source = "appName";
@@ -126,7 +127,7 @@ in
             digitalClock = {
               date = {
                 enable = true;
-                format = "isoDate";
+                format = "shortDate";
                 position = "besideTime";
               };
               time = {
