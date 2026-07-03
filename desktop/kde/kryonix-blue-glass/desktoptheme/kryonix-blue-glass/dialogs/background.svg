@@ -1,10 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
-  <defs>
-    <linearGradient id="dialogFill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#040a16" stop-opacity="0.46" />
-      <stop offset="100%" stop-color="#040a16" stop-opacity="0.56" />
-    </linearGradient>
-  </defs>
-  <rect id="hint-apply-color-scheme" x="0" y="0" width="1" height="1" fill="#38bdf8"/>
-  <rect x="8" y="8" width="144" height="144" rx="16" ry="16" fill="url(#dialogFill)" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <g id="topleft" transform="translate(0, 0)">
+    <path fill="#040a16" opacity="0.55" d="M8 8 V0 C3.582 0 0 3.582 0 8 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M8 0.5 C3.858 0.5 0.5 3.858 0.5 8"/>
+  </g>
+  <g id="top" transform="translate(8, 0)">
+    <rect fill="#040a16" opacity="0.55" width="16" height="8"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0" y1="0.5" x2="16" y2="0.5"/>
+  </g>
+  <g id="topright" transform="translate(24, 0)">
+    <path fill="#040a16" opacity="0.55" d="M0 8 V0 C4.418 0 8 3.582 8 8 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M0 0.5 C4.142 0.5 7.5 3.858 7.5 8"/>
+  </g>
+  <g id="left" transform="translate(0, 8)">
+    <rect fill="#040a16" opacity="0.55" width="8" height="16"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0.5" y1="0" x2="0.5" y2="16"/>
+  </g>
+  <g id="center" transform="translate(8, 8)">
+    <rect fill="#040a16" opacity="0.55" width="16" height="16"/>
+  </g>
+  <g id="right" transform="translate(24, 8)">
+    <rect fill="#040a16" opacity="0.55" width="8" height="16"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="7.5" y1="0" x2="7.5" y2="16"/>
+  </g>
+  <g id="bottomleft" transform="translate(0, 24)">
+    <path fill="#040a16" opacity="0.55" d="M8 0 V8 C3.582 8 0 4.418 0 0 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M8 7.5 C3.858 7.5 0.5 4.142 0.5 0"/>
+  </g>
+  <g id="bottom" transform="translate(8, 24)">
+    <rect fill="#040a16" opacity="0.55" width="16" height="8"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0" y1="7.5" x2="16" y2="7.5"/>
+  </g>
+  <g id="bottomright" transform="translate(24, 24)">
+    <path fill="#040a16" opacity="0.55" d="M0 0 V8 C4.418 8 8 4.418 8 0 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M0 7.5 C4.142 7.5 7.5 4.142 7.5 0"/>
+  </g>
 </svg>

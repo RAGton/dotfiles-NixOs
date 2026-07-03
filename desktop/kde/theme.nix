@@ -61,8 +61,9 @@ in
   };
 
   programs.plasma = {
+    # ATENÇÃO: overrideConfig força a reescrita do plasma-manager. Se causar problemas com applets, remova.
     overrideConfig = true;
-    
+
     # --- Tema BonaFides (Dark/Azul-Preto/Glass) ----------------------------
     workspace = {
       lookAndFeel = "BonaFides-Dark-Color-Global-6";
@@ -95,9 +96,9 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 30;
-        floating = true; # "borda móvel que destaca e volta" (Floating mode in Plasma 6)
-        lengthMode = "fill"; # "completa na tela inteira"
+        height = 28;
+        floating = false;
+        lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
         widgets = [
@@ -149,7 +150,7 @@ in
         # ===== PAINEL INFERIOR: Task Dock (glass auto-hide) ==================
         location = "bottom";
         alignment = "center";
-        height = 38;
+        height = 40;
         floating = true;
         lengthMode = "fit";
         hiding = "autohide";
