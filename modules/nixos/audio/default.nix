@@ -2,6 +2,7 @@
   lib,
   pkgs,
   hostname,
+  config,
   ...
 }:
 {
@@ -110,7 +111,7 @@
     };
   };
 
-  services.blueman.enable = true;
+  services.blueman.enable = lib.mkDefault true;
 
   # BlueZ utilities and audio debuggers
   environment.systemPackages = with pkgs; [
@@ -131,8 +132,8 @@
   # para evitar o loop de "ligar e desligar" quando o driver/hardware falha.
   # O fallback padrão do driver e a config acima são suficientes.
 
-  # Ensure blueman-applet runs correctly in the user session
-  systemd.user.services.blueman-applet = {
+  # Ensure blueman-applet runs correctly in the user session, if enabled
+  systemd.user.services.blueman-applet = lib.mkIf config.services.blueman.enable {
     serviceConfig.ExecStart = lib.mkForce [
       ""
       "${pkgs.blueman}/bin/blueman-applet"
