@@ -87,7 +87,7 @@ in
     # --- Blur (Kryonix Glass profundo) ------------------------------------
     kwin.effects = {
       blur.enable = true;
-      translucency.enable = false; # Desativado globalmente para não prejudicar legibilidade
+      translucency.enable = true; # Restaurado para garantir barra de título glass
     };
 
     # --- PAINEL Kryonix (macOS-style Unified Top Bar) -------------------
@@ -98,13 +98,14 @@ in
         location = "top";
         alignment = "center";
         height = 28;
-        floating = false;
+        floating = false; # Barra fixa completa na tela inteira
         lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
         widgets = [
           # --- Left ---
           "org.kde.plasma.marginsseparator"
+          "org.kde.plasma.pager"
           {
             applicationTitleBar = {
               windowTitle.source = "appName";
@@ -134,6 +135,8 @@ in
           }
           "org.kde.plasma.panelspacer"
           # --- Right ---
+          "org.kde.plasma.systemmonitor.cpucore"
+          "org.kde.plasma.systemmonitor.memory"
           "org.kde.plasma.systemtray"
         ];
       }

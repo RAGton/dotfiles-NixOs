@@ -137,7 +137,7 @@ in
           "KrohnkiteGrowHeight" = "Meta+Ctrl+J";
           "KrohnkiteShrinkHeight" = "Meta+Ctrl+K";
           # --- Krohnkite: layouts ---
-          "KrohnkiteNextLayout" = "Meta+Space";
+          "KrohnkiteNextLayout" = "none"; # Era Meta+Space, liberado para KRunner
           "KrohnkiteSpiralLayout" = "Meta+D";
           "KrohnkiteBTreeLayout" = "Meta+B";
           "KrohnkiteMonocleLayout" = "Meta+M";
@@ -190,14 +190,6 @@ in
     # Comandos disparados por atalho (hotkeys.commands)
     # =====================================================================
     hotkeys.commands = moveFollowCommands // {
-      # --- fuzzel (launcher de aplicativos, Wayland-nativo) ---
-      # Meta+Space: Abre o fuzzel em modo drun.
-      "fuzzel-drun" = {
-        name = "fuzzel Application Launcher";
-        key = "Meta+Space";
-        command = "${pkgs.fuzzel}/bin/fuzzel";
-      };
-
       # Atalhos da Kora removidos (assistente legada → Aura).
       # Meta+I / Meta+Shift+I / Meta+Ctrl+I ficaram livres para a futura UI da Aura.
 
@@ -223,6 +215,12 @@ in
         key = "Meta+Shift+T";
         keys = [ "Meta+Shift+Return" ];
         command = "${kdeTerminal}";
+      };
+      # --- Launcher ---
+      "krunner-launcher" = {
+        name = "KRunner Application Launcher";
+        key = "Meta+A";
+        command = "krunner";
       };
       "dolphin" = {
         name = "Dolphin";
