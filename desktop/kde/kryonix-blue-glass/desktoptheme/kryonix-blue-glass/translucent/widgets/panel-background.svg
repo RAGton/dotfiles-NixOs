@@ -1,37 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <g id="topleft" transform="translate(0, 0)">
-    <path fill="#040a16" fill-opacity="0.46" d="M16 16 V0 C7.163 0 0 7.163 0 16 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" d="M16 0.5 C7.44 0.5 0.5 7.44 0.5 16"/>
+    <path fill="#000000" opacity="0.25" d="M16 16 V0 C7.163 0 0 7.163 0 16 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M16 0.5 C7.44 0.5 0.5 7.44 0.5 16"/>
   </g>
   <g id="top" transform="translate(16, 0)">
-    <rect fill="#040a16" fill-opacity="0.46" width="32" height="16"/>
-    <line fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" x1="0" y1="0.5" x2="32" y2="0.5"/>
+    <rect fill="#000000" opacity="0.25" width="32" height="16"/>
+    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="0" y1="0.5" x2="32" y2="0.5"/>
   </g>
   <g id="topright" transform="translate(48, 0)">
-    <path fill="#040a16" fill-opacity="0.46" d="M0 16 V0 C8.837 0 16 7.163 16 16 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" d="M0 0.5 C8.56 0.5 15.5 7.44 15.5 16"/>
+    <path fill="#000000" opacity="0.25" d="M0 16 V0 C8.837 0 16 7.163 16 16 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M0 0.5 C8.56 0.5 15.5 7.44 15.5 16"/>
   </g>
   <g id="left" transform="translate(0, 16)">
-    <rect fill="#040a16" fill-opacity="0.46" width="16" height="32"/>
-    <line fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" x1="0.5" y1="0" x2="0.5" y2="32"/>
+    <rect fill="#000000" opacity="0.25" width="16" height="32"/>
+    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="0.5" y1="0" x2="0.5" y2="32"/>
   </g>
   <g id="center" transform="translate(16, 16)">
-    <rect fill="#040a16" fill-opacity="0.46" width="32" height="32"/>
+    <rect fill="#000000" opacity="0.25" width="32" height="32"/>
   </g>
   <g id="right" transform="translate(48, 16)">
-    <rect fill="#040a16" fill-opacity="0.46" width="16" height="32"/>
-    <line fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" x1="15.5" y1="0" x2="15.5" y2="32"/>
+    <rect fill="#000000" opacity="0.25" width="16" height="32"/>
+    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="15.5" y1="0" x2="15.5" y2="32"/>
   </g>
   <g id="bottomleft" transform="translate(0, 48)">
-    <path fill="#040a16" fill-opacity="0.46" d="M16 0 V16 C7.163 16 0 8.837 0 0 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" d="M16 15.5 C7.44 15.5 0.5 8.56 0.5 0"/>
+    <path fill="#000000" opacity="0.25" d="M16 0 V16 C7.163 16 0 8.837 0 0 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M16 15.5 C7.44 15.5 0.5 8.56 0.5 0"/>
   </g>
   <g id="bottom" transform="translate(16, 48)">
-    <rect fill="#040a16" fill-opacity="0.46" width="32" height="16"/>
-    <line fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" x1="0" y1="15.5" x2="32" y2="15.5"/>
+    <rect fill="#000000" opacity="0.25" width="32" height="16"/>
+    <line fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" x1="0" y1="15.5" x2="32" y2="15.5"/>
   </g>
   <g id="bottomright" transform="translate(48, 48)">
-    <path fill="#040a16" fill-opacity="0.46" d="M0 0 V16 C8.837 16 16 8.837 16 0 Z"/>
-    <path fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="1" d="M0 15.5 C8.56 15.5 15.5 8.56 15.5 0"/>
+    <path fill="#000000" opacity="0.25" d="M0 0 V16 C8.837 16 16 8.837 16 0 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.15" stroke-width="1" d="M0 15.5 C8.56 15.5 15.5 8.56 15.5 0"/>
   </g>
 </svg>
