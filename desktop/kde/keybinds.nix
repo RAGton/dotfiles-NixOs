@@ -170,9 +170,12 @@ in
         };
 
       # ---- ksmserver: sessão ----
-      # "Lock Session" realocado p/ Meta+Escape (libera o default Meta+L p/ Krohnkite).
       ksmserver = {
-        "Lock Session" = "Ctrl+Esc";
+        "Lock Session" = [
+          "Meta+L"
+          "Screensaver"
+          "Ctrl+Alt+L"
+        ];
         "Log Out" = "Ctrl+Alt+Del";
       };
 
@@ -188,15 +191,10 @@ in
     # =====================================================================
     hotkeys.commands = moveFollowCommands // {
       # --- fuzzel (launcher de aplicativos, Wayland-nativo) ---
-      # Meta+A: Abre o fuzzel em modo drun. Substituiu o rofi em 2026-06: rofi
-      #         rodava via XWayland como janela normal e, sob a política
-      #         FocusFollowsMouse (focus.nix), não pegava o foco de teclado ao
-      #         abrir longe do cursor. fuzzel usa layer-shell com keyboard
-      #         exclusivo → captura o teclado imediatamente. Config declarativa
-      #         em launcher.nix (programs.fuzzel → fuzzel.ini).
+      # Meta+Space: Abre o fuzzel em modo drun.
       "fuzzel-drun" = {
         name = "fuzzel Application Launcher";
-        key = "Meta+A";
+        key = "Meta+Space";
         command = "${pkgs.fuzzel}/bin/fuzzel";
       };
 
@@ -250,7 +248,7 @@ in
       # --- Sessão: suspender e reiniciar ---
       "suspend" = {
         name = "Suspender sistema";
-        key = "Meta+L";
+        key = "Meta+Shift+Escape";
         command = "systemctl suspend";
       };
       "reboot" = {
