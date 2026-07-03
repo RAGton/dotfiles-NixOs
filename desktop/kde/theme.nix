@@ -103,14 +103,6 @@ in
         opacity = "translucent";
         widgets = [
           # --- Left ---
-          {
-            pager = {
-              general = {
-                displayedText = "desktopNumber";
-                showWindowOutlines = false;
-              };
-            };
-          }
           "org.kde.plasma.marginsseparator"
           {
             applicationTitleBar = {

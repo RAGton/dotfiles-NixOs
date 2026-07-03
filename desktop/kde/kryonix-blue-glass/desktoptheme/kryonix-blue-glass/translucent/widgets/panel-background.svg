@@ -1,37 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
   <g id="topleft" transform="translate(0, 0)">
-    <path fill="#040a16" opacity="0.55" d="M10 10 V0 C4.477 0 0 4.477 0 10 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M10 0.5 C4.25 0.5 0.5 4.25 0.5 10"/>
+    <path fill="#040a16" opacity="0.36" d="M4 4 V0 C1.79 0 0 1.79 0 4 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M4 0.5 C2 0.5 0.5 2 0.5 4"/>
   </g>
-  <g id="top" transform="translate(10, 0)">
-    <rect fill="#040a16" opacity="0.55" width="20" height="10"/>
-    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0" y1="0.5" x2="20" y2="0.5"/>
+  <g id="top" transform="translate(4, 0)">
+    <rect fill="#040a16" opacity="0.36" width="32" height="4"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0" y1="0.5" x2="32" y2="0.5"/>
   </g>
-  <g id="topright" transform="translate(30, 0)">
-    <path fill="#040a16" opacity="0.55" d="M0 10 V0 C5.523 0 10 4.477 10 10 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M0 0.5 C5.75 0.5 9.5 4.25 9.5 10"/>
+  <g id="topright" transform="translate(36, 0)">
+    <path fill="#040a16" opacity="0.36" d="M0 4 V0 C2.21 0 4 1.79 4 4 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M0 0.5 C2 0.5 3.5 2 3.5 4"/>
   </g>
-  <g id="left" transform="translate(0, 10)">
-    <rect fill="#040a16" opacity="0.55" width="10" height="20"/>
-    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0.5" y1="0" x2="0.5" y2="20"/>
+  <g id="left" transform="translate(0, 4)">
+    <rect fill="#040a16" opacity="0.36" width="4" height="32"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0.5" y1="0" x2="0.5" y2="32"/>
   </g>
-  <g id="center" transform="translate(10, 10)">
-    <rect fill="#040a16" opacity="0.55" width="20" height="20"/>
+  <g id="center" transform="translate(4, 4)">
+    <rect fill="#040a16" opacity="0.36" width="32" height="32"/>
   </g>
-  <g id="right" transform="translate(30, 10)">
-    <rect fill="#040a16" opacity="0.55" width="10" height="20"/>
-    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="9.5" y1="0" x2="9.5" y2="20"/>
+  <g id="right" transform="translate(36, 4)">
+    <rect fill="#040a16" opacity="0.36" width="4" height="32"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="3.5" y1="0" x2="3.5" y2="32"/>
   </g>
-  <g id="bottomleft" transform="translate(0, 30)">
-    <path fill="#040a16" opacity="0.55" d="M10 0 V10 C4.477 10 0 5.523 0 0 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M10 9.5 C4.25 9.5 0.5 5.75 0.5 0"/>
+  <g id="bottomleft" transform="translate(0, 36)">
+    <path fill="#040a16" opacity="0.36" d="M4 0 V4 C1.79 4 0 2.21 0 0 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M4 3.5 C2 3.5 0.5 2 0.5 0"/>
   </g>
-  <g id="bottom" transform="translate(10, 30)">
-    <rect fill="#040a16" opacity="0.55" width="20" height="10"/>
-    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0" y1="9.5" x2="20" y2="9.5"/>
+  <g id="bottom" transform="translate(4, 36)">
+    <rect fill="#040a16" opacity="0.36" width="32" height="4"/>
+    <line fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" x1="0" y1="3.5" x2="32" y2="3.5"/>
   </g>
-  <g id="bottomright" transform="translate(30, 30)">
-    <path fill="#040a16" opacity="0.55" d="M0 0 V10 C5.523 10 10 5.523 10 0 Z"/>
-    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M0 9.5 C5.75 9.5 9.5 5.75 9.5 0"/>
+  <g id="bottomright" transform="translate(36, 36)">
+    <path fill="#040a16" opacity="0.36" d="M0 0 V4 C2.21 4 4 2.21 4 0 Z"/>
+    <path fill="none" stroke="#ffffff" opacity="0.08" stroke-width="1" d="M0 3.5 C2 3.5 3.5 2 3.5 0"/>
   </g>
 </svg>
