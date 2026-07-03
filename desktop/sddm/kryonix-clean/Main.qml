@@ -142,15 +142,15 @@ Rectangle {
             height: 560
             anchors.centerIn: parent
             radius: 26
-            color: blurSupported ? "#7a122033" : "#dd122033"
-            border.color: "#4a83a8c7"
+            color: "#b30b1017" // 70% opacity dark navy
+            border.color: "#5938bdf8" // 35% opacity accent blue
             border.width: 1
 
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: 1
                 radius: parent.radius - 1
-                color: "#660f1a29"
+                color: "#1a0f1a29"
             }
 
             Rectangle {
