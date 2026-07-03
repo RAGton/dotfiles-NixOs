@@ -158,6 +158,15 @@ in
   options.kryonix.features.development = {
     enable = lib.mkEnableOption "Ambiente de desenvolvimento";
 
+    antigravity = {
+      enable = lib.mkEnableOption "Integração para o Google Antigravity IDE";
+      package = lib.mkOption {
+        type = lib.types.package;
+        default = pkgs.hello; # Stub
+        description = "Pacote base. Requer empacotamento declarativo com fonte/hash confiável.";
+      };
+    };
+
     git = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -253,6 +262,10 @@ in
       }
     ];
 
+    warnings = lib.optionals cfg.antigravity.enable [
+      "Antigravity ainda não está empacotado declarativamente com fonte/hash oficial confiável. Usando pacote stub (hello) até a P1."
+    ];
+
     # =========================
     # Git
     # =========================
@@ -278,6 +291,11 @@ in
     environment.systemPackages =
       with pkgs;
       lib.flatten [
+        # Antigravity IDE (Stub)
+        (lib.optionals cfg.antigravity.enable [
+          cfg.antigravity.package
+        ])
+
         # Git tools
         (lib.optionals cfg.git.enable [
           git
