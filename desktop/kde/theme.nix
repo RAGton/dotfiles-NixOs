@@ -84,10 +84,10 @@ in
       wallpaper = if useBlueGlass then blueGlassWallpaper else ../../assets/wallpaper/12.png;
     };
 
-    # --- Transparência com blur (Kryonix Glass profundo) ------------------
+    # --- Blur (Kryonix Glass profundo) ------------------------------------
     kwin.effects = {
       blur.enable = true;
-      translucency.enable = true;
+      translucency.enable = false; # Desativado globalmente para não prejudicar legibilidade
     };
 
     # --- PAINEL Kryonix (macOS-style Unified Top Bar) -------------------
@@ -155,6 +155,10 @@ in
                 "applications:dolphin.desktop"
                 "applications:code-insiders.desktop"
                 "applications:warp-terminal.desktop"
+                "applications:google-chrome.desktop"
+                "applications:microsoft-edge.desktop"
+                "applications:steam.desktop"
+                "applications:antigravity.desktop"
               ];
               appearance = {
                 showTooltips = true;
