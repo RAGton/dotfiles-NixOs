@@ -61,22 +61,21 @@ in
     "gtk-4.0/settings.ini".force = true;
   };
 
+  home.packages = [
+    pkgs.whitesur-kde
+    pkgs.whitesur-icon-theme
+  ];
+
   programs.plasma = {
     # ATENÇÃO: overrideConfig força a reescrita do plasma-manager. Se causar problemas com applets, remova.
     overrideConfig = true;
 
-    # --- Tema BonaFides (Dark/Azul-Preto/Glass) ----------------------------
+    # --- Tema WhiteSur-KDE (macOS/Hyprland Glass) ----------------------------
     workspace = {
-      lookAndFeel = "BonaFides-Dark-Color-Global-6";
-      theme = if useBlueGlass then "kryonix-blue-glass" else "BonaFides-Color-Plasma";
-      colorScheme =
-        if useBlueGlassDark then
-          "KryonixBlueGlassDark"
-        else if useBlueGlassLight then
-          "KryonixBlueGlassLight"
-        else
-          "BonaFidesModerateBlueColorScheme";
-      iconTheme = "breeze-dark";
+      lookAndFeel = "com.github.vinceliuice.WhiteSur-dark";
+      theme = "WhiteSur-dark";
+      colorScheme = "WhiteSurDark";
+      iconTheme = "WhiteSur-dark";
       cursor = {
         theme = "Nordzy-cursors";
         size = 24;
@@ -105,6 +104,12 @@ in
         widgets = [
           # --- Left ---
           "org.kde.plasma.marginsseparator"
+          {
+            kickoff = {
+              icon = "/etc/kryonix/desktop/branding/kryonix/assets/logo.svg";
+              sortAlphabetically = true;
+            };
+          }
           "org.kde.plasma.pager"
           {
             applicationTitleBar = {

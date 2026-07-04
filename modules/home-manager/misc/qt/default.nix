@@ -14,7 +14,7 @@ let
     if bartEnabled then
       lib.attrByPath [ "rag" "theme" "bart" "kvantumTheme" ] "Bart" config
     else
-      "KvLibadwaitaDark";
+      "WhiteSurDark";
 
   qtCtAppearanceConfig = generators.toINI { } {
     Appearance = {
