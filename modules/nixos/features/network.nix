@@ -69,7 +69,7 @@ lib.mkIf (enabledVirtualBridges != { }) {
 
         # Define the network if it does not exist
         if ! virsh -c qemu:///system net-info "$NETWORK" >/dev/null 2>&1; then
-          virsh -c qemu:///system net-define "$XML"
+          virsh -c qemu:///system net-define "$XML" || echo "WARN: Failed to define libvirt network '$NETWORK'." >&2
         else
           current="$(mktemp)"
           desired="$(mktemp)"
@@ -128,7 +128,7 @@ lib.mkIf (enabledVirtualBridges != { }) {
               echo "INFO: Network '$NETWORK' undefined."
 
               # Define new network
-              virsh -c qemu:///system net-define "$XML"
+              virsh -c qemu:///system net-define "$XML" || echo "WARN: Failed to redefine libvirt network '$NETWORK'." >&2
               echo "INFO: Network '$NETWORK' redefined with desired XML."
             fi
           fi
@@ -136,11 +136,11 @@ lib.mkIf (enabledVirtualBridges != { }) {
 
         # Start the network if it is not active
         if ! virsh -c qemu:///system net-info "$NETWORK" | grep -q "Active:.*yes"; then
-          virsh -c qemu:///system net-start "$NETWORK"
+          virsh -c qemu:///system net-start "$NETWORK" || echo "WARN: Failed to start libvirt network '$NETWORK'." >&2
         fi
 
         # Ensure autostart is enabled
-        virsh -c qemu:///system net-autostart "$NETWORK"
+        virsh -c qemu:///system net-autostart "$NETWORK" || echo "WARN: Failed to autostart libvirt network '$NETWORK'." >&2
       '';
     }
   ) enabledVirtualBridges;
