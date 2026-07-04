@@ -161,8 +161,6 @@ in
       kdePackages.plasma-nm
       kdePackages.plasma-pa
       kdePackages.plasma-systemmonitor
-      kryonix-plasma-theme
-
       # Módulo de configuração do SDDM no KDE System Settings
       # ("Tela de Login" → escolher tema/cursor/usuário sem editor externo).
       kdePackages.sddm-kcm
