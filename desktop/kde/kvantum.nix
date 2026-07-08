@@ -44,13 +44,9 @@
 
   xdg.configFile."Kvantum/kvantum.kvconfig".text = ''
     [General]
-    theme=BonaFides-Dark-Kvantum
+    theme=WhiteSurDark
 
-    [BonaFides-Dark-Kvantum]
-    # Opacidade calibrada apos o 30/25 ficar ilegivel em Dolphin/System Settings/
-    # Konsole. Janelas quase opacas (legibilidade primeiro); menus levemente
-    # translucidos para combinar com o blur do KWin (theme.nix -> blur.enable=true).
-    # Para "mais glass" subir gradualmente (ex.: 12/18); para opaco total = 0/0.
+    [WhiteSurDark]
     reduce_window_opacity=8
     reduce_menu_opacity=12
   '';
