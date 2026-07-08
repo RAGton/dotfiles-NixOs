@@ -19,6 +19,9 @@
   # kglobalshortcutsrc, kdeglobals, etc.) a partir de programs.plasma.*.
   programs.plasma.enable = true;
 
+  # Desativa o indexador Baloo (consumia ~30% CPU e muita RAM)
+  programs.plasma.baloo.enable = false;
+
   # Habilita o backend da Kryonix Bar (Rust/D-Bus).
   services.kryonix-bar.enable = true;
 
