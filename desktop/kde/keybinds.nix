@@ -216,11 +216,10 @@ in
         keys = [ "Meta+Shift+Return" ];
         command = "${kdeTerminal}";
       };
-      # --- Launcher ---
-      "krunner-launcher" = {
-        name = "KRunner Application Launcher";
+      "rofi-launcher" = {
+        name = "Rofi Application Launcher";
         key = "Meta+A";
-        command = "krunner";
+        command = "rofi -show drun -theme kryonix";
       };
       "dolphin" = {
         name = "Dolphin";
