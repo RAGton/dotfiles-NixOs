@@ -89,21 +89,22 @@ in
       translucency.enable = true; # Restaurado para garantir barra de título glass
     };
 
-    # --- PAINEL Kryonix (macOS-style Unified Top Bar) -------------------
-    # Layout unificado com altura reduzida, ocupando a barra superior inteira.
+    # --- PAINEL Kryonix (macOS/Niri 3-Island Topology) -------------------
+    # Três ilhas flutuantes superiores para launcher, relógio e tray.
+    # FALLBACK DOCUMENTADO: Se o Plasma 6 ficar instável com 3 painéis flutuantes reais
+    # (ex: sobreposição ou crash do KWin), reverter para 1 único painel transparente com
+    # alignment=center, lengthMode=fill, e usar org.kde.plasma.panelspacer entre os blocos.
     panels = [
-      # 1. Top Bar
+      # 1. Ilha Esquerda (Launcher + Pager)
       {
         location = "top";
-        alignment = "center";
-        height = 28;
-        floating = false; # Barra fixa completa na tela inteira
-        lengthMode = "fill";
+        alignment = "left";
+        height = 36; # Altura maior para acomodar o Pager em kanji
+        floating = true;
+        lengthMode = "fit";
         hiding = "none";
         opacity = "translucent";
         widgets = [
-          # --- Left ---
-          "org.kde.plasma.marginsseparator"
           {
             kickoff = {
               icon = "/etc/kryonix/desktop/branding/kryonix/assets/logo.svg";
@@ -123,8 +124,19 @@ in
               titleReplacements = [ ];
             };
           }
-          # --- Center ---
-          "org.kde.plasma.panelspacer"
+        ];
+      }
+
+      # 2. Ilha Central (Relógio)
+      {
+        location = "top";
+        alignment = "center";
+        height = 36;
+        floating = true;
+        lengthMode = "fit";
+        hiding = "none";
+        opacity = "translucent";
+        widgets = [
           {
             digitalClock = {
               date = {
@@ -138,8 +150,19 @@ in
               };
             };
           }
-          "org.kde.plasma.panelspacer"
-          # --- Right ---
+        ];
+      }
+
+      # 3. Ilha Direita (System Tray & Monitors)
+      {
+        location = "top";
+        alignment = "right";
+        height = 36;
+        floating = true;
+        lengthMode = "fit";
+        hiding = "none";
+        opacity = "translucent";
+        widgets = [
           "org.kde.plasma.systemmonitor.cpucore"
           "org.kde.plasma.systemmonitor.memory"
           "org.kde.plasma.systemtray"
