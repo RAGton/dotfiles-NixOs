@@ -64,12 +64,20 @@ lib.mkIf (enabledVirtualBridges != { }) {
           sed \
             -e "/<uuid>.*<\/uuid>/d" \
             -e "/<mac address=.*\/>/d" \
-            -e "s/[[:space:]]\+$//"
+            -e "s/[[:space:]]\+$//" || true
+        }
+
+        # Function to safely run virsh without breaking the script
+        safe_virsh() {
+          virsh -c qemu:///system "$@" || {
+            echo "WARN: Failed to run virsh $1 for network '$NETWORK'." >&2
+            return 1
+          }
         }
 
         # Define the network if it does not exist
-        if ! virsh -c qemu:///system net-info "$NETWORK" >/dev/null 2>&1; then
-          virsh -c qemu:///system net-define "$XML" || echo "WARN: Failed to define libvirt network '$NETWORK'." >&2
+        if ! safe_virsh net-info "$NETWORK" >/dev/null 2>&1; then
+          safe_virsh net-define "$XML" || true
         else
           current="$(mktemp)"
           desired="$(mktemp)"
@@ -78,69 +86,69 @@ lib.mkIf (enabledVirtualBridges != { }) {
 
           trap 'rm -f "$current" "$desired" "$current_norm" "$desired_norm"' EXIT
 
-          virsh -c qemu:///system net-dumpxml "$NETWORK" > "$current"
-          cp "$XML" "$desired"
+          if safe_virsh net-dumpxml "$NETWORK" > "$current"; then
+            cp "$XML" "$desired"
 
-          normalize_xml < "$current" > "$current_norm"
-          normalize_xml < "$desired" > "$desired_norm"
+            normalize_xml < "$current" > "$current_norm"
+            normalize_xml < "$desired" > "$desired_norm"
 
-          if ! diff -u "$current_norm" "$desired_norm"; then
-            echo "WARN: Libvirt network '$NETWORK' diverges from Kryonix desired XML." >&2
+            if ! diff -u "$current_norm" "$desired_norm" >/dev/null; then
+              echo "WARN: Libvirt network '$NETWORK' diverges from Kryonix desired XML." >&2
 
-            ALLOW_DESTRUCTIVE="${lib.boolToString bridgeCfg.migration.allowDestructiveReconcile}"
-            REQUIRE_NO_RUNNING="${lib.boolToString bridgeCfg.migration.requireNoRunningDomains}"
-            BACKUP_DIR="${bridgeCfg.migration.backupDir}"
+              ALLOW_DESTRUCTIVE="${lib.boolToString bridgeCfg.migration.allowDestructiveReconcile}"
+              REQUIRE_NO_RUNNING="${lib.boolToString bridgeCfg.migration.requireNoRunningDomains}"
+              BACKUP_DIR="${bridgeCfg.migration.backupDir}"
 
-            if [ "$ALLOW_DESTRUCTIVE" != "true" ]; then
-              echo "WARN: Libvirt network '$NETWORK' already exists but differs from Kryonix desired XML." >&2
-              echo "WARN: migration.allowDestructiveReconcile is false. Skipping redefinition." >&2
-            else
-              if [ "$REQUIRE_NO_RUNNING" = "true" ]; then
-                RUNNING_DOMAINS=$(virsh -c qemu:///system list --name --state-running)
-                for dom in $RUNNING_DOMAINS; do
-                  # Check if the domain's XML contains a network interface connected to this network
-                  if virsh -c qemu:///system dumpxml "$dom" | grep -E -q "<source network=['\"]$NETWORK['\"]"; then
-                    echo "ERROR: Domain '$dom' is running and using network '$NETWORK'." >&2
-                    echo "Migration aborted because migration.requireNoRunningDomains is true." >&2
-                    exit 1
-                  fi
-                done
+              if [ "$ALLOW_DESTRUCTIVE" != "true" ]; then
+                echo "WARN: Libvirt network '$NETWORK' already exists but differs from Kryonix desired XML." >&2
+                echo "WARN: migration.allowDestructiveReconcile is false. Skipping redefinition." >&2
+              else
+                if [ "$REQUIRE_NO_RUNNING" = "true" ]; then
+                  RUNNING_DOMAINS=$(safe_virsh list --name --state-running || echo "")
+                  for dom in $RUNNING_DOMAINS; do
+                    if safe_virsh dumpxml "$dom" | grep -E -q "<source network=['\"]$NETWORK['\"]"; then
+                      echo "ERROR: Domain '$dom' is running and using network '$NETWORK'." >&2
+                      echo "WARN: Migration aborted because migration.requireNoRunningDomains is true." >&2
+                      exit 0
+                    fi
+                  done
+                fi
+
+                echo "INFO: Proceeding with destructive reconciliation for network '$NETWORK'."
+
+                # Backup existing XML
+                mkdir -p "$BACKUP_DIR"
+                TIMESTAMP=$(date +%Y%m%d%H%M%S)
+                BACKUP_FILE="$BACKUP_DIR/''${NETWORK}-backup-''${TIMESTAMP}.xml"
+                if ! cp "$current" "$BACKUP_FILE"; then
+                  echo "ERROR: Failed to create backup at $BACKUP_FILE" >&2
+                  exit 0
+                fi
+                echo "INFO: Backup saved to: $BACKUP_FILE"
+
+                # Destroy (if active) and undefine
+                if safe_virsh net-info "$NETWORK" | grep -q "Active:.*yes"; then
+                  safe_virsh net-destroy "$NETWORK" || true
+                  echo "INFO: Network '$NETWORK' destroyed."
+                fi
+                safe_virsh net-undefine "$NETWORK" || true
+                echo "INFO: Network '$NETWORK' undefined."
+
+                # Define new network
+                safe_virsh net-define "$XML" || true
+                echo "INFO: Network '$NETWORK' redefined with desired XML."
               fi
-
-              echo "INFO: Proceeding with destructive reconciliation for network '$NETWORK'."
-
-              # Backup existing XML
-              mkdir -p "$BACKUP_DIR"
-              TIMESTAMP=$(date +%Y%m%d%H%M%S)
-              BACKUP_FILE="$BACKUP_DIR/''${NETWORK}-backup-''${TIMESTAMP}.xml"
-              if ! cp "$current" "$BACKUP_FILE"; then
-                echo "ERROR: Failed to create backup at $BACKUP_FILE" >&2
-                exit 1
-              fi
-              echo "INFO: Backup saved to: $BACKUP_FILE"
-
-              # Destroy (if active) and undefine
-              if virsh -c qemu:///system net-info "$NETWORK" | grep -q "Active:.*yes"; then
-                virsh -c qemu:///system net-destroy "$NETWORK"
-                echo "INFO: Network '$NETWORK' destroyed."
-              fi
-              virsh -c qemu:///system net-undefine "$NETWORK"
-              echo "INFO: Network '$NETWORK' undefined."
-
-              # Define new network
-              virsh -c qemu:///system net-define "$XML" || echo "WARN: Failed to redefine libvirt network '$NETWORK'." >&2
-              echo "INFO: Network '$NETWORK' redefined with desired XML."
             fi
           fi
         fi
 
         # Start the network if it is not active
-        if ! virsh -c qemu:///system net-info "$NETWORK" | grep -q "Active:.*yes"; then
-          virsh -c qemu:///system net-start "$NETWORK" || echo "WARN: Failed to start libvirt network '$NETWORK'." >&2
+        if ! safe_virsh net-info "$NETWORK" | grep -q "Active:.*yes"; then
+          safe_virsh net-start "$NETWORK" || true
         fi
 
         # Ensure autostart is enabled
-        virsh -c qemu:///system net-autostart "$NETWORK" || echo "WARN: Failed to autostart libvirt network '$NETWORK'." >&2
+        safe_virsh net-autostart "$NETWORK" || true
       '';
     }
   ) enabledVirtualBridges;
