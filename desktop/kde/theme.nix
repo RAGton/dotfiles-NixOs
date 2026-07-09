@@ -185,10 +185,10 @@ in
       {
         location = "bottom";
         alignment = "center";
-        height = 46;
+        height = 56;
         floating = true;
         lengthMode = "fit";
-        hiding = "autohide";
+        hiding = "windowscover";
         opacity = "translucent";
         widgets = [
           {
