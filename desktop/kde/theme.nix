@@ -192,7 +192,7 @@ in
         height = 56;
         floating = true;
         lengthMode = "fit";
-        hiding = "windowscover";
+        hiding = "dodgewindows";
         opacity = "translucent";
         widgets = [
           {
