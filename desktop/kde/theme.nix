@@ -110,7 +110,7 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 32;
+        height = 36;
         floating = true;
         lengthMode = "fill";
         hiding = "none";
