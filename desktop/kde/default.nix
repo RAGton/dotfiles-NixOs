@@ -19,9 +19,6 @@
   # kglobalshortcutsrc, kdeglobals, etc.) a partir de programs.plasma.*.
   programs.plasma.enable = true;
 
-  # Desativa o indexador Baloo (consumia ~30% CPU e muita RAM)
-  programs.plasma.baloo.enable = false;
-
   # Habilita o backend da Kryonix Bar (Rust/D-Bus).
   services.kryonix-bar.enable = true;
 
@@ -34,8 +31,12 @@
     playerctl # controle de mídia (Meta+,/. e XF86AudioPlay)
     kryonix-bar-backend
     warp-terminal
+    kryonix-darwinmenu
   ];
 
   # NOTA: QT_QPA_PLATFORMTHEME é definido em kvantum.nix ("kvantum"), parte da
   # estética Kryonix Glass. Não definir aqui para evitar definição dupla.
+
+  # Desativa o indexador Baloo
+  programs.plasma.configFile."baloofilerc"."Basic Settings"."Indexing-Enabled" = false;
 }

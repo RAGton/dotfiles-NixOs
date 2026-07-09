@@ -1,9 +1,13 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 {
   programs.rofi = {
     enable = true;
-    package = pkgs.rofi-wayland;
-    theme = "kryonix";
+    theme = lib.mkForce "kryonix";
     extraConfig = {
       modi = "drun,run,window";
       show-icons = true;
@@ -77,7 +81,7 @@
     element-text {
         vertical-align: 0.5;
     }
-    
+
     element-icon {
         size: 24px;
         margin: 0px 10px 0px 0px;

@@ -65,21 +65,16 @@ in
 
     environment.systemPackages = lib.mkIf packagedTheme [ pkgs.kryonix-sddm-theme ];
 
-    services.displayManager.sddm = {
-      extraPackages = with pkgs.kdePackages; [
+    services.displayManager.sddm.extraPackages =
+      with pkgs.kdePackages;
+      [
         qtmultimedia
         qtsvg
         qt5compat
         qtvirtualkeyboard
-      ];
-    };
-
-    services.displayManager.sddm = lib.mkIf (isKde && packagedTheme) {
-      theme = selectedTheme;
-      extraPackages = [
-        pkgs.kdePackages.qtsvg
       ]
       ++ lib.optional (selectedTheme == "kryonix-aurora") pkgs.kdePackages.qt5compat;
-    };
+
+    services.displayManager.sddm.theme = lib.mkIf (isKde && packagedTheme) selectedTheme;
   };
 }

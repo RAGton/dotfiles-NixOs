@@ -87,11 +87,6 @@ in
     };
 
     # --- Blur (Kryonix Glass profundo) ------------------------------------
-    kwin.effects = {
-      blur.enable = true;
-      translucency.enable = true; # Restaurado para garantir barra de título glass
-      slide.enable = true;
-    };
 
     configFile.kwinrc = {
       Plugins.desktopchangeosdEnabled = true;
@@ -122,13 +117,19 @@ in
         opacity = "translucent";
         widgets = [
           {
-            "org.latgardi.darwinmenu" = {
-              icon = "/etc/kryonix/desktop/branding/kryonix/assets/logo.svg";
+            name = "org.latgardi.darwinmenu";
+            config = {
+              General = {
+                icon = "${pkgs.kryonix-branding}/share/icons/hicolor/scalable/apps/kryonix-logo.svg";
+              };
             };
           }
           {
-            pager = {
-              showWindowIcons = false;
+            name = "org.kde.plasma.pager";
+            config = {
+              General = {
+                displayedText = "Number";
+              };
             };
           }
           {
