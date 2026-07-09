@@ -46,8 +46,8 @@ in
     };
 
     fallback = lib.mkOption {
-      type = lib.types.path;
-      default = ../../../../desktop/branding/kryonix/assets/kryonix-clean-dark.svg;
+      type = lib.types.nullOr lib.types.path;
+      default = null;
       description = "Imagem estática de fallback caso o vídeo falhe ou engine caia.";
     };
 
