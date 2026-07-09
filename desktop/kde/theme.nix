@@ -95,16 +95,16 @@ in
     # (ex: sobreposição ou crash do KWin), reverter para 1 único painel transparente com
     # alignment=center, lengthMode=fill, e usar org.kde.plasma.panelspacer entre os blocos.
     panels = [
-      # 1. Ilha Esquerda (Launcher + Pager)
       {
         location = "top";
-        alignment = "left";
-        height = 36; # Altura maior para acomodar o Pager em kanji
+        alignment = "center";
+        height = 36;
         floating = true;
-        lengthMode = "fit";
+        lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
         widgets = [
+          # 1. Ilha Esquerda (Launcher + Pager + Tasks)
           {
             kickoff = {
               icon = "/etc/kryonix/desktop/branding/kryonix/assets/logo.svg";
@@ -124,62 +124,6 @@ in
               titleReplacements = [ ];
             };
           }
-        ];
-      }
-
-      # 2. Ilha Central (Relógio)
-      {
-        location = "top";
-        alignment = "center";
-        height = 36;
-        floating = true;
-        lengthMode = "fit";
-        hiding = "none";
-        opacity = "translucent";
-        widgets = [
-          {
-            digitalClock = {
-              date = {
-                enable = true;
-                format = "shortDate";
-                position = "besideTime";
-              };
-              time = {
-                format = "24h";
-                showSeconds = "never";
-              };
-            };
-          }
-        ];
-      }
-
-      # 3. Ilha Direita (System Tray & Monitors)
-      {
-        location = "top";
-        alignment = "right";
-        height = 36;
-        floating = true;
-        lengthMode = "fit";
-        hiding = "none";
-        opacity = "translucent";
-        widgets = [
-          "org.kde.plasma.systemmonitor.cpucore"
-          "org.kde.plasma.systemmonitor.memory"
-          "org.kde.plasma.systemtray"
-        ];
-      }
-
-      # 4. Dock Inferior (Auto-hide)
-      {
-        # ===== PAINEL INFERIOR: Task Dock (glass auto-hide) ==================
-        location = "bottom";
-        alignment = "center";
-        height = 40;
-        floating = true;
-        lengthMode = "fit";
-        hiding = "autohide";
-        opacity = "translucent";
-        widgets = [
           {
             iconTasks = {
               launchers = [
@@ -212,6 +156,30 @@ in
               };
             };
           }
+
+          "org.kde.plasma.panelspacer"
+
+          # 2. Ilha Central (Relógio)
+          {
+            digitalClock = {
+              date = {
+                enable = true;
+                format = "shortDate";
+                position = "besideTime";
+              };
+              time = {
+                format = "24h";
+                showSeconds = "never";
+              };
+            };
+          }
+
+          "org.kde.plasma.panelspacer"
+
+          # 3. Ilha Direita (System Tray & Monitors)
+          "org.kde.plasma.systemmonitor.cpucore"
+          "org.kde.plasma.systemmonitor.memory"
+          "org.kde.plasma.systemtray"
         ];
       }
     ];
