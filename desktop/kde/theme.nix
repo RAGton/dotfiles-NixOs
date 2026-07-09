@@ -80,13 +80,30 @@ in
         theme = "Nordzy-cursors";
         size = 24;
       };
-      wallpaper = if useBlueGlass then blueGlassWallpaper else ../../assets/wallpaper/12.png;
+      wallpaperSlideShow = {
+        path = "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora";
+        interval = 300;
+      };
     };
 
     # --- Blur (Kryonix Glass profundo) ------------------------------------
     kwin.effects = {
       blur.enable = true;
       translucency.enable = true; # Restaurado para garantir barra de título glass
+      slide.enable = true;
+    };
+
+    configFile.kwinrc = {
+      Plugins.desktopchangeosdEnabled = true;
+      "Script-desktopchangeosd" = {
+        PopupHideDelay = 600;
+        TextOnly = false;
+      };
+      "Effect-slide" = {
+        Duration = 200;
+        HorizontalGap = 30;
+        VerticalGap = 20;
+      };
     };
 
     # --- PAINEL Kryonix (macOS/Niri 3-Island Topology) -------------------

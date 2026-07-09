@@ -132,7 +132,7 @@ in
     # inválido no upstream do nixpkgs ("snippet não encontrado"). O Plasma 6 o
     # puxa por padrão — excluímos do closure para o sistema compilar (perde-se
     # apenas o handler de relatório de crash do KDE).
-    environment.plasma6.excludePackages = with pkgs.kdePackages; [ drkonqi ];
+    environment.plasma6.excludePackages = with pkgs.kdePackages; [ drkonqi plasma-workspace-wallpapers oxygen ];
 
     # dconf é necessário para configurações GTK/portais consistentes.
     programs.dconf.enable = true;
