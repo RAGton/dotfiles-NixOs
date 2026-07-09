@@ -138,13 +138,33 @@ Rectangle {
 
         Rectangle {
             id: card
-            width: 420
             height: 560
-            anchors.centerIn: parent
             radius: 26
             color: "#b30b1017" // 70% opacity dark navy
             border.color: "#5938bdf8" // 35% opacity accent blue
             border.width: 1
+
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: Math.max(48, parent.width * 0.08)
+            width: Math.min(parent.width * 0.34, 460)
+
+            states: [
+                State {
+                    name: "compact"
+                    when: root.width < 1000
+                    AnchorChanges {
+                        target: card
+                        anchors.right: undefined
+                        anchors.horizontalCenter: root.horizontalCenter
+                    }
+                    PropertyChanges {
+                        target: card
+                        anchors.rightMargin: 0
+                        width: Math.min(root.width * 0.86, 420)
+                    }
+                }
+            ]
 
             Rectangle {
                 anchors.fill: parent
@@ -282,9 +302,11 @@ Rectangle {
                     }
 
                     Rectangle {
+                        id: passwordBox
                         width: parent.width
-                        height: 50
+                        height: 54
                         radius: 16
+                        clip: true
                         color: "#101a27"
                         border.color: passwordInput.activeFocus ? "#69b7e0" : "#34516b"
                         border.width: passwordInput.activeFocus ? 2 : 1
@@ -292,21 +314,25 @@ Rectangle {
                         TextInput {
                             id: passwordInput
                             anchors.fill: parent
-                            anchors.leftMargin: 16
-                            anchors.rightMargin: 16
+                            anchors.leftMargin: 18
+                            anchors.rightMargin: 18
+                            clip: true
                             verticalAlignment: TextInput.AlignVCenter
                             color: "#f7fbff"
-                            font.pixelSize: 16
+                            font.pixelSize: 18
                             echoMode: TextInput.Password
                             passwordCharacter: "•"
                             selectionColor: "#7bc3e8"
                             selectedTextColor: "#0d1621"
+                            focus: true
                             onAccepted: root.doLogin()
+                            Keys.onReturnPressed: root.doLogin()
+                            Keys.onEnterPressed: root.doLogin()
                         }
 
                         Text {
                             anchors.left: parent.left
-                            anchors.leftMargin: 16
+                            anchors.leftMargin: 18
                             anchors.verticalCenter: parent.verticalCenter
                             visible: passwordInput.text.length === 0 && !passwordInput.activeFocus
                             text: "Digite sua senha"
