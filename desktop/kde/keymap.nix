@@ -189,7 +189,7 @@
   {
     group = "Sistema & Apps";
     keys = "Meta+R";
-    desc = "VSCode (code-insiders)";
+    desc = "VSCode (code)";
   }
   {
     group = "Sistema & Apps";

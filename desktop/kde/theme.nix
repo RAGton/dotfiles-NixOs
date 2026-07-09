@@ -163,8 +163,22 @@ in
 
           "org.kde.plasma.panelspacer"
 
-          "org.kde.plasma.systemmonitor.cpucore"
-          "org.kde.plasma.systemmonitor.memory"
+          {
+            name = "org.kde.plasma.systemmonitor.cpucore";
+            config = {
+              Appearance = {
+                chartFace = "org.kde.ksysguard.linechart";
+              };
+            };
+          }
+          {
+            name = "org.kde.plasma.systemmonitor.memory";
+            config = {
+              Appearance = {
+                chartFace = "org.kde.ksysguard.linechart";
+              };
+            };
+          }
           "org.kde.plasma.systemtray"
         ];
       }
@@ -180,13 +194,13 @@ in
           {
             iconTasks = {
               launchers = [
-                "applications:dolphin.desktop"
-                "applications:code-insiders.desktop"
-                "applications:warp-terminal.desktop"
+                "applications:org.kde.dolphin.desktop"
+                "applications:code.desktop"
+                "applications:dev.warp.Warp.desktop"
                 "applications:google-chrome.desktop"
                 "applications:microsoft-edge.desktop"
                 "applications:steam.desktop"
-                "applications:antigravity.desktop"
+                "applications:obsidian.desktop"
               ];
               appearance = {
                 showTooltips = true;

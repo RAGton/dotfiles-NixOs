@@ -239,7 +239,7 @@ in
       "vscode" = {
         name = "VSCode";
         key = "Meta+R";
-        command = "code-insiders";
+        command = "code";
       };
 
       # --- Sessão: suspender e reiniciar ---
