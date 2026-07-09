@@ -98,13 +98,12 @@ in
       {
         location = "top";
         alignment = "center";
-        height = 36;
+        height = 32;
         floating = true;
         lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
         widgets = [
-          # 1. Ilha Esquerda (Launcher + Pager + Tasks)
           {
             kickoff = {
               icon = "/etc/kryonix/desktop/branding/kryonix/assets/logo.svg";
@@ -124,6 +123,39 @@ in
               titleReplacements = [ ];
             };
           }
+
+          "org.kde.plasma.panelspacer"
+
+          {
+            digitalClock = {
+              date = {
+                enable = true;
+                format = "shortDate";
+                position = "besideTime";
+              };
+              time = {
+                format = "24h";
+                showSeconds = "never";
+              };
+            };
+          }
+
+          "org.kde.plasma.panelspacer"
+
+          "org.kde.plasma.systemmonitor.cpucore"
+          "org.kde.plasma.systemmonitor.memory"
+          "org.kde.plasma.systemtray"
+        ];
+      }
+      {
+        location = "bottom";
+        alignment = "center";
+        height = 46;
+        floating = true;
+        lengthMode = "fit";
+        hiding = "autohide";
+        opacity = "translucent";
+        widgets = [
           {
             iconTasks = {
               launchers = [
@@ -156,30 +188,6 @@ in
               };
             };
           }
-
-          "org.kde.plasma.panelspacer"
-
-          # 2. Ilha Central (Relógio)
-          {
-            digitalClock = {
-              date = {
-                enable = true;
-                format = "shortDate";
-                position = "besideTime";
-              };
-              time = {
-                format = "24h";
-                showSeconds = "never";
-              };
-            };
-          }
-
-          "org.kde.plasma.panelspacer"
-
-          # 3. Ilha Direita (System Tray & Monitors)
-          "org.kde.plasma.systemmonitor.cpucore"
-          "org.kde.plasma.systemmonitor.memory"
-          "org.kde.plasma.systemtray"
         ];
       }
     ];
