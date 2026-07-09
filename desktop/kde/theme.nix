@@ -122,12 +122,15 @@ in
         opacity = "translucent";
         widgets = [
           {
-            kickoff = {
+            "org.latgardi.darwinmenu" = {
               icon = "/etc/kryonix/desktop/branding/kryonix/assets/logo.svg";
-              sortAlphabetically = true;
             };
           }
-          "org.kde.plasma.pager"
+          {
+            pager = {
+              showWindowIcons = false;
+            };
+          }
           {
             applicationTitleBar = {
               windowTitle.source = "appName";
