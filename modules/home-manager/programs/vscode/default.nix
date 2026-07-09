@@ -385,6 +385,9 @@ let
       ln -sfn "$target_dir" "$base_dir/current"
       printf '%s\n' "$resolved_url" > "$metadata_file"
 
+      # Cleanup older versions (keep only the current one) to prevent disk bloat
+      find "$versions_dir" -mindepth 1 -maxdepth 1 -type d ! -name "$version_key" -exec rm -rf {} +
+
       vscode-bootstrap || true
     '';
   };
