@@ -65,6 +65,15 @@ in
 
     environment.systemPackages = lib.mkIf packagedTheme [ pkgs.kryonix-sddm-theme ];
 
+    services.displayManager.sddm = {
+      extraPackages = with pkgs.kdePackages; [
+        qtmultimedia
+        qtsvg
+        qt5compat
+        qtvirtualkeyboard
+      ];
+    };
+
     services.displayManager.sddm = lib.mkIf (isKde && packagedTheme) {
       theme = selectedTheme;
       extraPackages = [
