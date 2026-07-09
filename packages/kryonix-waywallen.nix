@@ -4,6 +4,7 @@
   makeWrapper,
   p7zip,
   stdenvNoCC,
+  krb5,
 }:
 stdenvNoCC.mkDerivation {
   pname = "kryonix-waywallen";
@@ -47,7 +48,7 @@ stdenvNoCC.mkDerivation {
 
     for bin in waywallen waywallen-ui waywallen-layer-shell waywallen-image-renderer waywallen-video-renderer; do
       makeWrapper "$out/libexec/waywallen/usr/bin/$bin" "$out/bin/$bin" \
-        --set LD_LIBRARY_PATH "$out/libexec/waywallen/usr/lib" \
+        --set LD_LIBRARY_PATH "$out/libexec/waywallen/usr/lib:${lib.makeLibraryPath [ krb5 ]}" \
         --set QT_PLUGIN_PATH "$out/libexec/waywallen/usr/plugins" \
         --set QML2_IMPORT_PATH "$out/libexec/waywallen/usr/qml" \
         --set QML_IMPORT_PATH "$out/libexec/waywallen/usr/qml"

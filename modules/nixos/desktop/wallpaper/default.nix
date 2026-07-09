@@ -5,54 +5,63 @@
   ...
 }:
 let
-  cfg = config.kryonix.desktop.wallpaper.dynamic;
+  cfg = config.kryonix.desktop.wallpaper.animated;
   env = config.kryonix.desktop.environment;
   isKde = env == "kde";
   isHyprland = env == "hyprland";
   supportsEnv = isKde || isHyprland;
 in
 {
-  options.kryonix.desktop.wallpaper.dynamic = {
-    enable = lib.mkEnableOption "wallpapers dinamicos opt-in no Kryonix";
+  options.kryonix.desktop.wallpaper.animated = {
+    enable = lib.mkEnableOption "wallpapers animados opt-in no Kryonix";
 
-    engine = lib.mkOption {
+    backend = lib.mkOption {
       type = lib.types.enum [ "waywallen" ];
       default = "waywallen";
-      description = ''
-        Motor de wallpaper dinamico suportado declarativamente no momento.
-
-        O pin atual do nixpkgs nao traz `waywallen`, entao o Kryonix empacota
-        a release oficial binaria como pacote proprio opt-in.
-      '';
+      description = "Backend declarativo de renderização de wallpaper animado.";
     };
 
+    path = lib.mkOption {
+      type = lib.types.path;
+      default = ../../../../desktop/wallpapers/animated/kryonix-test-loop.mp4;
+      description = "Caminho absoluto do arquivo MP4/WebM do wallpaper animado.";
+    };
+
+    fpsLimit = lib.mkOption {
+      type = lib.types.int;
+      default = 30;
+      description = "Limite de FPS para poupar CPU/GPU (recomendado 30).";
+    };
+
+    muted = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Muta o áudio do vídeo para não atrapalhar o sistema.";
+    };
+
+    pauseOnBattery = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Pausa a animação automaticamente ao desconectar da tomada.";
+    };
+
+    fallback = lib.mkOption {
+      type = lib.types.path;
+      default = ../../../../desktop/branding/kryonix/assets/kryonix-clean-dark.svg;
+      description = "Imagem estática de fallback caso o vídeo falhe ou engine caia.";
+    };
+
+    # Legacy steam integration if needed by backend (e.g., Wallpaper Engine)
     steam.enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = ''
-        Instala o Steam de forma opt-in para facilitar acesso a assets do
-        Wallpaper Engine / Workshop. Nao altera o perfil gamer global.
-      '';
+      description = "Instala o Steam de forma opt-in para assets de Wallpaper Engine.";
     };
 
     wallpaperEngine.enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = ''
-        Adiciona o plugin `open-wallpaper-engine` ao Waywallen.
-
-        Isso habilita o caminho de scene/web wallpapers. Sem esse opt-in, o
-        pacote base fica limitado aos plugins image/video/wallhaven.
-      '';
-    };
-
-    defaultWallpaper = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = null;
-      description = ''
-        Wallpaper local do Kryonix exposto ao usuario como fallback/importacao
-        rapida no Waywallen. `null` usa o oficial `kryonix-clean-dark.svg`.
-      '';
+      description = "Adiciona suporte ao open-wallpaper-engine no backend.";
     };
   };
 
@@ -62,10 +71,7 @@ in
         assertions = [
           {
             assertion = supportsEnv;
-            message = ''
-              kryonix.desktop.wallpaper.dynamic.enable requer
-              kryonix.desktop.environment = "kde" ou "hyprland".
-            '';
+            message = "kryonix.desktop.wallpaper.animated.enable requer kryonix.desktop.environment = 'kde' ou 'hyprland'.";
           }
         ];
 

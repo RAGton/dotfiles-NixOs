@@ -14,6 +14,7 @@
 # =============================================================================
 # =============================================================================
 {
+  lib,
   osConfig,
   pkgs,
   ...
@@ -84,6 +85,7 @@ in
         path = "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora";
         interval = 300;
       };
+      wallpaperPlugin = lib.mkIf (osConfig.kryonix.desktop.wallpaper.animated.enable or false) "org.waywallen.kde";
     };
 
     # --- Blur (Kryonix Glass profundo) ------------------------------------
