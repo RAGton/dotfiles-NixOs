@@ -90,6 +90,9 @@ in
 
     configFile.kwinrc = {
       Plugins.desktopchangeosdEnabled = true;
+      Plugins.kwin4_effect_blurEnabled = true;
+      Plugins.kwin4_effect_translucencyEnabled = true;
+      Plugins.slideEnabled = true;
       "Script-desktopchangeosd" = {
         PopupHideDelay = 600;
         TextOnly = false;
