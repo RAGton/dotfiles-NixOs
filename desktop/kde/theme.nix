@@ -188,6 +188,7 @@ in
       }
       {
         location = "bottom";
+        screen = 0;
         alignment = "center";
         height = 56;
         floating = true;

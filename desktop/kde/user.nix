@@ -32,5 +32,6 @@
     ./lockscreen.nix
     ./keybinds.nix
     ./keybind-helper.nix
+    ./multimonitor.nix
   ];
 }
