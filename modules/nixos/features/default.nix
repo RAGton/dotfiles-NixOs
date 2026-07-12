@@ -23,5 +23,6 @@
     ./observability.nix
     ./mcp.nix
     ./browser-automation.nix
+    ./acme.nix
   ];
 }
