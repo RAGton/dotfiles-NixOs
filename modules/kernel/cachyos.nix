@@ -26,9 +26,9 @@ in {
       )
     ];
 
-    boot.kernelPackages = pkgs.cachyos-kernel;
+    boot.kernelPackages = pkgs.linuxPackagesFor pkgs.cachyos-kernel;
 
     # Força o módulo ZFS a ser exatamente o que foi compilado com o kernel cachyos
-    boot.zfs.package = lib.mkDefault config.boot.kernelPackages.zfs_cachyos;
+    boot.zfs.package = lib.mkDefault pkgs.zfs_cachyos;
   };
 }
