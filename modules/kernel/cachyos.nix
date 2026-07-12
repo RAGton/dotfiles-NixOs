@@ -21,12 +21,14 @@ in {
 
   config = lib.mkIf cfg.enable {
     nixpkgs.overlays = [
-      (final: prev: {
-        # Adiciona o zfs_cachyos do input de terceiros se existir, ou do nix-cachyos-kernel
-        # Como xddxdd providencia pacotes no topo do flake:
-        cachyos-kernel = inputs.nix-cachyos-kernel.packages.${pkgs.system}."linux_cachyos_${cfg.variant}_${cfg.optimization}" or inputs.nix-cachyos-kernel.packages.${pkgs.system}.linux_cachyos;
-        zfs_cachyos = inputs.nix-cachyos-kernel.packages.${pkgs.system}."linux_cachyos_${cfg.variant}_${cfg.optimization}_zfs" or inputs.nix-cachyos-kernel.packages.${pkgs.system}.linux_cachyos_zfs;
-      })
+      (final: prev:
+        let
+          cachyosInput = inputs.kryonix.inputs.nix-cachyos-kernel or inputs.nix-cachyos-kernel;
+        in {
+          cachyos-kernel = cachyosInput.packages.${pkgs.system}."linux_cachyos_${cfg.variant}_${cfg.optimization}" or cachyosInput.packages.${pkgs.system}.linux_cachyos;
+          zfs_cachyos = cachyosInput.packages.${pkgs.system}."linux_cachyos_${cfg.variant}_${cfg.optimization}_zfs" or cachyosInput.packages.${pkgs.system}.linux_cachyos_zfs;
+        }
+      )
     ];
 
     boot.kernelPackages = pkgs.cachyos-kernel;
