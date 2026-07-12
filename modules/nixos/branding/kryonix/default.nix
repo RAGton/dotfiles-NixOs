@@ -298,8 +298,8 @@ in
           theme = lib.mkForce "${grubTheme}/kryonix";
           splashMode = lib.mkDefault "stretch";
           backgroundColor = lib.mkDefault "#081018";
-          gfxmodeEfi = lib.mkDefault "1920x1080";
-          gfxmodeBios = lib.mkDefault "1920x1080";
+          gfxmodeEfi = lib.mkDefault "auto";
+          gfxmodeBios = lib.mkDefault "auto";
           extraConfig = lib.mkAfter ''
             set color_normal=light-cyan/black
             set color_highlight=black/light-cyan
@@ -312,7 +312,7 @@ in
     (lib.mkIf cfg.enable (
       lib.optionalAttrs (options ? isoImage) {
         isoImage = {
-          grubTheme = lib.mkForce "${grubTheme}/kryonix";
+          # grubTheme = lib.mkForce "${grubTheme}/kryonix"; # Quebra no Ventoy por falta de fontes
           splashImage = lib.mkForce blackPixel;
           efiSplashImage = lib.mkForce blackPixel;
         };

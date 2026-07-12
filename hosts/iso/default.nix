@@ -68,9 +68,13 @@
   # ISO identity
   system.nixos.distroName = lib.mkForce "KryonixOS";
   system.nixos.label = lib.mkForce "KryonixOS-Installer";
-  image.baseName = lib.mkForce "kryonix";
+  isoImage.isoBaseName = lib.mkForce "kryonix";
   isoImage.volumeID = lib.mkForce "KRYONIX";
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
+
+  # Boot universal (Ventoy, pendrive direto, EFI e Legacy BIOS)
+  isoImage.makeEfiBootable = true;
+  isoImage.makeUsbBootable = true;
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
   boot.plymouth.enable = lib.mkForce true;

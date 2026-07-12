@@ -93,6 +93,55 @@ in
         description = "Habilita VirtualBox (pode conflitar com KVM)";
       };
     };
+
+    incus = {
+      enable = lib.mkEnableOption "Habilita Incus";
+
+      ui = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Habilita Incus UI";
+        };
+      };
+
+      socketActivation = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Habilita socket activation no Incus";
+      };
+
+      storage = {
+        backend = lib.mkOption {
+          type = lib.types.str;
+          default = "zfs";
+          description = "Backend de storage do Incus";
+        };
+        poolName = lib.mkOption {
+          type = lib.types.str;
+          default = "kryonix-incus";
+          description = "Nome da pool do Incus";
+        };
+        source = lib.mkOption {
+          type = lib.types.str;
+          default = "glacier-data/incus-storage";
+          description = "Dataset/device fonte para o storage do Incus";
+        };
+      };
+
+      network = {
+        mode = lib.mkOption {
+          type = lib.types.str;
+          default = "managed-nat";
+          description = "Modo de rede do Incus";
+        };
+        bridgeName = lib.mkOption {
+          type = lib.types.str;
+          default = "incusbr-kryonix";
+          description = "Nome da interface de bridge do Incus";
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -177,6 +226,15 @@ in
     };
 
     # =========================
+    # Incus
+    # =========================
+    virtualisation.incus = lib.mkIf cfg.incus.enable {
+      enable = true;
+      ui.enable = cfg.incus.ui.enable;
+      socketActivation = cfg.incus.socketActivation;
+    };
+
+    # =========================
     # System Packages
     # =========================
     environment.systemPackages =
@@ -214,6 +272,11 @@ in
         (lib.optionals cfg.lxc.enable [
           lxc
         ])
+
+        # Incus tools
+        (lib.optionals cfg.incus.enable [
+          incus
+        ])
       ];
 
     # =========================
@@ -231,6 +294,7 @@ in
         (lib.optional cfg.podman.enable "podman")
         (lib.optional cfg.lxc.enable "lxc")
         (lib.optional cfg.virtualbox.enable "vboxusers")
+        (lib.optional cfg.incus.enable "incus-admin")
       ]
     );
 
