@@ -64,6 +64,34 @@ in
       };
     };
 
+    incus = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Habilita Incus daemon (containers e VMs)";
+      };
+
+      ui = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Habilita Incus Web UI";
+        };
+      };
+
+      socketActivation = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Usa socket activation para o Incus";
+      };
+
+      preseed = lib.mkOption {
+        type = lib.types.nullOr lib.types.lines;
+        default = null;
+        description = "Configuração preseed YAML para o Incus (storage, rede, etc)";
+      };
+    };
+
     podman = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -141,6 +169,17 @@ in
     };
 
     # =========================
+    # Incus
+    # =========================
+    virtualisation.incus = lib.mkIf cfg.incus.enable {
+      enable = true;
+      ui.enable = cfg.incus.ui.enable;
+      socketActivation = cfg.incus.socketActivation;
+      # Habilitar se fornecido
+      preseed = lib.mkIf (cfg.incus.preseed != null) cfg.incus.preseed;
+    };
+
+    # =========================
     # Podman
     # =========================
     virtualisation.podman = lib.mkIf cfg.podman.enable {
@@ -214,6 +253,11 @@ in
         (lib.optionals cfg.lxc.enable [
           lxc
         ])
+
+        # Incus tools
+        (lib.optionals cfg.incus.enable [
+          incus
+        ])
       ];
 
     # =========================
@@ -231,6 +275,7 @@ in
         (lib.optional cfg.podman.enable "podman")
         (lib.optional cfg.lxc.enable "lxc")
         (lib.optional cfg.virtualbox.enable "vboxusers")
+        (lib.optional cfg.incus.enable "incus-admin")
       ]
     );
 
