@@ -57,7 +57,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    backupFileExtension = "backup";
+    backupFileExtension = "hm-bak";
     extraSpecialArgs = {
       inherit inputs userConfig;
       nhModules = "${inputs.self}/modules/home-manager";
