@@ -140,6 +140,7 @@ in
         # - disko: safety + executor (disko --mode disko);
         # - nixos-install-tools: executor (nixos-install);
         # - nix: nixos-install precisa do nix no PATH para avaliar o flake.
+        # - mkpasswd: para gerar hash yescrypt (kryonix-installer usa mkpasswd -m yescrypt).
         path = [
           pkgs.util-linux
           pkgs.networkmanager
@@ -147,6 +148,7 @@ in
           pkgs.curl
           pkgs.disko
           pkgs.nixos-install-tools
+          pkgs.mkpasswd
           config.nix.package
         ];
         serviceConfig = {
