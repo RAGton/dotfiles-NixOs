@@ -6,16 +6,10 @@ in {
   options.kryonix.kernel.cachyos = {
     enable = lib.mkEnableOption "Enable CachyOS kernel";
 
-    variant = lib.mkOption {
-      type = lib.types.enum [ "default" "lto" ];
-      default = "lto";
-      description = "CachyOS kernel variant to use.";
-    };
-
-    optimization = lib.mkOption {
+    pkg = lib.mkOption {
       type = lib.types.str;
-      default = "zen4";
-      description = "CPU optimization architecture for the kernel.";
+      default = "linux-cachyos-lts-lto";
+      description = "O nome exato do pacote do kernel no flake nix-cachyos-kernel";
     };
   };
 
@@ -24,9 +18,10 @@ in {
       (final: prev:
         let
           cachyosInput = inputs.kryonix.inputs.nix-cachyos-kernel or inputs.nix-cachyos-kernel;
+          zfsPkg = builtins.replaceStrings ["linux-cachyos"] ["zfs-cachyos"] cfg.pkg;
         in {
-          cachyos-kernel = cachyosInput.packages.${pkgs.system}."linux_cachyos_${cfg.variant}_${cfg.optimization}" or cachyosInput.packages.${pkgs.system}.linux_cachyos;
-          zfs_cachyos = cachyosInput.packages.${pkgs.system}."linux_cachyos_${cfg.variant}_${cfg.optimization}_zfs" or cachyosInput.packages.${pkgs.system}.linux_cachyos_zfs;
+          cachyos-kernel = cachyosInput.packages.${pkgs.system}.${cfg.pkg} or cachyosInput.packages.${pkgs.system}."linux-cachyos-lts-lto";
+          zfs_cachyos = cachyosInput.packages.${pkgs.system}.${zfsPkg} or cachyosInput.packages.${pkgs.system}."zfs-cachyos-lts-lto";
         }
       )
     ];
