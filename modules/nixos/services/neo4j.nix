@@ -93,12 +93,9 @@ in
       '';
     };
 
-    # Firewall: permitir Bolt APENAS da rede Tailscale (CGNAT 100.64.0.0/10).
-    # Bloqueia qualquer acesso externo à porta Bolt fora do Tailscale.
-    networking.firewall.extraCommands = ''
-      iptables -A nixos-fw -p tcp --dport ${toString cfg.portBolt} -s 100.64.0.0/10 -j nixos-fw-accept
-      iptables -A nixos-fw -p tcp --dport ${toString cfg.portBolt} -j nixos-fw-refuse
-    '';
+    # Firewall: permitir Bolt APENAS da rede Tailscale
+    # NixOS handles tailscale interfaces natively without breaking nftables.
+    networking.firewall.interfaces."tailscale0".allowedTCPPorts = [ cfg.portBolt ];
 
     # Injetar variáveis de ambiente para criptografia e autenticação inicial do Neo4j
     # O prefixo '-' torna o arquivo opcional (não impede o boot se ausente).
