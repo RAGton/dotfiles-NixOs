@@ -116,6 +116,12 @@
       url = "git+https://github.com/RAGton/kryonix-installer";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Kernel CachyOS de terceiros (zfs e LTO alinhados)
+    nix-cachyos-kernel = {
+      url = "github:xddxdd/nix-cachyos-kernel";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # =============================
