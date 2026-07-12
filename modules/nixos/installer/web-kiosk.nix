@@ -29,6 +29,15 @@ in
 
   config = lib.mkIf cfg.enable (
     let
+      startInstallerBackend = pkgs.writeShellScriptBin "start-installer-backend" ''
+        if grep -qw 'kryonix.installer.mode=remote' /proc/cmdline; then
+          export KRYONIX_INSTALLER_BIND="0.0.0.0:${toString cfg.port}"
+        else
+          export KRYONIX_INSTALLER_BIND="${cfg.listenAddress}:${toString cfg.port}"
+        fi
+
+        exec ${pkgs.kryonix-installer}/bin/kryonix-installer
+      '';
       startKiosk =
         (pkgs.writeShellScriptBin "start-kiosk" ''
           # Cage (Wayland) needs XDG_RUNTIME_DIR — getty autologin does not set it
@@ -55,6 +64,24 @@ in
             fi
             sleep 1
           done
+
+          if grep -q "kryonix.installer.mode=remote" /proc/cmdline; then
+            echo -e "\n======================================================="
+            echo -e "        KRYONIX OS - REMOTE INSTALLER MODE             "
+            echo -e "=======================================================\n"
+            echo -e "O instalador está rodando no modo remoto.\n"
+
+            IP_ADDR=$(${pkgs.iproute2}/bin/ip -4 -o addr show scope global | awk '{print $4}' | cut -d/ -f1 | head -n 1)
+            if [ -z "$IP_ADDR" ]; then
+                IP_ADDR="<aguardando-rede>"
+            fi
+
+            echo -e "\nPara instalar, acesse de outro computador na rede:"
+            echo -e "\n  ->  http://$IP_ADDR:${toString cfg.port}"
+            echo -e "\n======================================================="
+
+            exec ${pkgs.bash}/bin/bash
+          fi
 
           # --app=URL forces app mode: no tab bar, no address bar, no browser chrome.
           # --kiosk alone is insufficient on many Chromium builds inside Cage.
@@ -147,15 +174,15 @@ in
           pkgs.curl
           pkgs.disko
           pkgs.nixos-install-tools
+          pkgs.iproute2
           config.nix.package
         ];
         serviceConfig = {
-          ExecStart = "${pkgs.kryonix-installer}/bin/kryonix-installer";
+          ExecStart = "${startInstallerBackend}/bin/start-installer-backend";
           Restart = "on-failure";
           User = "root";
         };
         environment = {
-          KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
           KRYONIX_INSTALLER_FLAKE = "${inputs.self.outPath}";
           KRYONIX_ENGINE_SOURCE = "/etc/kryonix";
           KRYONIX_HARDWARE_PROBE = "${pkgs.kryonix-hardware-probe}/bin/kryonix-hardware-probe";
@@ -232,9 +259,9 @@ in
         nordzy-cursor-theme
       ];
 
-      # Quando o backend escuta em todas as interfaces (RemoteAccess),
-      # abrir a porta no firewall automaticamente.
-      networking.firewall.allowedTCPPorts = lib.mkIf (cfg.listenAddress != "127.0.0.1") [
+      # O backend controla internamente o bind (127.0.0.1 vs 0.0.0.0) baseado no modo remoto,
+      # então sempre abrimos a porta no firewall.
+      networking.firewall.allowedTCPPorts = [
         cfg.port
       ];
 
