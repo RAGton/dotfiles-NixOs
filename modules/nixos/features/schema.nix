@@ -104,7 +104,12 @@
       };
 
       bridge = {
-        enable = lib.mkEnableOption "Network bridge (br0) for VMs and containers";
+        enable = lib.mkEnableOption "Network bridge for VMs and containers";
+        name = lib.mkOption {
+          type = lib.types.str;
+          default = "br-glacier-lan";
+          description = "Name of the main network bridge.";
+        };
       };
 
       vlan = {

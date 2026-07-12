@@ -17,7 +17,7 @@
 #   3. systemctl start f5-tts-server
 #
 # Segurança:
-# - Bind 0.0.0.0, mas firewall restringe a tailscale0 e br0.
+# - Bind 0.0.0.0, mas firewall restringe a tailscale0 e LAN interna.
 # - Processo isolado em usuário f5tts sem privilégios.
 # =============================================================================
 {
@@ -93,10 +93,10 @@ in
       };
     };
 
-    # Expõe o servidor apenas em Tailscale e LAN interna (br0)
+    # Expõe o servidor apenas em Tailscale e LAN interna (bridge configurável)
     networking.firewall.interfaces = {
       tailscale0.allowedTCPPorts = [ cfg.port ];
-      br0.allowedTCPPorts = [ cfg.port ];
+      "${config.kryonix.features.network.bridge.name}".allowedTCPPorts = [ cfg.port ];
     };
   };
 }

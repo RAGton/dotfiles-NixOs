@@ -3,7 +3,7 @@ set -u
 set -o pipefail
 
 HOST_EXPECTED="${HOST_EXPECTED:-RVE-GLACIER}"
-BRIDGE_EXPECTED="${BRIDGE_EXPECTED:-br0}"
+BRIDGE_EXPECTED="${BRIDGE_EXPECTED:-br-glacier-lan}"
 PHY_IFACE_EXPECTED="${PHY_IFACE_EXPECTED:-enp6s0}"
 LAN_IP_EXPECTED="${LAN_IP_EXPECTED:-10.0.0.2}"
 GATEWAY_EXPECTED="${GATEWAY_EXPECTED:-10.0.0.1}"
@@ -407,6 +407,23 @@ if findmnt /home >/dev/null 2>&1; then
   findmnt /home
 else
   warn "/home não possui mount explícito separado"
+fi
+
+if have zpool; then
+  if zpool status >/dev/null 2>&1; then
+    ok "zpool status executou com sucesso"
+    sudo zpool status -v || true
+  else
+    warn "ZFS falhou ou não há pools configuradas"
+  fi
+else
+  warn "zpool não encontrado"
+fi
+
+if have zfs; then
+  sudo zfs list -o name,used,avail,refer,mountpoint,mounted || true
+else
+  warn "zfs não encontrado"
 fi
 
 section "11. Flake / Nix sanity"

@@ -9,7 +9,7 @@
 # - Ollama sem autostart preserva VRAM para gaming.
 # - keep_alive=0 descarrega o modelo imediatamente após uso.
 # - kryonix-lightrag aquece o índice antes da Brain API subir.
-# - Firewall por interface: apenas LAN (br0) e Tailscale (tailscale0).
+# - Firewall por interface: apenas LAN e Tailscale (tailscale0).
 #
 # Riscos:
 # - EnvironmentFile com KRYONIX_BRAIN_API_KEY deve existir antes do switch.
@@ -508,8 +508,7 @@ in
     users.users.rocha.extraGroups = [ "kryonix" ];
     users.users.ollama.extraGroups = mkIf cfg.ollama.enable [ "kryonix" ];
 
-    # ── Firewall por interface ─────────────────────────────────────
-    # Brain API e Ollama só acessíveis via LAN (br0) e Tailscale (tailscale0).
+    # Brain API e Ollama só acessíveis via LAN e Tailscale (tailscale0).
     # NÃO usar allowedTCPPorts (abre para todas as interfaces).
     networking.firewall.interfaces = mkIf (cfg.role == "server") {
       # Tailscale: acesso remoto Inspiron → Glacier
@@ -517,8 +516,8 @@ in
         cfg.port # Brain API :8000
         11434 # Ollama
       ];
-      # LAN (bridge br0): acesso local na rede 10.0.0.0/24
-      br0.allowedTCPPorts = [
+      # LAN (bridge virtual ou física): acesso local na rede
+      "${config.kryonix.features.network.bridge.name}".allowedTCPPorts = [
         cfg.port
         11434
       ];

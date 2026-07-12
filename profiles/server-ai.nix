@@ -54,11 +54,7 @@ in
     # Firewall restrito: Apenas LAN e Tailscale
     networking.firewall = {
       enable = true;
-      trustedInterfaces = [ "tailscale0" ];
-      # Permitir tráfego da LAN 10.0.0.0/24 (exemplo)
-      extraCommands = ''
-        iptables -A INPUT -s 10.0.0.0/24 -j ACCEPT
-      '';
+      trustedInterfaces = [ "tailscale0" "br-glacier-lan" ];
     };
   };
 }
