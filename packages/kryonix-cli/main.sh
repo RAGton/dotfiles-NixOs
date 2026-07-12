@@ -134,6 +134,15 @@ run_post_switch_gc() {
 
   printf 'Executando limpeza automática pós-switch (removendo gerações > 2 dias)...\n'
 
+  # Limpa arquivos de backup antigos do Home Manager no diretório home do usuário alvo
+  if [[ -n "${user_arg:-}" ]]; then
+    local target_home
+    target_home="$(getent passwd "$user_arg" | cut -d: -f6)"
+    if [[ -n "$target_home" && -d "$target_home" ]]; then
+      find "$target_home" -maxdepth 5 -type f \( -name "*.hm-old" -o -name "*.hm-bak" \) -mtime +2 -delete 2>/dev/null || true
+    fi
+  fi
+
   if command -v nh >/dev/null 2>&1; then
     if ! run_command nh clean all --keep-since 2d; then
       printf '\033[33m[warn]\033[0m Falha na limpeza automática pós-switch via nh.\n' >&2
