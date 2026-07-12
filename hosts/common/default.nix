@@ -38,6 +38,7 @@
     ../../modules/nixos/desktop
     ../../modules/kernel/zen.nix
     ../../modules/kernel/cachyos.nix
+    ../../modules/nixos/performance/sched-ext.nix
     ../../modules/nixos/features
     ../../profiles
   ];
