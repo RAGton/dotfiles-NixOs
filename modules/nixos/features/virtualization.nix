@@ -90,6 +90,32 @@ in
         default = null;
         description = "Configuração preseed YAML para o Incus (storage, rede, etc)";
       };
+
+      storage = {
+        backend = lib.mkOption {
+          type = lib.types.str;
+          default = "dir";
+        };
+        poolName = lib.mkOption {
+          type = lib.types.str;
+          default = "default";
+        };
+        source = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+        };
+      };
+
+      network = {
+        mode = lib.mkOption {
+          type = lib.types.str;
+          default = "managed-nat";
+        };
+        bridgeName = lib.mkOption {
+          type = lib.types.str;
+          default = "incusbr0";
+        };
+      };
     };
 
     podman = {
