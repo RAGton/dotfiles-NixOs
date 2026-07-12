@@ -435,6 +435,34 @@ if (( dry )); then
   dry_args+=("--dry")
 fi
 
+run_flake_command_smart_hm() {
+  local tmp_log
+  tmp_log="$(mktemp)"
+  
+  # Captura a saída para detectar o erro chato do home-manager, mas mantendo o log na tela
+  if ! run_flake_command "$@" > >(tee -a "$tmp_log") 2> >(tee -a "$tmp_log" >&2); then
+    local rc=$?
+    if grep -q "would be clobbered by backing up" "$tmp_log"; then
+      local backup_file
+      backup_file="$(grep "would be clobbered by backing up" "$tmp_log" | sed -n "s/.*Existing file '\(.*\)' would be clobbered.*/\1/p" | head -n 1)"
+      
+      if [[ -n "$backup_file" && -f "$backup_file" ]]; then
+        printf '\n\033[33m[kryonix switch inteligente]\033[0m Conflito de backup detectado: %s\n' "$backup_file" >&2
+        printf '\033[33m[kryonix switch inteligente]\033[0m Removendo arquivo conflitante e tentando novamente...\n\n' >&2
+        rm -f "$backup_file"
+        rm -f "$tmp_log"
+        # Retry
+        run_flake_command "$@"
+        return $?
+      fi
+    fi
+    rm -f "$tmp_log"
+    return "$rc"
+  fi
+  rm -f "$tmp_log"
+  return 0
+}
+
 case "$subcommand" in
   switch|boot)
     update_flake_if_requested
@@ -445,7 +473,7 @@ case "$subcommand" in
     if [[ "${#extra_args[@]}" -gt 0 ]]; then
       cmd+=("--" "${extra_args[@]}")
     fi
-    run_flake_command "${cmd[@]}"
+    run_flake_command_smart_hm "${cmd[@]}"
     switch_rc=$?
     if (( switch_rc != 0 )); then
       exit "$switch_rc"
@@ -456,7 +484,7 @@ case "$subcommand" in
       blue_line "─── Aplicando Home Manager (Kryonix All) ───"
       cmd=(nh home switch "$flake_ref" -c "$home_target" -b hm-old)
       cmd+=("${verbose_args[@]}" "${dry_args[@]}")
-      run_flake_command "${cmd[@]}"
+      run_flake_command_smart_hm "${cmd[@]}"
     fi
 
     if [[ "$subcommand" == "switch" ]]; then
@@ -471,7 +499,7 @@ case "$subcommand" in
     # OS Switch
     cmd=(nh os switch "$flake_ref" -H "$flake_host")
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
-    run_flake_command "${cmd[@]}"
+    run_flake_command_smart_hm "${cmd[@]}"
     all_switch_rc=$?
     if (( all_switch_rc != 0 )); then
       exit "$all_switch_rc"
@@ -482,7 +510,7 @@ case "$subcommand" in
     blue_line "─── Aplicando Home Manager (Kryonix All) ───"
     cmd=(nh home switch "$flake_ref" -c "$home_target" -b hm-old)
     cmd+=("${verbose_args[@]}" "${dry_args[@]}")
-    if ! run_flake_command "${cmd[@]}"; then
+    if ! run_flake_command_smart_hm "${cmd[@]}"; then
       printf '\033[33m[warn]\033[0m NixOS OK, mas HM falhou — sistema funcional, home config desatualizada.\n' >&2
       printf '\033[33m[warn]\033[0m Execute: home-manager switch --flake %s#%s -b hm-old\n' "$flake_ref" "$home_target" >&2
     fi
