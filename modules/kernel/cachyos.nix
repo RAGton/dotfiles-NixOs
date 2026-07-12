@@ -29,6 +29,7 @@ in {
     boot.kernelPackages = (pkgs.linuxPackagesFor pkgs.cachyos-kernel).extend (
       final: prev: {
         zfs = pkgs.zfs_cachyos;
+        zfs_cachyos = pkgs.zfs_cachyos;
       }
     );
 
