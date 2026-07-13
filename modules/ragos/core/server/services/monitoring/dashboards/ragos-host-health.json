@@ -1,0 +1,54 @@
+{
+  "uid": "ragos-host",
+  "title": "RAGOS - Saúde do Host",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "tags": ["ragos"],
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "CPU (load1)",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [ { "expr": "node_load1", "legendFormat": "load1", "refId": "A" } ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Memória usada (%)",
+      "id": 2,
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100",
+          "legendFormat": "mem_used_pct",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "/srv/data usado (%)",
+      "id": 3,
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "(node_filesystem_size_bytes{mountpoint=\"/srv/data\"} - node_filesystem_free_bytes{mountpoint=\"/srv/data\"}) / node_filesystem_size_bytes{mountpoint=\"/srv/data\"} * 100",
+          "legendFormat": "srv_data_used_pct",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Rede (rx/tx bytes/s)",
+      "id": 4,
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "rate(node_network_receive_bytes_total{device!~\"lo|docker.*|veth.*\"}[5m])", "legendFormat": "rx {{device}}", "refId": "A" },
+        { "expr": "rate(node_network_transmit_bytes_total{device!~\"lo|docker.*|veth.*\"}[5m])", "legendFormat": "tx {{device}}", "refId": "B" }
+      ]
+    }
+  ]
+}

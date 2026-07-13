@@ -61,6 +61,38 @@
           ../profiles/default.nix
         ];
       };
+
+    # Ecossistema Ragos (PXE, Diskless, Think Server, Instalador)
+    ragos-client =
+      { ... }:
+      {
+        imports = [ ../modules/ragos/core/client ];
+      };
+
+    ragos-server =
+      { ... }:
+      {
+        imports = [ ../modules/ragos/core/server ];
+      };
+
+    ragos-think =
+      { ... }:
+      {
+        imports = [ ../modules/ragos/think/think-server.nix ];
+      };
+
+    ragos-installer =
+      { ... }:
+      {
+        imports = [ ../modules/ragos/installer ];
+      };
+
+    # Service Providers (contratos de injeção em /etc)
+    services-ragos =
+      { ... }:
+      {
+        imports = [ ../modules/services/ragos/default.nix ];
+      };
   };
 
   homeManagerModules = {

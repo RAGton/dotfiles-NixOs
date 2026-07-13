@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-50 antialiased;
+    font-family: 'Departure Mono', ui-monospace, 'Cascadia Mono', 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-[28px] border border-white/10 bg-slate-950/45 shadow-glass backdrop-blur-2xl;
+  }
+
+  .section-panel {
+    @apply rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur-xl;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 rounded-lg font-bold transition-all focus:ring-2 focus:ring-accent-400/60 bg-accent-600 text-white hover:bg-accent-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:opacity-80;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-lg font-bold transition-all focus:ring-2 focus:ring-white/30 bg-white/10 text-white hover:bg-white/15 disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-500 disabled:opacity-80;
+  }
+
+  .btn-ghost {
+    @apply px-6 py-3 rounded-lg font-bold transition-all focus:ring-2 focus:ring-white/20 bg-transparent text-slate-200 hover:bg-white/10 disabled:cursor-not-allowed disabled:text-slate-500;
+  }
+
+  .input-shell {
+    @apply w-full rounded-xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-accent-400 focus:ring-2 focus:ring-accent-400/20;
+  }
+
+  .label-text {
+    @apply mb-2 block text-xs font-semibold uppercase tracking-[0.24em] text-slate-300;
+  }
+
+  .hint-text {
+    @apply text-sm text-slate-400;
+  }
+
+  .metric-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-200;
+  }
+}
+
+.timezone-map svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.timezone-map svg path,
+.timezone-map svg polygon,
+.timezone-map svg rect,
+.timezone-map svg ellipse,
+.timezone-map svg circle,
+.timezone-map svg polyline,
+.timezone-map svg line,
+.timezone-map svg [fill]:not([fill='none']) {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.timezone-map button {
+  z-index: 2;
+}

@@ -35,11 +35,13 @@ lib.forAllSystems (
       kryonix-disk-planner = kryonixDiskPlanner;
       kryonix-installer = kryonixInstaller;
     };
+    kryx = pkgs.callPackage ../packages/kryx/default.nix { };
     denoCacheOnly = lib.mkDenoCacheOnly pkgs;
   in
   {
     default = kryonixCli;
     kryonix = kryonixCli;
+    kryx = kryx;
     kryonix-home = kryonixHome;
     kryonix-brain-lightrag = kryonixBrainLightrag;
     kryonix-hardware-probe = kryonixHardwareProbe;

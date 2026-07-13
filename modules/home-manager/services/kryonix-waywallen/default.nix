@@ -25,7 +25,7 @@ let
       cfg.fallback
     else
       "${pkgs.kryonix-branding}/share/backgrounds/kryonix/kryonix-clean-dark.svg";
-  
+
   pluginArgs = [
     "--plugin ${pkgs.kryonix-waywallen}/share/waywallen"
   ]

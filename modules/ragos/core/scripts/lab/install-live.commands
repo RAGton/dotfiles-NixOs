@@ -1,0 +1,60 @@
+# Purpose: Payload de comandos para instalacao unattended no live system
+# Category: lab
+# Safety: destructive
+# Expected environment: shell do live system acessada via SSH ou console serial
+# Notes: Consumido por validacoes automatizadas do laboratorio libvirt
+
+set -euo pipefail
+
+find_iface_by_mac() {
+  local wanted_mac="$1"
+  ip -o link | awk -F': ' -v wanted="${wanted_mac,,}" '
+    {
+      iface = $2
+      line = tolower($0)
+      if (line ~ ("link/ether " wanted " ")) {
+        print iface
+        exit
+      }
+    }
+  '
+}
+
+LAB_MGMT_MAC="${RAGOS_LAB_MGMT_MAC:-52:54:00:64:10:01}"
+LAB_WAN_MAC="${RAGOS_LAB_WAN_MAC:-52:54:00:64:10:02}"
+MGMT_IFACE="$(find_iface_by_mac "$LAB_MGMT_MAC")"
+WAN_IFACE="$(find_iface_by_mac "$LAB_WAN_MAC")"
+
+[[ -n "$MGMT_IFACE" ]] || {
+  echo "ERRO: interface de gerenciamento nao encontrada para MAC $LAB_MGMT_MAC" >&2
+  exit 1
+}
+
+export RAGOS_SERVER_IP="${RAGOS_SERVER_IP:-192.168.100.2}"
+export RAGOS_HTTP_PORT="${RAGOS_HTTP_PORT:-8080}"
+export RAGOS_HOSTNAME="${RAGOS_HOSTNAME:-srv-rag}"
+export RAGOS_TIMEZONE="${RAGOS_TIMEZONE:-America/Cuiaba}"
+export RAGOS_LOCALE="${RAGOS_LOCALE:-pt_BR.UTF-8}"
+export RAGOS_KEYMAP="${RAGOS_KEYMAP:-br-abnt2}"
+export RAGOS_MGMT_IFACE="$MGMT_IFACE"
+export RAGOS_MGMT_PREFIX="${RAGOS_MGMT_PREFIX:-24}"
+export RAGOS_MGMT_GATEWAY="${RAGOS_MGMT_GATEWAY:-192.168.100.1}"
+export RAGOS_MGMT_DNS="${RAGOS_MGMT_DNS:-1.1.1.1,8.8.8.8}"
+export RAGOS_WAN_IFACE="$WAN_IFACE"
+export RAGOS_WAN_MODE="${RAGOS_WAN_MODE:-dhcp}"
+export RAGOS_ADMIN_USER="${RAGOS_ADMIN_USER:-admin}"
+export RAGOS_ADMIN_UID="${RAGOS_ADMIN_UID:-1000}"
+export RAGOS_ADMIN_EMAIL="${RAGOS_ADMIN_EMAIL:-admin@example.local}"
+export RAGOS_ADMIN_PASSWORD="${RAGOS_ADMIN_PASSWORD:-Ragos!2026Think}"
+export RAGOS_DISK_MODE="${RAGOS_DISK_MODE:-one}"
+export RAGOS_DISK_PROFILE="${RAGOS_DISK_PROFILE:-single}"
+export RAGOS_SYS_DISK="${RAGOS_SYS_DISK:-/dev/vda}"
+export RAGOS_ROOT_FS="${RAGOS_ROOT_FS:-btrfs}"
+export RAGOS_DATA_FS="${RAGOS_DATA_FS:-btrfs}"
+export RAGOS_INSTALL_LOG_FILE="${RAGOS_INSTALL_LOG_FILE:-/tmp/ragos-install.log}"
+export RAGOS_I_UNDERSTAND_THIS_WIPES_DISKS=YES
+
+sudo mkdir -p /opt
+sudo ln -sfn /iso/opt/ragos-src /opt/ragos-src
+sudo -E ragos-install preflight-unattended
+sudo -E ragos-install unattended

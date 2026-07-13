@@ -1,0 +1,10 @@
+# Purpose: Payload de comandos para inspecao rapida do live system
+# Category: lab
+# Safety: lab-only
+# Expected environment: shell do live system acessada via console serial
+# Notes: Consumido por send-ragos-serial.sh
+
+find /iso -maxdepth 4 -type d -name ragos-src
+ls /iso
+ip -br link
+ip -4 -br addr

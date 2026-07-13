@@ -1,0 +1,37 @@
+[General]
+Background="Background.png"
+ScaleImageCropped=true
+ScreenWidth=1920
+ScreenHeight=1080
+ScreenPadding=72
+Font="Noto Sans"
+FontSize=13
+ForceRightToLeft=false
+ForceLastUser=true
+ForcePasswordFocus=true
+ForceHideCompletePassword=false
+
+HeaderText="RAGOS Control"
+SubHeaderText="Acesso operacional"
+WelcomeText="Controle previsivel para clientes diskless"
+HostLabel="@hostLabel@"
+ProfileLabel="@profileLabel@"
+TransportLabel="@transportLabel@"
+FallbackHostName="ragos-client"
+PrimaryTextColor="#f3f8fc"
+SecondaryTextColor="#9fb2c8"
+MutedTextColor="#708299"
+AccentColor="#4ba3ff"
+AccentSoftColor="#8fd0ff"
+SurfaceColor="#f40c1420"
+SurfaceBorderColor="#2c4158"
+FieldColor="#162232"
+FieldBorderColor="#29405a"
+FieldFocusColor="#4ba3ff"
+PrimaryButtonTextColor="#041420"
+TranslateLoginFailed=
+TranslateLogin=
+TranslateSession=
+TranslateSuspend=
+TranslateReboot=
+TranslateShutdown=

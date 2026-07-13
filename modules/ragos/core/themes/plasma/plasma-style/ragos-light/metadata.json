@@ -1,0 +1,19 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "dev@ragos.local",
+        "Name": "RAGOS Maintainers"
+      }
+    ],
+    "Category": "",
+    "Description": "Corporate light Plasma style for the RAGOS desktop.",
+    "EnabledByDefault": true,
+    "Id": "ragos-light",
+    "License": "LGPL-3.0-or-later",
+    "Name": "RAGOS Light",
+    "Version": "1.0.0",
+    "Website": "https://github.com/RAGEnterprise/ragos"
+  },
+  "X-Plasma-API": "5.0"
+}

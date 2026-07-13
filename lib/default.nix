@@ -44,5 +44,8 @@
       imports = [ path ];
     };
 
+  # Helpers de Serviços (Fronteira e Segurança)
+  inherit (import ./services.nix { inherit lib; }) mkKryonixService;
+
   # Pode adicionar mais helpers no futuro
 }

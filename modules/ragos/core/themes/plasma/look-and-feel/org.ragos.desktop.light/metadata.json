@@ -1,0 +1,20 @@
+{
+  "KPackageStructure": "Plasma/LookAndFeel",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "dev@ragos.local",
+        "Name": "RAGOS Maintainers"
+      }
+    ],
+    "Category": "",
+    "Description": "Corporate light global theme for the RAGOS Plasma 6 desktop.",
+    "Id": "org.ragos.desktop.light",
+    "License": "GPL-2.0-or-later",
+    "Name": "RAGOS Control Light",
+    "Version": "1.0.0",
+    "Website": "https://github.com/RAGEnterprise/ragos"
+  },
+  "Keywords": "Desktop;Workspace;Appearance;Look and Feel;RAGOS;Light;",
+  "X-Plasma-APIVersion": "2"
+}
