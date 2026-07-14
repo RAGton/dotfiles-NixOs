@@ -1,0 +1,249 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  buildInstallPlanPayload,
+  buildInstallSecretsPayload,
+  validateStep,
+} from '../utils/installPlan.js';
+import {
+  INITIAL_INSTALL_PLAN_DRAFT,
+  INITIAL_UI_TRANSIENT_STATE,
+  createInstallPlanDraft,
+  extractUiTransientState,
+} from '../state/wizardState.js';
+
+function createValidDraft(overrides = {}) {
+  return createInstallPlanDraft({
+    ...INITIAL_INSTALL_PLAN_DRAFT,
+    mgmtInterface: 'enp1s0',
+    wanInterface: 'enp2s0',
+    hostName: 'srv-rag',
+    serverIp: '192.168.100.2',
+    mgmtGateway: '192.168.100.1',
+    mgmtDns: '1.1.1.1,8.8.8.8',
+    sysDisk: '/dev/sda',
+    selectedDisks: ['/dev/sda'],
+    adminEmail: 'admin@example.com',
+    adminPassword: 'SenhaForte@2026',
+    adminPasswordConfirm: 'SenhaForte@2026',
+    ...overrides,
+  });
+}
+
+function createValidUi(overrides = {}) {
+  return extractUiTransientState({
+    ...INITIAL_UI_TRANSIENT_STATE,
+    eulaAccepted: true,
+    destructiveConfirmed: true,
+    netIfacesCount: 2,
+    wanIdentified: true,
+    lanIdentified: true,
+    ...overrides,
+  });
+}
+
+test('draft gera install-plan canonico sem vazar estado transitorio', () => {
+  const draft = createValidDraft({
+    wanMode: 'static',
+    wanAddress: '203.0.113.10',
+    wanNetmask: '255.255.255.0',
+    wanGateway: '203.0.113.1',
+    wanDns: '1.1.1.1,8.8.8.8',
+    timeZone: 'America/Cuiaba',
+  });
+
+  const plan = buildInstallPlanPayload({
+    ...draft,
+    destructiveConfirmed: true,
+    wanIdentified: false,
+  });
+
+  assert.equal(plan.version, 1);
+  assert.equal(plan.network.hostname, 'srv-rag');
+  assert.equal(plan.network.interface, 'enp1s0');
+  assert.equal(plan.network.prefixLength, 24);
+  assert.equal(plan.network.wan.interface, 'enp2s0');
+  assert.equal(plan.network.wan.mode, 'static');
+  assert.deepEqual(plan.network.wan.dns, ['1.1.1.1', '8.8.8.8']);
+  assert.equal(plan.locale.timezone, 'America/Cuiaba');
+  assert.equal(plan.admin.user, 'rag');
+  assert.equal(plan.disk.sysDisk, '/dev/sda');
+  assert.equal('destructiveConfirmed' in plan, false);
+});
+
+test('timezone da etapa final precisa ser IANA canonico', () => {
+  const invalidValidation = validateStep('timezone', createValidDraft({
+    timeZone: '15.2,-56.1',
+  }), createValidUi());
+
+  assert.equal(invalidValidation.fieldErrors.timeZone, 'Selecione um timezone IANA canônico.');
+
+  const validValidation = validateStep('timezone', createValidDraft({
+    timeZone: 'America/Cuiaba',
+  }), createValidUi());
+
+  assert.equal(validValidation.fieldErrors.timeZone, undefined);
+});
+
+test('draft gera install-secrets canonico', () => {
+  const draft = createValidDraft({
+    wanMode: 'pppoe',
+    pppoePassword: 'SegredoPPP@2026',
+  });
+
+  const secrets = buildInstallSecretsPayload(draft);
+
+  assert.deepEqual(secrets, {
+    adminPassword: 'SenhaForte@2026',
+    adminPasswordConfirm: 'SenhaForte@2026',
+    wanPppoePassword: 'SegredoPPP@2026',
+  });
+});
+
+test('WAN DHCP nao exige credenciais PPPoE', () => {
+  const draft = createValidDraft({
+    wanMode: 'dhcp',
+    pppoeUser: '',
+    pppoePassword: '',
+  });
+
+  const validation = validateStep('network', draft, createValidUi());
+
+  assert.equal(validation.fieldErrors.pppoeUser, undefined);
+  assert.equal(validation.fieldErrors.pppoePassword, undefined);
+  assert.equal(validation.blockingIssues.length, 0);
+});
+
+test('WAN pode ficar vazia sem bloquear a etapa de rede', () => {
+  const draft = createValidDraft({
+    wanInterface: '',
+    wanMode: 'dhcp',
+  });
+
+  const validation = validateStep('network', draft, createValidUi());
+
+  assert.equal(validation.fieldErrors.wanInterface, undefined);
+  assert.equal(validation.blockingIssues.length, 0);
+});
+
+test('WAN PPPoE exige usuario e senha', () => {
+  const draft = createValidDraft({
+    wanMode: 'pppoe',
+    pppoeUser: '',
+    pppoePassword: '',
+  });
+
+  const validation = validateStep('network', draft, createValidUi());
+
+  assert.equal(validation.fieldErrors.pppoeUser, 'PPPoE: informe o usuário.');
+  assert.equal(validation.fieldErrors.pppoePassword, 'PPPoE: informe a senha.');
+});
+
+test('validacao por etapa respeita campos UX sem poluir o payload', () => {
+  const draft = createValidDraft();
+  const uiState = createValidUi({
+    wanIdentified: false,
+    lanIdentified: false,
+    destructiveConfirmed: false,
+  });
+
+  const networkValidation = validateStep('network', draft, uiState);
+  const summaryValidation = validateStep('summary', draft, uiState);
+
+  assert.ok(networkValidation.warnings.includes('A porta WAN ainda não foi confirmada fisicamente.'));
+  assert.ok(networkValidation.warnings.includes('A porta LAN/PXE ainda não foi confirmada fisicamente.'));
+  assert.ok(summaryValidation.blockingIssues.includes('Confirme o aviso destrutivo para continuar.'));
+});
+
+test('single, split e RAID geram payload coerente com o contrato', () => {
+  const singlePlan = buildInstallPlanPayload(createValidDraft({
+    selectedDisks: ['/dev/sda'],
+    diskMode: 'one',
+    diskProfile: 'single',
+    sysDisk: '/dev/sda',
+    rootFs: 'xfs',
+  }));
+
+  assert.equal(singlePlan.disk.mode, 'one');
+  assert.equal(singlePlan.disk.profile, 'single');
+  assert.equal(singlePlan.disk.rootFs, 'btrfs');
+  assert.equal(singlePlan.disk.dataFs, 'btrfs');
+
+  const splitPlan = buildInstallPlanPayload(createValidDraft({
+    diskMode: 'two',
+    diskProfile: 'single',
+    sysDisk: '/dev/sda',
+    dataDisk: '/dev/sdb',
+    selectedDisks: ['/dev/sda', '/dev/sdb'],
+    rootFs: 'xfs',
+    dataFs: 'ext4',
+  }));
+
+  assert.equal(splitPlan.disk.mode, 'two');
+  assert.deepEqual(splitPlan.disk.selectedDisks, ['/dev/sda', '/dev/sdb']);
+  assert.equal(splitPlan.disk.dataDisk, '/dev/sdb');
+  assert.equal(splitPlan.disk.rootFs, 'xfs');
+  assert.equal(splitPlan.disk.dataFs, 'ext4');
+
+  const raidPlan = buildInstallPlanPayload(createValidDraft({
+    diskMode: 'one',
+    diskProfile: 'raid',
+    selectedDisks: ['/dev/sda', '/dev/sdb'],
+    sysDisk: '/dev/sda',
+    raidLevel: 'raid1',
+    luksEnabled: true,
+  }));
+
+  assert.equal(raidPlan.disk.mode, 'one');
+  assert.equal(raidPlan.disk.profile, 'raid');
+  assert.deepEqual(raidPlan.disk.selectedDisks, ['/dev/sda', '/dev/sdb']);
+  assert.equal(raidPlan.disk.raidLevel, 'raid1');
+  assert.equal(raidPlan.disk.luksEnabled, true);
+  assert.equal(raidPlan.disk.rootFs, 'btrfs');
+  assert.equal(raidPlan.disk.dataFs, 'btrfs');
+});
+
+test('single, split e raid10 invalidos geram erros especificos', () => {
+  const singleValidation = validateStep('disks', createValidDraft({
+    diskProfile: 'single',
+    diskMode: 'one',
+    selectedDisks: [],
+    sysDisk: '',
+  }), createValidUi());
+
+  assert.equal(singleValidation.fieldErrors.selectedDisks, 'Selecione pelo menos 1 disco físico.');
+  assert.equal(singleValidation.fieldErrors.sysDisk, 'Escolha o disco do sistema.');
+
+  const splitValidation = validateStep('disks', createValidDraft({
+    diskProfile: 'single',
+    diskMode: 'two',
+    selectedDisks: ['/dev/sda'],
+    sysDisk: '/dev/sda',
+    dataDisk: '',
+  }), createValidUi());
+
+  assert.equal(splitValidation.fieldErrors.selectedDisks, 'O layout split exige exatamente 2 discos distintos.');
+
+  const raid10Validation = validateStep('disks', createValidDraft({
+    diskProfile: 'raid',
+    diskMode: 'one',
+    selectedDisks: ['/dev/sda', '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde'],
+    sysDisk: '/dev/sda',
+    raidLevel: 'raid10',
+  }), createValidUi());
+
+  assert.equal(raid10Validation.fieldErrors.selectedDisks, 'RAID 10 exige quantidade par de discos.');
+});
+
+test('storage blocking issues vindos da UI bloqueiam summary e install', () => {
+  const draft = createValidDraft();
+  const uiState = createValidUi({
+    storageBlockingIssues: ['Os discos selecionados nao sao suficientemente homogeneos para RAID 5.'],
+    storageWarnings: ['Capacidade acima do menor disco sera desperdicada.'],
+  });
+
+  const summaryValidation = validateStep('summary', draft, uiState);
+
+  assert.ok(summaryValidation.blockingIssues.includes('Os discos selecionados nao sao suficientemente homogeneos para RAID 5.'));
+  assert.ok(summaryValidation.warnings.includes('Capacidade acima do menor disco sera desperdicada.'));
+});

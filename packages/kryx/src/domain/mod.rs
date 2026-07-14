@@ -1,4 +1,5 @@
-// Domain layer: modelos de negócios e contratos
-pub mod models {
-    // Stub
-}
+pub mod config;
+pub use config::*;
+pub mod identity;
+pub use identity::*;
+pub mod manifest;

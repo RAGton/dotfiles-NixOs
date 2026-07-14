@@ -1,8 +1,11 @@
 pub mod deployment;
 pub mod diagnostics;
+pub mod env;
 pub mod fallback;
+pub mod feature;
+pub mod identity;
 pub mod modules;
+pub mod node;
 pub mod theme;
 pub mod translator;
-pub mod node;
-pub mod env;
+pub mod telemetry;

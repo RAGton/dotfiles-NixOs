@@ -11,7 +11,7 @@ pub struct Cli {
 pub enum Commands {
     /// Operação atômica de reconstrução e transição do sistema
     Switch,
-    /// Gerencia deploy de imagens diskless (RAGOS)
+    /// Gerencia deploy de imagens diskless (NODE)
     Deploy {
         /// Caminho para a configuração gerada do instalador
         config_path: Option<String>,
@@ -29,21 +29,33 @@ pub enum Commands {
         preserve_home: bool,
     },
     /// Gestão de estado do sistema e telemetria
-    System,
+    System {
+        #[command(subcommand)]
+        command: SystemSubcommand,
+    },
     /// Diagnóstico do ambiente e configurações
     Doctor,
+    /// Validação e exibição da identidade do host
+    Identity,
+    /// Configuração inicial (Bootstrap)
+    Setup,
     /// Gerenciamento de temas
     Theme,
-    /// Gerenciamento de Nodos (RAGOS Clientes)
+    /// Gerenciamento de Nodos (NODE Clientes)
     Node {
         #[command(subcommand)]
         command: NodeSubcommand,
+    },
+    /// Gerenciamento de Features
+    Feature {
+        #[command(subcommand)]
+        command: FeatureSubcommand,
     },
 }
 
 #[derive(Subcommand)]
 pub enum NodeSubcommand {
-    /// Publica uma nova geração de imagem para os nodos (RAGOS)
+    /// Publica uma nova geração de imagem para os nodos (NODE)
     Publish {
         #[arg(long)]
         channel: Option<String>,
@@ -55,3 +67,16 @@ pub enum NodeSubcommand {
     /// Limpa imagens e gerações antigas não utilizadas
     Gc,
 }
+
+#[derive(Subcommand, Debug)]
+pub enum FeatureSubcommand {
+    /// Lista o status das features baseadas na identidade atual
+    List,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SystemSubcommand {
+    /// Exibe e reporta a telemetria baseada no manifesto local
+    Report,
+}
+

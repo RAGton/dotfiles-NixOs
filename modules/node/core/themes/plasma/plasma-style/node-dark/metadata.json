@@ -1,0 +1,19 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "dev@node.local",
+        "Name": "NODE Maintainers"
+      }
+    ],
+    "Category": "",
+    "Description": "Industrial dark Plasma style for the NODE desktop.",
+    "EnabledByDefault": true,
+    "Id": "node-dark",
+    "License": "LGPL-3.0-or-later",
+    "Name": "NODE Dark",
+    "Version": "1.0.0",
+    "Website": "https://github.com/RAGEnterprise/node"
+  },
+  "X-Plasma-API": "5.0"
+}

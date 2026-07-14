@@ -1,0 +1,20 @@
+{
+  "KPackageStructure": "Plasma/LookAndFeel",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "dev@node.local",
+        "Name": "NODE Maintainers"
+      }
+    ],
+    "Category": "",
+    "Description": "Technical dark global theme for the NODE Plasma 6 desktop.",
+    "Id": "org.node.desktop.dark",
+    "License": "GPL-2.0-or-later",
+    "Name": "NODE Control Dark",
+    "Version": "1.0.0",
+    "Website": "https://github.com/RAGEnterprise/node"
+  },
+  "Keywords": "Desktop;Workspace;Appearance;Look and Feel;NODE;Dark;",
+  "X-Plasma-APIVersion": "2"
+}

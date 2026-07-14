@@ -1,0 +1,16 @@
+#!ipxe
+
+dhcp || goto fail
+
+# Preferir o "filename" fornecido pelo DHCP (dnsmasq dhcp-boot),
+# que normalmente já é uma URL completa para /boot.ipxe.
+isset ${filename} || goto legacy
+chain ${filename} || goto fail
+
+:legacy
+# Fallback (legado): tenta encadear para /boot.ipxe no mesmo servidor.
+chain /boot.ipxe || goto fail
+
+:fail
+echo Falha ao obter script de boot via DHCP.
+shell

@@ -1,0 +1,15 @@
+[SddmGreeterTheme]
+Name=NODE Sugar Light
+Description=Variante Sugar Light com branding do NODE
+Author=NODE
+Copyright=Copyright (C) NODE
+License=GPL-3.0-or-later
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/RAGEnterprise/node
+Screenshot=Preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=node-sugar-light
+Theme-API=2.11

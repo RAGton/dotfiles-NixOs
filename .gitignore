@@ -61,3 +61,4 @@ kora.env
 kryonix-claude-kit.zip
 .backup-kit/
 kryonix-claude-kit*.zip
+node_modules/
