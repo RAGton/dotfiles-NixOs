@@ -15,6 +15,15 @@ pub enum Commands {
     Deploy {
         /// Caminho para a configuração gerada do instalador
         config_path: Option<String>,
+        /// Ignora a verificação do Environment Guard e força o deploy em sistemas instalados
+        #[arg(long, short)]
+        force: bool,
+    },
+    /// Reseta o sistema físico para as configurações originais
+    FactoryReset {
+        /// Preserva os dados do usuário em partições separadas (/home ou subvolumes persistentes)
+        #[arg(long, default_value_t = true)]
+        preserve_home: bool,
     },
     /// Gestão de estado do sistema e telemetria
     System,

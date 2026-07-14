@@ -68,6 +68,11 @@ fn run_deploy_inner(config_path: Option<&str>, runner: &dyn CommandRunner) -> Re
 
     if install_success {
         println!("{} Deploy concluído com sucesso!", "[PASS]".green());
+        
+        println!("{} Gravando estado de instalação (state.json)...", "[INFO]".cyan());
+        let state_json = format!(r#"{{"status": "installed", "timestamp": "{}"}}"#, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
+        let _ = fs::write("/mnt/etc/kryonixos/state.json", state_json);
+        
         Ok(())
     } else {
         Err("nixos-install falhou.".to_string())
@@ -150,5 +155,51 @@ mod tests {
         assert!(cmds.iter().any(|c| c.contains("disko")));
         assert!(cmds.contains(&"COPY_CONFIG".to_string()));
         assert!(cmds.iter().any(|c| c.contains("nixos-install")));
+    }
+}
+
+pub fn run_factory_reset(preserve_home: bool) -> Result<(), String> {
+    println!("{} Iniciando modo Factory Reset...", "[WARN]".yellow());
+    
+    // Confirmação interativa
+    println!("{} ATENÇÃO: Isso apagará dados e reconfigurará o sistema.", "[CRITICAL]".red());
+    if preserve_home {
+        println!("{} (A partição /home será PRESERVADA)", "[INFO]".cyan());
+    } else {
+        println!("{} (A partição /home será DESTRUÍDA)", "[CRITICAL]".red());
+    }
+    
+    print!("Tem certeza que deseja continuar? [y/N]: ");
+    use std::io::{self, Write};
+    io::stdout().flush().map_err(|e| format!("Erro IO: {}", e))?;
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).map_err(|e| format!("Erro IO: {}", e))?;
+    if input.trim().to_lowercase() != "y" {
+        return Err("Reset cancelado pelo usuário.".to_string());
+    }
+
+    let runner = RealCommandRunner;
+    
+    // Se `--preserve-home` for falso, usamos `zap_create_mount` para destruir e recriar.
+    // Caso contrário, `disko` fará um remount seguro.
+    let mode = if preserve_home { "disko" } else { "zap_create_mount" };
+
+    println!("{} Executando Disko [modo: {}]...", "[INFO]".cyan(), mode);
+    let disko_success = runner.run("sudo", &["nix", "run", "github:nix-community/disko", "--", "--mode", mode, "--flake", ".#installer"])?;
+    
+    if !disko_success {
+        return Err("Disko falhou durante o reset.".to_string());
+    }
+
+    println!("{} Reinstalando NixOS (Factory Reset)...", "[INFO]".cyan());
+    let install_success = runner.run("sudo", &["nixos-install", "--target-directory", "/mnt", "--flake", ".#srv-rag", "--no-root-passwd"])?;
+
+    if install_success {
+        println!("{} Factory Reset concluído com sucesso!", "[PASS]".green());
+        let state_json = format!(r#"{{"status": "installed", "timestamp": "{}"}}"#, std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs());
+        let _ = fs::write("/mnt/etc/kryonixos/state.json", state_json);
+        Ok(())
+    } else {
+        Err("nixos-install falhou no Factory Reset.".to_string())
     }
 }
