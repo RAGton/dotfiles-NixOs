@@ -12,7 +12,10 @@ pub enum Commands {
     /// Operação atômica de reconstrução e transição do sistema
     Switch,
     /// Gerencia deploy de imagens diskless (RAGOS)
-    Deploy,
+    Deploy {
+        /// Caminho para a configuração gerada do instalador
+        config_path: Option<String>,
+    },
     /// Gestão de estado do sistema e telemetria
     System,
     /// Diagnóstico do ambiente e configurações

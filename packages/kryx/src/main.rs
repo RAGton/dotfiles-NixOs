@@ -1,6 +1,6 @@
 mod cli;
-mod domain;
-mod services;
+use kryx::services;
+
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -16,8 +16,8 @@ fn main() {
                 exit(1);
             }
         }
-        Commands::Deploy => {
-            if let Err(e) = services::deployment::run_deploy(None) {
+        Commands::Deploy { config_path } => {
+            if let Err(e) = services::deployment::run_deploy(config_path.as_deref()) {
                 eprintln!("Erro Crítico: {}", e);
                 exit(1);
             }
