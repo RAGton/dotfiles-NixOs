@@ -23,7 +23,10 @@
     ./kryonix-state.nix
     ./n8n
     ./home-assistant
+    ./telemetry.nix
   ];
+
+  kryonix.services.telemetry.enable = lib.mkDefault true;
 
   services.udisks2.enable = true;
   services.gvfs.enable = true;
