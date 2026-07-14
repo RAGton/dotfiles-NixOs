@@ -1,12 +1,7 @@
 // MIGRATION STATUS:
-// - check_identity: NATIVO (Rust)
-// - check_systemd: NATIVO (Rust)
-// - check_brain_health: NATIVO (Rust com fallback parcial via ureq)
-// - check_neo4j: LEGADO (Fallback via glacier-neo4j-doctor.sh)
-// - check_hardware: LEGADO (Fallback)
-// - check_network: LEGADO (Fallback)
+// - ALL CHECKS NATIVE (Rust)
+// - LEGACY FALLBACKS REMOVED
 
-use crate::services::fallback;
 use colored::Colorize;
 use std::fs;
 use std::process::Command;
@@ -45,18 +40,15 @@ impl DoctorContext {
 pub fn run_doctor() -> Result<(), String> {
     let mut ctx = DoctorContext::new();
     println!("================================================================");
-    println!("GLACIER DOCTOR (Kryx Native)");
+    println!("GLACIER DOCTOR (Kryx Native Full)");
     println!("================================================================");
 
     check_identity(&mut ctx);
     check_systemd(&mut ctx);
     check_brain_health(&mut ctx);
-
-    // Call remaining legacy parts as part of the pipeline
-    println!("\n================================================================");
-    println!("LEGACY CHECKS (Não migrados ainda)");
-    println!("================================================================");
-    let _ = fallback::run_legacy_fallback("glacier-doctor.sh", &[]);
+    check_tailscale(&mut ctx);
+    check_storage(&mut ctx);
+    check_bridge(&mut ctx);
 
     println!("\n================================================================");
     println!("RESUMO NATIVO");
@@ -112,10 +104,56 @@ fn check_brain_health(ctx: &mut DoctorContext) {
             ctx.ok("Brain API /health respondeu via HTTP ureq");
         }
         _ => {
-            ctx.warn("Brain API /health não respondeu. Acionando fallback legacy...");
-            if let Err(e) = fallback::run_legacy_fallback("check-brain.sh", &[]) {
-                ctx.fail(&format!("Fallback check-brain.sh falhou ou ausente: {}", e));
-            }
+            ctx.fail("Brain API /health não respondeu. Serviço pode estar inativo.");
         }
+    }
+}
+
+fn check_tailscale(ctx: &mut DoctorContext) {
+    let output = Command::new("tailscale").arg("status").output();
+
+    if let Ok(out) = output {
+        if out.status.success() {
+            ctx.ok("Tailscale está ativo e conectado");
+        } else {
+            ctx.fail("Tailscale status reportou erro");
+        }
+    } else {
+        ctx.warn("Tailscale não está instalado ou executável indisponível");
+    }
+}
+
+fn check_storage(ctx: &mut DoctorContext) {
+    let output = Command::new("zpool").arg("status").output();
+
+    if let Ok(out) = output {
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        if stdout.contains("state: ONLINE") {
+            ctx.ok("ZFS Pools estão ONLINE");
+        } else if stdout.contains("no pools available") {
+            ctx.warn("Nenhum ZFS pool configurado");
+        } else {
+            ctx.fail("ZFS Pools com estado degradado ou erro");
+        }
+    } else {
+        ctx.warn("ZFS Utils não encontrados (zpool)");
+    }
+}
+
+fn check_bridge(ctx: &mut DoctorContext) {
+    let output = Command::new("ip")
+        .arg("link")
+        .arg("show")
+        .arg("br0")
+        .output();
+
+    if let Ok(out) = output {
+        if out.status.success() {
+            ctx.ok("Interface Bridge br0 está presente");
+        } else {
+            ctx.warn("Interface Bridge br0 não configurada");
+        }
+    } else {
+        ctx.warn("Comando ip link indisponível");
     }
 }

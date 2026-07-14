@@ -11,30 +11,19 @@ fn main() {
 
     match &cli.command {
         Commands::Switch => {
-            if let Err(_) = services::modules::run_switch() {
-                if let Err(e) = services::fallback::run_legacy_fallback("kryonix-switch", &[]) {
-                    eprintln!("{}", e);
-                    exit(1);
-                }
+            if let Err(e) = services::modules::run_switch() {
+                eprintln!("Erro Crítico: {}", e);
+                exit(1);
             }
         }
         Commands::Deploy => {
-            if let Err(_) = services::deployment::run_deploy() {
-                if let Err(e) = services::fallback::run_legacy_fallback("ragos-install", &[]) {
-                    eprintln!("{}", e);
-                    exit(1);
-                }
+            if let Err(e) = services::deployment::run_deploy(None) {
+                eprintln!("Erro Crítico: {}", e);
+                exit(1);
             }
         }
         Commands::Doctor => match services::diagnostics::run_doctor() {
             Ok(_) => {}
-            Err(e) if e == "not_implemented" => {
-                if let Err(err) = services::fallback::run_legacy_fallback("glacier-doctor.sh", &[])
-                {
-                    eprintln!("{}", err);
-                    exit(1);
-                }
-            }
             Err(e) => {
                 eprintln!("Erro: {}", e);
                 exit(1);
@@ -47,7 +36,10 @@ fn main() {
             }
         }
         Commands::Theme => {
-            println!("Gerenciamento de tema (stub)");
+            if let Err(e) = services::theme::run_apply_theme() {
+                eprintln!("Erro Crítico: {}", e);
+                exit(1);
+            }
         }
     }
 }
