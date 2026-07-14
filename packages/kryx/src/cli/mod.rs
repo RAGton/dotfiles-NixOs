@@ -18,6 +18,9 @@ pub enum Commands {
         /// Ignora a verificação do Environment Guard e força o deploy em sistemas instalados
         #[arg(long, short)]
         force: bool,
+        /// Hostname alvo (flake attribute) para instanciar (ex: thinkServer)
+        #[arg(long, short)]
+        hostname: Option<String>,
     },
     /// Reseta o sistema físico para as configurações originais
     FactoryReset {

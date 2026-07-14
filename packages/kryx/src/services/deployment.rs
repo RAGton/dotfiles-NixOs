@@ -22,9 +22,9 @@ impl CommandRunner for RealCommandRunner {
     }
     
     fn copy_config(&self, src: &Path) -> Result<(), String> {
-        let dest_dir = Path::new("/mnt/etc/kryonixos");
+        let dest_dir = Path::new("/mnt/etc/kryonixos/systems");
         if !dest_dir.exists() {
-            fs::create_dir_all(dest_dir).map_err(|e| format!("Falha ao criar diretório /mnt/etc/kryonixos: {}", e))?;
+            fs::create_dir_all(dest_dir).map_err(|e| format!("Falha ao criar diretório /mnt/etc/kryonixos/systems: {}", e))?;
         }
         let dest_file = dest_dir.join("generated-install-config.nix");
         fs::copy(src, &dest_file)
@@ -33,11 +33,11 @@ impl CommandRunner for RealCommandRunner {
     }
 }
 
-pub fn run_deploy(config_path: Option<&str>) -> Result<(), String> {
-    run_deploy_inner(config_path, &RealCommandRunner)
+pub fn run_deploy(config_path: Option<&str>, hostname: Option<&str>) -> Result<(), String> {
+    run_deploy_inner(config_path, hostname, &RealCommandRunner)
 }
 
-fn run_deploy_inner(config_path: Option<&str>, runner: &dyn CommandRunner) -> Result<(), String> {
+fn run_deploy_inner(config_path: Option<&str>, hostname: Option<&str>, runner: &dyn CommandRunner) -> Result<(), String> {
     println!("{} Iniciando pipeline de Deploy (Orquestração Rust)...", "[INFO]".cyan());
 
     let path_str = config_path.ok_or_else(|| "Caminho da configuração não fornecido.".to_string())?;
@@ -49,8 +49,8 @@ fn run_deploy_inner(config_path: Option<&str>, runner: &dyn CommandRunner) -> Re
 
     println!("{} Acionando o disko para particionamento...", "[INFO]".cyan());
     
-    // 1. Particionamento Disko
-    let disko_success = runner.run("sudo", &["nix", "run", "github:nix-community/disko", "--", "--mode", "disko", "--flake", ".#installer"])?;
+    // 1. Particionamento Disko via arquivo direto (sem --flake)
+    let disko_success = runner.run("sudo", &["nix", "run", "github:nix-community/disko", "--", "--mode", "destroy,format,mount", path_str])?;
     
     // Blindagem de Erro: Interromper imediatamente
     if !disko_success {
@@ -64,7 +64,8 @@ fn run_deploy_inner(config_path: Option<&str>, runner: &dyn CommandRunner) -> Re
     println!("{} Instalando o NixOS no alvo...", "[INFO]".cyan());
     
     // 2. Instalação do Sistema
-    let install_success = runner.run("sudo", &["nixos-install", "--target-directory", "/mnt", "--flake", ".#srv-rag", "--no-root-passwd"])?;
+    let host_target = format!(".#{}", hostname.unwrap_or("thinkServer"));
+    let install_success = runner.run("sudo", &["nixos-install", "--target-directory", "/mnt", "--flake", &host_target, "--no-root-passwd"])?;
 
     if install_success {
         println!("{} Deploy concluído com sucesso!", "[PASS]".green());
@@ -124,7 +125,7 @@ mod tests {
             commands_run: RefCell::new(vec![]),
         };
 
-        let result = run_deploy_inner(Some(path), &runner);
+        let result = run_deploy_inner(Some(path), Some("testServer"), &runner);
         
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "Disko falhou. O particionamento não foi concluído. Abortando deploy.");
@@ -147,7 +148,7 @@ mod tests {
             commands_run: RefCell::new(vec![]),
         };
 
-        let result = run_deploy_inner(Some(path), &runner);
+        let result = run_deploy_inner(Some(path), Some("testServer"), &runner);
         
         assert!(result.is_ok());
         

@@ -16,14 +16,14 @@ fn main() {
                 exit(1);
             }
         }
-        Commands::Deploy { config_path, force } => {
+        Commands::Deploy { config_path, force, hostname } => {
             // Environment Guard
             if !force && !services::env::check_is_live_iso() {
                 eprintln!("ERRO: O comando 'deploy' é exclusivo para Live ISOs. Use 'kryx factory-reset' para restaurar o sistema instalado.");
                 exit(1);
             }
 
-            if let Err(e) = services::deployment::run_deploy(config_path.as_deref()) {
+            if let Err(e) = services::deployment::run_deploy(config_path.as_deref(), hostname.as_deref()) {
                 eprintln!("Erro Crítico: {}", e);
                 exit(1);
             }
