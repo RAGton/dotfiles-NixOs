@@ -9,7 +9,7 @@ use std::process::exit;
 fn main() {
     let cli = Cli::parse();
 
-    match &cli.command {
+    match cli.command {
         Commands::Switch => {
             if let Err(e) = services::modules::run_switch() {
                 eprintln!("Erro Crítico: {}", e);
@@ -37,6 +37,18 @@ fn main() {
         }
         Commands::Theme => {
             if let Err(e) = services::theme::run_apply_theme() {
+                eprintln!("Erro Crítico: {}", e);
+                exit(1);
+            }
+        }
+        Commands::Node { command } => {
+            let action = match command {
+                cli::NodeSubcommand::Publish { channel } => services::node::NodeAction::Publish { channel },
+                cli::NodeSubcommand::Rollback => services::node::NodeAction::Rollback,
+                cli::NodeSubcommand::Status => services::node::NodeAction::Status,
+                cli::NodeSubcommand::Gc => services::node::NodeAction::Gc,
+            };
+            if let Err(e) = services::node::run_node_command(action) {
                 eprintln!("Erro Crítico: {}", e);
                 exit(1);
             }

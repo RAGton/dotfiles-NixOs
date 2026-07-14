@@ -4,3 +4,4 @@ pub mod fallback;
 pub mod modules;
 pub mod theme;
 pub mod translator;
+pub mod node;

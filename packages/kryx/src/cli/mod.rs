@@ -22,4 +22,24 @@ pub enum Commands {
     Doctor,
     /// Gerenciamento de temas
     Theme,
+    /// Gerenciamento de Nodos (RAGOS Clientes)
+    Node {
+        #[command(subcommand)]
+        command: NodeSubcommand,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum NodeSubcommand {
+    /// Publica uma nova geração de imagem para os nodos (RAGOS)
+    Publish {
+        #[arg(long)]
+        channel: Option<String>,
+    },
+    /// Reverte os nodos para a geração anterior
+    Rollback,
+    /// Exibe o status atual dos nodos conectados
+    Status,
+    /// Limpa imagens e gerações antigas não utilizadas
+    Gc,
 }
