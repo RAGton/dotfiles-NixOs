@@ -45,7 +45,7 @@ fn main() {
 
     // Authorization Hook
     let authorized = match &cli.command {
-        Commands::Identity | Commands::Setup => true,
+        Commands::Identity { .. } | Commands::Setup => true,
         Commands::Deploy { .. } | Commands::Node { .. } | Commands::Feature { .. } => is_core,
         _ => is_core || is_desktop,
     };
@@ -111,15 +111,23 @@ fn main() {
                 exit(1);
             }
         },
-        Commands::Identity => match services::identity::check_identity() {
+        Commands::Identity { json } => match services::identity::check_identity() {
             Ok(identity) => {
-                println!("Host Identity Guard: Ativo");
-                println!("UUID: {}", identity.uuid);
-                println!("Role: {:?}", identity.role);
-                println!("Edition: {}", identity.edition);
+                if json {
+                    println!("{}", serde_json::to_string(&identity).unwrap_or_else(|_| "{}".to_string()));
+                } else {
+                    println!("Host Identity Guard: Ativo");
+                    println!("UUID: {}", identity.uuid);
+                    println!("Role: {:?}", identity.role);
+                    println!("Edition: {}", identity.edition);
+                }
             }
             Err(e) => {
-                eprintln!("Erro: {}", e);
+                if json {
+                    eprintln!("{{\"error\": \"{}\"}}", e);
+                } else {
+                    eprintln!("Erro: {}", e);
+                }
                 exit(1);
             }
         },
@@ -155,9 +163,13 @@ fn main() {
             }
         }
         Commands::Feature { command } => match command {
-            cli::FeatureSubcommand::List => {
-                if let Err(e) = services::feature::list_features() {
-                    eprintln!("{}", e);
+            cli::FeatureSubcommand::List { json } => {
+                if let Err(e) = services::feature::list_features(json) {
+                    if json {
+                        eprintln!("{{\"error\": \"{}\"}}", e);
+                    } else {
+                        eprintln!("{}", e);
+                    }
                     exit(1);
                 }
             }

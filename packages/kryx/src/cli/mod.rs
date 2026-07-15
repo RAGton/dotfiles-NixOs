@@ -36,7 +36,10 @@ pub enum Commands {
     /// Diagnóstico do ambiente e configurações
     Doctor,
     /// Validação e exibição da identidade do host
-    Identity,
+    Identity {
+        #[arg(long)]
+        json: bool,
+    },
     /// Configuração inicial (Bootstrap)
     Setup,
     /// Gerenciamento de temas
@@ -71,7 +74,10 @@ pub enum NodeSubcommand {
 #[derive(Subcommand, Debug)]
 pub enum FeatureSubcommand {
     /// Lista o status das features baseadas na identidade atual
-    List,
+    List {
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -79,4 +85,3 @@ pub enum SystemSubcommand {
     /// Exibe e reporta a telemetria baseada no manifesto local
     Report,
 }
-

@@ -7,7 +7,7 @@ pub struct FeaturesDoc {
     pub features: std::collections::BTreeMap<String, std::collections::BTreeMap<String, bool>>,
 }
 
-pub fn list_features() -> Result<(), String> {
+pub fn list_features(json: bool) -> Result<(), String> {
     let path = "/etc/kryonix/features.json";
 
     // For testing/mocking
@@ -22,6 +22,11 @@ pub fn list_features() -> Result<(), String> {
 
     let doc: FeaturesDoc =
         serde_json::from_str(&content).map_err(|e| format!("JSON de features inválido: {}", e))?;
+
+    if json {
+        println!("{}", serde_json::to_string(&doc).unwrap_or_else(|_| "{}".to_string()));
+        return Ok(());
+    }
 
     println!("{}", "=== Status das Features Ativas ===".bold().cyan());
 
