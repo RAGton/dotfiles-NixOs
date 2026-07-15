@@ -1,5 +1,5 @@
 {
   imports = [
-    ./hardening.nix
+    ./apparmor_industrial.nix
   ];
 }

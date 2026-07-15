@@ -1,5 +1,5 @@
-use std::process::{Command, Stdio};
 use colored::Colorize;
+use std::process::{Command, Stdio};
 
 pub enum NodeAction {
     Publish { channel: Option<String> },
@@ -9,20 +9,23 @@ pub enum NodeAction {
 }
 
 pub fn run_node_command(action: NodeAction) -> Result<(), String> {
-    println!("{} Modo de Transição: Delegando para o executor 'ragc'...", "[INFO]".cyan());
+    println!(
+        "{} Modo de Transição: Delegando para o executor 'knyc'...",
+        "[INFO]".cyan()
+    );
 
-    // Localizamos o script ragc provisoriamente
+    // Localizamos o script knyc provisoriamente
     // O caminho pode depender de onde o kryx é executado, mas para dev tentamos caminho relativo.
-    // Em produção, `ragc` pode estar no PATH.
-    let ragc_path = if std::path::Path::new("modules/ragos/core/ragc/ragc").exists() {
-        "modules/ragos/core/ragc/ragc"
-    } else if std::path::Path::new("../../modules/ragos/core/ragc/ragc").exists() {
-        "../../modules/ragos/core/ragc/ragc"
+    // Em produção, `knyc` pode estar no PATH.
+    let knyc_path = if std::path::Path::new("modules/node/core/knyc/knyc").exists() {
+        "modules/node/core/knyc/knyc"
+    } else if std::path::Path::new("../../modules/node/core/knyc/knyc").exists() {
+        "../../modules/node/core/knyc/knyc"
     } else {
-        "ragc"
+        "knyc"
     };
 
-    let mut cmd = Command::new(ragc_path);
+    let mut cmd = Command::new(knyc_path);
 
     match action {
         NodeAction::Publish { channel } => {
@@ -46,11 +49,11 @@ pub fn run_node_command(action: NodeAction) -> Result<(), String> {
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .status()
-        .map_err(|e| format!("Falha ao executar script ragc: {}", e))?;
+        .map_err(|e| format!("Falha ao executar script knyc: {}", e))?;
 
     if status.success() {
         Ok(())
     } else {
-        Err("Comando de nodo (ragc) falhou.".to_string())
+        Err("Comando de nodo (knyc) falhou.".to_string())
     }
 }

@@ -138,18 +138,21 @@ fn run_deploy_inner(
         );
         let _ = fs::write("/mnt/etc/kryonixos/state.json", state_json);
 
-        println!("{} Gerando manifesto de estado da máquina...", "[INFO]".cyan());
+        println!(
+            "{} Gerando manifesto de estado da máquina...",
+            "[INFO]".cyan()
+        );
         use crate::domain::manifest::{SystemManifest, SystemStatus};
         use chrono::Utc;
         let uuid = crate::services::identity::check_identity()
             .map(|i| i.uuid)
             .unwrap_or_else(|_| "unknown".to_string());
-            
+
         let manifest = SystemManifest {
             uuid,
             timestamp: Utc::now(),
             flake_revision: "unknown".to_string(), // TODO: ler do git
-            features_enabled: vec![], // TODO: coletar do /etc/kryonix/features.json
+            features_enabled: vec![],              // TODO: coletar do /etc/kryonix/features.json
             status: SystemStatus::Healthy,
         };
 

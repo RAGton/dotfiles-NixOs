@@ -20,7 +20,10 @@ pub fn generate_nix_config(plan: &InstallPlanV2) -> Result<String, String> {
         Topology::Raid => "raid",
         Topology::Manual => "manual",
     };
-    config.push_str(&format!("  kryonix.storage.topology = \"{}\";\n", topology_str));
+    config.push_str(&format!(
+        "  kryonix.storage.topology = \"{}\";\n",
+        topology_str
+    ));
 
     // System Disks
     if !plan.storage.system_disks.is_empty() {
@@ -49,12 +52,18 @@ pub fn generate_nix_config(plan: &InstallPlanV2) -> Result<String, String> {
     // Filesystems
     if let Some(root) = &plan.storage.root {
         let fs_str = format!("{:?}", root.filesystem).to_lowercase();
-        config.push_str(&format!("  kryonix.storage.root.filesystem = \"{}\";\n", fs_str));
+        config.push_str(&format!(
+            "  kryonix.storage.root.filesystem = \"{}\";\n",
+            fs_str
+        ));
     }
 
     if let Some(data) = &plan.storage.data {
         let fs_str = format!("{:?}", data.filesystem).to_lowercase();
-        config.push_str(&format!("  kryonix.storage.data.filesystem = \"{}\";\n", fs_str));
+        config.push_str(&format!(
+            "  kryonix.storage.data.filesystem = \"{}\";\n",
+            fs_str
+        ));
     }
 
     // Quotas (ZFS / BTRFS)
@@ -93,7 +102,10 @@ pub fn generate_nix_config(plan: &InstallPlanV2) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::config::{RepositoryPlan, StoragePlan, FileSystem, Encryption, MountPlan, ZfsStoragePlan, BtrfsStoragePlan};
+    use crate::domain::config::{
+        BtrfsStoragePlan, Encryption, FileSystem, MountPlan, RepositoryPlan, StoragePlan,
+        ZfsStoragePlan,
+    };
     use std::collections::BTreeMap;
 
     #[test]
@@ -116,18 +128,26 @@ mod tests {
                 topology: Topology::Split,
                 system_disks: vec!["/dev/sda".to_string()],
                 data_disks: vec!["/dev/sdb".to_string()],
-                root: Some(MountPlan { filesystem: FileSystem::Ext4, encryption: Encryption::None }),
-                data: Some(MountPlan { filesystem: FileSystem::Zfs, encryption: Encryption::Luks2 }),
+                root: Some(MountPlan {
+                    filesystem: FileSystem::Ext4,
+                    encryption: Encryption::None,
+                }),
+                data: Some(MountPlan {
+                    filesystem: FileSystem::Zfs,
+                    encryption: Encryption::Luks2,
+                }),
                 raid_level: None,
                 manual_partitions: vec![],
-                zfs: Some(ZfsStoragePlan { user_refquota: "100G".to_string() }),
+                zfs: Some(ZfsStoragePlan {
+                    user_refquota: "100G".to_string(),
+                }),
                 btrfs: None,
             },
             features,
         };
 
         let result = generate_nix_config(&plan).unwrap();
-        
+
         assert!(result.contains("kryonix.thinkServer.enable = true;"));
         assert!(result.contains("kryonix.storage.topology = \"split\";"));
         assert!(result.contains("kryonix.storage.systemDisks = [ \"/dev/sda\" ];"));
