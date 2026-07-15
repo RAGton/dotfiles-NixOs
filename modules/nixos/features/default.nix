@@ -23,5 +23,11 @@
     ./observability.nix
     ./mcp.nix
     ./browser-automation.nix
+    ./etcher.nix
+    ./ntfs.nix
   ];
+
+  environment.etc."kryonix/features.json".text = builtins.toJSON {
+    features = config.kryonix.features;
+  };
 }

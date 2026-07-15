@@ -258,5 +258,16 @@
     server = {
       enable = lib.mkEnableOption "Server mode umbrella (containers, database, reverse proxy, backups)";
     };
+
+    # =========================
+    # App-as-a-Feature
+    # =========================
+    etcher = {
+      enable = lib.mkEnableOption "Balena Etcher";
+    };
+
+    ntfs = {
+      enable = lib.mkEnableOption "NTFS Support";
+    };
   };
 }
