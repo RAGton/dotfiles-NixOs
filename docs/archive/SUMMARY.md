@@ -80,7 +80,7 @@ rag = {
 ### Estrutura v2
 
 ```
-ragos-nixos/
+node-nixos/
 ├── core/          # ✨ Sistema base limpo
 ├── profiles/      # ✨ Presets (desktop, laptop, vm)
 ├── features/      # ✨ Features modulares (gaming, dev)

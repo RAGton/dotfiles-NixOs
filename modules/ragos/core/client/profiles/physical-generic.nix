@@ -1,7 +1,0 @@
-{ ... }:
-
-{
-  imports = [
-    ./desktop-generic.nix
-  ];
-}

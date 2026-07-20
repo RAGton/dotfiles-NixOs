@@ -32,7 +32,7 @@ let
       "Code";
 
   userDataDir = "${config.home.homeDirectory}/.config/${configRootName}";
-  legacyInsidersRoot = "${config.home.homeDirectory}/.local/share/ragos/vscode-insiders";
+  legacyInsidersRoot = "${config.home.homeDirectory}/.local/share/node/vscode-insiders";
   insidersRoot = "${config.home.homeDirectory}/.local/share/kryonix/vscode-insiders";
   extensionsDir = "${insidersRoot}/extensions";
   insidersCurrent = "${insidersRoot}/current";

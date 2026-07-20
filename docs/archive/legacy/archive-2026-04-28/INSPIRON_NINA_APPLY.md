@@ -26,8 +26,8 @@ Esses fluxos são de instalação/particionamento. Para a Nina, a ideia aqui é 
 
 ```sh
 mkdir -p "$HOME/src"
-git clone https://github.com/RAGton/ragos-nixos "$HOME/src/ragos-nixos"
-cd "$HOME/src/ragos-nixos"
+git clone https://github.com/RAGton/node-nixos "$HOME/src/node-nixos"
+cd "$HOME/src/node-nixos"
 nix flake show . >/dev/null
 ```
 
@@ -150,7 +150,7 @@ nix shell nixpkgs#home-manager -c home-manager switch --rollback
 Use este caminho se o notebook não for NixOS e tiver apenas o `nix` instalado.
 
 ```sh
-cd "$HOME/src/ragos-nixos"
+cd "$HOME/src/node-nixos"
 nix build '.#homeConfigurations."nina@inspiron-nina".activationPackage'
 nix shell nixpkgs#home-manager -c home-manager switch --flake '.#nina@inspiron-nina'
 ```

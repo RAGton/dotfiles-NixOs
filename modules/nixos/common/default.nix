@@ -34,7 +34,7 @@
 
     # Branding global (RagOS).
     # Mantemos aqui para que todos os hosts herdem o mesmo "nome do sistema".
-    ../branding/ragos
+    ../branding/kryonix
 
     ../services/tlp
     ../services/greetd-dms
@@ -53,22 +53,22 @@
     name = "nix/path/${name}";
     value.source = value.flake;
   }) config.nix.registry;
-  # `/etc/ragos` é o checkout Git operacional do sistema. Mantemos `/etc/nixos`
+  # `/etc/node` é o checkout Git operacional do sistema. Mantemos `/etc/nixos`
   # apontando para ele por compatibilidade com ferramentas NixOS tradicionais.
-  users.groups.ragos = { };
+  users.groups.node = { };
   systemd.tmpfiles.rules = [
-    "L+ /etc/nixos - - - - /etc/ragos"
+    "L+ /etc/nixos - - - - /etc/node"
     "d /run/kryonix 0777 root root - -"
   ];
 
-  system.activationScripts.ragosGitRepoPermissions = {
+  system.activationScripts.nodeGitRepoPermissions = {
     text = ''
-      if [ -L /etc/ragos ]; then
-        ${pkgs.coreutils}/bin/chgrp -h ragos /etc/ragos || true
-      elif [ -d /etc/ragos ]; then
-        ${pkgs.coreutils}/bin/chown -R ${userConfig.name}:ragos /etc/ragos || true
-        ${pkgs.findutils}/bin/find /etc/ragos -type d -exec ${pkgs.coreutils}/bin/chmod 2775 {} +
-        ${pkgs.findutils}/bin/find /etc/ragos -type f -exec ${pkgs.coreutils}/bin/chmod g+rw {} +
+      if [ -L /etc/node ]; then
+        ${pkgs.coreutils}/bin/chgrp -h node /etc/node || true
+      elif [ -d /etc/node ]; then
+        ${pkgs.coreutils}/bin/chown -R ${userConfig.name}:node /etc/node || true
+        ${pkgs.findutils}/bin/find /etc/node -type d -exec ${pkgs.coreutils}/bin/chmod 2775 {} +
+        ${pkgs.findutils}/bin/find /etc/node -type f -exec ${pkgs.coreutils}/bin/chmod g+rw {} +
       fi
     '';
   };
@@ -92,7 +92,7 @@
 
   programs.git = {
     enable = lib.mkDefault true;
-    config.safe.directory = "/etc/ragos";
+    config.safe.directory = "/etc/node";
   };
 
   # Boot: defaults genéricos de silêncio/recovery.
@@ -306,7 +306,7 @@
     description = userConfig.fullName;
     extraGroups = [
       "networkmanager"
-      "ragos"
+      "node"
       "wheel"
     ]
     ++ lib.optionals config.programs.wireshark.enable [ "wireshark" ];

@@ -258,14 +258,12 @@ in
     "d /srv/http           0755 root root -"
   ];
 
-  system.activationScripts.nodeAdminHome =
-    lib.mkIf (nodeAdminUser != "" && nodeAdminUser != null)
-      {
-        text = ''
-          ${ensureAdminHomeScript}
-        '';
-        deps = [ "specialfs" ];
-      };
+  system.activationScripts.nodeAdminHome = lib.mkIf (nodeAdminUser != "" && nodeAdminUser != null) {
+    text = ''
+      ${ensureAdminHomeScript}
+    '';
+    deps = [ "specialfs" ];
+  };
 
   # -----------------------------------------------------------------------
   # Symlink: /srv/http/netboot → /srv/data/images

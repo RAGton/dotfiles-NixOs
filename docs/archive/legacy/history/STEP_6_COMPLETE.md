@@ -86,7 +86,7 @@ Auto-importa todos os módulos de features.
 ## 🏗️ Arquitetura Resultante
 
 ```
-ragos-nixos/
+node-nixos/
 ├── flake.nix                # ✅ Features imported
 │
 ├── features/                # ✅ NOVO!

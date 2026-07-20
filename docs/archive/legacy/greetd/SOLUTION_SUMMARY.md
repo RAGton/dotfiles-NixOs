@@ -175,7 +175,7 @@ Consulte `TEST_GUIDE_WAYLAND_SESSION.md` para:
 ## 🎁 Arquivos Entregues
 
 ```
-ragos-nixos/
+node-nixos/
 ├── modules/nixos/services/greetd-dms/default.nix  [MODIFICADO +20]
 ├── desktop/hyprland/system.nix                    [MODIFICADO +8]
 ├── AUDIT_LOGIND_SESSION.md                        [CRIADO - Análise]

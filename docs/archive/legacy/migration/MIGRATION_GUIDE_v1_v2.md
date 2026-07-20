@@ -13,10 +13,10 @@ Antes de iniciar a migração:
 ```bash
 # 1. Backup da configuração atual
 sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
-cp -r /home/rocha/GitHub/ragos-nixos /home/rocha/GitHub/ragos-nixos.backup
+cp -r /home/rocha/GitHub/node-nixos /home/rocha/GitHub/node-nixos.backup
 
 # 2. Commit do estado atual
-cd /home/rocha/GitHub/ragos-nixos
+cd /home/rocha/GitHub/node-nixos
 git add -A
 git commit -m "checkpoint: pre-migration snapshot"
 git tag pre-migration-v1

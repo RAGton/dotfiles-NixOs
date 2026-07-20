@@ -125,9 +125,7 @@ in
   boot.kernelParams =
     # Mantem acesso a consoles seriais comuns em lab/hipervisor e em hosts
     # que expoem fallback serial diferente do ttyS0 classico.
-    lib.optionals nodeSerialConsole (
-      map (serialConsole: serialConsole.kernelParam) nodeSerialConsoles
-    )
+    lib.optionals nodeSerialConsole (map (serialConsole: serialConsole.kernelParam) nodeSerialConsoles)
     ++ [
       # tty1 continua como fallback local previsivel quando o host tem console
       # fisico/virtual direto.

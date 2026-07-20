@@ -14,7 +14,7 @@ O instalador do Kryonix segue uma arquitetura cliente-servidor para garantir des
     *   Responsabilidade: Receber o relatório de hardware e as preferências do usuário para gerar um `install-plan.json`.
     *   Não executa alterações no disco.
 
-3.  **Installer Backend (`kryonix-installer`)**
+3.  **Installer Backend (`kryxd`)**
     *   Escrito em Rust (Axum).
     *   Responsabilidade: API REST que orquestra o probe, o planner e o executor.
     *   Expõe endpoints para a UI (Web ou TUI).

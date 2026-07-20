@@ -1,7 +1,0 @@
-{ ... }:
-
-{
-  imports = [
-    ./rescue-minimal.nix
-  ];
-}

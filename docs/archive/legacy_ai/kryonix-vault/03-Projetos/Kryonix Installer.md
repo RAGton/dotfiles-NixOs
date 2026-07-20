@@ -2,7 +2,7 @@
 
 ## Repositório
 
-- GitHub: `RAGEnterprise/kryonix-installer`
+- GitHub: `RAGEnterprise/kryxd`
 - Visibilidade: público
 - Branch padrão: `main`
 - Relação: instalador oficial do ecossistema KRYONIX
@@ -48,7 +48,7 @@ Não cobre:
 
 - operação contínua do servidor já instalado;
 - publicação de imagens de cliente;
-- ciclo operacional do `ragc`;
+- ciclo operacional do `knyc`;
 - administração contínua do ambiente diskless.
 
 ## Contratos críticos

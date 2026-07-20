@@ -22,7 +22,7 @@
       outputs.overlays.drkonqi-ignore-missing-buildid
       outputs.overlays.python312-docs-stub
       outputs.overlays.openldap-no-checks
-      outputs.overlays.kryonix-installer-tools
+      outputs.overlays.kryxd-tools
       outputs.overlays.kryonix-themes
     ];
 

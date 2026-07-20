@@ -9,7 +9,7 @@
 - `modules/nixos/**`: implementação base e serviços
 - `desktop/hyprland/**`: stack desktop atual
 - `home/**`: configuração user-level por usuário/host
-- `packages/`: artefatos do projeto, incluindo `kryonix` e o wrapper compat `ragos`
+- `packages/`: artefatos do projeto, incluindo `kryonix` e o wrapper compat `node`
 
 ## Regras de modelagem
 

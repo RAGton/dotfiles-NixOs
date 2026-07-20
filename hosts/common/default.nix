@@ -47,7 +47,7 @@
     outputs.overlays.stable-packages
     outputs.overlays.xeus-cling-no-checks
     outputs.overlays.codex-overlay
-    outputs.overlays.kryonix-installer-tools
+    outputs.overlays.kryxd-tools
   ];
 
   nixpkgs.config.allowUnfree = true;

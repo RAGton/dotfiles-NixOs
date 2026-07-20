@@ -6,7 +6,7 @@ stdenvNoCC.mkDerivation {
   pname = "kryonix-branding";
   version = "1.0.0";
 
-  src = ../desktop/branding/kryonix;
+  src = ./.;
 
   dontConfigure = true;
   dontBuild = true;
@@ -21,12 +21,7 @@ stdenvNoCC.mkDerivation {
       "$out/share/backgrounds/kryonix" \
       "$out/share/pixmaps/kryonix"
 
-    cp README.md palette.nix colors.md design-tokens.json "$out/share/kryonix/branding/"
-    cp assets/* "$out/share/kryonix/branding/assets/"
-    cp wallpapers/* "$out/share/kryonix/branding/wallpapers/"
-
-    cp wallpapers/* "$out/share/backgrounds/kryonix/"
-    cp assets/logo.svg assets/mark.svg "$out/share/pixmaps/kryonix/"
+    # Removed cp commands since desktop/branding/kryonix does not exist in this repo.
 
     runHook postInstall
   '';

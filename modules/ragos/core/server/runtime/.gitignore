@@ -1,7 +1,0 @@
-*
-!.gitignore
-!default.nix
-!guard.nix
-!params.example.nix
-!hardware-configuration.example.nix
-!client-users.example.json

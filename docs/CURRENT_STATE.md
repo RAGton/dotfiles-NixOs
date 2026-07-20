@@ -20,10 +20,13 @@ Esta página consolida o estado real e auditado do projeto Kryonix. O que não c
 
 ## Model Context Protocol (MCP)
 - **Configuração Base (.mcp.json):** Implementado ✅ (Template versionado em `.mcp.example.json`)
-- **Filesystem / Read-only:** Parcial 🚧 (Apenas configurado no template)
-- **GitHub MCP:** Parcial 🚧 (Apenas configurado no template)
+- **Filesystem / Read-only:** Parcial 🚧 (wrapper com sandbox implementado; ativação no host ainda não validada)
+- **Git / Read-only:** Parcial 🚧 (wrapper com sandbox e allowlist implementado; ativação no host ainda não validada)
+- **Sequential Thinking:** Parcial 🚧 (wrapper local sem rede implementado; ativação no host ainda não validada)
+- **NixOS Docs MCP:** Parcial 🚧 (pacote Nix sandboxado implementado; ativação no host ainda não validada)
+- **GitHub MCP:** Não habilitado ⛔ (token/RBAC e ferramentas mutantes exigem contrato específico)
 - **Brain MCP Server:** Parcial 🚧 (Protocolo desenhado, scripts Python existem, mas necessita validação de deploy seguro)
-- **Segurança (Políticas, Sandboxing):** Implementado ✅ (`docs/mcp/SECURITY.md` define as regras)
+- **Segurança (Políticas, Sandboxing):** Parcial 🚧 (enforcement local implementado; prova de host pendente)
 
 ## Desktop & Experiência (Caelestia / Hyprland)
 - **Hyprland Core (Wayland):** Implementado ✅

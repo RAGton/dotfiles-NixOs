@@ -43,9 +43,9 @@ pub fn run_apply_theme() -> Result<(), String> {
     replacements.insert("border-[#FF453A]/30", "border-apple-danger");
 
     let directories = [
-        "repos/kryonix-installer/ui/src/pages",
-        "repos/kryonix-installer/ui/src/components",
-        "repos/kryonix-installer/ui/src",
+        "repos/kryxd/ui/src/pages",
+        "repos/kryxd/ui/src/components",
+        "repos/kryxd/ui/src",
     ];
 
     let mut updated_files = 0;

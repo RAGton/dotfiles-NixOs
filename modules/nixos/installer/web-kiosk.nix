@@ -110,7 +110,7 @@ in
       security.polkit.enable = true;
 
       # Web Terminal (ttyd) para modo Manual
-      systemd.services.kryonix-installer-terminal = {
+      systemd.services.kryxd-terminal = {
         description = "Kryonix Installer Web Terminal";
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ];
@@ -122,7 +122,7 @@ in
       };
 
       # Backend do instalador — roda como root para poder chamar disko/nixos-install
-      systemd.services.kryonix-installer-backend = {
+      systemd.services.kryxd-backend = {
         description = "Kryonix Installer Backend";
         wantedBy = [ "multi-user.target" ];
         after = [ "network.target" ];
@@ -140,7 +140,7 @@ in
         # - disko: safety + executor (disko --mode disko);
         # - nixos-install-tools: executor (nixos-install);
         # - nix: nixos-install precisa do nix no PATH para avaliar o flake.
-        # - mkpasswd: para gerar hash yescrypt (kryonix-installer usa mkpasswd -m yescrypt).
+        # - mkpasswd: para gerar hash yescrypt (kryxd usa mkpasswd -m yescrypt).
         path = [
           pkgs.util-linux
           pkgs.networkmanager
@@ -152,7 +152,7 @@ in
           config.nix.package
         ];
         serviceConfig = {
-          ExecStart = "${pkgs.kryonix-installer}/bin/kryonix-installer";
+          ExecStart = "${pkgs.kryxd}/bin/kryxd";
           Restart = "on-failure";
           User = "root";
         };
@@ -228,7 +228,7 @@ in
         chromium
         curl
         kryonix-hardware-probe
-        kryonix-installer
+        kryxd
         disko
         nixos-install-tools
         nordzy-cursor-theme

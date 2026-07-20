@@ -28,7 +28,7 @@
       ({ lib, ... }: {
         # E2E Remote API override: binds to 0.0.0.0 for external testing
         kryonix.installer.kiosk.listenAddress = lib.mkForce "0.0.0.0";
-        systemd.services.kryonix-installer-backend.environment = {
+        systemd.services.kryxd-backend.environment = {
           KRYONIX_ALLOW_REMOTE_BIND = "1";
         };
       })

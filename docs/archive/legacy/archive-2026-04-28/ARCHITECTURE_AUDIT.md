@@ -8,7 +8,7 @@
 
 ## RESUMO EXECUTIVO
 
-O repositório **ragos-nixos** apresenta uma base sólida com práticas declarativas corretas, mas possui **3 problemas críticos** que impedem a evolução do projeto conforme especificado:
+O repositório **node-nixos** apresenta uma base sólida com práticas declarativas corretas, mas possui **3 problemas críticos** que impedem a evolução do projeto conforme especificado:
 
 1. 🔴 **Desktop hardcoded nos hosts** - Impossível trocar DE sem editar múltiplos arquivos
 2. 🔴 **Ausência de sistema de opções** - Sem abstração para escolhas de alto nível
@@ -244,7 +244,7 @@ imports = [
 ### Estrutura v2 (Roadmap)
 
 ```
-ragos-nixos/
+node-nixos/
 ├── core/                  # Sistema base limpo
 ├── profiles/              # Presets (desktop, laptop, vm)
 ├── features/              # Features modulares (gaming, dev)
@@ -350,7 +350,7 @@ Arquivo `INSTRUCT.md` criado com:
 8. ✅ Roadmap de migração
 9. ✅ Referências externas
 
-**Localização**: `/home/rocha/GitHub/ragos-nixos/INSTRUCT.md`
+**Localização**: `/home/rocha/GitHub/node-nixos/INSTRUCT.md`
 
 ---
 

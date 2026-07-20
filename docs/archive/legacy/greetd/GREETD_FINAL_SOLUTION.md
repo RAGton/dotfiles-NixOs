@@ -142,7 +142,7 @@ security.pam.services.greetd = {
 
 ### 1. Reconstruir o Sistema
 ```bash
-cd ~/ragos-nixos
+cd ~/node-nixos
 sudo nixos-rebuild switch --flake .#inspiron
 ```
 

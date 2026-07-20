@@ -62,36 +62,36 @@
         ];
       };
 
-    # Ecossistema Ragos (PXE, Diskless, Think Server, Instalador)
-    ragos-client =
+    # Ecossistema Node (PXE, Diskless, Think Server, Instalador)
+    node-client =
       { ... }:
       {
-        imports = [ ../modules/ragos/core/client ];
+        imports = [ ../modules/node/core/client ];
       };
 
-    ragos-server =
+    node-server =
       { ... }:
       {
-        imports = [ ../modules/ragos/core/server ];
+        imports = [ ../modules/node/core/server ];
       };
 
-    ragos-think =
+    node-think =
       { ... }:
       {
-        imports = [ ../modules/ragos/think/think-server.nix ];
+        imports = [ ../modules/node/think/think-server.nix ];
       };
 
-    ragos-installer =
+    node-installer =
       { ... }:
       {
-        imports = [ ../modules/ragos/installer ];
+        imports = [ ../modules/node/installer ];
       };
 
     # Service Providers (contratos de injeção em /etc)
-    services-ragos =
+    services-node =
       { ... }:
       {
-        imports = [ ../modules/services/ragos/default.nix ];
+        imports = [ ../modules/services/node/default.nix ];
       };
   };
 

@@ -17,7 +17,7 @@
 ## 📂 ESTRUTURA DE DIRETÓRIOS
 
 ```
-ragos-nixos/
+node-nixos/
 │
 ├── core/                           # Sistema base (v2)
 │   ├── nixos.nix                  # Config base NixOS
@@ -49,7 +49,7 @@ ragos-nixos/
 │   │   ├── tailscale.nix
 │   │   └── vpn.nix
 │   └── branding/
-│       └── ragos.nix
+│       └── node.nix
 │
 ├── desktop/                        # Desktop Environments (v2 - refatorado)
 │   ├── manager.nix                # Auto-import baseado em rag.desktop.environment

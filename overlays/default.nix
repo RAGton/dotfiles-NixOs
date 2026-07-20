@@ -297,20 +297,20 @@
   };
 
   # Kryonix Installer Tools
-  kryonix-installer-tools = final: _prev: {
+  kryxd-tools = final: _prev: {
     kryonix-home = final.callPackage ../packages/kryonix-home.nix {
       kryonixHomeSrc = inputs.kryonix-home;
     };
     kryonix-hardware-probe = final.callPackage ../packages/kryonix-hardware-probe.nix { };
     kryonix-disk-planner = final.callPackage ../packages/kryonix-disk-planner.nix { };
-    kryonix-installer = inputs.kryonix-installer.packages.${final.system}.kryonix-installer;
+    kryxd = inputs.kryxd.packages.${final.system}.kryxd;
     kryonix-optimizer = final.callPackage ../packages/kryonix-optimizer { };
     kryonix-monitors = final.callPackage ../packages/kryonix-monitors.nix { };
     kryonix = final.callPackage ../packages/kryonix-cli.nix {
       kryonixHome = final.kryonix-home;
       kryonix-hardware-probe = final.kryonix-hardware-probe;
       kryonix-disk-planner = final.kryonix-disk-planner;
-      kryonix-installer = final.kryonix-installer;
+      kryxd = final.kryxd;
     };
   };
 }

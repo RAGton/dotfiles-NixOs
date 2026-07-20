@@ -67,7 +67,7 @@ def main():
         "qemu-kvm",
         "-m", "4G",
         "-smp", "4",
-        "-drive", "file=/tmp/kryonix-installer-final-iso/iso/kryonix.iso,format=raw,readonly=on,media=cdrom",
+        "-drive", "file=/tmp/kryxd-final-iso/iso/kryonix.iso,format=raw,readonly=on,media=cdrom",
         "-drive", "file=/tmp/kryonix_e2e_disk.qcow2,format=qcow2,if=virtio",
         "-device", "virtio-gpu-pci",
         "-chardev", f"socket,path={QGA_SOCK},server=on,wait=off,id=qga0",
@@ -118,7 +118,7 @@ def main():
         print(f"Code: {code}\nOutput: {out}\nError: {err}")
 
         print("\n--- Checking KRYONIX_ENGINE_SOURCE ---")
-        code, out, err = guest_exec("/run/current-system/sw/bin/bash", ["-c", "cat /etc/systemd/system/kryonix-installer-backend.service | grep KRYONIX_ENGINE_SOURCE"])
+        code, out, err = guest_exec("/run/current-system/sw/bin/bash", ["-c", "cat /etc/systemd/system/kryxd-backend.service | grep KRYONIX_ENGINE_SOURCE"])
         print(f"Code: {code}\nOutput: {out}\nError: {err}")
         
         print("\n--- Testing dry-run /dev/null ---")

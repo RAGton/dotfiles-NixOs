@@ -227,7 +227,7 @@
       rag-install-tui
       pkgs.kryonix-hardware-probe
       pkgs.kryonix-disk-planner
-      pkgs.kryonix-installer
+      pkgs.kryxd
     ];
 
   networking.networkmanager.enable = lib.mkDefault true;

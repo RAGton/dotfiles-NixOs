@@ -217,7 +217,7 @@
         "type": "github"
       }
     },
-    "kryonix-installer": {
+    "kryxd": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
@@ -230,11 +230,11 @@
         "rev": "84946bb1077d23528a9c6a38e41d44e547584d54",
         "revCount": 74,
         "type": "git",
-        "url": "https://github.com/RAGton/kryonix-installer"
+        "url": "https://github.com/RAGton/kryxd"
       },
       "original": {
         "type": "git",
-        "url": "https://github.com/RAGton/kryonix-installer"
+        "url": "https://github.com/RAGton/kryxd"
       }
     },
     "nix-flatpak": {
@@ -354,7 +354,7 @@
         "home-manager": "home-manager",
         "kryonix-brain-lightrag": "kryonix-brain-lightrag",
         "kryonix-home": "kryonix-home",
-        "kryonix-installer": "kryonix-installer",
+        "kryxd": "kryxd",
         "nix-flatpak": "nix-flatpak",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-stable": "nixpkgs-stable",

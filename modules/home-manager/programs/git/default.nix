@@ -125,7 +125,7 @@
         Port = 2224;
         IdentityFile = [
           "~/.ssh/id_ed25519"
-          "~/.ssh/ragos-ve"
+          "~/.ssh/node-ve"
         ];
         IdentitiesOnly = "yes";
         ServerAliveInterval = 30;
@@ -138,7 +138,7 @@
         Port = 2224;
         IdentityFile = [
           "~/.ssh/id_ed25519"
-          "~/.ssh/ragos-ve"
+          "~/.ssh/node-ve"
         ];
         IdentitiesOnly = "yes";
         ServerAliveInterval = 30;

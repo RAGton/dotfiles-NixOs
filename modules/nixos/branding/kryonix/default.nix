@@ -181,7 +181,7 @@ let
 in
 {
   imports = [
-    (lib.mkAliasOptionModule [ "ragos" ] [ "kryonix" "branding" ])
+    (lib.mkAliasOptionModule [ "node" ] [ "kryonix" "branding" ])
   ];
 
   options.kryonix.branding = {

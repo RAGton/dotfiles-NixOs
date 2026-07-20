@@ -13,4 +13,4 @@ Este documento mapeia o futuro da instalação e do Live USB do Kryonix.
 
 ## Longo Prazo (Web Kiosk)
 - [ ] Finalizar o Front-end Web (React/Vue) para rodar sobre o modo `web-kiosk.nix` nativamente.
-- [ ] API local (`kryonix-installer-bin`) expondo endpoints WebSocket para progresso da formatação.
+- [ ] API local (`kryxd-bin`) expondo endpoints WebSocket para progresso da formatação.

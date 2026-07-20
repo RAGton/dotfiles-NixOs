@@ -25,7 +25,7 @@
   kryonixHome,
   kryonix-hardware-probe,
   kryonix-disk-planner,
-  kryonix-installer,
+  kryxd,
   installShellFiles,
   symlinkJoin,
 }:
@@ -59,7 +59,7 @@ let
       kryonixHome
       kryonix-hardware-probe
       kryonix-disk-planner
-      kryonix-installer
+      kryxd
     ];
     text =
       # writeShellApplication prepends nix-store paths to PATH; we need

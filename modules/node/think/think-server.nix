@@ -20,15 +20,22 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    boot.kernelPackages = pkgs.linuxPackages_6_12;
+    boot.kernelPackages = pkgs.linuxPackages; # Kernel LTS
     boot.supportedFilesystems = [ "zfs" ];
+
+    environment.systemPackages = [ pkgs.zfs ];
+
+    systemd.targets.local-fs.after = [
+      "zfs-import-cache.service"
+      "zfs-import-scan.service"
+    ];
 
     networking.hostId = cfg.hostId;
 
     assertions = [
       {
-        assertion = config.boot.kernelPackages.kernel.version == pkgs.linuxPackages_6_12.kernel.version;
-        message = "NODE Think Server requer Kernel 6.12 para compatibilidade com ZFS.";
+        assertion = config.boot.kernelPackages.kernel.version == pkgs.linuxPackages.kernel.version;
+        message = "NODE Think Server requer Kernel LTS para estabilidade do ZFS.";
       }
     ];
 
