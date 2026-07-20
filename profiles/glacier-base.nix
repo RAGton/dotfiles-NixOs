@@ -41,19 +41,6 @@ in
       };
     };
 
-    # SSH habilitado (portas e settings ficam em rve-compat.nix)
-    services.openssh = {
-      enable = true;
-      ports = [ 2224 ];
-      settings = {
-        PermitRootLogin = "no";
-        PasswordAuthentication = false;
-        KbdInteractiveAuthentication = false;
-        X11Forwarding = false;
-        AllowTcpForwarding = "yes"; # Necessário para SSH Tunneling (VNC)
-        LogLevel = "VERBOSE";
-      };
-    };
 
     # Tailscale
     services.tailscale.enable = true;
