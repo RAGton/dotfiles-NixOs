@@ -312,5 +312,6 @@
       kryonix-disk-planner = final.kryonix-disk-planner;
       kryxd = final.kryxd;
     };
+    kryx = final.callPackage ../packages/kryx/default.nix { };
   };
 }
