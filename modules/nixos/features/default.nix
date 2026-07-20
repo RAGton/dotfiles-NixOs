@@ -33,6 +33,9 @@
       gpu = config.kryonix.features.gpu // {
         intel = builtins.removeAttrs config.kryonix.features.gpu.intel [ "legacyVaapi" ];
       };
+      development = config.kryonix.features.development // {
+        editors = builtins.removeAttrs config.kryonix.features.development.editors [ "vscode" ];
+      };
     };
   };
 }
