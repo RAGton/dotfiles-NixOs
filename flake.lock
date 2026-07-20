@@ -224,17 +224,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1782526968,
-        "narHash": "sha256-GH/CMC+TkvI/sLAmL4FpAzFEKBV6GgOwIAGwzd8tL9A=",
-        "ref": "refs/heads/main",
-        "rev": "84946bb1077d23528a9c6a38e41d44e547584d54",
-        "revCount": 74,
+        "lastModified": 1784323802,
+        "narHash": "sha256-30croF2UzwkZ2D6bVr+/Wlpe9Aa+QuodgWzFT38mr8w=",
+        "ref": "refs/heads/refactor/installer-phase1",
+        "rev": "987daabe42c865834bc379fc7ab860d3b38ca1ee",
+        "revCount": 133,
         "type": "git",
-        "url": "https://github.com/RAGton/kryxd"
+        "url": "file:///home/rocha/kryonix-dev/repos/kryxd"
       },
       "original": {
         "type": "git",
-        "url": "https://github.com/RAGton/kryxd"
+        "url": "file:///home/rocha/kryonix-dev/repos/kryxd"
       }
     },
     "nix-flatpak": {

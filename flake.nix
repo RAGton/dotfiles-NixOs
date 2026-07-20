@@ -113,7 +113,7 @@
     # REST do GitHub (que apresentou 504 intermitente logo após o repo
     # virar público); o protocolo git é mais robusto e o lock pina o rev.
     kryxd = {
-      url = "github:RAGton/kryxd";
+      url = "git+file:///home/rocha/kryonix-dev/repos/kryxd";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

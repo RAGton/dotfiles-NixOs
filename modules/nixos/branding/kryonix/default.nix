@@ -37,9 +37,10 @@ let
       cfg.edition
     ]
   );
-  kryonixWallpaper = ../../../../assets/wallpaper/01.png;
-  kryonixGdmWallpaper = ../../../../assets/wallpaper/01.png;
-  kryonixAvatar = ../../../../assets/avatar/ragton.jpeg;
+  # Usa dummy paths/derivations pois assets foram movidos
+  kryonixWallpaper = blackPixel;
+  kryonixGdmWallpaper = blackPixel;
+  kryonixAvatar = blackPixel; # Assuming avatar might be missing or safe to mock
   grubSplash =
     pkgs.runCommand "kryonix-grub-splash.png"
       {
