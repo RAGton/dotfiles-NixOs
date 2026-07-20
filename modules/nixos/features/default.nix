@@ -28,6 +28,11 @@
   ];
 
   environment.etc."kryonix/features.json".text = builtins.toJSON {
-    features = config.kryonix.features;
+    features = (builtins.removeAttrs config.kryonix.features [ "cpu" "openrgb" "remoteDesktop" ]) // {
+      ai = builtins.removeAttrs config.kryonix.features.ai [ "codex" "brain" ];
+      gpu = config.kryonix.features.gpu // {
+        intel = builtins.removeAttrs config.kryonix.features.gpu.intel [ "legacyVaapi" ];
+      };
+    };
   };
 }
