@@ -92,6 +92,12 @@
       url = "github:openai/codex";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Hermes Agent (Nous Research)
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Kryonix Home Brain (scanner determinístico)
     kryonix-home = {
       url = "github:RAGton/KRYONIX-HOME";
