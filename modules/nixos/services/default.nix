@@ -10,7 +10,7 @@
 # - Garante lock/logout/notificações/clipboard/screenshot consistentes em todos
 #   os hosts sem depender de desktop environments alternativos.
 # ==============================================================================
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ./tailscale
