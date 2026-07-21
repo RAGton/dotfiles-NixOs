@@ -46,6 +46,8 @@ kryonix-artifacts/
 /brain.env
 /neo4j.env
 /hermes.env
+/features.json
+/identity.json
 /.env
 *.secret
 *.token
