@@ -15,6 +15,7 @@
 # =============================================================================
 {
   kryonixBranding,
+  kryonixAssets,
   lib,
   stdenvNoCC,
 }:
@@ -40,7 +41,7 @@ stdenvNoCC.mkDerivation {
     done
 
     chmod u+w "$themesRoot/kryonix-clean/assets"
-    cp ${../modules/node/core/themes/plymouth/node/logo.png} \
+    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-dark.png \
       "$themesRoot/kryonix-clean/assets/logo.png"
     cp ${kryonixBranding}/share/backgrounds/kryonix/kryonix-clean-dark.svg \
       "$themesRoot/kryonix-clean/assets/background-dark.svg"

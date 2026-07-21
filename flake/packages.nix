@@ -17,7 +17,10 @@ lib.forAllSystems (
     kryonixInstaller = inputs.kryxd.packages.${system}.kryxd;
     kryonixLlamaCppCuda = pkgs.callPackage ../packages/kryonix-llama-cpp-cuda.nix { };
     kryonixOptimizer = pkgs.callPackage ../packages/kryonix-optimizer { };
-    kryonixBranding = pkgs.callPackage ../packages/kryonix-branding.nix { };
+    kryonixAssets = inputs.kryonix-assets.packages.${system}.default;
+    kryonixBranding = pkgs.callPackage ../packages/kryonix-branding.nix {
+      inherit kryonixAssets;
+    };
     kryonixWaywallen = pkgs.callPackage ../packages/kryonix-waywallen.nix { };
     kryonixOpenWallpaperEngine = pkgs.callPackage ../packages/kryonix-open-wallpaper-engine.nix { };
     kryonixWaywallenDisplayKde = pkgs.callPackage ../packages/kryonix-waywallen-display-kde.nix { };
@@ -25,10 +28,12 @@ lib.forAllSystems (
       inherit kryonixBranding;
     };
     kryonixSddmTheme = pkgs.callPackage ../packages/kryonix-sddm-theme.nix {
-      inherit kryonixBranding;
+      inherit kryonixBranding kryonixAssets;
     };
     kryonixDarwinMenu = pkgs.callPackage ../packages/darwinmenu.nix { };
-    kryonixWallpapers = pkgs.callPackage ../packages/kryonix-wallpapers.nix { };
+    kryonixWallpapers = pkgs.callPackage ../packages/kryonix-wallpapers.nix {
+      inherit kryonixAssets;
+    };
     kryx = inputs.kryx-cli.packages.${system}.default;
     denoCacheOnly = lib.mkDenoCacheOnly pkgs;
   in
