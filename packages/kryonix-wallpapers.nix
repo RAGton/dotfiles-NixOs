@@ -30,7 +30,7 @@ stdenvNoCC.mkDerivation {
 
     # Logos e assets
     install -dm755 "$out/share/wallpapers/kryonix-aurora/logos"
-    cp logos/*.svg "$out/share/wallpapers/kryonix-aurora/logos/"
+    cp logos/*.png "$out/share/wallpapers/kryonix-aurora/logos/"
 
     # Manifesto e licença
     install -dm755 "$out/share/wallpapers/kryonix-aurora/sources"

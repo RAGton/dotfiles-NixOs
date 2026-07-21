@@ -49,7 +49,7 @@ Rectangle {
 
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: "assets/logo.svg"
+                source: "assets/logo.png"
                 sourceSize: Qt.size(76, 76)
                 width: 76
                 height: 76
