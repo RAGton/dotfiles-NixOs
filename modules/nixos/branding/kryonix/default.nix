@@ -265,7 +265,7 @@ in
         else
           ''
             Welcome to ${displayName}.
-            Run `kryonix --help` for system commands.
+            Run `kryx --help` for system commands.
           '';
 
       programs.dconf.profiles.gdm.databases = [
