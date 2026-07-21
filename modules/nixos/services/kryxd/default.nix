@@ -35,6 +35,8 @@ in
 
       environment = {
         PORT = toString cfg.port;
+        KRYONIX_INSTALLER_BIND = lib.mkDefault "0.0.0.0:${toString cfg.port}";
+        KRYONIX_ALLOW_REMOTE_BIND = lib.mkDefault "1";
         RUST_LOG = "info";
       }
       // (lib.optionalAttrs (cfg.token != null) {
@@ -48,5 +50,11 @@ in
         Group = "root";
       };
     };
+
+    networking.firewall.allowedTCPPorts = [
+      config.services.kryxd.port
+      3000
+      5173
+    ];
   };
 }
