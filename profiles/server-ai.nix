@@ -54,7 +54,10 @@ in
     # Firewall restrito: Apenas LAN e Tailscale
     networking.firewall = {
       enable = true;
-      trustedInterfaces = [ "tailscale0" "br-glacier-lan" ];
+      trustedInterfaces = [
+        "tailscale0"
+        "br-glacier-lan"
+      ];
     };
   };
 }

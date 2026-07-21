@@ -1,10 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.kryonix.security.hardening;
 in
 {
-  options.kryonix.security.hardening.enable = lib.mkEnableOption "Harden system via AppArmor (Industrial)";
+  options.kryonix.security.hardening.enable =
+    lib.mkEnableOption "Harden system via AppArmor (Industrial)";
 
   config = lib.mkIf cfg.enable {
     security.apparmor = {

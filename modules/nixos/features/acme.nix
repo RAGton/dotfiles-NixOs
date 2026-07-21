@@ -24,24 +24,26 @@ in
     };
 
     certs = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          domain = lib.mkOption {
-            type = lib.types.str;
-            description = "The primary domain name for the certificate.";
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            domain = lib.mkOption {
+              type = lib.types.str;
+              description = "The primary domain name for the certificate.";
+            };
+            group = lib.mkOption {
+              type = lib.types.str;
+              default = "nginx";
+              description = "Group that owns the certificate.";
+            };
+            credentialFiles = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = { };
+              description = "Credential files for the DNS provider.";
+            };
           };
-          group = lib.mkOption {
-            type = lib.types.str;
-            default = "nginx";
-            description = "Group that owns the certificate.";
-          };
-          credentialFiles = lib.mkOption {
-            type = lib.types.attrsOf lib.types.str;
-            default = { };
-            description = "Credential files for the DNS provider.";
-          };
-        };
-      });
+        }
+      );
       default = { };
       description = "Declarative ACME certificates configuration.";
     };

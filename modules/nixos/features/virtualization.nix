@@ -153,7 +153,6 @@ in
       };
     };
 
-
   };
 
   config = lib.mkIf cfg.enable {
@@ -247,8 +246,6 @@ in
       enable = true;
       enableExtensionPack = true;
     };
-
-
 
     # =========================
     # System Packages

@@ -1,8 +1,15 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   cfg = config.kryonix.kernel.cachyos;
-in {
+in
+{
   options.kryonix.kernel.cachyos = {
     enable = lib.mkEnableOption "Enable CachyOS kernel";
   };

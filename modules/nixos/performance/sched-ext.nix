@@ -56,18 +56,14 @@ in
 
     assertions = [
       {
-        assertion =
-          lib.versionAtLeast
-            config.boot.kernelPackages.kernel.version
-            "6.12";
+        assertion = lib.versionAtLeast config.boot.kernelPackages.kernel.version "6.12";
 
         message = ''
           kryonix.performance.schedExt requer kernel Linux 6.12 ou superior.
         '';
       }
       {
-        assertion =
-          builtins.elem cfg.scheduler cfg.package.schedulers;
+        assertion = builtins.elem cfg.scheduler cfg.package.schedulers;
 
         message = ''
           Scheduler sched-ext inválido: ${cfg.scheduler}.
