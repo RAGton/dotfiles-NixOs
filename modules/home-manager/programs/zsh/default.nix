@@ -119,9 +119,16 @@ in
               [[ -e "$card/vendor" ]] || continue
               vendor="$(cat "$card/vendor" 2>/dev/null)"
               device="$(cat "$card/device" 2>/dev/null)"
-              driver="$(basename "$(readlink -f "$card/driver" 2>/dev/null)" 2>/dev/null)"
-              printf '%s:%s/%s ' "$vendor" "$device" "$driver"
+              case "''${vendor}:''${device}" in
+                0x1002:0x6665) printf '%s · ' "AMD Radeon R5 M230/R7 M260DX/520/610 Mobile" ;;
+                0x8086:0x3ea0) printf '%s · ' "Intel UHD Graphics 620" ;;
+                *)
+                  driver="$(basename "$(readlink -f "$card/driver" 2>/dev/null)" 2>/dev/null)"
+                  printf '%s:%s/%s · ' "$vendor" "$device" "$driver"
+                  ;;
+              esac
             done)"
+            _kryonix_gpu="''${_kryonix_gpu% · }"
             [[ -n "$_kryonix_gpu" ]] || _kryonix_gpu="unknown GPU"
             _kryonix_profile="Desktop"
             _kryonix_edition="Kryonix Desktop"
