@@ -115,7 +115,7 @@ in
         location = "top";
         alignment = "center";
         height = 36;
-        floating = false;
+        floating = true;
         lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
@@ -191,7 +191,7 @@ in
         screen = 0;
         alignment = "center";
         height = 56;
-        floating = false;
+        floating = true;
         lengthMode = "fit";
         hiding = "dodgewindows";
         opacity = "translucent";
