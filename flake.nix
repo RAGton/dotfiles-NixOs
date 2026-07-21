@@ -131,7 +131,7 @@
 
     # Kryonix Assets (SSOT visual: logos, wallpapers, sddm themes)
     kryonix-assets = {
-      url = "github:RAGton/kryonix-assets";
+      url = "git+file:///home/rocha/kryonix-dev/repos/kryonix-assets";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
