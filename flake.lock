@@ -323,11 +323,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784645639,
-        "narHash": "sha256-EpzgrHk4xndy9sAfnyApXtbmsFB8C58u2O4isNC0/Ic=",
+        "lastModified": 1784645727,
+        "narHash": "sha256-LdmnauGJ6M5SoDnRfTYLzR3ki7tPdTJHjwQH7xyu3DM=",
         "ref": "refs/heads/main",
-        "rev": "cca7631a764a76e30172dc7f86cf25ab0b943fcc",
-        "revCount": 4,
+        "rev": "10441257e269862164a198a9ae705682f72e8ffa",
+        "revCount": 5,
         "type": "git",
         "url": "file:///home/rocha/kryonix-dev/repos/kryonix-assets"
       },
