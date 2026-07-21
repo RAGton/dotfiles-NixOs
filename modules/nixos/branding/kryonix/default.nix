@@ -258,15 +258,10 @@ in
             Host: \n
           '';
 
-      # Mensagem do dia pós-login. Pequeno, sem dependência de rede.
-      environment.etc."motd".text =
-        if cfg.motd != null then
-          cfg.motd
-        else
-          ''
-            Welcome to ${displayName}.
-            Run `kryx --help` for system commands.
-          '';
+      # Mensagem do dia pós-login.
+      # O cockpit interativo do Zsh/Home Manager já mostra o banner completo;
+      # deixar MOTD vazio evita duplicar "Welcome to Kryonix" antes do ASCII art.
+      environment.etc."motd".text = if cfg.motd != null then cfg.motd else "";
 
       programs.dconf.profiles.gdm.databases = [
         {

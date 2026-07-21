@@ -98,10 +98,20 @@ in
 
             _kryonix_hostname="$(hostname -s 2>/dev/null || echo localhost)"
             _kryonix_kernel="$(uname -r 2>/dev/null || echo unknown)"
-            _kryonix_uptime="$(uptime -p 2>/dev/null | sed 's/^up //' || echo unknown)"
+            _kryonix_uptime="$(awk '{
+              s = int($1);
+              d = int(s / 86400); s %= 86400;
+              h = int(s / 3600); s %= 3600;
+              m = int(s / 60);
+              if (d > 0) printf "%dd %dh", d, h;
+              else if (h > 0) printf "%dh %dm", h, m;
+              else printf "%dm", m;
+            }' /proc/uptime 2>/dev/null)"
+            [[ -n "$_kryonix_uptime" ]] || _kryonix_uptime="unknown"
             _kryonix_ip="$(ip -o -4 addr show scope global 2>/dev/null | awk '{ split($4, a, "/"); print $2 "=" a[1] }' | paste -sd ' ' -)"
             [[ -n "$_kryonix_ip" ]] || _kryonix_ip="offline/local-only"
-            _kryonix_cpu="$(lscpu 2>/dev/null | awk -F: '/Model name/ { sub(/^[ \t]+/, "", $2); print $2; exit }')"
+            _kryonix_cpu="$(awk -F: '/model name/ { sub(/^[ \t]+/, "", $2); print $2; exit }' /proc/cpuinfo 2>/dev/null)"
+            [[ -n "$_kryonix_cpu" ]] || _kryonix_cpu="$(lscpu 2>/dev/null | awk -F: '/Model name/ { sub(/^[ \t]+/, "", $2); print $2; exit }')"
             [[ -n "$_kryonix_cpu" ]] || _kryonix_cpu="unknown CPU"
             _kryonix_mem="$(free -h 2>/dev/null | awk '/^Mem:/ { print $3 "/" $2 }')"
             _kryonix_disk="$(df -h / 2>/dev/null | awk 'NR==2 { print $3 "/" $2 " (" $5 ")" }')"
