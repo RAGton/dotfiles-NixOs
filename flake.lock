@@ -396,11 +396,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784598092,
-        "narHash": "sha256-zQ8PYyY6jLmnRX1a/5jk1LZJpTFWW8XmCaY4W/9ERZA=",
-        "ref": "refs/heads/refactor/installer-phase1",
-        "rev": "2b7a1576513c3d4434f088bdf1546f0642c36833",
-        "revCount": 134,
+        "lastModified": 1784665430,
+        "narHash": "sha256-IRmNCKey7El1xDXBFW21YNRSwEY+CmHjRP5fz95OXP0=",
+        "ref": "refs/heads/main",
+        "rev": "6ea5cb8d103170947a75e736dd4b11a3faae9c64",
+        "revCount": 141,
         "type": "git",
         "url": "file:///home/rocha/kryonix-dev/repos/kryxd"
       },
