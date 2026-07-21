@@ -267,7 +267,7 @@ Desktop:
 
 ### Documentação
 ```
-/home/rocha/GitHub/ragos-nixos/
+/home/rocha/GitHub/node-nixos/
 ├── INDEX.md                    ✅ Criado (índice central)
 ├── SUMMARY.md                  ✅ Criado (resumo executivo)
 ├── INSTRUCT.md                 ✅ Criado (manual para IAs)
@@ -279,7 +279,7 @@ Desktop:
 
 ### Código (v2 - Ainda não criado)
 ```
-/home/rocha/GitHub/ragos-nixos/
+/home/rocha/GitHub/node-nixos/
 ├── lib/
 │   ├── default.nix             ⏳ Sprint 1
 │   └── options.nix             ⏳ Sprint 1
@@ -419,7 +419,7 @@ Este repositório está completamente documentado:
 
 **Mantenedor**: rag  
 **IA Assistente**: GitHub Copilot (Mantenedor Principal)  
-**Repositório**: [RAGton/ragos-nixos](https://github.com/RAGton/ragos-nixos)
+**Repositório**: [RAGton/node-nixos](https://github.com/RAGton/node-nixos)
 
 ---
 

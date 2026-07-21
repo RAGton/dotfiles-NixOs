@@ -29,7 +29,7 @@ let
       {
         extraBwrapArgs = [
           "--bind-try /etc/kryonix/ /etc/kryonix/"
-          "--symlink kryonix /etc/ragos"
+          "--symlink kryonix /etc/node"
         ];
       };
 in

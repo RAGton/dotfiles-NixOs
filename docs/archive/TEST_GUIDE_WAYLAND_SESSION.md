@@ -2,7 +2,7 @@
 
 ## 1. Validar avaliação/build (sem aplicar)
 ```bash
-cd /home/rocha/ragos-nixos
+cd /home/rocha/node-nixos
 nix flake check --no-build
 nix eval --json .#nixosConfigurations.inspiron.config.services.xserver.displayManager.lightdm.enable
 nix eval --json .#nixosConfigurations.inspiron.config.services.displayManager.defaultSession

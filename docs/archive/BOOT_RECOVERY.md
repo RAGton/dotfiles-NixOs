@@ -128,7 +128,7 @@ sudo mount /dev/disk/by-uuid/4509-A31C /mnt/boot
 sudo nixos-enter --root /mnt
 
 # 4. Navegar até o repositório (ajuste o caminho conforme necessário)
-cd /home/rocha/ragos-nixos   # ou onde o repo estiver clonado
+cd /home/rocha/node-nixos   # ou onde o repo estiver clonado
 
 # 5. Puxar as mudanças mais recentes do repositório
 git pull

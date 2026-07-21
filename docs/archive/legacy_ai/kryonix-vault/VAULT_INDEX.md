@@ -13,11 +13,11 @@
 
 ## Projetos principais
 
-- [[03-Projetos/Ragos VE]]
-- [[03-Projetos/RAGOS]]
-- [[03-Projetos/RAGOS Installer]]
+- [[03-Projetos/Node VE]]
+- [[03-Projetos/NODE]]
+- [[03-Projetos/NODE Installer]]
 - [[03-Projetos/Kryonix]]
-- [[03-Projetos/Ragos Think]]
+- [[03-Projetos/Node Think]]
 
 ## Mapas principais
 

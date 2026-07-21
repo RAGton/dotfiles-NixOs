@@ -54,7 +54,7 @@ def main():
 
         # 4. Check KRYONIX_ENGINE_SOURCE
         print("\n--- Testing Engine Source ---")
-        child.sendline('cat /etc/systemd/system/kryonix-installer-backend.service | grep KRYONIX_ENGINE_SOURCE')
+        child.sendline('cat /etc/systemd/system/kryxd-backend.service | grep KRYONIX_ENGINE_SOURCE')
         child.expect('root@kryonix:~#')
         print(child.before)
 

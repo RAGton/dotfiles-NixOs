@@ -10,7 +10,7 @@
 # - Garante lock/logout/notificações/clipboard/screenshot consistentes em todos
 #   os hosts sem depender de desktop environments alternativos.
 # ==============================================================================
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   imports = [
     ./tailscale
@@ -23,7 +23,10 @@
     ./kryonix-state.nix
     ./n8n
     ./home-assistant
+    ./telemetry.nix
   ];
+
+  kryonix.services.telemetry.enable = lib.mkDefault true;
 
   services.udisks2.enable = true;
   services.gvfs.enable = true;

@@ -4,7 +4,7 @@
 
 ### 1. Pull das Mudanças
 ```bash
-cd ~/ragos-nixos
+cd ~/node-nixos
 git pull
 ```
 
@@ -69,7 +69,7 @@ Se aparecer isso, **está funcionando perfeitamente!** 🎉
 4. Deve aparecer uma linha com `class=user type=wayland`
 5. Se não aparecer, refaça o rebuild:
    ```bash
-   cd ~/ragos-nixos
+   cd ~/node-nixos
    sudo nixos-rebuild switch --flake .#inspiron
    sudo reboot
    ```

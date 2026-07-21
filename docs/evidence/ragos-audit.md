@@ -1,14 +1,14 @@
-# Auditoria do Repositório `ragos-installer`
+# Auditoria do Repositório `node-installer`
 
 **Data:** 28 de Maio de 2026
-**Alvo:** `https://github.com/RAGEnterprise/ragos-installer`
-**Local de Clonagem:** `/tmp/audit-ragos`
+**Alvo:** `https://github.com/RAGEnterprise/node-installer`
+**Local de Clonagem:** `/tmp/audit-node`
 
 ## 1. Estrutura de Dependências Encontrada
 
 A engine original operava em duas camadas distintas:
 1. **Frontend (React + Vite):** Localizado na pasta `installer-ui/`. Utiliza Vite como bundler, React/React-DOM para interface e TailwindCSS para estilização. Também utiliza dependências como `ajv` para validação de schemas.
-2. **Backend/Orquestração (Bash):** Uma complexa rede de scripts em bash (`bin/ragos-install`, arquivos na pasta `lib/` e `steps/`) que faziam a ponte entre as interações do usuário e o particionamento real (via CLI).
+2. **Backend/Orquestração (Bash):** Uma complexa rede de scripts em bash (`bin/node-install`, arquivos na pasta `lib/` e `steps/`) que faziam a ponte entre as interações do usuário e o particionamento real (via CLI).
 
 ## 2. O que será removido (Outros Fins e Legados)
 
@@ -30,9 +30,9 @@ Preservaremos integralmente o Frontend Kiosk construído em React/Vite, mais esp
 
 Para unificar o instalador em uma única engine sólida sob os princípios do Kryonix, faremos o seguinte:
 
-1. **Build Nativo com Nix:** Vamos portar o diretório `installer-ui` para `/etc/kryonix/packages/kryonix-installer/ui` ou manteremos no diretório temporário para integrá-lo ao source code Rust.
+1. **Build Nativo com Nix:** Vamos portar o diretório `installer-ui` para `/etc/kryonix/packages/kryxd/ui` ou manteremos no diretório temporário para integrá-lo ao source code Rust.
 2. **Pacote Único:** Durante a derivação do pacote (`default.nix` do installer), o Nix realizará o comando `npm install` e `npm run build` gerando os assets estáticos no diretório `dist/`.
-3. **Integração no Axum:** Alteraremos o servidor Rust do `kryonix-installer` para servir esses assets diretamente. Usaremos o crate `tower-http` (com a feature `fs`) para criar um `ServeDir::new("dist")` montado na raiz (`/`) da nossa API Rust, operando na porta `8080`.
+3. **Integração no Axum:** Alteraremos o servidor Rust do `kryxd` para servir esses assets diretamente. Usaremos o crate `tower-http` (com a feature `fs`) para criar um `ServeDir::new("dist")` montado na raiz (`/`) da nossa API Rust, operando na porta `8080`.
 4. **Endpoint Rewrites:** A UI enviará os requests para `http://localhost:8080/api/...`, que serão capturados pela nossa engine de particionamento/stream via Axum, isolando totalmente o frontend Kiosk Web de qualquer shell nocivo.
 
 ---

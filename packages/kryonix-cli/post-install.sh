@@ -5,7 +5,7 @@
 set -euo pipefail
 
 FLAG_FILE="/etc/kryonix-installed"
-INSTALLER_BIN="kryonix-installer"
+INSTALLER_BIN="kryxd"
 
 echo "🤖 Iniciando Autômato de Cura Kryonix..."
 
@@ -29,7 +29,7 @@ if [[ ! -f "$FLAG_FILE" ]]; then
         if command -v "$INSTALLER_BIN" &>/dev/null; then
             # Dispara o instalador em modo kiosk ou verificação
             # Nota: Isso assume ambiente gráfico ativo se for kiosk
-            systemctl start kryonix-installer-kiosk.service || true
+            systemctl start kryxd-kiosk.service || true
         else
             echo "❌ Erro fatal: $INSTALLER_BIN não encontrado no PATH."
         fi

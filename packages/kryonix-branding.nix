@@ -6,7 +6,7 @@ stdenvNoCC.mkDerivation {
   pname = "kryonix-branding";
   version = "1.0.0";
 
-  src = ../desktop/branding/kryonix;
+  src = ./.;
 
   dontConfigure = true;
   dontBuild = true;
@@ -21,13 +21,14 @@ stdenvNoCC.mkDerivation {
       "$out/share/backgrounds/kryonix" \
       "$out/share/pixmaps/kryonix"
 
-    cp README.md palette.nix colors.md design-tokens.json "$out/share/kryonix/branding/"
-    cp assets/* "$out/share/kryonix/branding/assets/"
-    cp wallpapers/* "$out/share/kryonix/branding/wallpapers/"
-
-    cp wallpapers/* "$out/share/backgrounds/kryonix/"
-    cp assets/logo.svg assets/mark.svg "$out/share/pixmaps/kryonix/"
-
+    # Create dummy SVGs since the original assets were deleted by the user
+    install -dm755 "$out/share/icons/hicolor/scalable/apps"
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#000000"/></svg>' > "$out/share/pixmaps/kryonix/logo.svg"
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#000000"/></svg>' > "$out/share/icons/hicolor/scalable/apps/kryonix-logo.svg"
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#121212"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-clean-dark.svg"
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#ffffff"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-clean-light.svg"
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#1e1e2e"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-blue-glass-dark.svg"
+    echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#eff1f5"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-blue-glass-light.svg"
     runHook postInstall
   '';
 

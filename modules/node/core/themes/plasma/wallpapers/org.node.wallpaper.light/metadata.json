@@ -1,0 +1,13 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "dev@node.local",
+        "Name": "NODE Maintainers"
+      }
+    ],
+    "Id": "org.node.wallpaper.light",
+    "License": "CC-BY-SA-4.0",
+    "Name": "NODE Control Light Wallpaper"
+  }
+}

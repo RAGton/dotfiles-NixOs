@@ -1,0 +1,34 @@
+#!ipxe
+
+dhcp || shell
+
+# Fluxo atual:
+# UEFI/PXE → iPXE → (DHCP dhcp-boot) → boot.ipxe (gerado pelo knyc)
+# dnsmasq fornece a URL/arquivo em ${filename}. Mantemos fallback em /boot.ipxe.
+
+menu --name node-menu NODE Think Client Boot
+item --gap --             ===============================
+item --gap --             NODE THINK CLIENT
+item --gap --             ===============================
+item --gap --   Hostname : ${hostname}
+item --gap --   IP       : ${net0/ip}
+item --gap --   MAC      : ${net0/mac}
+item --gap --
+item boot       Bootar NODE (boot.ipxe)
+item shell      Shell iPXE
+item reboot     Reboot
+
+choose --timeout 5000 --default boot selected || goto cancel
+goto ${selected}
+
+:boot
+chain ${filename} || chain /boot.ipxe || shell
+
+:shell
+shell
+
+:reboot
+reboot
+
+:cancel
+reboot

@@ -1,0 +1,20 @@
+{
+  "KPackageStructure": "Plasma/LookAndFeel",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "dev@node.local",
+        "Name": "NODE Maintainers"
+      }
+    ],
+    "Category": "",
+    "Description": "Corporate light global theme for the NODE Plasma 6 desktop.",
+    "Id": "org.node.desktop.light",
+    "License": "GPL-2.0-or-later",
+    "Name": "NODE Control Light",
+    "Version": "1.0.0",
+    "Website": "https://github.com/RAGEnterprise/node"
+  },
+  "Keywords": "Desktop;Workspace;Appearance;Look and Feel;NODE;Light;",
+  "X-Plasma-APIVersion": "2"
+}

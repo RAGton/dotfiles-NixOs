@@ -24,5 +24,28 @@
     ./mcp.nix
     ./browser-automation.nix
     ./acme.nix
+    ./etcher.nix
+    ./ntfs.nix
   ];
+
+  environment.etc."kryonix/features.json".text = builtins.toJSON {
+    features =
+      (builtins.removeAttrs config.kryonix.features [
+        "cpu"
+        "openrgb"
+        "remoteDesktop"
+      ])
+      // {
+        ai = builtins.removeAttrs config.kryonix.features.ai [
+          "codex"
+          "brain"
+        ];
+        gpu = config.kryonix.features.gpu // {
+          intel = builtins.removeAttrs config.kryonix.features.gpu.intel [ "legacyVaapi" ];
+        };
+        development = config.kryonix.features.development // {
+          editors = builtins.removeAttrs config.kryonix.features.development.editors [ "vscode" ];
+        };
+      };
+  };
 }

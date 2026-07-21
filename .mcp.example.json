@@ -8,33 +8,22 @@
       ]
     },
     "mcp-nixos": {
-      "command": "/run/current-system/sw/bin/uv",
-      "args": [
-        "tool",
-        "run",
-        "mcp-nixos",
-        "--stdio"
-      ]
+      "command": "/run/current-system/sw/bin/kryonix-mcp-nixos",
+      "args": []
     },
     "vault-readonly": {
-      "command": "/run/current-system/sw/bin/npx",
+      "command": "/run/current-system/sw/bin/kryonix-mcp-filesystem-readonly",
+      "args": []
+    },
+    "git-readonly": {
+      "command": "/run/current-system/sw/bin/kryonix-mcp-git-readonly",
       "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/etc/kryonix",
-        "/home/rocha/.local/share/kryonix/kryonix-vault"
+        "/home/rocha/kryonix/kryonix-dev/repos/kryonix"
       ]
     },
-    "github": {
-      "command": "/run/current-system/sw/bin/npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github",
-        "--stdio"
-      ],
-      "env": {
-        "GITHUB_TOKEN": "your_github_token_here"
-      }
+    "sequential-thinking": {
+      "command": "/run/current-system/sw/bin/kryonix-mcp-sequential-thinking",
+      "args": []
     }
   }
 }

@@ -14,7 +14,7 @@ lib.forAllSystems (
     };
     kryonixHardwareProbe = pkgs.callPackage ../packages/kryonix-hardware-probe.nix { };
     kryonixDiskPlanner = pkgs.callPackage ../packages/kryonix-disk-planner.nix { };
-    kryonixInstaller = inputs.kryonix-installer.packages.${system}.kryonix-installer;
+    kryonixInstaller = inputs.kryxd.packages.${system}.kryxd;
     kryonixLlamaCppCuda = pkgs.callPackage ../packages/kryonix-llama-cpp-cuda.nix { };
     kryonixOptimizer = pkgs.callPackage ../packages/kryonix-optimizer { };
     kryonixBranding = pkgs.callPackage ../packages/kryonix-branding.nix { };
@@ -33,18 +33,20 @@ lib.forAllSystems (
       inherit kryonixHome;
       kryonix-hardware-probe = kryonixHardwareProbe;
       kryonix-disk-planner = kryonixDiskPlanner;
-      kryonix-installer = kryonixInstaller;
+      kryxd = kryonixInstaller;
     };
+    kryx = pkgs.callPackage ../packages/kryx/default.nix { };
     denoCacheOnly = lib.mkDenoCacheOnly pkgs;
   in
   {
     default = kryonixCli;
     kryonix = kryonixCli;
+    kryx = kryx;
     kryonix-home = kryonixHome;
     kryonix-brain-lightrag = kryonixBrainLightrag;
     kryonix-hardware-probe = kryonixHardwareProbe;
     kryonix-disk-planner = kryonixDiskPlanner;
-    kryonix-installer = kryonixInstaller;
+    kryxd = kryonixInstaller;
     kryonix-llama-cpp-cuda = kryonixLlamaCppCuda;
     kryonix-optimizer = kryonixOptimizer;
     kryonix-branding = kryonixBranding;

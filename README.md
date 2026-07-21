@@ -21,7 +21,7 @@ Se você acabou de dar boot na Live ISO do Kryonix:
 
 ## 🏗️ Arquitetura de Instalação
 
-O pipeline de implantação do Kryonix é orquestrado por um motor em Rust (`kryonix-installer`) e uma interface React.
+O pipeline de implantação do Kryonix é orquestrado por um motor em Rust (`kryxd`) e uma interface React.
 
 ```mermaid
 graph TD

@@ -15,9 +15,9 @@ Esta página define as regras invioláveis de segurança e operação do reposit
 
 As ferramentas de IA interagem com o Kryonix através de servidores MCP. A segurança desta camada é rigorosa:
 
-1. **Restrição de Filesystem:** O MCP de filesystem começa como `read-only`. O acesso global a `/` é terminantemente proibido.
+1. **Restrição de Filesystem:** O MCP de filesystem só é `read-only` quando executado pelo wrapper Kryonix com `bubblewrap` e `--ro-bind`. O acesso global a `/` é terminantemente proibido.
 2. **Separação de Configuração:**
-   - A configuração local (`.mcp.json`) é `.gitignore`'d e contém tokens de acesso reais.
+   - A configuração local (`.mcp.json`) é `.gitignore`'d, mas não deve conter tokens inline; secrets são injetados fora do arquivo quando estritamente necessários.
    - A configuração versionada (`.mcp.example.json`) atua como template canônico sem secrets.
 3. **Padrão de Comunicação:** Os servidores MCP devem comunicar apenas JSON-RPC limpo no `stdout`. Quaisquer logs ou warnings devem ir para o `stderr`.
 4. **Bancos de Dados:** O acesso inicial do MCP ao Neo4j ou PostgreSQL é sempre `read-only`. Comandos destrutivos são bloqueados na raiz.

@@ -11,7 +11,7 @@ Atualizado em 2026-04-25.
 - Caelestia é o shell/rice principal dos hosts Hyprland.
 - DMS ainda existe como legado de transição e não deve receber novos acoplamentos.
 - `kryonix` é o entrypoint operacional preferencial.
-- `ragos` segue como alias temporário com aviso de depreciação.
+- `node` segue como alias temporário com aviso de depreciação.
 - Repo principal: `https://github.com/RAGton/kryonix`.
 - Vault: `https://github.com/RAGton/kryonix-vault.git`.
 

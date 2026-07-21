@@ -1,8 +1,14 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.kryonix.desktop.kde.multimonitor;
-in {
+in
+{
   options.kryonix.desktop.kde.multimonitor = {
     enable = lib.mkEnableOption "Kryonix Multi-Monitor Support (idempotent fallback)";
     wallpapers = {
@@ -37,26 +43,28 @@ in {
       Service = {
         Type = "oneshot";
         ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
-        ExecStart = let
-          script = pkgs.writeText "apply-multiscreen-wallpapers.js" ''
-            let allDesktops = desktops();
-            for (let i = 0; i < allDesktops.length; i++) {
-                let d = allDesktops[i];
-                d.wallpaperPlugin = "org.kde.slideshow";
-                d.currentConfigGroup = ["Wallpaper", "org.kde.slideshow", "General"];
-                
-                // Aplicamos para todas as telas (primária ou secundária) o slideshow Kryonix.
-                // O path é baseado no pacote atual de wallpapers do sistema.
-                let path = "${pkgs.kryonix-wallpapers}/share/wallpapers/${cfg.wallpapers.fallback}";
-                
-                // É possível especializar futuramente usando d.screen == 0 vs d.screen > 0
-                
-                d.writeConfig("SlidePaths", path);
-                d.writeConfig("SlideInterval", "300");
-                d.writeConfig("FillMode", "2"); // Stretch or scaled
-            }
-          '';
-        in "${pkgs.bash}/bin/bash -c \"${pkgs.kdePackages.qttools}/bin/qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \\\"$(${pkgs.coreutils}/bin/cat ${script})\\\"\"";
+        ExecStart =
+          let
+            script = pkgs.writeText "apply-multiscreen-wallpapers.js" ''
+              let allDesktops = desktops();
+              for (let i = 0; i < allDesktops.length; i++) {
+                  let d = allDesktops[i];
+                  d.wallpaperPlugin = "org.kde.slideshow";
+                  d.currentConfigGroup = ["Wallpaper", "org.kde.slideshow", "General"];
+                  
+                  // Aplicamos para todas as telas (primária ou secundária) o slideshow Kryonix.
+                  // O path é baseado no pacote atual de wallpapers do sistema.
+                  let path = "${pkgs.kryonix-wallpapers}/share/wallpapers/${cfg.wallpapers.fallback}";
+                  
+                  // É possível especializar futuramente usando d.screen == 0 vs d.screen > 0
+                  
+                  d.writeConfig("SlidePaths", path);
+                  d.writeConfig("SlideInterval", "300");
+                  d.writeConfig("FillMode", "2"); // Stretch or scaled
+              }
+            '';
+          in
+          "${pkgs.bash}/bin/bash -c \"${pkgs.kdePackages.qttools}/bin/qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \\\"$(${pkgs.coreutils}/bin/cat ${script})\\\"\"";
         Restart = "on-failure";
         TimeoutSec = "20";
       };

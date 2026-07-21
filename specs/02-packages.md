@@ -3,8 +3,8 @@
 ## Estado atual (verificado)
 CLI `kryonix` = writeShellApplication (shell), não Rust. Rust = kryonix-home + installer (Axum + Vite/React).
 Brain = submódulo Python (packages/kryonix-brain-lightrag). registry.sh = fonte de comandos.
-Installer UI: packages/kryonix-installer/ui/ (React + Vite, outDir=static).
-Installer Backend: packages/kryonix-installer/ (Rust, Axum). npmDepsHash gerenciado via buildNpmPackage.
+Installer UI: packages/kryxd/ui/ (React + Vite, outDir=static).
+Installer Backend: packages/kryxd/ (Rust, Axum). npmDepsHash gerenciado via buildNpmPackage.
 
 ## Objetivos
 - `packages/default.nix` com callPackage; casas separadas para CLI/Rust/installer/doctor/brain.
@@ -71,7 +71,7 @@ UI oferece duas opções:
 // Backend executa:
 git clone https://<token>@github.com/<user>/<repo> /etc/kryonixos
 ```
-Permissões: `/etc/kryonixos` criado com `chown rocha:ragos` para edição sem sudo posterior.
+Permissões: `/etc/kryonixos` criado com `chown rocha:node` para edição sem sudo posterior.
 
 ### Passo 4 — Hardware Probe (background)
 Backend lança `kryonix-hardware-probe` que retorna JSON:
@@ -134,7 +134,7 @@ Progress feed via SSE (Server-Sent Events) do backend para a UI.
 5. Plugar overlay; trocar imports relativos.
 
 ## Validação
-- `nix build .#kryonix-installer` sem erro de hash
+- `nix build .#kryxd` sem erro de hash
 - UI reachable em localhost:5173 (dev) e embutida no binário (prod)
 - Device Flow completa em conta GitHub de teste
 - Clone de repo privado funciona com token OAuth

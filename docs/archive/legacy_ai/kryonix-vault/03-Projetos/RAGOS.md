@@ -1,15 +1,15 @@
-# RAGOS
+# NODE
 
 ## Repositório
 
-- GitHub: `RAGEnterprise/ragos`
+- GitHub: `RAGEnterprise/node`
 - Visibilidade: privado
 - Branch padrão: `main`
-- Relação: projeto principal do ecossistema RAGOS
+- Relação: projeto principal do ecossistema NODE
 
 ## Descrição operacional
 
-RAGOS é uma plataforma on-premises para clientes diskless reais em NixOS, com boot via rede, imagem centralizada e operação orientada a previsibilidade.
+NODE é uma plataforma on-premises para clientes diskless reais em NixOS, com boot via rede, imagem centralizada e operação orientada a previsibilidade.
 
 A visão central do projeto é: **o servidor é o centro do sistema, não o endpoint**.
 
@@ -18,10 +18,10 @@ A visão central do projeto é: **o servidor é o centro do sistema, não o endp
 O repositório declara entregar:
 
 - boot UEFI com PXE + iPXE + HTTP;
-- publicação geracional do cliente por `ragc`;
+- publicação geracional do cliente por `knyc`;
 - canais oficiais `generic`, `lab` e `rescue`;
 - perfis `desktop-generic`, `desktop-lab`, `rescue-minimal` e `hyperv-debug`;
-- inventário externo em `/etc/ragos-inventory/clients.nix`;
+- inventário externo em `/etc/node-inventory/clients.nix`;
 - servidor NixOS declarativo em `server/`;
 - instalador do host em `installer/`.
 
@@ -51,10 +51,10 @@ SquashFS/netboot continua no roadmap, mas não deve ser tratado como contrato at
 
 | Componente | Papel |
 |---|---|
-| `server/` | composição NixOS do servidor RAGOS |
+| `server/` | composição NixOS do servidor NODE |
 | `client/` | imagem do cliente diskless |
 | `installer/` | instalação do host e bootstrap inicial |
-| `ragc/` | build, publish, rollback e GC da imagem do cliente |
+| `knyc/` | build, publish, rollback e GC da imagem do cliente |
 | `docs/` | documentação canônica |
 | `scripts/` | laboratório, testes e migrações auxiliares |
 
@@ -64,16 +64,16 @@ SquashFS/netboot continua no roadmap, mas não deve ser tratado como contrato at
 - `server/`: servidor.
 - `client/`: imagem do cliente.
 - `installer/`: instalação do servidor.
-- `ragc/`: publicação da imagem.
+- `knyc/`: publicação da imagem.
 - `docs/`: documentação técnica e operacional.
 
 ## Regras para IA/agente
 
-Antes de alterar RAGOS:
+Antes de alterar NODE:
 
 1. Ler `README.md`, `INSTRUCT.md`, `INSTRUCOES.md`.
 2. Ler documentação do domínio em `docs/`.
-3. Verificar se a mudança é servidor, cliente, installer ou ragc.
+3. Verificar se a mudança é servidor, cliente, installer ou knyc.
 4. Não misturar mudança de contrato com refatoração.
 5. Para boot/storage/rede, exigir plano de rollback.
 6. Para NFS/PXE/iPXE, validar fluxo completo.
@@ -97,4 +97,4 @@ Antes de alterar RAGOS:
 - [[01-MOCs/Mapa - NixOS e Infra Declarativa]]
 - [[01-MOCs/Mapa - Linux e Sistemas]]
 - [[01-MOCs/Mapa - Debug Testes e Qualidade]]
-- [[03-Projetos/RAGOS Installer]]
+- [[03-Projetos/NODE Installer]]

@@ -68,7 +68,7 @@ jobs:
           # Pacotes do flake (packages.x86_64-linux.*)
           - 'kryonix'
           - 'kryonix-home'
-          - 'kryonix-installer'
+          - 'kryxd'
           - 'kryonix-hardware-probe'
           - 'kryonix-disk-planner'
           - 'kryonix-optimizer'

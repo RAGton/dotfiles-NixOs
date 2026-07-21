@@ -93,7 +93,7 @@ Todos os arquivos da Fase 4 existem e têm conteúdo substantivo:
 |------|--------|-----------|
 | `brain.env` nunca no nix store | ✅ | Todos os serviços usam `EnvironmentFile = "-${cfg.environmentFile}"` (prefixo `-` = opcional) |
 | Secrets hardcoded em `.nix` / `modules/` | ✅ (limpo) | grep por `KRYONIX_BRAIN_KEY`, `api_key` nos arquivos `.nix` retornou zero resultados fora de strings de opção/descrição |
-| `npmDepsHash` atualizado | ✅ | `packages/kryonix-installer.nix:10` contém hash real |
+| `npmDepsHash` atualizado | ✅ | `packages/kryxd.nix:10` contém hash real |
 | CVEs npm do installer confirmados zero | ⚠️ | Sem evidência de `npm audit` ter sido executado recentemente |
 | `neo4j.env` e `kora.env` no worktree | ⚠️ | Ambos em `/etc/kryonix/` com owner `root:root`; não estão no `.gitignore` explicitamente verificado |
 
@@ -136,7 +136,7 @@ Todos os arquivos da Fase 4 existem e têm conteúdo substantivo:
 | `callPackage` para todos os packages | ✅ | `flake/packages.nix` usa `callPackage` para todos |
 | `kryonix-cli.nix` como package | ✅ | `packages/kryonix-cli.nix` (105 linhas) |
 | `kryonix-home.nix` isolado | ✅ | `packages/kryonix-home.nix` |
-| `kryonix-installer/` estruturado | ⚠️ | Estruturado, mas `installPhase` não chama `npm run build` |
+| `kryxd/` estruturado | ⚠️ | Estruturado, mas `installPhase` não chama `npm run build` |
 
 ### GOVERNANÇA
 
@@ -199,7 +199,7 @@ Git log downstream (últimos 10):
 ### Bugs confirmados
 
 **[BUG-1] `installPhase` do installer.nix não executa `npm run build`**
-- Arquivo: `packages/kryonix-installer.nix:19`
+- Arquivo: `packages/kryxd.nix:19`
 - O que há: `cp -r static/* $out/dist/` copia assets pré-compilados do diretório `static/`
 - O que deveria: executar `npm run build` (Vite) e copiar `dist/` gerado
 - Impacto: o binário do installer serve o frontend pré-compilado commitado, não o build atual do código fonte React
@@ -280,7 +280,7 @@ Git log downstream (últimos 10):
 **B1. Para Kryonix ser instalável por terceiros faltam**:
 - `templates.default` no flake
 - Documentação de "consumer vs maintainer"
-- `kryonix-installer` com build frontend correto
+- `kryxd` com build frontend correto
 
 **B2. Documentação está densa demais, não escassa**
 - 1175 arquivos `.md` dificultam encontrar a fonte de verdade
@@ -312,7 +312,7 @@ Git log downstream (últimos 10):
 **Justificativa**: Bug que faz o artefato Nix não refletir o código fonte real; afeta qualidade do release.
 
 ```nix
-# packages/kryonix-installer.nix — substituir installPhase de:
+# packages/kryxd.nix — substituir installPhase de:
 cp -r static/* $out/dist/
 # para:
 npm run build

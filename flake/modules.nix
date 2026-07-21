@@ -61,6 +61,38 @@
           ../profiles/default.nix
         ];
       };
+
+    # Ecossistema Node (PXE, Diskless, Think Server, Instalador)
+    node-client =
+      { ... }:
+      {
+        imports = [ ../modules/node/core/client ];
+      };
+
+    node-server =
+      { ... }:
+      {
+        imports = [ ../modules/node/core/server ];
+      };
+
+    node-think =
+      { ... }:
+      {
+        imports = [ ../modules/node/think/think-server.nix ];
+      };
+
+    node-installer =
+      { ... }:
+      {
+        imports = [ ../modules/node/installer ];
+      };
+
+    # Service Providers (contratos de injeção em /etc)
+    services-node =
+      { ... }:
+      {
+        imports = [ ../modules/services/node/default.nix ];
+      };
   };
 
   homeManagerModules = {

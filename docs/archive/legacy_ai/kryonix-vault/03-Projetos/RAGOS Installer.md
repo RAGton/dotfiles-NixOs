@@ -1,15 +1,15 @@
-# RAGOS Installer
+# NODE Installer
 
 ## Repositório
 
-- GitHub: `RAGEnterprise/ragos-installer`
+- GitHub: `RAGEnterprise/node-installer`
 - Visibilidade: público
 - Branch padrão: `main`
-- Relação: instalador oficial do ecossistema RAGOS
+- Relação: instalador oficial do ecossistema NODE
 
 ## Descrição operacional
 
-O RAGOS Installer prepara o servidor base, gera parâmetros de implantação e executa o pipeline de instalação do ambiente.
+O NODE Installer prepara o servidor base, gera parâmetros de implantação e executa o pipeline de instalação do ambiente.
 
 Ele concentra:
 
@@ -30,7 +30,7 @@ UI React
       -> Particionamento / montagem
         -> params.nix
           -> nixos-install
-            -> sistema RAGOS instalado
+            -> sistema NODE instalado
 ```
 
 ## Escopo
@@ -42,22 +42,22 @@ Cobre:
 - preparação de disco/filesystem;
 - geração do plano aplicado ao sistema alvo;
 - execução do `nixos-install`;
-- integração com o repo principal RAGOS.
+- integração com o repo principal NODE.
 
 Não cobre:
 
 - operação contínua do servidor já instalado;
 - publicação de imagens de cliente;
-- ciclo operacional do `ragc`;
+- ciclo operacional do `knyc`;
 - administração contínua do ambiente diskless.
 
 ## Contratos críticos
 
-- `RAGOS_DISK_MODE = one|two`
-- `RAGOS_SYS_DISK`
-- `RAGOS_DATA_DISK`
-- `RAGOS_ROOT_FS`
-- `RAGOS_DATA_FS`
+- `NODE_DISK_MODE = one|two`
+- `NODE_SYS_DISK`
+- `NODE_DATA_DISK`
+- `NODE_ROOT_FS`
+- `NODE_DATA_FS`
 
 ## Layouts declarados
 
@@ -96,7 +96,7 @@ Antes de alterar este repo:
 4. Nunca adicionar detecção agressiva de discos.
 5. Não tratar suporte parcial como suporte completo.
 6. Testar UI, backend e fluxo shell quando o contrato mudar.
-7. Atualizar submodule/ponteiro no repo `ragos` quando necessário.
+7. Atualizar submodule/ponteiro no repo `node` quando necessário.
 
 ## Riscos principais
 
@@ -110,7 +110,7 @@ Antes de alterar este repo:
 
 ## MOCs relacionados
 
-- [[03-Projetos/RAGOS]]
+- [[03-Projetos/NODE]]
 - [[01-MOCs/Mapa - NixOS e Infra Declarativa]]
 - [[01-MOCs/Mapa - Linux e Sistemas]]
 - [[01-MOCs/Mapa - Frontend Moderno]]

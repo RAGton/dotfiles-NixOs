@@ -18,5 +18,5 @@ O fluxo completo da instalação deve ser capaz de passar pelos seguintes Gates 
 
 Para testar o processo de forma seca (`dry-run`):
 ```bash
-kryonix-installer --dry-run /tmp/install-plan.json
+kryxd --dry-run /tmp/install-plan.json
 ```

@@ -40,7 +40,7 @@ let
         repoOverlays.atlauncher-api-user-agent-workaround
         repoOverlays.xeus-cling-no-checks
         repoOverlays.codex-overlay
-        repoOverlays.kryonix-installer-tools
+        repoOverlays.kryxd-tools
         repoOverlays.kryonix-themes
       ];
       config.allowUnfree = true;

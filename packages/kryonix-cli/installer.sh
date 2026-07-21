@@ -39,7 +39,7 @@ kryonix_install() {
   case "$sub" in
     server)
       blue_line "Iniciando servidor do instalador (Axum)..."
-      kryonix-installer
+      kryxd
       ;;
     gui|tui)
       blue_line "Interface $sub ainda nao implementada na Fase 1."

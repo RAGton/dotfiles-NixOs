@@ -11,8 +11,9 @@ Este documento lista os próximos passos e metas do projeto Kryonix. O foco atua
 - [x] Atualizar contexto de IA (`docs/ai/`).
 
 ### 2. Infraestrutura MCP (Model Context Protocol)
-- [ ] Ativar MCP Filesystem (`vault-readonly`) no repositório.
-- [ ] Ativar MCP GitHub.
+- [x] Implementar wrappers sandboxados para Filesystem, Git, NixOS Docs e Sequential Thinking.
+- [ ] Ativar e validar os wrappers MCP no host cliente.
+- [ ] Definir RBAC e escopo read-only antes de reconsiderar MCP GitHub.
 - [ ] Validar e fazer deploy seguro do servidor MCP nativo do `kryonix-brain`.
 - [ ] Ativar MCP Neo4j (Read-only).
 - [ ] Ativar MCP Ollama.

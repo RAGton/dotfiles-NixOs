@@ -18,7 +18,7 @@ A visão central do projeto é: **o servidor é o centro do sistema, não o endp
 O repositório declara entregar:
 
 - boot UEFI com PXE + iPXE + HTTP;
-- publicação geracional do cliente por `ragc`;
+- publicação geracional do cliente por `knyc`;
 - canais oficiais `generic`, `lab` e `rescue`;
 - perfis `desktop-generic`, `desktop-lab`, `rescue-minimal` e `hyperv-debug`;
 - inventário externo em `/etc/kryonix-inventory/clients.nix`;
@@ -54,7 +54,7 @@ SquashFS/netboot continua no roadmap, mas não deve ser tratado como contrato at
 | `server/` | composição NixOS do servidor KRYONIX |
 | `client/` | imagem do cliente diskless |
 | `installer/` | instalação do host e bootstrap inicial |
-| `ragc/` | build, publish, rollback e GC da imagem do cliente |
+| `knyc/` | build, publish, rollback e GC da imagem do cliente |
 | `docs/` | documentação canônica |
 | `scripts/` | laboratório, testes e migrações auxiliares |
 
@@ -64,7 +64,7 @@ SquashFS/netboot continua no roadmap, mas não deve ser tratado como contrato at
 - `server/`: servidor.
 - `client/`: imagem do cliente.
 - `installer/`: instalação do servidor.
-- `ragc/`: publicação da imagem.
+- `knyc/`: publicação da imagem.
 - `docs/`: documentação técnica e operacional.
 
 ## Regras para IA/agente
@@ -73,7 +73,7 @@ Antes de alterar KRYONIX:
 
 1. Ler `README.md`, `INSTRUCT.md`, `INSTRUCOES.md`.
 2. Ler documentação do domínio em `docs/`.
-3. Verificar se a mudança é servidor, cliente, installer ou ragc.
+3. Verificar se a mudança é servidor, cliente, installer ou knyc.
 4. Não misturar mudança de contrato com refatoração.
 5. Para boot/storage/rede, exigir plano de rollback.
 6. Para NFS/PXE/iPXE, validar fluxo completo.

@@ -53,7 +53,7 @@ O RagOS VE já padroniza:
 - `/etc/os-release`
 - `/etc/issue`
 
-Os assets vivem em `files/wallpaper/` e o branding do sistema é centralizado em `modules/nixos/branding/ragos/default.nix`.
+Os assets vivem em `files/wallpaper/` e o branding do sistema é centralizado em `modules/nixos/branding/node/default.nix`.
 
 ## Direção futura
 
@@ -61,7 +61,7 @@ O objetivo não é virar uma distro genérica. A direção é manter o projeto c
 
 - ISOs de instalação do próprio RagOS VE
 - provisionamento mais previsível para novos hosts
-- operação diária mais simples via `ragos`
+- operação diária mais simples via `node`
 
 ## Limites deliberados
 

@@ -10,7 +10,7 @@ Este arquivo é o **ponto de entrada** da documentação. Ele existe para:
 
 - Projeto (visão geral): [../README.md](../README.md)
 - Projeto (English): [../README-en.md](../README-en.md)
-- Visão do produto: [RAGOS_VE.md](RAGOS_VE.md)
+- Visão do produto: [NODE_VE.md](NODE_VE.md)
 - Quick start (técnico): [QUICK_START.md](QUICK_START.md)
 - Status (o que está feito / pendente): [STATUS.md](STATUS.md)
 
@@ -33,7 +33,7 @@ Este arquivo é o **ponto de entrada** da documentação. Ele existe para:
 
 ### Operação (day-2)
 
-- Operação diária e CLI `ragos`: [OPERATIONS.md](OPERATIONS.md)
+- Operação diária e CLI `node`: [OPERATIONS.md](OPERATIONS.md)
 - Manual do Caelestia no RagOS VE: [CAELESTIA_MANUAL.md](CAELESTIA_MANUAL.md)
 - Host principal `glacier`: [GLACIER.md](GLACIER.md)
 - Makefile (atalhos e fluxo): [MAKEFILE_GUIDE.md](MAKEFILE_GUIDE.md)

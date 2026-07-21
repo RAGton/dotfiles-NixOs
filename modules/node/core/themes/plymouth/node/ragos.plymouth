@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=NODE
+Description=NODE boot splash
+ModuleName=script
+
+[script]
+ImageDir=@PLYMOUTH_THEME_DIR@
+ScriptFile=@PLYMOUTH_THEME_DIR@/node.script
