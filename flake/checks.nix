@@ -21,7 +21,7 @@ let
       {
         nativeBuildInputs = [
           lib.checkPkgs.jq
-          inputs.self.packages.x86_64-linux.kryonix
+          inputs.self.packages.x86_64-linux.kryx
         ];
       }
       ''
