@@ -69,7 +69,7 @@ in
 
   programs.plasma = {
     # ATENÇÃO: overrideConfig força a reescrita do plasma-manager. Se causar problemas com applets, remova.
-    overrideConfig = true;
+    overrideConfig = false;
 
     # --- Tema WhiteSur-KDE (macOS/Hyprland Glass) ----------------------------
     workspace = {
@@ -115,7 +115,7 @@ in
         location = "top";
         alignment = "center";
         height = 36;
-        floating = true;
+        floating = false;
         lengthMode = "fill";
         hiding = "none";
         opacity = "translucent";
@@ -191,7 +191,7 @@ in
         screen = 0;
         alignment = "center";
         height = 56;
-        floating = true;
+        floating = false;
         lengthMode = "fit";
         hiding = "dodgewindows";
         opacity = "translucent";
