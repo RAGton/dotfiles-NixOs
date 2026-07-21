@@ -10,7 +10,7 @@
 #   ou referenciar diretamente em desktop/kde/theme.nix:
 #   workspace.wallpaper = "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora/kryonix-anime-city-01.png";
 # =============================================================================
-{ stdenvNoCC, ... }:
+{ stdenvNoCC, kryonixAssets, ... }:
 stdenvNoCC.mkDerivation {
   pname = "kryonix-wallpapers";
   version = "1.0.0";
@@ -25,16 +25,8 @@ stdenvNoCC.mkDerivation {
 
     install -dm755 "$out/share/wallpapers/kryonix-aurora"
 
-    # Wallpapers processados
-    cp -r processed/*.png "$out/share/wallpapers/kryonix-aurora/"
-
-    # Logos e assets
-    install -dm755 "$out/share/wallpapers/kryonix-aurora/logos"
-    cp logos/*.png "$out/share/wallpapers/kryonix-aurora/logos/"
-
-    # Manifesto e licença
-    install -dm755 "$out/share/wallpapers/kryonix-aurora/sources"
-    cp sources/manifest.json "$out/share/wallpapers/kryonix-aurora/sources/"
+    # Wallpapers from Kryonix Assets
+    cp -r ${kryonixAssets}/share/kryonix/assets/wallpapers/*.png "$out/share/wallpapers/kryonix-aurora/"
 
     runHook postInstall
   '';
