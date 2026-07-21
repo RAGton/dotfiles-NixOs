@@ -32,7 +32,7 @@
     inputs.nix-flatpak.nixosModules.nix-flatpak
     ../../shared/nixpkgs
 
-    # Branding global (RagOS).
+    # Branding global (Kryonix).
     # Mantemos aqui para que todos os hosts herdem o mesmo "nome do sistema".
     ../branding/kryonix
 

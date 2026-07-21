@@ -4,6 +4,10 @@ dhcp || goto fail
 
 # Preferir o "filename" fornecido pelo DHCP (dnsmasq dhcp-boot),
 # que normalmente já é uma URL completa para /boot.ipxe.
+
+console --picture splash.png ||
+colour --basic 0 7 || 
+
 isset ${filename} || goto legacy
 chain ${filename} || goto fail
 

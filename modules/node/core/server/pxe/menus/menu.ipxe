@@ -6,29 +6,16 @@ dhcp || shell
 # UEFI/PXE → iPXE → (DHCP dhcp-boot) → boot.ipxe (gerado pelo knyc)
 # dnsmasq fornece a URL/arquivo em ${filename}. Mantemos fallback em /boot.ipxe.
 
-menu --name node-menu NODE Think Client Boot
-item --gap --             ===============================
-item --gap --             NODE THINK CLIENT
-item --gap --             ===============================
-item --gap --   Hostname : ${hostname}
-item --gap --   IP       : ${net0/ip}
-item --gap --   MAC      : ${net0/mac}
-item --gap --
-item boot       Bootar NODE (boot.ipxe)
-item shell      Shell iPXE
-item reboot     Reboot
+# Ocultar terminal e mostrar splash screen de loading
+console --picture splash.png ||
+colour --basic 0 7 || 
 
-choose --timeout 5000 --default boot selected || goto cancel
-goto ${selected}
+# Prompt oculto de 2 segundos. Se pressionar 's', abre o shell.
+prompt --key s --timeout 2000 ... || goto boot
 
 :boot
-chain ${filename} || chain /boot.ipxe || shell
+chain ${filename} || chain /boot.ipxe || goto fail
 
-:shell
+:fail
+echo Falha ao dar boot no Kryonix Node Client.
 shell
-
-:reboot
-reboot
-
-:cancel
-reboot
