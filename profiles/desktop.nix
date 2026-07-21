@@ -24,6 +24,10 @@ let
 
 in
 {
+  imports = [
+    ../modules/nixos/boot/silent-boot.nix
+  ];
+
   options.kryonix.profiles.desktop = {
     enable = lib.mkEnableOption "Perfil desktop (virtualização + desenvolvimento + gaming opcional)";
 
@@ -37,6 +41,9 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    kryonix.boot.silent.enable = lib.mkDefault true;
+    kryonix.desktop.sddm.theme.preset = lib.mkDefault "kryonix-clean";
+
     kryonix.features = {
       virtualization.enable = lib.mkDefault true;
       development.enable = lib.mkDefault true;

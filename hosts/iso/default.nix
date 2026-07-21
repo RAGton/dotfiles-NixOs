@@ -26,6 +26,9 @@
 
     # Branding Kryonix (GRUB tema + Plymouth + os-release)
     ../../modules/nixos/branding/kryonix/default.nix
+
+    # Boot modules
+    inputs.self.nixosModules.boot
   ]
   ++ lib.optionals offlineMode [
     inputs.self.nixosModules.full-profile
@@ -72,16 +75,18 @@
   isoImage.volumeID = lib.mkForce "KRYONIX";
   isoImage.appendToMenuLabel = lib.mkForce "Installer";
 
+  # Ativar silent boot
+  kryonix.boot.silent.enable = true;
+
   # Boot universal (Ventoy, pendrive direto, EFI e Legacy BIOS)
   isoImage.makeEfiBootable = true;
   isoImage.makeUsbBootable = true;
 
   # Plymouth: cd-minimal desabilita com mkForce, precisamos sobrescrever
   boot.plymouth.enable = lib.mkForce true;
-
-  # Boot silencioso para Plymouth aparecer corretamente
   boot.initrd.verbose = lib.mkForce false;
   boot.consoleLogLevel = lib.mkForce 0;
+
   # IMPORTANT: usar mkAfter, NUNCA mkForce. O iso-image.nix injeta os params
   # essenciais do boot da Live ISO em boot.kernelParams — em especial
   # "root=LABEL=${volumeID}" (stage-1 script-based monta o CD por label). Um
@@ -90,13 +95,6 @@
   # "Attempted to kill init! exitcode=0x7f00". mkAfter apenas ANEXA os
   # cosméticos abaixo, preservando root=LABEL e boot.shell_on_fail.
   boot.kernelParams = lib.mkAfter [
-    "quiet"
-    "splash"
-    "loglevel=0"
-    "udev.log_priority=3"
-    "systemd.show_status=false"
-    "rd.systemd.show_status=false"
-    "rd.udev.log_level=3"
     "vt.global_cursor_default=0"
     "plymouth.ignore-serial-consoles"
   ];

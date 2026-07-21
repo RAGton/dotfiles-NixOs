@@ -1,0 +1,6 @@
+{ ... }:
+{
+  imports = [
+    ./silent-boot.nix
+  ];
+}

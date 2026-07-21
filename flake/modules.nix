@@ -8,6 +8,13 @@
         imports = [ ../lib/options.nix ];
       };
 
+    # Módulo de boot (Silent Boot, Plymouth, etc)
+    boot =
+      { ... }:
+      {
+        imports = [ ../modules/nixos/boot ];
+      };
+
     # Base comum compartilhada (nix settings, rede, locale, pacotes base)
     # Equivale ao que hosts/common provê — downstream importa como módulo
     common =

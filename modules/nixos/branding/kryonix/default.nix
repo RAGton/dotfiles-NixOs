@@ -291,7 +291,7 @@ in
 
       boot = {
         plymouth = {
-          enable = true;
+          enable = lib.mkDefault true;
           theme = "kryonix";
           themePackages = [ plymouthTheme ];
         };
