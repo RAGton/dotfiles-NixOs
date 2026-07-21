@@ -159,7 +159,9 @@ let
   grubTheme = pkgs.runCommand "kryonix-grub-theme" { } ''
     themeDir="$out/kryonix"
     mkdir -p "$themeDir"
-    cp ${./../../../../assets/grub-theme/theme.txt} "$themeDir/theme.txt"
+    cp -r ${pkgs.sleek-grub-theme.override { withStyle = "dark"; }}/* "$themeDir/"
+    chmod -R +w "$themeDir"
+    sed -i 's/#121212/#081018/g' "$themeDir/theme.txt"
   '';
 
   blackPixel = pkgs.runCommand "black-pixel.png" { nativeBuildInputs = [ pkgs.imagemagick ]; } ''
@@ -295,8 +297,8 @@ in
         };
 
         loader.grub = {
-          splashImage = lib.mkForce grubSplash;
-          theme = lib.mkForce null;
+          splashImage = lib.mkForce null;
+          theme = lib.mkForce "${grubTheme}/kryonix";
           splashMode = lib.mkDefault "stretch";
           backgroundColor = lib.mkDefault "#081018";
           gfxmodeEfi = lib.mkDefault "auto";
