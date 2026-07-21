@@ -11,7 +11,7 @@ ForceLastUser=true
 ForcePasswordFocus=true
 ForceHideCompletePassword=false
 
-HeaderText="NODE Control"
+HeaderText="Kryonix Node Think"
 SubHeaderText="Acesso operacional"
 WelcomeText="Controle previsivel para clientes diskless"
 HostLabel="@hostLabel@"

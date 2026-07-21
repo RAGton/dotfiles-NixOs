@@ -97,7 +97,7 @@ Item {
         spacing: 10
 
         Text {
-            text: config.HeaderText || "NODE Control"
+            text: config.HeaderText || "Kryonix Node Think"
             color: root.accentSoft
             font.family: "Noto Sans"
             font.pointSize: 12
@@ -205,7 +205,7 @@ Item {
                     spacing: 4
 
                     Text {
-                        text: config.HeaderText || "NODE Control"
+                        text: config.HeaderText || "Kryonix Node Think"
                         color: root.accentSoft
                         font.family: "Noto Sans"
                         font.pointSize: 10
@@ -222,7 +222,7 @@ Item {
                     }
 
                     Text {
-                        text: "Greeter declarativo do cliente NODE"
+                        text: "Greeter declarativo do cliente Kryonix Node"
                         color: root.secondaryText
                         font.family: "Noto Sans"
                         font.pointSize: 11
