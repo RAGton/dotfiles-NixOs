@@ -124,7 +124,7 @@ in
             name = "org.latgardi.darwinmenu";
             config = {
               General = {
-                icon = "${pkgs.kryonix-branding}/share/icons/hicolor/scalable/apps/kryonix-logo.svg";
+                icon = "${pkgs.kryonix-branding}/share/icons/hicolor/scalable/apps/kryonix-logo.png";
               };
             };
           }
