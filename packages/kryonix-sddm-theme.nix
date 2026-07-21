@@ -23,7 +23,7 @@ stdenvNoCC.mkDerivation {
   pname = "kryonix-sddm-theme";
   version = "1.1";
 
-  src = ../desktop/sddm;
+  src = "${kryonixAssets}/share/kryonix/assets/sddm";
 
   dontConfigure = true;
   dontBuild = true;

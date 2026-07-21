@@ -274,30 +274,35 @@
   # Como
   # - `pkgs.bonafides-theme` (Kvantum + desktoptheme + color-schemes + Aurorae +
   #   wallpapers) é usado em desktop/kde/{kvantum,theme,tiling}.nix.
-  kryonix-themes = final: _prev: let
-    kryonixAssets = inputs.kryonix-assets.packages.${final.system}.default;
-  in {
-    bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
-    kryonix-branding = final.callPackage ../packages/kryonix-branding.nix { inherit kryonixAssets; };
-    kryonix-waywallen = final.callPackage ../packages/kryonix-waywallen.nix { };
-    kryonix-open-wallpaper-engine = final.callPackage ../packages/kryonix-open-wallpaper-engine.nix { };
-    kryonix-waywallen-display-kde = final.callPackage ../packages/kryonix-waywallen-display-kde.nix { };
-    kryonix-darwinmenu = final.callPackage ../packages/darwinmenu.nix { };
-    kryonix-plasma-theme = final.callPackage ../packages/kryonix-plasma-theme.nix {
-      kryonixBranding = final.kryonix-branding;
-    };
-    kryonix-wallpapers = final.callPackage ../packages/kryonix-wallpapers.nix { inherit kryonixAssets; };
+  kryonix-themes =
+    final: _prev:
+    let
+      kryonixAssets = inputs.kryonix-assets.packages.${final.system}.default;
+    in
+    {
+      bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
+      kryonix-branding = final.callPackage ../packages/kryonix-branding.nix { inherit kryonixAssets; };
+      kryonix-waywallen = final.callPackage ../packages/kryonix-waywallen.nix { };
+      kryonix-open-wallpaper-engine = final.callPackage ../packages/kryonix-open-wallpaper-engine.nix { };
+      kryonix-waywallen-display-kde = final.callPackage ../packages/kryonix-waywallen-display-kde.nix { };
+      kryonix-darwinmenu = final.callPackage ../packages/darwinmenu.nix { };
+      kryonix-plasma-theme = final.callPackage ../packages/kryonix-plasma-theme.nix {
+        kryonixBranding = final.kryonix-branding;
+      };
+      kryonix-wallpapers = final.callPackage ../packages/kryonix-wallpapers.nix {
+        inherit kryonixAssets;
+      };
 
-    # Tema SDDM "Kryonix Aurora" (QML próprio, dark navy/accent #38BDF8).
-    # Consumido (opt-in) por modules/nixos/desktop/kde/default.nix.
-    kryonix-sddm-theme = final.callPackage ../packages/kryonix-sddm-theme.nix {
-      kryonixBranding = final.kryonix-branding;
-      inherit kryonixAssets;
-    };
+      # Tema SDDM "Kryonix Aurora" (QML próprio, dark navy/accent #38BDF8).
+      # Consumido (opt-in) por modules/nixos/desktop/kde/default.nix.
+      kryonix-sddm-theme = final.callPackage ../packages/kryonix-sddm-theme.nix {
+        kryonixBranding = final.kryonix-branding;
+        inherit kryonixAssets;
+      };
 
-    # Backend D-Bus da Kryonix Bar (org.kryonix.Bar). UI (QML) virá depois.
-    kryonix-bar-backend = final.callPackage ../packages/kryonix-bar { };
-  };
+      # Backend D-Bus da Kryonix Bar (org.kryonix.Bar). UI (QML) virá depois.
+      kryonix-bar-backend = final.callPackage ../packages/kryonix-bar { };
+    };
 
   # Kryonix Installer Tools
   kryxd-tools = final: _prev: {

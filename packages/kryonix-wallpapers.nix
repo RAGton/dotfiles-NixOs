@@ -15,7 +15,7 @@ stdenvNoCC.mkDerivation {
   pname = "kryonix-wallpapers";
   version = "1.0.0";
 
-  src = ../desktop/wallpapers/kryonix-aurora;
+  src = "${kryonixAssets}/share/kryonix/assets/wallpapers";
 
   dontConfigure = true;
   dontBuild = true;

@@ -19,15 +19,6 @@ let
   node = import ../server/node-cli.nix {
     inherit pkgs;
   };
-  nodePlymouthTheme = pkgs.callPackage ../themes/plymouth/node { };
-  nodeSddmTheme = pkgs.callPackage ../themes/sddm/node-control {
-    nodeBrandingAssets = brandingAssets;
-  };
-  plasmaBrandingPackages = pkgs.callPackage ../themes/plasma {
-    nodeBrandingAssets = brandingAssets;
-  };
-  nodePlasmaTheme = plasmaBrandingPackages.nodePlasmaBranding;
-  nodePlasmaKdeStoreBundles = plasmaBrandingPackages.nodePlasmaKdeStoreBundles;
   repoHygieneLint = pkgs.writeShellApplication {
     name = "repo-hygiene-lint";
     runtimeInputs = with pkgs; [
@@ -51,10 +42,6 @@ in
 {
   packages = {
     inherit knyc node;
-    "node-plymouth-theme" = nodePlymouthTheme;
-    "node-sddm-theme" = nodeSddmTheme;
-    "node-plasma-theme" = nodePlasmaTheme;
-    "node-plasma-kde-store-bundles" = nodePlasmaKdeStoreBundles;
     "repo-hygiene-lint" = repoHygieneLint;
     default = knyc;
   }

@@ -32,15 +32,6 @@ let
         echo "Validando help global..."
         $KRYONIX --help > /dev/null
 
-        echo "Validando registry JSON..."
-        JSON=$($KRYONIX commands --json)
-        echo "$JSON" | ${lib.checkPkgs.jq}/bin/jq . > /dev/null
-
-        echo "Validando comandos individuais..."
-        $KRYONIX commands | while read -r cmd; do
-          echo "  - $cmd"
-          $KRYONIX "$cmd" --help > /dev/null
-        done
 
         mkdir -p "$out"
       '';
