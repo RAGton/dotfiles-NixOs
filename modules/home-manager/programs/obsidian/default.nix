@@ -11,9 +11,9 @@ let
       export ELECTRON_OZONE_PLATFORM_HINT="''${ELECTRON_OZONE_PLATFORM_HINT:-auto}"
       unset ELECTRON_RUN_AS_NODE ELECTRON_NO_ATTACH_CONSOLE
 
-      # NVIDIA + Wayland + Electron pode congelar em alguns hosts; este launcher
-      # prioriza estabilidade ao abrir o Obsidian com aceleração GPU desativada.
-      exec ${pkgs.obsidian}/bin/obsidian --disable-gpu "$@"
+      # GPUs híbridas/legadas + Wayland + Electron podem travar no processo GPU
+      # do Chromium. Mantém Wayland ativo, mas evita o caminho GPU instável.
+      exec ${pkgs.obsidian}/bin/obsidian --disable-gpu --disable-gpu-compositing "$@"
     '';
   };
   ragObsidianCompat = pkgs.writeShellApplication {
