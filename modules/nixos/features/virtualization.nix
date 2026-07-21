@@ -94,15 +94,18 @@ in
       storage = {
         backend = lib.mkOption {
           type = lib.types.str;
-          default = "dir";
+          default = "zfs";
+          description = "Backend de storage do Incus";
         };
         poolName = lib.mkOption {
           type = lib.types.str;
-          default = "default";
+          default = "kryonix-incus";
+          description = "Nome da pool do Incus";
         };
         source = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
-          default = null;
+          default = "glacier-data/incus-storage";
+          description = "Dataset/device fonte para o storage do Incus";
         };
       };
 
@@ -110,10 +113,12 @@ in
         mode = lib.mkOption {
           type = lib.types.str;
           default = "managed-nat";
+          description = "Modo de rede do Incus";
         };
         bridgeName = lib.mkOption {
           type = lib.types.str;
-          default = "incusbr0";
+          default = "incusbr-kryonix";
+          description = "Nome da interface de bridge do Incus";
         };
       };
     };
@@ -148,54 +153,7 @@ in
       };
     };
 
-    incus = {
-      enable = lib.mkEnableOption "Habilita Incus";
 
-      ui = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = "Habilita Incus UI";
-        };
-      };
-
-      socketActivation = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = "Habilita socket activation no Incus";
-      };
-
-      storage = {
-        backend = lib.mkOption {
-          type = lib.types.str;
-          default = "zfs";
-          description = "Backend de storage do Incus";
-        };
-        poolName = lib.mkOption {
-          type = lib.types.str;
-          default = "kryonix-incus";
-          description = "Nome da pool do Incus";
-        };
-        source = lib.mkOption {
-          type = lib.types.str;
-          default = "glacier-data/incus-storage";
-          description = "Dataset/device fonte para o storage do Incus";
-        };
-      };
-
-      network = {
-        mode = lib.mkOption {
-          type = lib.types.str;
-          default = "managed-nat";
-          description = "Modo de rede do Incus";
-        };
-        bridgeName = lib.mkOption {
-          type = lib.types.str;
-          default = "incusbr-kryonix";
-          description = "Nome da interface de bridge do Incus";
-        };
-      };
-    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -290,14 +248,7 @@ in
       enableExtensionPack = true;
     };
 
-    # =========================
-    # Incus
-    # =========================
-    virtualisation.incus = lib.mkIf cfg.incus.enable {
-      enable = true;
-      ui.enable = cfg.incus.ui.enable;
-      socketActivation = cfg.incus.socketActivation;
-    };
+
 
     # =========================
     # System Packages
