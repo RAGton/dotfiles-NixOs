@@ -10,6 +10,8 @@ let
   cfg = config.kryonix.installer.kiosk;
 in
 {
+  imports = [ ../services/kryxd ];
+
   options.kryonix.installer.kiosk = {
     enable = lib.mkEnableOption "Kiosk web do instalador (Cage + Chromium)";
     port = lib.mkOption {
@@ -121,26 +123,11 @@ in
         };
       };
 
-      # Backend do instalador — roda como root para poder chamar disko/nixos-install
-      systemd.services.kryxd-backend = {
-        description = "Kryonix Installer Backend";
-        wantedBy = [ "multi-user.target" ];
-        after = [ "network.target" ];
+      services.kryxd.enable = true;
+      services.kryxd.port = cfg.port;
+
+      systemd.services.kryxd = {
         before = [ "getty@tty1.service" ];
-        # Utilitários que o backend chama por nome (sem caminho absoluto).
-        # systemd services NÃO herdam /run/current-system/sw/bin, então cada
-        # binário precisa estar explícito aqui — senão os safety checks (que
-        # rodam `which disko`/`which nixos-install`) recusam a instalação com
-        # "Safety checks falharam".
-        # - util-linux: lsblk/findmnt (disk.rs) — senão GET /api/disks dá 500;
-        # - networkmanager: nmcli (network.rs) — senão a etapa Rede mostra
-        #   "0 interfaces detectadas" e bloqueia o wizard;
-        # - which: safety.rs usa Command::new("which") — sem ele TODO check falha;
-        # - curl: safety.rs check_network_for_nix (cache.nixos.org);
-        # - disko: safety + executor (disko --mode disko);
-        # - nixos-install-tools: executor (nixos-install);
-        # - nix: nixos-install precisa do nix no PATH para avaliar o flake.
-        # - mkpasswd: para gerar hash yescrypt (kryxd usa mkpasswd -m yescrypt).
         path = [
           pkgs.util-linux
           pkgs.networkmanager
@@ -151,19 +138,11 @@ in
           pkgs.mkpasswd
           config.nix.package
         ];
-        serviceConfig = {
-          ExecStart = "${pkgs.kryxd}/bin/kryxd";
-          Restart = "on-failure";
-          User = "root";
-        };
         environment = {
           KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
           KRYONIX_INSTALLER_FLAKE = "${inputs.self.outPath}";
           KRYONIX_ENGINE_SOURCE = "/etc/kryonix";
           KRYONIX_HARDWARE_PROBE = "${pkgs.kryonix-hardware-probe}/bin/kryonix-hardware-probe";
-          # O CLI do disko (disko --mode disko <config.nix>) avalia
-          # `import <nixpkgs>` em cli.nix; sem NIX_PATH o particionamento falha
-          # com "file 'nixpkgs' was not found in the Nix search path".
           NIX_PATH = "nixpkgs=${pkgs.path}";
         };
       };
