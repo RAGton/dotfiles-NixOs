@@ -129,6 +129,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Kryonix Assets (SSOT visual: logos, wallpapers, sddm themes)
+    kryonix-assets = {
+      url = "github:RAGton/kryonix-assets";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Kernel CachyOS de terceiros (zfs e LTO alinhados)
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel";

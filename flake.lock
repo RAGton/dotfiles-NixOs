@@ -316,6 +316,22 @@
         "type": "github"
       }
     },
+    "kryonix-assets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784515157,
+        "narHash": "sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=",
+        "owner": "RAGton",
+        "repo": "kryonix-assets",
+        "rev": "4f83d3fd807d304d3d33501a10b31a4ad933bbf0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "RAGton",
+        "repo": "kryonix-assets",
+        "type": "github"
+      }
+    },
     "kryonix-brain-lightrag": {
       "flake": false,
       "locked": {
@@ -615,6 +631,7 @@
         "hardware": "hardware",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
+        "kryonix-assets": "kryonix-assets",
         "kryonix-brain-lightrag": "kryonix-brain-lightrag",
         "kryonix-home": "kryonix-home",
         "kryx-cli": "kryx-cli",
