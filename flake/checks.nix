@@ -27,8 +27,7 @@ let
       ''
         export KRYONIX_BRAIN_API="http://invalid-runtime-dependency"
         export HOME=$TMPDIR
-
-        KRYONIX=${inputs.self.packages.x86_64-linux.kryonix}/bin/kryonix
+        KRYONIX=${inputs.self.packages.x86_64-linux.kryx}/bin/kryx
 
         echo "Validando help global..."
         $KRYONIX --help > /dev/null

@@ -117,7 +117,7 @@
 
   # Ajuda no debug e instalação
   environment.systemPackages = with pkgs; [
-    kryonix
+    kryx
     kryonix-hardware-probe
     git
     curl
