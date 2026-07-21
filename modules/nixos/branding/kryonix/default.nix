@@ -37,10 +37,10 @@ let
       cfg.edition
     ]
   );
-  # Usa dummy paths/derivations pois assets foram movidos
-  kryonixWallpaper = blackPixel;
-  kryonixGdmWallpaper = blackPixel;
-  kryonixAvatar = blackPixel; # Assuming avatar might be missing or safe to mock
+  # Usa paths reais para os assets
+  kryonixWallpaper = ./../../../../desktop/wallpapers/kryonix-aurora/processed/01.png;
+  kryonixGdmWallpaper = ./../../../../desktop/wallpapers/kryonix-aurora/processed/01.png;
+  kryonixAvatar = ./../../../../assets/avatar/face.png;
   grubSplash =
     pkgs.runCommand "kryonix-grub-splash.png"
       {
