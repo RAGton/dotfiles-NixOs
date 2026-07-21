@@ -317,19 +317,23 @@
       }
     },
     "kryonix-assets": {
-      "flake": false,
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1784515157,
-        "narHash": "sha256-pQpattmS9VmO3ZIQUFn66az8GSmB4IvYhTTCFn6SUmo=",
-        "owner": "RAGton",
-        "repo": "kryonix-assets",
-        "rev": "4f83d3fd807d304d3d33501a10b31a4ad933bbf0",
-        "type": "github"
+        "lastModified": 1784645639,
+        "narHash": "sha256-EpzgrHk4xndy9sAfnyApXtbmsFB8C58u2O4isNC0/Ic=",
+        "ref": "refs/heads/main",
+        "rev": "cca7631a764a76e30172dc7f86cf25ab0b943fcc",
+        "revCount": 4,
+        "type": "git",
+        "url": "file:///home/rocha/kryonix-dev/repos/kryonix-assets"
       },
       "original": {
-        "owner": "RAGton",
-        "repo": "kryonix-assets",
-        "type": "github"
+        "type": "git",
+        "url": "file:///home/rocha/kryonix-dev/repos/kryonix-assets"
       }
     },
     "kryonix-brain-lightrag": {
