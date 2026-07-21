@@ -123,6 +123,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Novo CLI em Rust (standalone)
+    kryx-cli = {
+      url = "github:RAGton/kryx-cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Kernel CachyOS de terceiros (zfs e LTO alinhados)
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel";

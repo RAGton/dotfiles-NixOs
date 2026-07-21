@@ -306,12 +306,6 @@
     kryxd = inputs.kryxd.packages.${final.system}.kryxd;
     kryonix-optimizer = final.callPackage ../packages/kryonix-optimizer { };
     kryonix-monitors = final.callPackage ../packages/kryonix-monitors.nix { };
-    kryonix = final.callPackage ../packages/kryonix-cli.nix {
-      kryonixHome = final.kryonix-home;
-      kryonix-hardware-probe = final.kryonix-hardware-probe;
-      kryonix-disk-planner = final.kryonix-disk-planner;
-      kryxd = final.kryxd;
-    };
-    kryx = final.callPackage ../packages/kryx/default.nix { };
+    kryx = inputs.kryx-cli.packages.${final.system}.default;
   };
 }

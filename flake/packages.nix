@@ -29,18 +29,11 @@ lib.forAllSystems (
     };
     kryonixDarwinMenu = pkgs.callPackage ../packages/darwinmenu.nix { };
     kryonixWallpapers = pkgs.callPackage ../packages/kryonix-wallpapers.nix { };
-    kryonixCli = pkgs.callPackage ../packages/kryonix-cli.nix {
-      inherit kryonixHome;
-      kryonix-hardware-probe = kryonixHardwareProbe;
-      kryonix-disk-planner = kryonixDiskPlanner;
-      kryxd = kryonixInstaller;
-    };
-    kryx = pkgs.callPackage ../packages/kryx/default.nix { };
+    kryx = inputs.kryx-cli.packages.${system}.default;
     denoCacheOnly = lib.mkDenoCacheOnly pkgs;
   in
   {
-    default = kryonixCli;
-    kryonix = kryonixCli;
+    default = kryx;
     kryx = kryx;
     kryonix-home = kryonixHome;
     kryonix-brain-lightrag = kryonixBrainLightrag;
