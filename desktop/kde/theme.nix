@@ -233,6 +233,12 @@ in
     ];
 
     configFile = {
+      # --- Desativar splash screen (Plymouth toma conta até a tela de login/desktop) ---
+      ksplashrc.KSplash = {
+        Engine = "none";
+        Theme = "None";
+      };
+
       # --- Dolphin otimizado -----------------------------------------------
       dolphinrc.General = {
         ShowFullPath = true;

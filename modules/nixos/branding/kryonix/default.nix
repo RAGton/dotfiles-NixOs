@@ -295,8 +295,8 @@ in
         };
 
         loader.grub = {
-          splashImage = lib.mkForce null;
-          theme = lib.mkForce "${grubTheme}/kryonix";
+          splashImage = lib.mkForce grubSplash;
+          theme = lib.mkForce null;
           splashMode = lib.mkDefault "stretch";
           backgroundColor = lib.mkDefault "#081018";
           gfxmodeEfi = lib.mkDefault "auto";
