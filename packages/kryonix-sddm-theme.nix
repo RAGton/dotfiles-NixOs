@@ -40,8 +40,8 @@ stdenvNoCC.mkDerivation {
       cp -r "$src/$theme/." "$dest/"
     done
 
-    chmod u+w "$themesRoot/kryonix-clean/assets"
-    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-dark.png \
+    chmod -R u+w "$themesRoot/kryonix-clean/assets"
+    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-eagle-shield.png \
       "$themesRoot/kryonix-clean/assets/logo.png"
     cp ${kryonixBranding}/share/backgrounds/kryonix/kryonix-clean-dark.svg \
       "$themesRoot/kryonix-clean/assets/background-dark.svg"

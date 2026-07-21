@@ -40,9 +40,9 @@ let
   );
   kryonixAssets = inputs.kryonix-assets.packages.${pkgs.system}.default;
   # Usa paths reais para os assets a partir do input
-  kryonixWallpaper = "${kryonixAssets}/share/kryonix/assets/wallpapers/01.png";
-  kryonixGdmWallpaper = "${kryonixAssets}/share/kryonix/assets/wallpapers/01.png";
-  kryonixAvatar = "${kryonixAssets}/share/kryonix/assets/logos/kryonix-dark.png";
+  kryonixWallpaper = "${kryonixAssets}/share/kryonix/assets/wallpapers/kryonix-dark-4k.png";
+  kryonixGdmWallpaper = "${kryonixAssets}/share/kryonix/assets/wallpapers/kryonix-dark-4k.png";
+  kryonixAvatar = "${kryonixAssets}/share/kryonix/assets/logos/kryonix-eagle-shield.png";
   grubSplash =
     pkgs.runCommand "kryonix-grub-splash.png"
       {

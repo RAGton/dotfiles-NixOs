@@ -22,10 +22,10 @@ stdenvNoCC.mkDerivation {
       "$out/share/backgrounds/kryonix" \
       "$out/share/pixmaps/kryonix"
 
-    # Create dummy SVGs since the original assets were deleted by the user
+    # Canonical Kryonix Eagle Shield logo from kryonix-assets.
     install -dm755 "$out/share/icons/hicolor/scalable/apps"
-    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-dark.png "$out/share/pixmaps/kryonix/logo.png"
-    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-dark.png "$out/share/icons/hicolor/scalable/apps/kryonix-logo.png"
+    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-eagle-shield.png "$out/share/pixmaps/kryonix/logo.png"
+    cp ${kryonixAssets}/share/kryonix/assets/logos/kryonix-eagle-shield.png "$out/share/icons/hicolor/scalable/apps/kryonix-logo.png"
     echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#121212"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-clean-dark.svg"
     echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#ffffff"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-clean-light.svg"
     echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><rect width="1920" height="1080" fill="#1e1e2e"/></svg>' > "$out/share/backgrounds/kryonix/kryonix-blue-glass-dark.svg"

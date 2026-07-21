@@ -8,7 +8,7 @@
 # Como ativar:
 # - Adicionar ao wallpapers list em modules/home-manager/misc/wallpaper/default.nix
 #   ou referenciar diretamente em desktop/kde/theme.nix:
-#   workspace.wallpaper = "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora/kryonix-anime-city-01.png";
+#   workspace.wallpaper = "${pkgs.kryonix-wallpapers}/share/wallpapers/kryonix-aurora/kryonix-dark-4k.png";
 # =============================================================================
 { stdenvNoCC, kryonixAssets, ... }:
 stdenvNoCC.mkDerivation {
