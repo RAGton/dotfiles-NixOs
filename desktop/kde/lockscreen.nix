@@ -32,24 +32,23 @@
 # =============================================================================
 { ... }:
 let
-  lockWallpaper = ../../assets/wallpaper/01.png;
+  lockWallpaper = ../../assets/wallpaper/landscape.png;
 in
 {
   programs.plasma.kscreenlocker = {
     # Comportamento -------------------------------------------------------
     autoLock = true;
-    timeout = 10; # minutos sem atividade até travar
+    timeout = 15; # minutos sem atividade até travar
     lockOnResume = true; # trava ao acordar de suspend/lid close
     passwordRequired = true;
     passwordRequiredDelay = 0; # senha exigida imediatamente
 
     # Aparência -----------------------------------------------------------
     appearance = {
-      # Wallpaper da lockscreen — assets/wallpaper/01.png (distinto do
-      # desktop default 12.png para sinalizar visualmente "trancado").
+      # Wallpaper da lockscreen
       wallpaper = lockWallpaper;
-      alwaysShowClock = true; # relógio mesmo sem campo de senha visível
-      showMediaControls = false; # nada de revelar app de mídia atual
+      alwaysShowClock = false; # relógio mesmo sem campo de senha visível
+      showMediaControls = true; # revelar app de mídia atual
     };
   };
 
