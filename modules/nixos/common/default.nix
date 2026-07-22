@@ -93,7 +93,11 @@
 
   programs.git = {
     enable = lib.mkDefault true;
-    config.safe.directory = "/etc/node";
+    config.safe.directory = [
+      "/etc/node"
+      "/etc/kryonix"
+      "/etc/kryonixos"
+    ];
   };
 
   # Boot: defaults genéricos de silêncio/recovery.
