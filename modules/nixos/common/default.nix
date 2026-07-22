@@ -179,6 +179,14 @@
   services.avahi = {
     enable = lib.mkDefault true;
     nssmdns4 = lib.mkDefault true;
+    denyInterfaces = lib.mkDefault [
+      "tailscale0"
+      "incusbr-kryonix"
+      "virbr-ragthink"
+      "virbr0"
+      "docker0"
+      "podman0"
+    ];
     openFirewall = lib.mkDefault true;
     publish = {
       enable = lib.mkDefault true;
