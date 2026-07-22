@@ -138,6 +138,7 @@ in
             fi
             _kryonix_panel_host="$(ip -o -4 addr show scope global 2>/dev/null | awk '{ split($4, a, "/"); print a[1]; exit }')"
             [[ -n "$_kryonix_panel_host" ]] || _kryonix_panel_host="127.0.0.1"
+            _kryonix_panel_name="''${_kryonix_hostname}.local"
 
             printf '\033[36m%s\033[0m\n' ' _  _______   ______  _   _ ___ __  __   ___  ____'
             printf '\033[36m%s\033[0m\n' '| |/ /  __ \ / __  \| \ | |_ _|\ \/ /  / _ \/ ___|'
@@ -151,7 +152,8 @@ in
             printf '  \033[36m%-10s\033[0m RAM %s · Root %s\n' "Uso" "$_kryonix_mem" "$_kryonix_disk"
             printf '  \033[36m%-10s\033[0m %s\n' "GPU" "$_kryonix_gpu"
             printf '  \033[36m%-10s\033[0m role=%s · kernel=%s · uptime=%s\n' "Perfil" "$_kryonix_profile" "$_kryonix_kernel" "$_kryonix_uptime"
-            printf '  \033[36m%-10s\033[0m http://%s:8080 · http://%s:3000 · http://%s:5173\n' "Painel" "$_kryonix_panel_host" "$_kryonix_panel_host" "$_kryonix_panel_host"
+            printf '  \033[36m%-10s\033[0m Host: http://%s:8080\n' "Painel" "$_kryonix_panel_name"
+            printf '  \033[36m%-10s\033[0m IP:   http://%s:8080\n' "" "$_kryonix_panel_host"
             printf '\033[2m%s\033[0m\n' "Dica: kryx --help · fastfetch · KRYONIX_NO_WELCOME=1 para ocultar"
           fi
         ''}

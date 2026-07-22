@@ -18,6 +18,12 @@ in
       description = "Porta em que o kryxd vai escutar";
     };
 
+    listenAddress = lib.mkOption {
+      type = lib.types.str;
+      default = "127.0.0.1";
+      description = "Endereço de escuta do painel e da API do kryxd";
+    };
+
     token = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
@@ -35,8 +41,8 @@ in
 
       environment = {
         PORT = toString cfg.port;
-        KRYONIX_INSTALLER_BIND = lib.mkDefault "0.0.0.0:${toString cfg.port}";
-        KRYONIX_ALLOW_REMOTE_BIND = lib.mkDefault "1";
+        KRYONIX_INSTALLER_BIND = "${cfg.listenAddress}:${toString cfg.port}";
+        KRYONIX_ALLOW_REMOTE_BIND = if cfg.listenAddress == "127.0.0.1" then "0" else "1";
         RUST_LOG = "info";
       }
       // (lib.optionalAttrs (cfg.token != null) {
@@ -52,9 +58,9 @@ in
     };
 
     networking.firewall.allowedTCPPorts = [
-      config.services.kryxd.port
       3000
       5173
-    ];
+    ]
+    ++ lib.optional (cfg.listenAddress != "127.0.0.1") cfg.port;
   };
 }

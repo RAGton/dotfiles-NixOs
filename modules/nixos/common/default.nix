@@ -38,6 +38,7 @@
 
     ../services/tlp
     ../services/greetd-dms
+    ../services/kryxd
     ../services/snapper
     ../services/tailscale
   ];
@@ -171,6 +172,21 @@
   # Rede
   networking.networkmanager.enable = true;
   networking.hostName = lib.mkDefault hostname;
+  services.kryxd = {
+    enable = lib.mkDefault true;
+    port = lib.mkDefault 8080;
+    listenAddress = lib.mkDefault "127.0.0.1";
+  };
+  services.avahi = {
+    enable = lib.mkDefault true;
+    nssmdns4 = lib.mkDefault true;
+    openFirewall = lib.mkDefault true;
+    publish = {
+      enable = lib.mkDefault true;
+      addresses = lib.mkDefault true;
+      workstation = lib.mkDefault true;
+    };
+  };
   networking.firewall = {
     enable = lib.mkDefault true;
     allowedTCPPorts = [
