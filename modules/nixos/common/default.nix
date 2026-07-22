@@ -175,7 +175,6 @@
   services.kryxd = {
     enable = lib.mkDefault true;
     port = lib.mkDefault 8080;
-    listenAddress = lib.mkDefault "127.0.0.1";
   };
   services.avahi = {
     enable = lib.mkDefault true;
