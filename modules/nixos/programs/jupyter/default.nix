@@ -76,13 +76,15 @@ let
         ${pkgs.evcxr}/bin/evcxr_jupyter --install
       fi
 
-      if [ "${lib.boolToString (cfg.kernels.cpp && pkgs ? xeus-cling)}" = "true" ]; then
-        for k in xcpp11-jupyter-kernel xcpp14-jupyter-kernel xcpp17-jupyter-kernel; do
-          if [ -x "${pkgs.xeus-cling}/bin/$k" ]; then
-            "${pkgs.xeus-cling}/bin/$k" install --user
-          fi
-        done
+${lib.optionalString (cfg.kernels.cpp && pkgs ? xeus-cling) ''
+  if [ "${lib.boolToString cfg.kernels.cpp}" = "true" ]; then
+    for k in xcpp11-jupyter-kernel xcpp14-jupyter-kernel xcpp17-jupyter-kernel; do
+      if [ -x "${pkgs.xeus-cling}/bin/$k" ]; then
+        "${pkgs.xeus-cling}/bin/$k" install --user || true
       fi
+    done
+  fi
+''}
 
       if [ "${lib.boolToString cfg.kernels.node}" = "true" ]; then
         if [ "${lib.boolToString hasIjavascript}" = "true" ]; then
