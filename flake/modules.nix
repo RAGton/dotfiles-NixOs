@@ -94,6 +94,13 @@
         imports = [ ../modules/node/installer ];
       };
 
+    # Kryonix Guard — bloqueia acesso direto a nixos-rebuild/nh/nix
+    cli-lockdown =
+      { ... }:
+      {
+        imports = [ ../modules/nixos/lib/cli-lockdown ];
+      };
+
     # Service Providers (contratos de injeção em /etc)
     services-node =
       { ... }:
