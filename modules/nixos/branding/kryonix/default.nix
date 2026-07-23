@@ -171,17 +171,18 @@ let
   '';
 
   # Conteúdo do /etc/os-release.
-  # Usamos um conjunto pequeno e compatível (muitas ferramentas só precisam disso).
-  # ID=nixos é mantido propositalmente: ferramentas de desktop e Nix tooling
-  # detectam a distro por este campo. O branding visível vai em NAME/PRETTY_NAME.
+  # ID=kryonix é o identity oficial; ID_LIKE=nixos mantém compatibilidade com
+  # ferramentas que detectam a família NixOS (niv, lorri, direnv, etc.).
   osReleaseText = ''
-    NAME="KryonixOS"
+    NAME="Kryonix OS"
     PRETTY_NAME=${lib.escapeShellArg displayName}
-    ID=nixos
+    ID=kryonix
     ID_LIKE=nixos
     VERSION_ID=${lib.escapeShellArg cfg.versionId}
     LOGO=nix-snowflake
-    HOME_URL="https://nixos.org/"
+    HOME_URL="https://github.com/RAGton/kryonix"
+    SUPPORT_URL="https://github.com/RAGton/kryonix/issues"
+    BUG_REPORT_URL="https://github.com/RAGton/kryonix/issues"
   '';
 in
 {
