@@ -217,7 +217,7 @@ in
     ]
     ++ lib.optionals cfg.kernels.c [ pkgs.python3Packages."jupyter-c-kernel" ]
     ++ lib.optionals cfg.kernels.rust [ pkgs.evcxr ]
-    ++ lib.optionals cfg.kernels.cpp [ pkgs.xeus-cling ]
+    ++ lib.optionals (cfg.kernels.cpp && pkgs ? xeus-cling) [ pkgs.xeus-cling ]
     ++ lib.optionals cfg.kernels.bash [ bashKernelPkg ]
     ++ lib.optionals (cfg.kernels.dotnet && dotnetInteractivePkg != null) [ dotnetInteractivePkg ];
 

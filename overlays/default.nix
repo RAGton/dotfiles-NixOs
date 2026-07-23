@@ -133,20 +133,22 @@
   # xeus-cling: workaround
   #
   # Por quê
-  # - No nixpkgs unstable atual, o xeus-cling 0.15.3 está falhando no check/installCheck
-  #   ao executar notebook via papermill (kernel morre com SIGSEGV).
-  # - Isso quebra `home-manager switch` mesmo quando o kernel C++ é opcional.
+  # - No nixpkgs instável, xeus-cling 0.15.3 falhava nos checks.
+  # - xeus-cling foi removido do nixpkgs (unmaintained upstream).
+  #   Agora usa xeus-cpp como substituto.
   #
   # Como
-  # - Desativa checks do derivation. O runtime ainda pode ser usado interativamente.
-  #
-  # Riscos
-  # - Mascara regressões do upstream. Remover quando nixpkgs corrigir.
+  # - Só aplica override se xeus-cling existir no nixpkgs.
+  # - Mantido para não quebrar builds antigos; remover quando vš os users
+  #   migraram para xeus-cpp.
   xeus-cling-no-checks = _final: prev: {
-    xeus-cling = prev.xeus-cling.overrideAttrs (_old: {
-      doCheck = false;
-      doInstallCheck = false;
-    });
+    xeus-cling = if prev ? xeus-cling then
+      prev.xeus-cling.overrideAttrs (_old: {
+        doCheck = false;
+        doInstallCheck = false;
+      })
+    else
+      prev.xeus-cling or {};
   };
 
   # python312: stub de docs
