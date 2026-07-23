@@ -1,0 +1,5089 @@
+{
+  "repositories": {
+    "engine": {
+      "counts": {
+        "compat": 29,
+        "deprecated": 15,
+        "disk.mode": 3,
+        "fixme": 1,
+        "hack": 3,
+        "hashedpassword": 14,
+        "installplan": 4,
+        "legacy": 41,
+        "obsolete": 2,
+        "placeholder": 21,
+        "stub": 25,
+        "todo": 52,
+        "v1": 57,
+        "xxx": 1
+      },
+      "occurrences": [
+        {
+          "line": 17,
+          "path": ".github/workflows/claude.yml",
+          "signals": [
+            "v1"
+          ],
+          "text": "uses: anthropics/claude-code-action@v1"
+        },
+        {
+          "line": 4,
+          "path": "README.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "O Kryonix é uma plataforma NixOS de alto desempenho, projetada para estabilidade extrema, observabilidade nativa e cargas de trabalho críticas (Gaming, Desenvolvimento e IA). Este repositório segue o princípio da **Verdade Operacional**: to"
+        },
+        {
+          "line": 21,
+          "path": "desktop/hyprland/core/hyprland.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "# deixando o symlink sem ser criado e o Hyprland gerando um stub autogenerado."
+        },
+        {
+          "line": 32,
+          "path": "desktop/hyprland/kryonix-bar.nix",
+          "signals": [
+            "v1"
+          ],
+          "text": "# Quando kryonix-bar está ativo, não há mais nada a configurar aqui no V1."
+        },
+        {
+          "line": 36,
+          "path": "desktop/hyprland/kryonix-bar.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "# Placeholder: futuras integrações (daemon, keybinds específicos) entram aqui."
+        },
+        {
+          "line": 154,
+          "path": "desktop/hyprland/theme/hyprlock.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "# Placeholder HUD"
+        },
+        {
+          "line": 35,
+          "path": "desktop/kde/keybind-helper.nix",
+          "signals": [
+            "v1"
+          ],
+          "text": "Kryonix KDE Keymap v1 — atalhos configurados"
+        },
+        {
+          "line": 2,
+          "path": "desktop/kde/keymap.nix",
+          "signals": [
+            "v1"
+          ],
+          "text": "# desktop/kde/keymap.nix — Kryonix KDE Keymap v1 (FONTE ÚNICA DE VERDADE)"
+        },
+        {
+          "line": 53,
+          "path": "desktop/kde/rofi.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder: \"Search...\";"
+        },
+        {
+          "line": 54,
+          "path": "desktop/kde/rofi.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder-color: @fg-alt;"
+        },
+        {
+          "line": 15,
+          "path": "docs/ARCHITECTURE.md",
+          "signals": [
+            "compat",
+            "legacy"
+          ],
+          "text": "├── features/             # (LEGACY/COMPAT) Combinações coesas de módulos a serem migradas"
+        },
+        {
+          "line": 85,
+          "path": "docs/ARCHITECTURE.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "- `ai.nix`: partial namespace/compat layer, no runtime migration yet"
+        },
+        {
+          "line": 87,
+          "path": "docs/ARCHITECTURE.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "Legacy wrappers remain under `features/` for compatibility during migration."
+        },
+        {
+          "line": 27,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "compat",
+            "legacy"
+          ],
+          "text": "- `features/` is legacy/compat during migration."
+        },
+        {
+          "line": 39,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "| `partial` | Namespace declared and/or compat runtime exists, but canonical migration is incomplete. |"
+        },
+        {
+          "line": 40,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "| `stub` | Option declared (mkEnableOption), but no config/implementation exists yet. |"
+        },
+        {
+          "line": 41,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "compat",
+            "deprecated",
+            "legacy"
+          ],
+          "text": "| `legacy` | Deprecated compat shim. Will be removed after migration. |"
+        },
+        {
+          "line": 52,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "| `ai.ollama` | partial | Compat runtime in `ai.nix` |"
+        },
+        {
+          "line": 53,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "| `ai.neo4j` | partial | Compat runtime in `ai.nix` |"
+        },
+        {
+          "line": 54,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "| `ai.lightrag` | stub | Option only, no implementation |"
+        },
+        {
+          "line": 55,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "| `ai.openWebui` | stub | Option only, no implementation |"
+        },
+        {
+          "line": 56,
+          "path": "docs/FEATURE_REGISTRY.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "| `ai.kryonixBrain` | — | Compat shim in `ai.nix`, not in registry |"
+        },
+        {
+          "line": 12,
+          "path": "docs/FIREWALL_FEATURE_AUDIT.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "- **Status**: Stub."
+        },
+        {
+          "line": 34,
+          "path": "docs/FIREWALL_FEATURE_AUDIT.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "Existe um claro conflito semântico (nome e escopo) entre as duas opções, mas não um conflito técnico de runtime no momento, pois uma delas é um stub. O usuário fica com duas opções no *Feature Registry* que parecem fazer a mesma coisa: apli"
+        },
+        {
+          "line": 37,
+          "path": "docs/FIREWALL_FEATURE_AUDIT.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "Implementar um firewall \"estrito\" sem os devidos *compat layers* gera alto risco para:"
+        },
+        {
+          "line": 5,
+          "path": "docs/VIRTUAL_BRIDGE_AUDIT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "`virbr-ragthink` is currently created by the legacy module `modules/virtualization/net-ragthink.nix`, which defines a Libvirt network from a static XML file."
+        },
+        {
+          "line": 45,
+          "path": "docs/VIRTUAL_BRIDGE_AUDIT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "On existing hosts, `net-ragthink` may already exist without NAT because it was created by the legacy module. In that case, enabling `virtualBridges.ragthink.nat = true` requires a one-time manual migration while dependent VMs are shut down."
+        },
+        {
+          "line": 7,
+          "path": "docs/agents/README.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo agente ao atuar no repositório Kryonix deve respeitar as seguintes regras:"
+        },
+        {
+          "line": 24,
+          "path": "docs/agents/VIBECODE_GOVERNANCE.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo output gerado via vibecode que resulte em alterações permanentes deve incluir:"
+        },
+        {
+          "line": 87,
+          "path": "docs/agents/agente-update.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo host novo deve escolher um papel:"
+        },
+        {
+          "line": 320,
+          "path": "docs/agents/agente-update.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo `.desktop` ativo precisa apontar para executável existente no ambiente real da sessão."
+        },
+        {
+          "line": 354,
+          "path": "docs/agents/agente-update.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo fix de desktop precisa rodar:"
+        },
+        {
+          "line": 600,
+          "path": "docs/agents/agente-update.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo problema real corrigido deve virar incidente:"
+        },
+        {
+          "line": 101,
+          "path": "docs/archive/AGENT_SECURITY_INFRA_KRYONIX.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "grep -R \"TODO\\|WIP\\|não implementado\\|planejado\\|futuro\" docs/ || true"
+        },
+        {
+          "line": 26,
+          "path": "docs/archive/INDEX.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### Se você quer migrar/reestruturar (v1 → v2)"
+        },
+        {
+          "line": 57,
+          "path": "docs/archive/INDEX.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- Hogwarts Legacy (Heroic): [games/hogwarts-legacy-heroic-pt_BR.md](games/hogwarts-legacy-heroic-pt_BR.md)"
+        },
+        {
+          "line": 77,
+          "path": "docs/archive/INDEX.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "O material legado fica em `docs/legacy/`:"
+        },
+        {
+          "line": 79,
+          "path": "docs/archive/INDEX.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- Greetd (histórico): [legacy/greetd/](legacy/greetd/)"
+        },
+        {
+          "line": 80,
+          "path": "docs/archive/INDEX.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- Hyprland (config antiga): [legacy/hyprland/hyprland.conf](legacy/hyprland/hyprland.conf)"
+        },
+        {
+          "line": 20,
+          "path": "docs/archive/INDEX_DOCUMENTATION.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- [legacy/greetd/](legacy/greetd/)"
+        },
+        {
+          "line": 23,
+          "path": "docs/archive/INDEX_DOCUMENTATION.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- [legacy/hyprland/hyprland.conf](legacy/hyprland/hyprland.conf)"
+        },
+        {
+          "line": 37,
+          "path": "docs/archive/QUICK_START.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- `docs/legacy/greetd/` (histórico legado)"
+        },
+        {
+          "line": 4,
+          "path": "docs/archive/STATUS.md",
+          "signals": [
+            "legacy",
+            "v1"
+          ],
+          "text": "**Versão Atual**: v1 (Legacy)"
+        },
+        {
+          "line": 132,
+          "path": "docs/archive/STATUS.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### Código Atual (v1)"
+        },
+        {
+          "line": 377,
+          "path": "docs/archive/STATUS.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- ✅ **7 documentos** explicando todo o projeto"
+        },
+        {
+          "line": 96,
+          "path": "docs/archive/SUMMARY.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "| Antes (v1) | Depois (v2) |"
+        },
+        {
+          "line": 231,
+          "path": "docs/archive/SUMMARY.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "2. ✅ Auditei TODO o repositório"
+        },
+        {
+          "line": 65,
+          "path": "docs/archive/TEST_GUIDE_WAYLAND_SESSION.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- `docs/legacy/greetd/` (histórico legado removido do caminho ativo)"
+        },
+        {
+          "line": 368,
+          "path": "docs/archive/agente-kalarme.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Analise todo o contexto do projeto Kryonix/NixOS/flake antes de editar."
+        },
+        {
+          "line": 1,
+          "path": "docs/archive/apparmor.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Analise todo o contexto do projeto Kryonix/NixOS/flake antes de editar."
+        },
+        {
+          "line": 12,
+          "path": "docs/archive/context-legacy/ARCHITECTURE.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "- `packages/`: artefatos do projeto, incluindo `kryonix` e o wrapper compat `node`"
+        },
+        {
+          "line": 208,
+          "path": "docs/archive/fix/PROMPT_FIX_HYPRLAND_SDDM.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "4. Todo `exec-once` com pacote do overlay usa `${pkgs.pacote}/bin/cmd`"
+        },
+        {
+          "line": 377,
+          "path": "docs/archive/fix/PROMPT_TEMA_SCIFI_HUD.md",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "# Placeholder HUD"
+        },
+        {
+          "line": 690,
+          "path": "docs/archive/fix/PROMPT_TEMA_SCIFI_HUD.md",
+          "signals": [
+            "hack"
+          ],
+          "text": "3. **Fonte alternativa**: se quiser estética mais agressiva, testar `Iosevka Term` ou `Hack Nerd Font`"
+        },
+        {
+          "line": 137,
+          "path": "docs/archive/fix/SKILL.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "# Verifica sintaxe e avaliação de todo o flake"
+        },
+        {
+          "line": 1,
+          "path": "docs/archive/games/hogwarts-legacy-heroic-pt_BR.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "# Hogwarts Legacy (Heroic) — preset 1080p/75Hz (RTX 4060 8GB)"
+        },
+        {
+          "line": 33,
+          "path": "docs/archive/games/hogwarts-legacy-heroic-pt_BR.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "No **Hogwarts Legacy** (Configurações do jogo no Heroic):"
+        },
+        {
+          "line": 130,
+          "path": "docs/archive/kryonix-plasma-tiling-claude-spec/00_PROMPT_CLAUDE.md",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "- wallpaper placeholder;"
+        },
+        {
+          "line": 58,
+          "path": "docs/archive/kryonix-plasma-tiling-claude-spec/05_IMPLEMENTATION_PLAN.md",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "- wallpaper placeholder;"
+        },
+        {
+          "line": 5,
+          "path": "docs/archive/legacy/archive-2026-04-28/AI_MAINTAINER_REPORT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**Versão**: v1 → v2 (Migration Planned)"
+        },
+        {
+          "line": 36,
+          "path": "docs/archive/legacy/archive-2026-04-28/AI_MAINTAINER_REPORT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- Arquitetura v1 e v2"
+        },
+        {
+          "line": 139,
+          "path": "docs/archive/legacy/archive-2026-04-28/AI_MAINTAINER_REPORT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### Antes (v1)"
+        },
+        {
+          "line": 343,
+          "path": "docs/archive/legacy/archive-2026-04-28/ARCHITECTURE_AUDIT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "1. ✅ Explicação completa da arquitetura (v1 e v2)"
+        },
+        {
+          "line": 639,
+          "path": "docs/archive/legacy/archive-2026-04-28/ARCHITECTURE_AUDIT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**ANTES (v1)**:"
+        },
+        {
+          "line": 676,
+          "path": "docs/archive/legacy/archive-2026-04-28/ARCHITECTURE_AUDIT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**ANTES (v1)**:"
+        },
+        {
+          "line": 47,
+          "path": "docs/archive/legacy/archive-2026-04-28/BUGFIX_DUPLICATIONS.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- `lib/options.nix` (antigo sistema v1)"
+        },
+        {
+          "line": 19,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### Estrutura Atual (v1 - Em Migração)"
+        },
+        {
+          "line": 203,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "2. **Importar em lib/options.nix** (v2) ou **nixos/common** (v1):"
+        },
+        {
+          "line": 394,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- `modules/home-manager/*` (legacy)"
+        },
+        {
+          "line": 409,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "# lib/options.nix (v2) ou inline no módulo (v1)"
+        },
+        {
+          "line": 664,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "# ANTES (v1 - manual)"
+        },
+        {
+          "line": 754,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "\"split_lock_detect=off\"  # Fix Hogwarts Legacy perf issue"
+        },
+        {
+          "line": 783,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- `.github/copilot-instructions.md` (legacy)"
+        },
+        {
+          "line": 813,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "## 13. ROADMAP DE MIGRAÇÃO (v1 → v2)"
+        },
+        {
+          "line": 851,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "- [ ] Marcar `modules/` como deprecated"
+        },
+        {
+          "line": 893,
+          "path": "docs/archive/legacy/archive-2026-04-28/INSTRUCT.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**Versão da arquitetura**: v1 (migrando para v2)"
+        },
+        {
+          "line": 11,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "A **Fase 1** da migração RagOS v1→v2 foi concluída com sucesso!"
+        },
+        {
+          "line": 90,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Os hosts continuam usando imports diretos (v1 compatibility)."
+        },
+        {
+          "line": 108,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- [x] Hosts continuam funcionando em v1"
+        },
+        {
+          "line": 153,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**Antes (v1)**:"
+        },
+        {
+          "line": 188,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Hosts still use direct imports (v1 compatibility maintained)."
+        },
+        {
+          "line": 219,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- ✅ Configuração v1 intacta"
+        },
+        {
+          "line": 299,
+          "path": "docs/archive/legacy/history/PHASE_1_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Você completou a primeira fase da migração RagOS v1→v2!"
+        },
+        {
+          "line": 190,
+          "path": "docs/archive/legacy/history/STEP_1.1-1.3_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**Antes (v1)**:"
+        },
+        {
+          "line": 175,
+          "path": "docs/archive/legacy/history/STEP_2.3_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### Antes (v1 - Anti-pattern)"
+        },
+        {
+          "line": 52,
+          "path": "docs/archive/legacy/history/STEP_5.1-5.2_COMPLETE.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- TODO list"
+        },
+        {
+          "line": 85,
+          "path": "docs/archive/legacy/history/STEP_5.1-5.2_COMPLETE.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "## ⚠️ Próximos Passos (TODO)"
+        },
+        {
+          "line": 109,
+          "path": "docs/archive/legacy/history/STEP_5.1-5.2_COMPLETE.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "# TODO: Verificar estrutura exata do repo DMS"
+        },
+        {
+          "line": 44,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "- ✅ Podman (+ Docker compat)"
+        },
+        {
+          "line": 109,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### Antes (v1) - ❌ Manual"
+        },
+        {
+          "line": 156,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "### ANTES (v1)"
+        },
+        {
+          "line": 202,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "message = \"Cannot enable both Docker and Podman Docker-compat\";"
+        },
+        {
+          "line": 317,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "| Métrica | v1 (Antes) | v2 (Depois) | Melhoria |"
+        },
+        {
+          "line": 326,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**v1**: Gaming configurado em 3 lugares"
+        },
+        {
+          "line": 329,
+          "path": "docs/archive/legacy/history/STEP_6_COMPLETE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**v1**: Virtualization em 2 módulos"
+        },
+        {
+          "line": 3,
+          "path": "docs/archive/legacy/migration/MIGRATION_CHECKLIST.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "**Versão**: v1 → v2"
+        },
+        {
+          "line": 1,
+          "path": "docs/archive/legacy/migration/MIGRATION_GUIDE_v1_v2.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "# 🗺️ MIGRATION GUIDE - RagOS v1 → v2"
+        },
+        {
+          "line": 22,
+          "path": "docs/archive/legacy/migration/MIGRATION_GUIDE_v1_v2.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "git tag pre-migration-v1"
+        },
+        {
+          "line": 887,
+          "path": "docs/archive/legacy/migration/MIGRATION_GUIDE_v1_v2.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "git reset --hard pre-migration-v1"
+        },
+        {
+          "line": 71,
+          "path": "docs/archive/legacy/migration/NEW_STRUCTURE.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "│       └── xwayland.nix           # Compat layer"
+        },
+        {
+          "line": 109,
+          "path": "docs/archive/legacy/migration/NEW_STRUCTURE.md",
+          "signals": [
+            "deprecated",
+            "legacy",
+            "v1"
+          ],
+          "text": "├── modules/                        # ⚠️ LEGACY (v1 - deprecated)"
+        },
+        {
+          "line": 493,
+          "path": "docs/archive/legacy/migration/NEW_STRUCTURE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "## 📊 COMPARAÇÃO v1 vs v2"
+        },
+        {
+          "line": 495,
+          "path": "docs/archive/legacy/migration/NEW_STRUCTURE.md",
+          "signals": [
+            "legacy",
+            "v1"
+          ],
+          "text": "| Aspecto | v1 (Legacy) | v2 (Nova) |"
+        },
+        {
+          "line": 601,
+          "path": "docs/archive/legacy_ai/KRYONIX_CONTEXT_MEMORY_FULL.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "## 8.4 Schema V1 esperado"
+        },
+        {
+          "line": 26,
+          "path": "docs/archive/legacy_ai/RAG_GOVERNANCE.md",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "- deprecated"
+        },
+        {
+          "line": 27,
+          "path": "docs/archive/legacy_ai/RAG_GOVERNANCE.md",
+          "signals": [
+            "obsolete"
+          ],
+          "text": "- obsolete"
+        },
+        {
+          "line": 50,
+          "path": "docs/archive/legacy_ai/RAG_GOVERNANCE.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo chunk deve conter:"
+        },
+        {
+          "line": 1226,
+          "path": "docs/archive/legacy_ai/kryonix-vault/.obsidian/themes/Encore/theme.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ".cm-active.mk-placeholder:before {"
+        },
+        {
+          "line": 122,
+          "path": "docs/archive/legacy_ai/kryonix-vault/.obsidian/themes/Obsidianite/theme.css",
+          "signals": [
+            "todo"
+          ],
+          "text": "a.tag[href*='#todo'],"
+        },
+        {
+          "line": 128,
+          "path": "docs/archive/legacy_ai/kryonix-vault/.obsidian/themes/Obsidianite/theme.css",
+          "signals": [
+            "todo"
+          ],
+          "text": ".cm-s-obsidian .CodeMirror-line span.cm-tag-todo:not(.cm-formatting-hashtag) {"
+        },
+        {
+          "line": 1995,
+          "path": "docs/archive/legacy_ai/kryonix-vault/.obsidian/themes/Ono Sendai/theme.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ".cm-s-obsidian div:not(.CodeMirror-activeline) > .CodeMirror-line span.hmd-fold-math-placeholder {"
+        },
+        {
+          "line": 123,
+          "path": "docs/archive/legacy_ai/kryonix-vault/01-Canonical/Roadmap.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- Todo o pipeline de ingestão e parse de HTML para Markdown do LightRAG na nuvem local."
+        },
+        {
+          "line": 24,
+          "path": "docs/archive/legacy_ai/kryonix-vault/02-Systems/Vault.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "1. **Acesso com CLI**: Todo agente interagindo com o Vault deve utilizar a `kryonix vault ...` ou `kryonix brain ...` como porta de acesso e operação principal."
+        },
+        {
+          "line": 18,
+          "path": "docs/archive/legacy_ai/kryonix-vault/03-Runbooks/Docs Audit.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "3. **No Placeholders**: Evitar \"TODO\" ou seções vazias."
+        },
+        {
+          "line": 19,
+          "path": "docs/archive/legacy_ai/kryonix-vault/03-Runbooks/Doctor Full.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "3. Termos proibidos (TODO, WIP) em docs canônicas."
+        },
+        {
+          "line": 46,
+          "path": "docs/archive/legacy_ai/kryonix-vault/PROMPT_MASTER.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "7. Todo padrão deve ser aplicável em projeto real."
+        },
+        {
+          "line": 49,
+          "path": "docs/archive/legacy_ai/kryonix-vault/PROMPT_MASTER.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "10. Todo código sugerido deve ser revisável, testável e seguro."
+        },
+        {
+          "line": 179,
+          "path": "docs/archive/legacy_ai/kryonix-vault/PROMPT_MASTER.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo prompt deve conter:"
+        },
+        {
+          "line": 37,
+          "path": "docs/archive/legacy_docs/AGENTS_INCREMENT_GRAPH_RAG_CAG.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "Todo documento, chunk, entidade e relação criada por ingestão deve carregar proveniência mínima:"
+        },
+        {
+          "line": 248,
+          "path": "docs/archive/legacy_docs/AGENTS_INCREMENT_GRAPH_RAG_CAG.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "Se esses comandos ainda não existirem, documente como roadmap/stub. Não finja execução."
+        },
+        {
+          "line": 368,
+          "path": "docs/archive/legacy_docs/AGENTS_INCREMENT_GRAPH_RAG_CAG.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "Use `git mv` para preservar histórico. Atualize referências. Não quebrar ferramentas que esperam `skills/**`; se necessário, criar symlink temporário ou compat layer documentada."
+        },
+        {
+          "line": 233,
+          "path": "docs/archive/legacy_docs/auditoria-2026-05-31.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- **`kryonix-caelestia-watcher/src/main.rs:70`**: TODO explícito — `// TODO: Implement nix-edit or text replacement logic for flake.nix imports`; ferramenta incompleta."
+        },
+        {
+          "line": 234,
+          "path": "docs/archive/legacy_docs/auditoria-2026-05-31.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- **`kora/api/routes_stream.py:45`**: TODO Phase 3 não implementado — streaming do Kora sem integração com Brain."
+        },
+        {
+          "line": 348,
+          "path": "docs/archive/legacy_docs/auditoria-2026-05-31.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "| `kryonix-caelestia-watcher` com TODO estrutural — ferramenta incompleta em produção | Baixa | Baixo | Não expor no PATH até implementar |"
+        },
+        {
+          "line": 5,
+          "path": "docs/brain/NEO4J_SCHEMA.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Schema operacional atual usado no GraphRAG controlado (V1):"
+        },
+        {
+          "line": 43,
+          "path": "docs/brain/OBSIDIAN_NEO4J_MODEL.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- Todo nó derivado precisa de `source_path` e `source_hash`."
+        },
+        {
+          "line": 9,
+          "path": "docs/brain/README.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- **Persistência:** Todo o estado do Brain vive restrito em `/var/lib/kryonix/brain/`."
+        },
+        {
+          "line": 3,
+          "path": "docs/brain/REMOTE_CLIENT_INSPIRON.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Status: Implementado / Produção (V1)"
+        },
+        {
+          "line": 3,
+          "path": "docs/brain/kryonix-rag-pipeline.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Status: Implementado / Produção (V1)"
+        },
+        {
+          "line": 3,
+          "path": "docs/brain/lightrag.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "Status: Implementado / Produção (V1)"
+        },
+        {
+          "line": 5,
+          "path": "docs/brain/lightrag.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "O Kryonix utiliza o **LightRAG** como seu sistema primário de recuperação de informações baseadas em grafos. O fluxo completo de execução e recuperação executado pelo motor é detalhado no [Pipeline RAG Atual (V1)](kryonix-rag-pipeline.md)."
+        },
+        {
+          "line": 19,
+          "path": "docs/brain/vault.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "1. **Acesso com CLI**: Todo agente interagindo com o Vault deve utilizar a `kryonix vault ...` ou `kryonix brain ...` como porta de acesso e operação principal."
+        },
+        {
+          "line": 26,
+          "path": "docs/desktop/KRYONIX_SDDM_CLEAN.md",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "└── avatar-placeholder.svg"
+        },
+        {
+          "line": 79,
+          "path": "docs/desktop/KRYONIX_SHELL_ROADMAP.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "- Recomendado: **unificado com feature flags** + compat D-Bus."
+        },
+        {
+          "line": 35,
+          "path": "docs/desktop/SDDM.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "### Compat legado KDE"
+        },
+        {
+          "line": 40,
+          "path": "docs/hardware/GPU_AMD.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "| `legacySupport.enable` | `false` | Legacy SI/CIK (desligado) |"
+        },
+        {
+          "line": 35,
+          "path": "docs/hardware/HARDWARE_FEATURES_AUDIT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "| Inspiron Nina | Intel CPU | Intel iGPU legacy VAAPI | declarativo |"
+        },
+        {
+          "line": 22,
+          "path": "docs/home-brain/MEMORY_BRIDGE.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "## Schema de Eventos (v1)"
+        },
+        {
+          "line": 25,
+          "path": "docs/hosts/glacier-disko-plan.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "**Regra:** todo path que precise de storage pesado deve ter seu subvolume montado diretamente no disco maior via Disko/fstab. Sem symlinks."
+        },
+        {
+          "line": 9,
+          "path": "docs/installer/CURRENT_STATE.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- Boot inicial em UEFI e Legacy (via systemd-boot e GRUB fallback)."
+        },
+        {
+          "line": 39,
+          "path": "docs/installer/INSTALL_PLAN.md",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "*   **disk.mode**: `dry-run` para validação, `install`/`real` para execução efetiva."
+        },
+        {
+          "line": 25,
+          "path": "docs/operations/GLACIER_BTRFS_INSTALL.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "1. **Partição Única (Btrfs)**: `/dev/nvme1n1p1` (Todo o disco), Tipo: `8300`."
+        },
+        {
+          "line": 27,
+          "path": "docs/operations/KRYONIX_CI_HARDENING.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "- **Python Compileall**: Verifica erros de sintaxe em todo o código Python do submódulo `kryonix-brain-lightrag`."
+        },
+        {
+          "line": 66,
+          "path": "docs/operations/KRYONIX_COMMANDS_CANONICAL.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "| `kryonix graph schema` | FUNCTIONAL | remoto respondeu schema v1 |"
+        },
+        {
+          "line": 28,
+          "path": "docs/operations/KRYONIX_DOCS_AUDIT.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "- `docs/operations/KRYONIX_NETWORK_STATUS.md`: Stub para diagnóstico de rede e Tailscale."
+        },
+        {
+          "line": 86,
+          "path": "docs/operations/KRYONIX_REINDEX_REPORT.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "| `Ollama remote tunnel Glacier Inspiron 11435 11434` | **SUCESSO** | `rve-compat.nix`, `kryonix-ollama-tunnel` |"
+        },
+        {
+          "line": 83,
+          "path": "docs/operations/KRYONIX_REVIEW_WALKTHROUGH.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- graph-v1-20260507T150910Z-685280cb"
+        },
+        {
+          "line": 110,
+          "path": "docs/operations/KRYONIX_REVIEW_WALKTHROUGH.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- graph-v1-20260507T150910Z-685280cb"
+        },
+        {
+          "line": 130,
+          "path": "docs/operations/KRYONIX_REVIEW_WALKTHROUGH.md",
+          "signals": [
+            "v1"
+          ],
+          "text": "- kryonix graph schema: schema v1 OK"
+        },
+        {
+          "line": 18,
+          "path": "docs/operations/MAINTENANCE_LOG_2026-05-25.md",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "| `modules/home-manager/programs/git/default.nix` | ALERTA | Migra `extraOptions` deprecated em `matchBlocks` SSH → `programs.ssh.settings` |"
+        },
+        {
+          "line": 44,
+          "path": "docs/operations/MAINTENANCE_LOG_2026-05-25.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "- **overlays/default.nix — `python312-docs-stub`**: verificar se o nixpkgs atual já corrige o build"
+        },
+        {
+          "line": 55,
+          "path": "docs/operations/MAINTENANCE_LOG_2026-05-25.md",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "- **hosts/glacier/disks.nix — ⚠ pendente**: substituir ID de disco placeholder pelo ID real do hardware."
+        },
+        {
+          "line": 4,
+          "path": "features/default.nix",
+          "signals": [
+            "deprecated",
+            "legacy"
+          ],
+          "text": "\"kryonix legacy features/default.nix is deprecated; use modules/nixos/features/default.nix and kryonix.features.* instead.\""
+        },
+        {
+          "line": 4,
+          "path": "features/gaming.nix",
+          "signals": [
+            "deprecated",
+            "legacy"
+          ],
+          "text": "\"kryonix legacy features/gaming.nix is deprecated and was removed. Use modules/nixos/features/gaming.nix instead.\""
+        },
+        {
+          "line": 98,
+          "path": "features/gpu.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "description = \"Enable legacy intel-vaapi-driver for older Intel GPUs. Off by default because it is not the modern path.\";"
+        },
+        {
+          "line": 163,
+          "path": "features/gpu.nix",
+          "signals": [
+            "todo"
+          ],
+          "text": "TODO: implementar hardware.nvidia.nvidiaPersistenced quando confirmado no nixpkgs 26.05."
+        },
+        {
+          "line": 285,
+          "path": "features/gpu.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "description = \"Enable AMDGPU legacy support for older SI/CIK cards. Disabled by default.\";"
+        },
+        {
+          "line": 34,
+          "path": "find_aliases.py",
+          "signals": [
+            "compat"
+          ],
+          "text": "print(\"Scanning for compat aliases...\")"
+        },
+        {
+          "line": 81,
+          "path": "hosts/iso/default.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "# Boot universal (Ventoy, pendrive direto, EFI e Legacy BIOS)"
+        },
+        {
+          "line": 153,
+          "path": "lib/options.nix",
+          "signals": [
+            "v1"
+          ],
+          "text": "# Warnings para opções definidas mas sem efeito (transição v1→v2)"
+        },
+        {
+          "line": 21,
+          "path": "lib/services.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "name = \"link-legacy-${name}-${builtins.replaceStrings [ \"/\" ] [ \"-\" ] legacyPath}\";"
+        },
+        {
+          "line": 18,
+          "path": "modules/home-manager/features/ai.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "home.packages = with pkgs; [ zed-editor ]; # placeholder"
+        },
+        {
+          "line": 21,
+          "path": "modules/home-manager/features/ai.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "# Gemini não tem package Nix direto; placeholder seguro."
+        },
+        {
+          "line": 19,
+          "path": "modules/home-manager/features/desktop.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "# placeholder seguro por enquanto."
+        },
+        {
+          "line": 5,
+          "path": "modules/home-manager/programs/brave/default.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "# - Placeholder do módulo do Brave no Home Manager."
+        },
+        {
+          "line": 23,
+          "path": "modules/home-manager/programs/obsidian/default.nix",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "printf '%s\\n' \"rag-obsidian is deprecated, use kryonix-obsidian\" >&2"
+        },
+        {
+          "line": 111,
+          "path": "modules/home-manager/programs/tilix/default.nix",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "printf '%s\\n' \"rag-terminal is deprecated, use kryonix-terminal\" >&2"
+        },
+        {
+          "line": 5,
+          "path": "modules/home-manager/programs/tmux/default.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "# - Stub do módulo do `tmux` no Home Manager."
+        },
+        {
+          "line": 20,
+          "path": "modules/home-manager/programs/tmux/default.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "# Mantém um stub inofensivo para imports antigos não quebrarem."
+        },
+        {
+          "line": 133,
+          "path": "modules/home-manager/programs/vscode/default.nix",
+          "signals": [
+            "todo"
+          ],
+          "text": "\"Gruntfuggly.todo-tree\""
+        },
+        {
+          "line": 491,
+          "path": "modules/home-manager/programs/vscode/default.nix",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "\"kryonix.vscode.channel está deprecated e agora é ignorado; use kryonix.vscode.edition/kryonix.vscode.delivery.\""
+        },
+        {
+          "line": 494,
+          "path": "modules/home-manager/programs/vscode/default.nix",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "\"kryonix.vscode.flavor/installMethod estão deprecated; use kryonix.vscode.edition/kryonix.vscode.delivery.\""
+        },
+        {
+          "line": 9,
+          "path": "modules/home-manager/services/flatpak/default.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "# - Alguns apps (ex.: Zen Browser) são instalados via Flatpak por conveniência/compat."
+        },
+        {
+          "line": 11,
+          "path": "modules/home-manager/services/waybar/default.nix",
+          "signals": [
+            "v1"
+          ],
+          "text": "# - Waybar é declarativo via HM, sem daemon extra no V1."
+        },
+        {
+          "line": 239,
+          "path": "modules/nixos/branding/kryonix/default.nix",
+          "signals": [
+            "todo"
+          ],
+          "text": "desabilitar todo o módulo branding."
+        },
+        {
+          "line": 51,
+          "path": "modules/nixos/common/default.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "# Compat: expõe inputs via NIX_PATH (canais legados)."
+        },
+        {
+          "line": 346,
+          "path": "modules/nixos/common/default.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "// lib.optionalAttrs (userConfig ? hashedPassword) {"
+        },
+        {
+          "line": 347,
+          "path": "modules/nixos/common/default.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPassword = lib.mkDefault userConfig.hashedPassword;"
+        },
+        {
+          "line": 349,
+          "path": "modules/nixos/common/default.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "// lib.optionalAttrs (userConfig ? hashedPasswordFile) {"
+        },
+        {
+          "line": 350,
+          "path": "modules/nixos/common/default.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPasswordFile = lib.mkDefault userConfig.hashedPasswordFile;"
+        },
+        {
+          "line": 54,
+          "path": "modules/nixos/desktop/wallpaper/default.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "# Legacy steam integration if needed by backend (e.g., Wallpaper Engine)"
+        },
+        {
+          "line": 16,
+          "path": "modules/nixos/features/ai.nix",
+          "signals": [
+            "compat",
+            "legacy"
+          ],
+          "text": "kryonixBrain.enable = lib.mkEnableOption \"Kryonix Brain AI ecosystem (legacy/compat)\";"
+        },
+        {
+          "line": 165,
+          "path": "modules/nixos/features/development.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "default = pkgs.hello; # Stub"
+        },
+        {
+          "line": 266,
+          "path": "modules/nixos/features/development.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "\"Antigravity ainda não está empacotado declarativamente com fonte/hash oficial confiável. Usando pacote stub (hello) até a P1.\""
+        },
+        {
+          "line": 294,
+          "path": "modules/nixos/features/development.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "# Antigravity IDE (Stub)"
+        },
+        {
+          "line": 149,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "\"stub\""
+        },
+        {
+          "line": 150,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "\"legacy\""
+        },
+        {
+          "line": 153,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "compat",
+            "deprecated",
+            "legacy",
+            "stub"
+          ],
+          "text": "description = \"Migration status: canonical (fully migrated), partial (namespace only / compat runtime), stub (option declared, no implementation), legacy (deprecated compat shim)\";"
+        },
+        {
+          "line": 410,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "status = \"stub\";"
+        },
+        {
+          "line": 613,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "description = \"Motor de inferência local Ollama (LLMs). Compat runtime em ai.nix, migração canônica pendente.\";"
+        },
+        {
+          "line": 629,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "status = \"stub\";"
+        },
+        {
+          "line": 641,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "status = \"stub\";"
+        },
+        {
+          "line": 650,
+          "path": "modules/nixos/features/registry.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "description = \"Banco de dados em grafo Neo4j. Compat runtime em ai.nix, migração canônica pendente.\";"
+        },
+        {
+          "line": 22,
+          "path": "modules/nixos/features/removed-options.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "\"Use kryonix.features.remote.desktop.client.enable when it has a real implementation. Do not use the legacy remoteDesktop namespace.\""
+        },
+        {
+          "line": 26,
+          "path": "modules/nixos/features/removed-options.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "\"Use kryonix.features.remote.desktop.server.enable when it has a real implementation. Do not use the legacy remoteDesktop namespace.\""
+        },
+        {
+          "line": 43,
+          "path": "modules/nixos/features/schema.nix",
+          "signals": [
+            "legacy"
+          ],
+          "text": "enable = lib.mkEnableOption \"Hyprland compositor (legacy/coexistence)\";"
+        },
+        {
+          "line": 2,
+          "path": "modules/nixos/hyprland/default.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "# Módulo: hyprland (compat shim)"
+        },
+        {
+          "line": 12,
+          "path": "modules/nixos/hyprland/default.nix",
+          "signals": [
+            "todo"
+          ],
+          "text": "# - Mantém compatibilidade sem continuar forçando Hyprland em todo o projeto."
+        },
+        {
+          "line": 176,
+          "path": "modules/nixos/installer/default.nix",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "printf '%s\\n' \"rag-install is deprecated, use kryonix-install\" >&2"
+        },
+        {
+          "line": 218,
+          "path": "modules/nixos/installer/default.nix",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "printf '%s\\n' \"rag-install-tui is deprecated, use kryonix-install-tui\" >&2"
+        },
+        {
+          "line": 30,
+          "path": "modules/node/core/client/auth/users.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPassword = nodeAdminHashedPassword;"
+        },
+        {
+          "line": 82,
+          "path": "modules/node/core/client/auth/users.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPassword ="
+        },
+        {
+          "line": 83,
+          "path": "modules/node/core/client/auth/users.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "if spec ? hashedPassword then"
+        },
+        {
+          "line": 84,
+          "path": "modules/node/core/client/auth/users.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "spec.hashedPassword"
+        },
+        {
+          "line": 11,
+          "path": "modules/node/core/client/modules/security-no-root.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPassword = \"!\";"
+        },
+        {
+          "line": 24,
+          "path": "modules/node/core/flake/validations.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "else if (nodeParams.runtimeSource or \"runtime\") == \"placeholder\" then"
+        },
+        {
+          "line": 25,
+          "path": "modules/node/core/flake/validations.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "builtins.throw \"NODE: nodeParams.runtimeSource=placeholder não é aceito\""
+        },
+        {
+          "line": 124,
+          "path": "modules/node/core/knyc/lib/boot.sh",
+          "signals": [
+            "legacy"
+          ],
+          "text": "item current Boot current legacy (\\${current_build_id})"
+        },
+        {
+          "line": 81,
+          "path": "modules/node/core/server/ragos-cli.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "die \"NODE runtime invalido: /boot ainda resolve para placeholder ($boot_device)\""
+        },
+        {
+          "line": 277,
+          "path": "modules/node/core/server/ragos-cli.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPassword: $hash,"
+        },
+        {
+          "line": 294,
+          "path": "modules/node/core/server/ragos-cli.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashed_password=\"$(jq -r --arg user \"$user_name\" '.[$user].hashedPassword // empty' \"$NODE_CLIENT_USERS_FILE\" 2>/dev/null || true)\""
+        },
+        {
+          "line": 83,
+          "path": "modules/node/core/server/roles/base.nix",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "hashedPassword = nodeAdminHashedPassword;"
+        },
+        {
+          "line": 25,
+          "path": "modules/node/core/server/runtime/guard.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "message = \"NODE runtime invalido: /boot ainda resolve para placeholder (${bootDevice})\";"
+        },
+        {
+          "line": 2,
+          "path": "modules/node/core/server/runtime/hardware-configuration.example.nix",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "PLACEHOLDER (GERADO PELO INSTALADOR)"
+        },
+        {
+          "line": 23,
+          "path": "modules/shared/nixpkgs/default.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "outputs.overlays.python312-docs-stub"
+        },
+        {
+          "line": 152,
+          "path": "overlays/default.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "# python312: stub de docs"
+        },
+        {
+          "line": 168,
+          "path": "overlays/default.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "python312-docs-stub = final: prev: {"
+        },
+        {
+          "line": 179,
+          "path": "overlays/default.nix",
+          "signals": [
+            "stub"
+          ],
+          "text": "This is a stub output to avoid build failures in sphinx/docutils."
+        },
+        {
+          "line": 70,
+          "path": "packages/kryonix-caelestia-watcher/src/main.rs",
+          "signals": [
+            "todo"
+          ],
+          "text": "// TODO: Implement nix-edit or text replacement logic for flake.nix imports"
+        },
+        {
+          "line": 5,
+          "path": "packages/kryonix-disk-planner/src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "struct InstallPlan {"
+        },
+        {
+          "line": 48,
+          "path": "packages/kryonix-disk-planner/src/main.rs",
+          "signals": [
+            "stub"
+          ],
+          "text": "// Stub: Ignora input por enquanto e gera um plano padrão"
+        },
+        {
+          "line": 49,
+          "path": "packages/kryonix-disk-planner/src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan = InstallPlan {"
+        },
+        {
+          "line": 7,
+          "path": "profiles/glacier-base.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "# - Networking de identidade (IP fixo, bridge, WoL) fica em rve-compat.nix."
+        },
+        {
+          "line": 36,
+          "path": "profiles/glacier-base.nix",
+          "signals": [
+            "todo"
+          ],
+          "text": "# TODO: migrar para feature gpu.prime quando existir."
+        },
+        {
+          "line": 84,
+          "path": "profiles/glacier-base.nix",
+          "signals": [
+            "compat"
+          ],
+          "text": "# (git, curl, wget, vim, htop já estão em rve-compat.nix — não duplicar)"
+        },
+        {
+          "line": 54,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "v1"
+          ],
+          "text": "PATH_LITERAL_RE = re.compile(r\"[`\\\"'](/api/(?:v1|v2)[^`\\\"']*)[`\\\"']\")"
+        },
+        {
+          "line": 55,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "fixme",
+            "hack",
+            "todo",
+            "xxx"
+          ],
+          "text": "TODO_RE = re.compile(r\"\\b(TODO|FIXME|XXX|HACK)\\b\", re.IGNORECASE)"
+        },
+        {
+          "line": 56,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "compat",
+            "deprecated",
+            "legacy",
+            "obsolete",
+            "placeholder",
+            "stub",
+            "v1"
+          ],
+          "text": "LEGACY_RE = re.compile(r\"\\b(legacy|deprecated|obsolete|compat|v1|placeholder|stub)\\b\", re.IGNORECASE)"
+        },
+        {
+          "line": 275,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "installplan"
+          ],
+          "text": "if \"InstallPlan\" in line:"
+        },
+        {
+          "line": 276,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "installplan"
+          ],
+          "text": "tokens.append(\"InstallPlan\")"
+        },
+        {
+          "line": 277,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if \"disk.mode\" in line:"
+        },
+        {
+          "line": 278,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "tokens.append(\"disk.mode\")"
+        },
+        {
+          "line": 279,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "if \"hashedPassword\" in line:"
+        },
+        {
+          "line": 280,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "tokens.append(\"hashedPassword\")"
+        },
+        {
+          "line": 362,
+          "path": "scripts/knowledge/repo_inventory.py",
+          "signals": [
+            "legacy"
+          ],
+          "text": "write_json(output / \"legacy-map.json\", {\"schemaVersion\": SCHEMA_VERSION, \"repositories\": {k: v[\"legacyMap\"] for k, v in sorted(per_repo.items())}})"
+        },
+        {
+          "line": 51,
+          "path": "skills/yt-to-notebook/SKILL.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "9. `## 🗺️ Mapa` — um **mindmap** Mermaid do todo (um fechamento visual satisfatório)."
+        },
+        {
+          "line": 35,
+          "path": "skills/yt-to-notebook/references/exemplo-gold.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "> [!danger] A inversão que quase todo mundo erra"
+        },
+        {
+          "line": 36,
+          "path": "skills/yt-to-notebook/references/exemplo-gold.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "> Mudar **não** é \"querer mais a meta\". É decidir **o que você abandona**. Todo mundo aposta no *pull* (o puxão do desejo). O verdadeiro motor é o *push* — soltar o que te trava."
+        },
+        {
+          "line": 43,
+          "path": "skills/yt-to-notebook/references/exemplo-gold.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "| **Quem foca aqui** | Quase todo mundo | Quem muda de verdade |"
+        },
+        {
+          "line": 72,
+          "path": "skills/yt-to-notebook/references/exemplo-gold.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "E é aqui que quase todo mundo falha: no **jeito** de fechar a porta."
+        },
+        {
+          "line": 124,
+          "path": "skills/yt-to-notebook/references/exemplo-gold.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "> \"Não há mudança sem mudança de identidade; e não há mudança de identidade sem mudar a rotina.\" A meta exige **virar outra pessoa** — e virar outra pessoa exige **trocar o que você faz todo dia**."
+        },
+        {
+          "line": 137,
+          "path": "skills/yt-to-notebook/references/exemplo-gold.md",
+          "signals": [
+            "todo"
+          ],
+          "text": "> - **Pontos sem volta** como ferramenta de gestão: decisões irreversíveis (encerrar uma oferta, cortar um cliente errado) valem mais que força de vontade renovada todo dia."
+        },
+        {
+          "line": 74,
+          "path": "skills/yt-to-notebook/references/formato-visual.md",
+          "signals": [
+            "hack"
+          ],
+          "text": "| `> [!tip]` | o hack, o atalho, a boa prática |"
+        },
+        {
+          "line": 44,
+          "path": "skills/yt-to-notebook/scripts/validar_nota.py",
+          "signals": [
+            "todo"
+          ],
+          "text": "erros.append(\"sem H1 (todo nota precisa de um `# Título`)\")"
+        },
+        {
+          "line": 139,
+          "path": "specs/07-kryonix-shell.md",
+          "signals": [
+            "compat"
+          ],
+          "text": "(manter compat: produzir binário `kryonix-bar` como alias durante transição)."
+        }
+      ]
+    },
+    "kryxd": {
+      "counts": {
+        "compat": 3,
+        "deprecated": 2,
+        "disk.mode": 26,
+        "hashedpassword": 16,
+        "installplan": 197,
+        "legacy": 13,
+        "placeholder": 79,
+        "stub": 13,
+        "todo": 5,
+        "v1": 37
+      },
+      "occurrences": [
+        {
+          "line": 198,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub struct InstallPlanV2 {"
+        },
+        {
+          "line": 282,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan: InstallPlanV2 = serde_json::from_value(valid_plan_json()).unwrap();"
+        },
+        {
+          "line": 295,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan: InstallPlanV2 = serde_json::from_value(valid_plan_json()).unwrap();"
+        },
+        {
+          "line": 307,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 315,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 323,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 334,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 343,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 352,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 361,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let error = serde_json::from_value::<InstallPlanV2>(value).unwrap_err();"
+        },
+        {
+          "line": 367,
+          "path": "crates/kryx/src/domain/config.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan: InstallPlanV2 = serde_json::from_value(valid_split_btrfs_plan_json()).unwrap();"
+        },
+        {
+          "line": 1,
+          "path": "crates/kryx/src/services/translator.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::domain::config::{InstallPlanV2, Topology};"
+        },
+        {
+          "line": 4,
+          "path": "crates/kryx/src/services/translator.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn generate_nix_config(plan: &InstallPlanV2) -> Result<String, String> {"
+        },
+        {
+          "line": 118,
+          "path": "crates/kryx/src/services/translator.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan = InstallPlanV2 {"
+        },
+        {
+          "line": 35,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "installplan"
+          ],
+          "text": "| `/dry-run`                                     | POST   | Sim        | `InstallPlan`         | `{ ok, checks }` |"
+        },
+        {
+          "line": 36,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "installplan"
+          ],
+          "text": "| `/install`                                     | POST   | Sim        | `InstallPlan`         | `202 ACCEPTED` (inicia job) |"
+        },
+        {
+          "line": 50,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "| `stub` | Bloqueia a validação no dry-run/installing. | Desabilita o toggle da feature. |"
+        },
+        {
+          "line": 51,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "| `legacy` | Bloqueia a validação no dry-run/installing. | Desabilita o toggle da feature. |"
+        },
+        {
+          "line": 55,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "stub"
+          ],
+          "text": "- `ai.lightrag`, `ai.open-webui`, `remote.desktop.server`, `remote.desktop.client` -> **Stub**"
+        },
+        {
+          "line": 56,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "legacy"
+          ],
+          "text": "- `network.legacy_bridge`, `system.legacy_boot` -> **Legacy**"
+        },
+        {
+          "line": 58,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "installplan"
+          ],
+          "text": "## Payload: `InstallPlan`"
+        },
+        {
+          "line": 83,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "\"hashedPassword\": \"super_secret_password\""
+        },
+        {
+          "line": 97,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "**ATENÇÃO DE SEGURANÇA (Contrato `hashedPassword`):**"
+        },
+        {
+          "line": 98,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "- A senha (`hashedPassword`) trafega em texto puro **exclusivamente via memória** no frontend (`buildInstallSecretsPayload`) e no request HTTP via HTTPS/Localhost."
+        },
+        {
+          "line": 99,
+          "path": "docs/FRONTEND_BACKEND_CONTRACT.md",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "- **NUNCA** pode ser escrita ou logada no sistema de arquivos local do LiveCD (e.g. log do `dry-run` ou `install-plan.json`). O executor do backend trata o campo `user.hashedPassword` aplicando o hash nativamente (ex. bcrypt/SHA512) no proc"
+        },
+        {
+          "line": 22,
+          "path": "docs/audits/KRYONIX_INSTALLER_PHASE2_AUDIT.md",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "| 3 | **CORS Permissivo em API Destrutiva** | `CorsLayer::permissive()` permite qualquer origem fazer `POST /install` com `disk.mode=\"install\"`. Em ambientes de rede compartilhada, uma página maliciosa aberta em outro tab pode iniciar uma i"
+        },
+        {
+          "line": 32,
+          "path": "docs/audits/KRYONIX_INSTALLER_PHASE2_AUDIT.md",
+          "signals": [
+            "hashedpassword",
+            "installplan"
+          ],
+          "text": "| 13 | **Ausência de senha de usuário inicial** | `users.generated.nix` não emite `hashedPassword`. O sistema instalado terá o usuário criado mas sem senha, impossibilitando login em console físico (sem SSH). | `target_tree.rs:563-579` — ne"
+        },
+        {
+          "line": 34,
+          "path": "docs/audits/KRYONIX_INSTALLER_PHASE2_AUDIT.md",
+          "signals": [
+            "installplan"
+          ],
+          "text": "| 15 | **disko config usa target sem sanitização adicional** | Em `generate_btrfs_simple`, o `target` vai diretamente para a string Nix sem ser re-validado pelo regex de `is_valid_disk_path`. O valor vem do `InstallPlan` serializado, que o "
+        },
+        {
+          "line": 72,
+          "path": "docs/audits/KRYONIX_INSTALLER_PHASE2_AUDIT.md",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "Aceitar `hashedPasswordFile` via canal seguro (env var ou arquivo com permissão 0400) e emiti-la no `users.generated.nix`. Sem senha, login físico é impossível."
+        },
+        {
+          "line": 125,
+          "path": "docs/audits/KRYONIX_INSTALLER_PHASE2_AUDIT.md",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "| 5 | `test_users_generated_emits_hashed_password` — `hashedPassword` presente no nix gerado | Unitário | `src/executor/target_tree.rs` |"
+        },
+        {
+          "line": 8,
+          "path": "nixos/modules/kryonix/notebooklm-mcp.nix",
+          "signals": [
+            "todo"
+          ],
+          "text": "# TODO: Substituir por pkgs.callPackage com o path real"
+        },
+        {
+          "line": 387,
+          "path": "src/api/auth.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "let v1 = val(*bytes.get(i + 1)?)?;"
+        },
+        {
+          "line": 390,
+          "path": "src/api/auth.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "out.push((v0 << 2) | (v1 >> 4));"
+        },
+        {
+          "line": 392,
+          "path": "src/api/auth.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "out.push(((v1 & 0b0000_1111) << 4) | (v2 >> 2));"
+        },
+        {
+          "line": 7,
+          "path": "src/api/cluster.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use crate::api::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 22,
+          "path": "src/api/console.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use super::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 26,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::domain::{Encryption, InstallPlanV2, InstallSecretsV2, Topology};"
+        },
+        {
+          "line": 65,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn save_plan(&self, plan: &InstallPlanV2) -> Result<String, InstallServiceError> {"
+        },
+        {
+          "line": 75,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn load_plan(&self, digest: &str) -> Result<InstallPlanV2, InstallServiceError> {"
+        },
+        {
+          "line": 182,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn save_plan(&self, plan: &InstallPlanV2) -> Result<String, InstallServiceError> {"
+        },
+        {
+          "line": 307,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "payload: Result<Json<InstallPlanV2>, JsonRejection>,"
+        },
+        {
+          "line": 562,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn reject_unimplemented_capabilities(plan: &InstallPlanV2) -> Result<(), InstallServiceError> {"
+        },
+        {
+          "line": 867,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn plan() -> InstallPlanV2 {"
+        },
+        {
+          "line": 868,
+          "path": "src/api/install.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlanV2 {"
+        },
+        {
+          "line": 11,
+          "path": "src/api/mod.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "pub mod v1;"
+        },
+        {
+          "line": 18,
+          "path": "src/api/storage.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use crate::api::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 4,
+          "path": "src/api/v1/fleet.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use crate::api::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 3,
+          "path": "src/api/v1/ldap.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use crate::api::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 13,
+          "path": "src/api/v1/ldap.rs",
+          "signals": [
+            "stub"
+          ],
+          "text": "Json(json!({ \"status\": \"stub\", \"message\": \"LDAP user creation not yet implemented\" }))"
+        },
+        {
+          "line": 4,
+          "path": "src/api/v1/storage.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use crate::api::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 13,
+          "path": "src/api/virt.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "use crate::api::v1::rbac::RequireCoreRole;"
+        },
+        {
+          "line": 4,
+          "path": "src/domain/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "BtrfsStoragePlan, Encryption, FileSystem, InstallPlanV2, MountPlan, RepositoryPlan,"
+        },
+        {
+          "line": 1,
+          "path": "src/executor/kryonixos.rs",
+          "signals": [
+            "compat"
+          ],
+          "text": "//! Compat shim: delega para [`super::target_tree`] (layout v2)."
+        },
+        {
+          "line": 12,
+          "path": "src/executor/kryonixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::InstallPlan;"
+        },
+        {
+          "line": 15,
+          "path": "src/executor/kryonixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlan,"
+        },
+        {
+          "line": 24,
+          "path": "src/executor/kryonixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::{InstallPlan, PlanUser};"
+        },
+        {
+          "line": 26,
+          "path": "src/executor/kryonixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn make_test_plan() -> InstallPlan {"
+        },
+        {
+          "line": 27,
+          "path": "src/executor/kryonixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlan {"
+        },
+        {
+          "line": 16,
+          "path": "src/executor/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::InstallPlan;"
+        },
+        {
+          "line": 19,
+          "path": "src/executor/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlan,"
+        },
+        {
+          "line": 7,
+          "path": "src/executor/nixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::InstallPlan;"
+        },
+        {
+          "line": 15,
+          "path": "src/executor/nixos.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlan,"
+        },
+        {
+          "line": 5,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::InstallPlan;"
+        },
+        {
+          "line": 8,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlan,"
+        },
+        {
+          "line": 25,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if !valid_modes.contains(&plan.disk.mode.as_str()) {"
+        },
+        {
+          "line": 26,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "return Err(format!(\"Modo disko inválido: {}\", plan.disk.mode));"
+        },
+        {
+          "line": 30,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": ".args([\"--mode\", &plan.disk.mode, config_path])"
+        },
+        {
+          "line": 51,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub async fn run_disko_dry_run(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 60,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if !valid_modes.contains(&plan.disk.mode.as_str()) {"
+        },
+        {
+          "line": 61,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "return Err(format!(\"Modo disko inválido: {}\", plan.disk.mode));"
+        },
+        {
+          "line": 65,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": ".args([\"--mode\", &plan.disk.mode, \"--dry-run\", config_path])"
+        },
+        {
+          "line": 80,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn generate_disko_config(plan: &InstallPlan) -> String {"
+        },
+        {
+          "line": 92,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn generate_disko_config_manual(plan: &InstallPlan) -> String {"
+        },
+        {
+          "line": 367,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn manual_plan(parts: Vec<crate::PartitionSpec>) -> InstallPlan {"
+        },
+        {
+          "line": 369,
+          "path": "src/executor/partition.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlan {"
+        },
+        {
+          "line": 4,
+          "path": "src/executor/safety.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::{InstallPlan, disk};"
+        },
+        {
+          "line": 30,
+          "path": "src/executor/safety.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn run_safety_checks(plan: &InstallPlan) -> Vec<SafetyCheck> {"
+        },
+        {
+          "line": 54,
+          "path": "src/executor/safety.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn manual_targets(plan: &InstallPlan) -> Vec<String> {"
+        },
+        {
+          "line": 75,
+          "path": "src/executor/safety.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn check_manual_layout(plan: &InstallPlan) -> SafetyCheck {"
+        },
+        {
+          "line": 99,
+          "path": "src/executor/safety.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn check_raid_layout(plan: &InstallPlan) -> SafetyCheck {"
+        },
+        {
+          "line": 276,
+          "path": "src/executor/safety.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan = InstallPlan {"
+        },
+        {
+          "line": 44,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::InstallPlan;"
+        },
+        {
+          "line": 138,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlan,"
+        },
+        {
+          "line": 230,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &crate::InstallPlan,"
+        },
+        {
+          "line": 404,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_target_flake(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 456,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_generated_modules(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 465,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub async fn write_hardware_generated(_plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 485,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_storage_generated(_plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 496,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ": # placeholder; layout aplicado pelo executor antes do nixos-install"
+        },
+        {
+          "line": 517,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_network_generated(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 538,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn network_body(plan: &InstallPlan) -> String {"
+        },
+        {
+          "line": 577,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn render_users_generated(plan: &InstallPlan) -> String {"
+        },
+        {
+          "line": 633,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "// P0.4: Emite hashedPassword quando presente."
+        },
+        {
+          "line": 635,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "// Usa `hashedPassword` (não `initialHashedPassword`) para que qualquer"
+        },
+        {
+          "line": 647,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "format!(\"    hashedPassword = \\\"{}\\\";\\n\", escaped_hash)"
+        },
+        {
+          "line": 652,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "\"    hashedPassword = \\\"!\\\";\\n\".to_string()"
+        },
+        {
+          "line": 675,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_users_generated(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 684,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_features_generated(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 753,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn render_features(plan: &InstallPlan) -> Result<String, String> {"
+        },
+        {
+          "line": 817,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn write_state_files(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 1197,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::{InstallPlan, PlanDisk, PlanUser, TargetRemoteAccessPlan};"
+        },
+        {
+          "line": 1198,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan = InstallPlan {"
+        },
+        {
+          "line": 1246,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::{InstallPlan, PlanDisk, PlanUser, TargetRemoteAccessPlan};"
+        },
+        {
+          "line": 1247,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan = InstallPlan {"
+        },
+        {
+          "line": 1298,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::{InstallPlan, PlanDisk, PlanUser, TargetRemoteAccessPlan};"
+        },
+        {
+          "line": 1299,
+          "path": "src/executor/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan = InstallPlan {"
+        },
+        {
+          "line": 11,
+          "path": "src/executor/verify.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::InstallPlan;"
+        },
+        {
+          "line": 14,
+          "path": "src/executor/verify.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn partition_targets(plan: &InstallPlan) -> Vec<String> {"
+        },
+        {
+          "line": 61,
+          "path": "src/executor/verify.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub async fn verify_disk_install(plan: &InstallPlan) -> Result<(), String> {"
+        },
+        {
+          "line": 124,
+          "path": "src/executor/verify.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn plan_with(profile: &str, target: &str, selected: Vec<&str>) -> InstallPlan {"
+        },
+        {
+          "line": 125,
+          "path": "src/executor/verify.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlan {"
+        },
+        {
+          "line": 100,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub struct InstallPlan {"
+        },
+        {
+          "line": 198,
+          "path": "src/main.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "#[serde(rename = \"hashedPassword\", default, skip_serializing)]"
+        },
+        {
+          "line": 336,
+          "path": "src/main.rs",
+          "signals": [
+            "compat"
+          ],
+          "text": "// Hardware probe — canonical path matches spec, /probe kept for compat"
+        },
+        {
+          "line": 385,
+          "path": "src/main.rs",
+          "signals": [
+            "legacy",
+            "v1"
+          ],
+          "text": ".nest(\"/api/v1\", api::v1::router().nest(\"/legacy\", legacy_api))"
+        },
+        {
+          "line": 643,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "async fn plan(Json(req): Json<PlanRequest>) -> Json<InstallPlan> {"
+        },
+        {
+          "line": 644,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "Json(InstallPlan {"
+        },
+        {
+          "line": 677,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn hash_password_if_needed(plan: &mut InstallPlan) -> Result<(), ApiError> {"
+        },
+        {
+          "line": 681,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn hash_password_with_command(plan: &mut InstallPlan, cmd_path: &str) -> Result<(), ApiError> {"
+        },
+        {
+          "line": 761,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "Json(mut plan): Json<InstallPlan>,"
+        },
+        {
+          "line": 785,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "let mut current_mode = plan.disk.mode.as_str();"
+        },
+        {
+          "line": 787,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "plan.disk.mode = \"destroy,format,mount\".to_string();"
+        },
+        {
+          "line": 800,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "\"field\": \"disk.mode\","
+        },
+        {
+          "line": 858,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn validate_plan(plan: &InstallPlan) -> DryRunResult {"
+        },
+        {
+          "line": 1037,
+          "path": "src/main.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "// Em modo install, a ausência de hashedPassword cria um usuário inutilizável"
+        },
+        {
+          "line": 1040,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if plan.disk.mode == \"install\" || plan.disk.mode == \"real\" {"
+        },
+        {
+          "line": 1044,
+          "path": "src/main.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "\"Senha obrigatória: user.hashedPassword ausente ou vazio. \\"
+        },
+        {
+          "line": 1045,
+          "path": "src/main.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "Envie o hash NixOS ($y$..., $6$...) no campo user.hashedPassword. \\"
+        },
+        {
+          "line": 1060,
+          "path": "src/main.rs",
+          "signals": [
+            "hashedpassword"
+          ],
+          "text": "\"user.hashedPassword tem formato inválido (esperado: $y$, $6$, $5$, $2b$ ou '!'). \\"
+        },
+        {
+          "line": 1091,
+          "path": "src/main.rs",
+          "signals": [
+            "todo"
+          ],
+          "text": "// TODO: Futuramente consumir do docs/FEATURE_REGISTRY.md do core"
+        },
+        {
+          "line": 1146,
+          "path": "src/main.rs",
+          "signals": [
+            "stub"
+          ],
+          "text": "// Frontend catalog: ai (non-partial, non-stub)"
+        },
+        {
+          "line": 1204,
+          "path": "src/main.rs",
+          "signals": [
+            "stub"
+          ],
+          "text": "\"Feature '{}' é um stub e não pode ser ativada.\","
+        },
+        {
+          "line": 1211,
+          "path": "src/main.rs",
+          "signals": [
+            "legacy"
+          ],
+          "text": "\"Feature '{}' é legacy e não pode ser ativada.\","
+        },
+        {
+          "line": 1233,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn install_targets(plan: &InstallPlan) -> Vec<String> {"
+        },
+        {
+          "line": 1316,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "Json(mut plan): Json<InstallPlan>,"
+        },
+        {
+          "line": 1338,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if plan.disk.mode == \"dry-run\" {"
+        },
+        {
+          "line": 1342,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if plan.disk.mode != \"install\" && plan.disk.mode != \"real\" {"
+        },
+        {
+          "line": 1348,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "\"Use disk.mode=\\\"dry-run\\\" para validar ou \\\"install\\\"/\\\"real\\\" para executar.\""
+        },
+        {
+          "line": 1470,
+          "path": "src/main.rs",
+          "signals": [
+            "legacy"
+          ],
+          "text": "// ── Legacy routes ─────────────────────────────────────────────────────────────"
+        },
+        {
+          "line": 1526,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn make_plan(disk: &str, hostname: &str, user: &str) -> InstallPlan {"
+        },
+        {
+          "line": 1527,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlan {"
+        },
+        {
+          "line": 1656,
+          "path": "src/main.rs",
+          "signals": [
+            "stub"
+          ],
+          "text": ".any(|c| !c.ok && c.message.contains(\"stub\"))"
+        },
+        {
+          "line": 1671,
+          "path": "src/main.rs",
+          "signals": [
+            "legacy"
+          ],
+          "text": ".any(|c| !c.ok && c.message.contains(\"legacy\"))"
+        },
+        {
+          "line": 1707,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "/// Garante que InstallPlan desserializa um payload real da UI"
+        },
+        {
+          "line": 1710,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "/// O payload usa as chaves camelCase que buildKryonixInstallPlan (installerApi.js)"
+        },
+        {
+          "line": 1714,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// Fixture idêntica ao que buildKryonixInstallPlan produz:"
+        },
+        {
+          "line": 1716,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// InstallPlan que o mapper mantém por compatibilidade."
+        },
+        {
+          "line": 1744,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// camelCase: exatamente como a UI envia via buildKryonixInstallPlan"
+        },
+        {
+          "line": 1758,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan: InstallPlan = serde_json::from_value(json)"
+        },
+        {
+          "line": 1759,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": ".expect(\"InstallPlan deve desserializar payload real da UI (camelCase)\");"
+        },
+        {
+          "line": 1802,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// Payload exato que buildKryonixInstallPlan gera no modo DHCP:"
+        },
+        {
+          "line": 1819,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let result = serde_json::from_value::<InstallPlan>(json);"
+        },
+        {
+          "line": 1831,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "/// Garante que InstallPlan aceita authorized_keys vazio (campo opcional)."
+        },
+        {
+          "line": 1852,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "let plan: InstallPlan = serde_json::from_value(json)"
+        },
+        {
+          "line": 1853,
+          "path": "src/main.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": ".expect(\"InstallPlan deve aceitar user sem authorized_keys\");"
+        },
+        {
+          "line": 2019,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "assert_eq!(plan.disk.mode, \"dry-run\");"
+        },
+        {
+          "line": 2027,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "plan.disk.mode = \"install\".into();"
+        },
+        {
+          "line": 2028,
+          "path": "src/main.rs",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "assert_ne!(plan.disk.mode, \"dry-run\");"
+        },
+        {
+          "line": 895,
+          "path": "src/network.rs",
+          "signals": [
+            "compat"
+          ],
+          "text": "/// vazias no array são ignoradas (compat com o front)."
+        },
+        {
+          "line": 5,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::domain::{FileSystem, InstallPlanV2, Topology};"
+        },
+        {
+          "line": 20,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "stub"
+          ],
+          "text": "/// Falhas seguras produzidas pelo stub de migração."
+        },
+        {
+          "line": 25,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "/// O plano v2 não contém os dados necessários ao executor v1."
+        },
+        {
+          "line": 37,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "installplan",
+            "v1"
+          ],
+          "text": "\"single BTRFS foi direcionado ao legado, mas o InstallPlanV2 não contém o contexto v1 exigido pelo executor\","
+        },
+        {
+          "line": 41,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "\"single ext4 foi direcionado ao legado, mas o executor v1 só oferece ext4 sobre LVM e não pode ser chamado sem alterar a topologia\","
+        },
+        {
+          "line": 69,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn select_backend(plan: &InstallPlanV2) -> Result<MigrationBackend, Error> {"
+        },
+        {
+          "line": 95,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn execute_plan(plan: InstallPlanV2) -> Result<(), Error> {"
+        },
+        {
+          "line": 117,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn plan(topology: Topology, root_filesystem: FileSystem) -> InstallPlanV2 {"
+        },
+        {
+          "line": 119,
+          "path": "src/services/migration.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlanV2 {"
+        },
+        {
+          "line": 13,
+          "path": "src/services/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "BtrfsStoragePlan, Encryption, FileSystem, InstallPlanV2, MountPlan, RepositoryPlan,"
+        },
+        {
+          "line": 19,
+          "path": "src/services/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn split_zfs_plan() -> InstallPlanV2 {"
+        },
+        {
+          "line": 20,
+          "path": "src/services/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlanV2 {"
+        },
+        {
+          "line": 52,
+          "path": "src/services/mod.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn split_btrfs_plan() -> InstallPlanV2 {"
+        },
+        {
+          "line": 11,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::domain::{Encryption, FileSystem, InstallPlanV2, MountPlan, Topology};"
+        },
+        {
+          "line": 210,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlanV2,"
+        },
+        {
+          "line": 278,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "pub fn render(plan: &InstallPlanV2) -> Result<String, PartitionerError> {"
+        },
+        {
+          "line": 482,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn validate_storage_contract(plan: &InstallPlanV2) -> Result<(), PartitionerError> {"
+        },
+        {
+          "line": 588,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn selected_disk_paths(plan: &InstallPlanV2) -> Result<Vec<&str>, PartitionerError> {"
+        },
+        {
+          "line": 693,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn render_single(plan: &InstallPlanV2) -> Result<String, PartitionerError> {"
+        },
+        {
+          "line": 733,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn render_split(plan: &InstallPlanV2) -> Result<String, PartitionerError> {"
+        },
+        {
+          "line": 885,
+          "path": "src/services/partitioner.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn render_zpool(plan: &InstallPlanV2, root_pool: bool) -> Result<String, PartitionerError> {"
+        },
+        {
+          "line": 21,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "use crate::domain::{InstallPlanV2, RepositoryPlan};"
+        },
+        {
+          "line": 149,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlanV2,"
+        },
+        {
+          "line": 204,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "plan: &InstallPlanV2,"
+        },
+        {
+          "line": 250,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "v1"
+          ],
+          "text": "OsString::from(\"--porcelain=v1\"),"
+        },
+        {
+          "line": 269,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn write_generated_tree(&self, plan: &InstallPlanV2) -> Result<(), TargetTreeError> {"
+        },
+        {
+          "line": 1057,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "fn plan() -> InstallPlanV2 {"
+        },
+        {
+          "line": 1058,
+          "path": "src/services/target_tree.rs",
+          "signals": [
+            "installplan"
+          ],
+          "text": "InstallPlanV2 {"
+        },
+        {
+          "line": 5,
+          "path": "ui/README.md",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "Ao contrário do placeholder inicial, o diretório já reúne uma aplicação funcional dividida em duas camadas:"
+        },
+        {
+          "line": 381,
+          "path": "ui/src/App.jsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "fetch('/api/v1/system/identity')"
+        },
+        {
+          "line": 22,
+          "path": "ui/src/WizardInstaller.jsx",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft,"
+        },
+        {
+          "line": 89,
+          "path": "ui/src/WizardInstaller.jsx",
+          "signals": [
+            "installplan"
+          ],
+          "text": "draft: stored?.draft ?? createInstallPlanDraft(INITIAL_INSTALL_PLAN_DRAFT),"
+        },
+        {
+          "line": 140,
+          "path": "ui/src/WizardInstaller.jsx",
+          "signals": [
+            "installplan"
+          ],
+          "text": "? createInstallPlanDraft({ ...previous.draft, ...draftPatch })"
+        },
+        {
+          "line": 8,
+          "path": "ui/src/components/KxCombobox.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder = 'Selecione...',"
+        },
+        {
+          "line": 66,
+          "path": "ui/src/components/KxCombobox.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "{selectedOption ? selectedOption.label : placeholder}"
+        },
+        {
+          "line": 83,
+          "path": "ui/src/components/KxCombobox.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={searchPlaceholder}"
+        },
+        {
+          "line": 84,
+          "path": "ui/src/components/KxCombobox.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full rounded-xl bg-white/5 backdrop-blur-md px-3 py-2 text-[13px] text-slate-800 focus:outline-none focus:ring-2 focus:ring-accent-blue/50 dark:bg-black/20 dark:text-slate-200 dark:placeholder-slate-500 border border-transparen"
+        },
+        {
+          "line": 194,
+          "path": "ui/src/components/ProfileSelector.jsx",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "{disk.path || `/dev/${disk.name}`} ({disk.size || disk.size_bytes}) {disk.model ? `- ${disk.model}` : ''}"
+        },
+        {
+          "line": 173,
+          "path": "ui/src/components/Sidebar.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "{ id: 'ts-img-2', type: 'lxc', label: 'KVE-Rescue-Shell-v1.4', status: 'running' },"
+        },
+        {
+          "line": 74,
+          "path": "ui/src/components/VirtWizard.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"ex: web-server-01\""
+        },
+        {
+          "line": 102,
+          "path": "ui/src/components/VirtWizard.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"images:ubuntu/24.04\""
+        },
+        {
+          "line": 15,
+          "path": "ui/src/components/dashboard/CpuWidget.tsx",
+          "signals": [
+            "todo"
+          ],
+          "text": "// TODO: V2 API Bind — trocar a série estática por /api/v2/metrics/host quando"
+        },
+        {
+          "line": 4,
+          "path": "ui/src/components/dashboard/MemoryWidget.tsx",
+          "signals": [
+            "todo"
+          ],
+          "text": "// TODO: V2 API Bind — trocar os valores estáticos por /api/v2/metrics/host."
+        },
+        {
+          "line": 77,
+          "path": "ui/src/components/dashboard/SearchOverlay.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Search VMs, Nodes, Storage, Tasks...\""
+        },
+        {
+          "line": 78,
+          "path": "ui/src/components/dashboard/SearchOverlay.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"flex-1 bg-transparent border-none text-lg text-white focus:outline-none placeholder:text-slate-600 font-medium\""
+        },
+        {
+          "line": 48,
+          "path": "ui/src/components/dashboard/StorageContentView.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Search content...\""
+        },
+        {
+          "line": 4,
+          "path": "ui/src/components/dashboard/StorageWidget.tsx",
+          "signals": [
+            "todo"
+          ],
+          "text": "// TODO: V2 API Bind — trocar os valores estáticos por /api/v2/storage/pools"
+        },
+        {
+          "line": 34,
+          "path": "ui/src/components/dashboard/VmListView.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Search VMs or Containers...\""
+        },
+        {
+          "line": 225,
+          "path": "ui/src/data/featureCatalog.js",
+          "signals": [
+            "stub"
+          ],
+          "text": "status: 'stub'"
+        },
+        {
+          "line": 259,
+          "path": "ui/src/data/featureCatalog.js",
+          "signals": [
+            "stub"
+          ],
+          "text": "status: 'stub'"
+        },
+        {
+          "line": 12,
+          "path": "ui/src/hooks/useInstallExecution.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "buildInstallPlanPayload,"
+        },
+        {
+          "line": 14,
+          "path": "ui/src/hooks/useInstallExecution.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "validateInstallPlanPayload,"
+        },
+        {
+          "line": 23,
+          "path": "ui/src/hooks/useInstallExecution.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const planPayload = useMemo(() => buildInstallPlanPayload(draft), [draft]);"
+        },
+        {
+          "line": 148,
+          "path": "ui/src/hooks/useInstallExecution.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "validateInstallPlanPayload(planPayload);"
+        },
+        {
+          "line": 203,
+          "path": "ui/src/i18n/locales/en-US.json",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "\"placeholder\": \"https://github.com/your-user/kryonixos.git\","
+        },
+        {
+          "line": 346,
+          "path": "ui/src/i18n/locales/en-US.json",
+          "signals": [
+            "legacy"
+          ],
+          "text": "\"pulseaudio\": \"PulseAudio (Legacy)\","
+        },
+        {
+          "line": 203,
+          "path": "ui/src/i18n/locales/es-ES.json",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "\"placeholder\": \"https://github.com/tu-usuario/kryonixos.git\","
+        },
+        {
+          "line": 203,
+          "path": "ui/src/i18n/locales/pt-BR.json",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "\"placeholder\": \"https://github.com/seu-usuario/kryonixos.git\","
+        },
+        {
+          "line": 20,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "--kx-input-placeholder: var(--kx-muted);"
+        },
+        {
+          "line": 26,
+          "path": "ui/src/index.css",
+          "signals": [
+            "legacy"
+          ],
+          "text": "/* Legacy variables for compatibility with unrefactored components */"
+        },
+        {
+          "line": 103,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ".kx-input::placeholder,"
+        },
+        {
+          "line": 104,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ".kx-textarea::placeholder {"
+        },
+        {
+          "line": 105,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "color: var(--kx-input-placeholder);"
+        },
+        {
+          "line": 644,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "/* Aba placeholder */"
+        },
+        {
+          "line": 645,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ".tab-placeholder {"
+        },
+        {
+          "line": 1092,
+          "path": "ui/src/index.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": ".react-grid-placeholder {"
+        },
+        {
+          "line": 92,
+          "path": "ui/src/layouts/DashboardLayoutWithTree.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full bg-transparent text-slate-300 placeholder:text-slate-600 focus:outline-none\""
+        },
+        {
+          "line": 93,
+          "path": "ui/src/layouts/DashboardLayoutWithTree.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Global Search: node, VM, CT, storage…\""
+        },
+        {
+          "line": 138,
+          "path": "ui/src/layouts/DashboardLayoutWithTree.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input className={fieldClass} value={createForm.name} onChange={updateField('name')} placeholder=\"vm-app-01\" required />"
+        },
+        {
+          "line": 147,
+          "path": "ui/src/layouts/DashboardLayoutWithTree.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input className={fieldClass} value={createForm.image} onChange={updateField('image')} placeholder=\"images:ubuntu/24.04\" required />"
+        },
+        {
+          "line": 150,
+          "path": "ui/src/layouts/DashboardLayoutWithTree.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input className={fieldClass} value={createForm.network_bridge} onChange={updateField('network_bridge')} placeholder=\"incusbr0\" required />"
+        },
+        {
+          "line": 18,
+          "path": "ui/src/lib/api.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "return requestJson('/api/v1/auth/login', {"
+        },
+        {
+          "line": 25,
+          "path": "ui/src/lib/api.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "return requestJson('/api/v1/auth/session');"
+        },
+        {
+          "line": 29,
+          "path": "ui/src/lib/api.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "return requestJson('/api/v1/system/identity');"
+        },
+        {
+          "line": 33,
+          "path": "ui/src/lib/api.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "return requestJson('/api/v1/fleet/status');"
+        },
+        {
+          "line": 37,
+          "path": "ui/src/lib/api.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "return requestJson('/api/v1/storage/quotas');"
+        },
+        {
+          "line": 162,
+          "path": "ui/src/pages/Disks.jsx",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "{disk.model && ("
+        },
+        {
+          "line": 163,
+          "path": "ui/src/pages/Disks.jsx",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "<span className=\"text-[11px] font-medium text-slate-400\">{disk.model}</span>"
+        },
+        {
+          "line": 411,
+          "path": "ui/src/pages/Disks.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"text\" className=\"input-shell text-xs py-1 px-2 w-20\" value={p.sizeInput || p.size} onChange={e => updatePart(i, { sizeInput: e.target.value })} onBlur={e => updatePart(i, { sizeInput: e.target.value })} placeholder=\"20GiB\" titl"
+        },
+        {
+          "line": 433,
+          "path": "ui/src/pages/Disks.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"text\" className=\"input-shell text-xs py-1 px-2 w-24\" value={p.label || ''} onChange={e => updatePart(i, { label: e.target.value })} placeholder=\"kryonix-root\" />"
+        },
+        {
+          "line": 436,
+          "path": "ui/src/pages/Disks.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"text\" className=\"input-shell text-xs py-1 px-2 w-24\" value={p.mountpoint || ''} onChange={e => updatePart(i, { mountpoint: e.target.value })} disabled={p.usage === 'swap' || p.fstype === 'swap'} placeholder={p.usage === 'swap' "
+        },
+        {
+          "line": 527,
+          "path": "ui/src/pages/Disks.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"text\" className=\"input-shell w-full max-w-xs\" value={lvm.vgName} onChange={e => onChange({ lvmPlan: { ...lvm, vgName: e.target.value }})} placeholder=\"vg0\" />"
+        },
+        {
+          "line": 20,
+          "path": "ui/src/pages/HostSelection.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={t('host_selection.hostname_placeholder', { defaultValue: 'ex: kryonix-server' })}"
+        },
+        {
+          "line": 48,
+          "path": "ui/src/pages/Login.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-blue-500\""
+        },
+        {
+          "line": 49,
+          "path": "ui/src/pages/Login.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"admin\""
+        },
+        {
+          "line": 60,
+          "path": "ui/src/pages/Login.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-blue-500\""
+        },
+        {
+          "line": 61,
+          "path": "ui/src/pages/Login.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"••••••••••••\""
+        },
+        {
+          "line": 384,
+          "path": "ui/src/pages/Network.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input id=\"serverIp\" className=\"kx-input p-3\" value={wizard.serverIp} onChange={handleIpv4Change('serverIp')} inputMode=\"numeric\" disabled={netApplyBusy} placeholder=\"Ex: 192.168.1.100\" />"
+        },
+        {
+          "line": 403,
+          "path": "ui/src/pages/Network.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input id=\"mgmtGateway\" className=\"kx-input p-3\" value={wizard.mgmtGateway} onChange={handleIpv4Change('mgmtGateway')} inputMode=\"numeric\" disabled={netApplyBusy} placeholder=\"Ex: 192.168.1.1\" />"
+        },
+        {
+          "line": 408,
+          "path": "ui/src/pages/Network.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input id=\"dns1\" className=\"kx-input p-3\" value={dns1} onChange={(e) => setDns(e.target.value, dns2)} disabled={netApplyBusy} placeholder=\"Ex: 1.1.1.1\" />"
+        },
+        {
+          "line": 416,
+          "path": "ui/src/pages/Network.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input id=\"dns2\" className=\"kx-input p-3\" value={dns2} onChange={(e) => setDns(dns1, e.target.value)} disabled={netApplyBusy} placeholder=\"Ex: 8.8.8.8\" />"
+        },
+        {
+          "line": 420,
+          "path": "ui/src/pages/Network.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input id=\"mgmtDomain\" className=\"kx-input p-3\" value={wizard.mgmtDomain || ''} onChange={(e) => onChange({ mgmtDomain: e.target.value })} disabled={netApplyBusy} placeholder=\"Ex: local.kryonix.net\" />"
+        },
+        {
+          "line": 534,
+          "path": "ui/src/pages/Network.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"password\" placeholder={t('network.password', { defaultValue: 'Senha' })} className=\"kx-input flex-1 p-2 text-xs\" value={wifiPassword} onChange={(e) => setWifiPassword(e.target.value)} />"
+        },
+        {
+          "line": 168,
+          "path": "ui/src/pages/Source.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={t('source.userRepo.placeholder')}"
+        },
+        {
+          "line": 177,
+          "path": "ui/src/pages/Source.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={t('source.userRepo.branch')}"
+        },
+        {
+          "line": 247,
+          "path": "ui/src/pages/Source.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={t('source.createRepo.repoName')}"
+        },
+        {
+          "line": 3,
+          "path": "ui/src/pages/Summary.jsx",
+          "signals": [
+            "installplan"
+          ],
+          "text": "import { isStrongPassword, buildInstallPlanPayload } from '../utils/installPlan.js';"
+        },
+        {
+          "line": 65,
+          "path": "ui/src/pages/Summary.jsx",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const payload = buildInstallPlanPayload(wizard);"
+        },
+        {
+          "line": 133,
+          "path": "ui/src/pages/Summary.jsx",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "if (json.disk.mode) draftPatch.diskMode = json.disk.mode;"
+        },
+        {
+          "line": 12,
+          "path": "ui/src/pages/SystemFeatures.jsx",
+          "signals": [
+            "legacy",
+            "stub"
+          ],
+          "text": "if (feature?.status === 'stub' || feature?.status === 'legacy') return;"
+        },
+        {
+          "line": 41,
+          "path": "ui/src/pages/SystemFeatures.jsx",
+          "signals": [
+            "legacy",
+            "stub"
+          ],
+          "text": "const isBlocked = feature.status === 'stub' || feature.status === 'legacy';"
+        },
+        {
+          "line": 227,
+          "path": "ui/src/pages/Timezone.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={loading ? t('timezone.loading_timezones', { defaultValue: 'Carregando timezones...' }) : t('timezone.search_placeholder', { defaultValue: 'Buscar cidade ou fuso horário...' })}"
+        },
+        {
+          "line": 12,
+          "path": "ui/src/pages/UserFeatures.jsx",
+          "signals": [
+            "legacy",
+            "stub"
+          ],
+          "text": "if (feature?.status === 'stub' || feature?.status === 'legacy') return;"
+        },
+        {
+          "line": 41,
+          "path": "ui/src/pages/UserFeatures.jsx",
+          "signals": [
+            "legacy",
+            "stub"
+          ],
+          "text": "const isBlocked = feature.status === 'stub' || feature.status === 'legacy';"
+        },
+        {
+          "line": 38,
+          "path": "ui/src/pages/Users.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input id=\"adminFullName\" className=\"input-shell\" value={wizard.adminFullName} onChange={(e) => onChange({ adminFullName: e.target.value })} placeholder={t('users.account.fullNamePlaceholder')} />"
+        },
+        {
+          "line": 112,
+          "path": "ui/src/pages/Users.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"ssh-ed25519 AAAAC3... usuario@host\""
+        },
+        {
+          "line": 170,
+          "path": "ui/src/pages/Welcome.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={loading ? t('welcome.loading') : t('welcome.country').replace(/^[1-3]\\.\\s*/, '')}"
+        },
+        {
+          "line": 179,
+          "path": "ui/src/pages/Welcome.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={loading ? t('welcome.loading') : t('welcome.language').replace(/^[1-3]\\.\\s*/, '')}"
+        },
+        {
+          "line": 188,
+          "path": "ui/src/pages/Welcome.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder={loading ? t('welcome.loading') : t('welcome.keyboard').replace(/^[1-3]\\.\\s*/, '')}"
+        },
+        {
+          "line": 188,
+          "path": "ui/src/pages/kcp/Storage.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"pool/data\""
+        },
+        {
+          "line": 189,
+          "path": "ui/src/pages/kcp/Storage.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 font-mono text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-kryonix-blue\""
+        },
+        {
+          "line": 198,
+          "path": "ui/src/pages/kcp/Storage.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"10.0.0.12\""
+        },
+        {
+          "line": 199,
+          "path": "ui/src/pages/kcp/Storage.jsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 font-mono text-sm text-white outline-none transition-colors placeholder:text-slate-600 focus:border-kryonix-blue\""
+        },
+        {
+          "line": 1,
+          "path": "ui/src/state/wizardState.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "export const WIZARD_STORAGE_KEY = 'kryonix.installer.wizard.v1';"
+        },
+        {
+          "line": 220,
+          "path": "ui/src/state/wizardState.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "export function createInstallPlanDraft(source = {}) {"
+        },
+        {
+          "line": 250,
+          "path": "ui/src/state/wizardState.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "...createInstallPlanDraft(draft),"
+        },
+        {
+          "line": 269,
+          "path": "ui/src/state/wizardState.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "draft: createInstallPlanDraft(parsed?.draft),"
+        },
+        {
+          "line": 286,
+          "path": "ui/src/state/wizardState.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "draft: createInstallPlanDraft(draft),"
+        },
+        {
+          "line": 4,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "buildInstallPlanPayload,"
+        },
+        {
+          "line": 7,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "validateInstallPlanPayload,"
+        },
+        {
+          "line": 12,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft,"
+        },
+        {
+          "line": 17,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "return createInstallPlanDraft({"
+        },
+        {
+          "line": 74,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload({"
+        },
+        {
+          "line": 178,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const singlePlan = buildInstallPlanPayload(createValidDraft({"
+        },
+        {
+          "line": 186,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "assert.equal(singlePlan.disk.mode, 'one');"
+        },
+        {
+          "line": 191,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const splitPlan = buildInstallPlanPayload(createValidDraft({"
+        },
+        {
+          "line": 201,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "assert.equal(splitPlan.disk.mode, 'two');"
+        },
+        {
+          "line": 207,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const raidPlan = buildInstallPlanPayload(createValidDraft({"
+        },
+        {
+          "line": 216,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "assert.equal(raidPlan.disk.mode, 'one');"
+        },
+        {
+          "line": 271,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload usa 0.0.0.0 como sentinela gateway no modo DHCP (schema exige IPv4)', () => {"
+        },
+        {
+          "line": 281,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 289,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload inclui gateway quando preenchido no modo static', () => {"
+        },
+        {
+          "line": 296,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 301,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload mantém wan objeto vazio quando não há WAN configurada (schema exige wan)', () => {"
+        },
+        {
+          "line": 309,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 317,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload inclui wan quando interface preenchida', () => {"
+        },
+        {
+          "line": 323,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 330,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload não vaza campos extras em source', () => {"
+        },
+        {
+          "line": 332,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 348,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 351,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "assert.doesNotThrow(() => validateInstallPlanPayload(plan));"
+        },
+        {
+          "line": 364,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 366,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "assert.doesNotThrow(() => validateInstallPlanPayload(plan));"
+        },
+        {
+          "line": 369,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload inclui mgmtMode no payload de rede', () => {"
+        },
+        {
+          "line": 379,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 384,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload modo DHCP mantém mode=dhcp', () => {"
+        },
+        {
+          "line": 392,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 397,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload não exporta 0.0.0.0 como gateway real para static', () => {"
+        },
+        {
+          "line": 407,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 478,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload usa serverIp como string sem sanitizacao (schema valida em tempo de execucao)', () => {"
+        },
+        {
+          "line": 479,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// O buildInstallPlanPayload apenas passa o valor; a validacao ocorre em validateStep/schema"
+        },
+        {
+          "line": 489,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 494,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('buildInstallPlanPayload nao exporta 0.0.0.0 como serverIp real (sentinel so no schema backend)', () => {"
+        },
+        {
+          "line": 505,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 512,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan1 = buildInstallPlanPayload(draft1);"
+        },
+        {
+          "line": 517,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan2 = buildInstallPlanPayload(draft2);"
+        },
+        {
+          "line": 522,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "test('contract: buildInstallPlanPayload preserva fields de contract e exclui senhas', () => {"
+        },
+        {
+          "line": 533,
+          "path": "ui/src/tests/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const plan = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 4,
+          "path": "ui/src/tests/utils/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "buildInstallPlanPayload,"
+        },
+        {
+          "line": 6,
+          "path": "ui/src/tests/utils/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "validateInstallPlanPayload,"
+        },
+        {
+          "line": 28,
+          "path": "ui/src/tests/utils/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "describe('buildInstallPlanPayload', () => {"
+        },
+        {
+          "line": 48,
+          "path": "ui/src/tests/utils/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const payload = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 69,
+          "path": "ui/src/tests/utils/installPlan.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const payload = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 6,
+          "path": "ui/src/tests/wizardFuzz.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft,"
+        },
+        {
+          "line": 67,
+          "path": "ui/src/tests/wizardFuzz.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const draft = createInstallPlanDraft(evil);"
+        },
+        {
+          "line": 95,
+          "path": "ui/src/tests/wizardFuzz.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// Espelha buildInstallPlanPayload + a checagem de faixa: porta inválida ⇒"
+        },
+        {
+          "line": 175,
+          "path": "ui/src/tests/wizardFuzz.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft(seed),"
+        },
+        {
+          "line": 179,
+          "path": "ui/src/tests/wizardFuzz.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft(merged1),"
+        },
+        {
+          "line": 6,
+          "path": "ui/src/tests/wizardState.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft,"
+        },
+        {
+          "line": 12,
+          "path": "ui/src/tests/wizardState.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const draft = createInstallPlanDraft({"
+        },
+        {
+          "line": 31,
+          "path": "ui/src/tests/wizardState.test.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft({"
+        },
+        {
+          "line": 5,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "createInstallPlanDraft,"
+        },
+        {
+          "line": 138,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "export function buildInstallPlanPayload(draftInput) {"
+        },
+        {
+          "line": 139,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const draft = createInstallPlanDraft(draftInput);"
+        },
+        {
+          "line": 287,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "// gateway is required by schema; in DHCP mode use user input or placeholder"
+        },
+        {
+          "line": 325,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const draft = createInstallPlanDraft(draftInput);"
+        },
+        {
+          "line": 337,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "export function validateInstallPlanPayload(payload) {"
+        },
+        {
+          "line": 345,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "export function getInstallPlanCompatibilityIssues(payload) {"
+        },
+        {
+          "line": 417,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "validateInstallPlanPayload(payload);"
+        },
+        {
+          "line": 422,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "for (const compatibilityIssue of getInstallPlanCompatibilityIssues(payload)) {"
+        },
+        {
+          "line": 458,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const draft = createInstallPlanDraft(draftInput);"
+        },
+        {
+          "line": 460,
+          "path": "ui/src/utils/installPlan.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "const payload = buildInstallPlanPayload(draft);"
+        },
+        {
+          "line": 67,
+          "path": "ui/src/utils/installerApi.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// Removed buildKryonixInstallPlan as the UI now natively outputs InstallPlanV2"
+        },
+        {
+          "line": 105,
+          "path": "ui/src/utils/installerApiMock.js",
+          "signals": [
+            "disk.mode"
+          ],
+          "text": "field: \"disk.mode\","
+        },
+        {
+          "line": 2,
+          "path": "ui/src/utils/network.js",
+          "signals": [
+            "installplan"
+          ],
+          "text": "// Reutilizadas pelo wizard (App.jsx) e por buildInstallPlanPayload."
+        },
+        {
+          "line": 34,
+          "path": "ui/src/views/ApiHub.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "path: '/api/v1/incus/instances',"
+        },
+        {
+          "line": 78,
+          "path": "ui/src/views/ApiHub.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "path: '/api/v1/incus/instances',"
+        },
+        {
+          "line": 111,
+          "path": "ui/src/views/ApiHub.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "path: '/api/v1/incus/instances/:name/state',"
+        },
+        {
+          "line": 134,
+          "path": "ui/src/views/ApiHub.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "path: '/api/v1/ceph/health',"
+        },
+        {
+          "line": 162,
+          "path": "ui/src/views/ApiHub.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "path: '/api/v1/ceph/osds',"
+        },
+        {
+          "line": 203,
+          "path": "ui/src/views/ApiHub.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "path: '/api/v1/fleet/nodes',"
+        },
+        {
+          "line": 9,
+          "path": "ui/src/views/Dashboard.tsx",
+          "signals": [
+            "legacy"
+          ],
+          "text": "import { Responsive, WidthProvider } from 'react-grid-layout/legacy';"
+        },
+        {
+          "line": 80,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "fetch('/api/v1/system/identity', { credentials: 'same-origin' })"
+        },
+        {
+          "line": 110,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "const response = await fetch('/api/v1/auth/login', {"
+        },
+        {
+          "line": 182,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "<p className=\"text-slate-500 text-[10px] font-mono uppercase tracking-[0.3em] mt-2\">Infrastructure Control v1.2.4</p>"
+        },
+        {
+          "line": 263,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Ex: 192.168.1.10\""
+        },
+        {
+          "line": 264,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full bg-slate-900/40 border border-kve-border rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-kve-accent/50 transition-all placeholder:text-slate-700 font-mono\""
+        },
+        {
+          "line": 284,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Usuário Linux deste host (ex.: rocha)\""
+        },
+        {
+          "line": 285,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full bg-slate-900/50 border border-kve-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-kve-accent/50 transition-all placeholder:text-slate-700\""
+        },
+        {
+          "line": 299,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Senha do usuário Linux\""
+        },
+        {
+          "line": 300,
+          "path": "ui/src/views/Login.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full bg-slate-900/50 border border-kve-border rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-kve-accent/50 transition-all placeholder:text-slate-700\""
+        },
+        {
+          "line": 48,
+          "path": "ui/src/views/Logs.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Filtrar por mensagem, usuário ou fonte...\""
+        },
+        {
+          "line": 127,
+          "path": "ui/src/views/Nodes.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Filtrar nodes...\""
+        },
+        {
+          "line": 232,
+          "path": "ui/src/views/Publish.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "className=\"w-full bg-slate-900/50 border border-kve-danger/20 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-kve-danger/50 h-24 placeholder:text-slate-600 resize-none\""
+        },
+        {
+          "line": 233,
+          "path": "ui/src/views/Publish.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Descreva o motivo do rollback para auditoria...\""
+        },
+        {
+          "line": 460,
+          "path": "ui/src/views/PveResourceView.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Adicione notas aqui...\""
+        },
+        {
+          "line": 35,
+          "path": "ui/src/views/Quotas.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Buscar usuário...\""
+        },
+        {
+          "line": 83,
+          "path": "ui/src/views/Services.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Buscar serviço...\""
+        },
+        {
+          "line": 318,
+          "path": "ui/src/views/Settings.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "<p className=\"text-sm font-bold text-white\">Versão do Sistema: v1.2.4-stable</p>"
+        },
+        {
+          "line": 62,
+          "path": "ui/src/views/ThinkServer.tsx",
+          "signals": [
+            "v1"
+          ],
+          "text": "{ id: 'img-02', name: 'KVE-Rescue-Shell-v1.4', kernel: '6.1.72-rescue', args: 'initrd=initrd_rescue ip=dhcp rescue_mode=true nomodeset', sizeMb: 180, status: 'Active', lastUpdated: 'Ontem, 18:30' },"
+        },
+        {
+          "line": 274,
+          "path": "ui/src/views/ThinkServer.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Ex: NixOS-Kiosk-2026\""
+        },
+        {
+          "line": 528,
+          "path": "ui/src/views/ThinkServer.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Insira uma mensagem que aparecerá como um pop-up no terminal magro do operador...\""
+        },
+        {
+          "line": 46,
+          "path": "ui/src/views/Users.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "placeholder=\"Filtrar usuários...\""
+        },
+        {
+          "line": 177,
+          "path": "ui/src/views/Users.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"text\" className=\"w-full bg-slate-900/50 border border-kve-border rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-kve-accent/50\" placeholder=\"ex: jdoe\" />"
+        },
+        {
+          "line": 184,
+          "path": "ui/src/views/Users.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"email\" className=\"w-full bg-slate-900/50 border border-kve-border rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-kve-accent/50\" placeholder=\"ex: john@kve.local\" />"
+        },
+        {
+          "line": 198,
+          "path": "ui/src/views/Users.tsx",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "<input type=\"number\" className=\"w-full bg-slate-900/50 border border-kve-border rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-kve-accent/50\" placeholder=\"500\" />"
+        },
+        {
+          "line": 1,
+          "path": "ui/static/assets/index-B2wAru77.css",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "*,:before,:after{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-"
+        },
+        {
+          "line": 42,
+          "path": "ui/static/assets/index-DMCyZjWx.js",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "`),(S=r.onStatus)==null||S.call(r,{running:m!==\"done\"&&m!==\"error\",exitCode:m===\"done\"?0:m===\"error\"?1:null,currentPhase:f,lastLogLine:d,lastError:m===\"error\"?d:\"\",percent:p}),m===\"done\"?(window.__kryonix_running=!1,(I=r.onDone)==null||I.ca"
+        },
+        {
+          "line": 46,
+          "path": "ui/static/assets/index-DMCyZjWx.js",
+          "signals": [
+            "deprecated"
+          ],
+          "text": "|| ${U} === \"boolean\" || ${P} === null`).assign(Y,(0,u._)`[${P}]`)}}}function x({gen:v,parentData:y,parentDataProperty:T},k){v.if((0,u._)`${y} !== undefined`,()=>v.assign((0,u._)`${y}[${T}]`,k))}function N(v,y,T,k=d.Correct){const P=k===d.C"
+        },
+        {
+          "line": 49,
+          "path": "ui/static/assets/index-DMCyZjWx.js",
+          "signals": [
+            "deprecated",
+            "v1"
+          ],
+          "text": "deps: ${S}}`};const m={keyword:\"dependencies\",type:\"object\",schemaType:\"object\",error:r.error,code(h){const[w,S]=d(h);p(h,w),f(h,S)}};function d({schema:h}){const w={},S={};for(const I in h){if(I===\"__proto__\")continue;const x=Array.isArray"
+        },
+        {
+          "line": 50,
+          "path": "ui/static/assets/index-DMCyZjWx.js",
+          "signals": [
+            "disk.mode",
+            "placeholder"
+          ],
+          "text": "`).map(a=>a.trim()).filter(Boolean)}function pp(r){return Array.from(new Set(Yp(r).filter(a=>Tu.test(a))))}function hp(r){const a=Yp(r);return a.length>0&&a.every(o=>Tu.test(o))}function gp(r){const a=De(r);if(!a)return null;const o=a.split"
+        },
+        {
+          "line": 51,
+          "path": "ui/static/assets/index-DMCyZjWx.js",
+          "signals": [
+            "placeholder"
+          ],
+          "text": "`).map(p=>p.trim()).filter(Boolean),[r.adminAuthorizedKeys]),d=(o==null?void 0:o.fieldErrors)||{};return l.jsxs(\"div\",{className:\"grid h-full min-h-0 gap-6 lg:grid-cols-[1fr_0.9fr]\",children:[l.jsxs(\"section\",{className:\"section-panel min-h"
+        },
+        {
+          "line": 59,
+          "path": "ui/static/assets/index-DMCyZjWx.js",
+          "signals": [
+            "v1"
+          ],
+          "text": "`)})),!0}catch(j){return u(g=>({...g,globalError:Rr(j,\"Erro ao reiniciar o sistema.\")})),!1}},[]);return{executionState:o,planPayload:p,secretsPayload:f,installValidation:h,startInstallation:N,requestReboot:E,refreshExecution:I}}function Ax"
+        }
+      ]
+    }
+  },
+  "schemaVersion": 1
+}

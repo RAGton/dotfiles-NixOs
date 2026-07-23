@@ -1,0 +1,302 @@
+{
+  "repositories": {
+    "engine": [],
+    "kryxd": [
+      {
+        "line": 22,
+        "path": "/api/cluster/tasks",
+        "sourcePath": "ui/src/components/dashboard/TaskLogPanel.tsx",
+        "text": "const res = await fetch('/api/cluster/tasks');"
+      },
+      {
+        "line": 40,
+        "path": "/api/detection",
+        "sourcePath": "ui/src/pages/Welcome.jsx",
+        "text": "fetch('/api/detection')"
+      },
+      {
+        "line": 721,
+        "path": "/api/disks/${encodeURIComponent(devName)}/partitions",
+        "sourcePath": "ui/src/pages/Disks.jsx",
+        "text": "fetch(`/api/disks/${encodeURIComponent(devName)}/partitions`)"
+      },
+      {
+        "line": 50,
+        "path": "/api/disks/${encodeURIComponent(ve)}/partitions",
+        "sourcePath": "ui/static/assets/index-DMCyZjWx.js",
+        "text": "`).map(a=>a.trim()).filter(Boolean)}function pp(r){return Array.from(new Set(Yp(r).filter(a=>Tu.test(a))))}function hp(r){const a=Yp(r);return a.length>0&&a.every(o=>Tu.test(o))}function gp(r){const a=De(r);if(!a)return null;const o=a.split"
+      },
+      {
+        "line": 158,
+        "path": "/api/nixos/config",
+        "sourcePath": "ui/src/views/Settings.tsx",
+        "text": "const res = await fetch('/api/nixos/config');"
+      },
+      {
+        "line": 199,
+        "path": "/api/nixos/rebuild",
+        "sourcePath": "ui/src/views/Settings.tsx",
+        "text": "const res = await fetch('/api/nixos/rebuild', {"
+      },
+      {
+        "line": 9,
+        "path": "/api/nodes",
+        "sourcePath": "ui/src/components/dashboard/ClusterNodesView.tsx",
+        "text": "fetch('/api/nodes')"
+      },
+      {
+        "line": 30,
+        "path": "/api/nodes",
+        "sourcePath": "ui/src/views/Nodes.tsx",
+        "text": "const res = await fetch('/api/nodes');"
+      },
+      {
+        "line": 86,
+        "path": "/api/nodes/${nodeId}/action",
+        "sourcePath": "ui/src/views/Nodes.tsx",
+        "text": "const res = await fetch(`/api/nodes/${nodeId}/action`, {"
+      },
+      {
+        "line": 62,
+        "path": "/api/nodes/${nodeId}/authorize",
+        "sourcePath": "ui/src/views/Nodes.tsx",
+        "text": "const res = await fetch(`/api/nodes/${nodeId}/authorize`, { method: 'POST' });"
+      },
+      {
+        "line": 9,
+        "path": "/api/nodes/${nodeId}/vms",
+        "sourcePath": "ui/src/components/dashboard/VmListView.tsx",
+        "text": "fetch(`/api/nodes/${nodeId}/vms`)"
+      },
+      {
+        "line": 15,
+        "path": "/api/nodes/${node}/vms/${vmid}/config",
+        "sourcePath": "ui/src/components/dashboard/VmHardwareView.tsx",
+        "text": "fetch(`/api/nodes/${node}/vms/${vmid}/config`)"
+      },
+      {
+        "line": 15,
+        "path": "/api/nodes/${node}/vms/${vmid}/snapshots",
+        "sourcePath": "ui/src/components/dashboard/SnapshotsView.tsx",
+        "text": "fetch(`/api/nodes/${node}/vms/${vmid}/snapshots`)"
+      },
+      {
+        "line": 73,
+        "path": "/api/nodes/authorize-all",
+        "sourcePath": "ui/src/views/Nodes.tsx",
+        "text": "const res = await fetch('/api/nodes/authorize-all', { method: 'POST' });"
+      },
+      {
+        "line": 49,
+        "path": "/api/nodes/scan",
+        "sourcePath": "ui/src/views/Nodes.tsx",
+        "text": "const res = await fetch('/api/nodes/scan', { method: 'POST' });"
+      },
+      {
+        "line": 40,
+        "path": "/api/reboot",
+        "sourcePath": "ui/static/assets/index-DMCyZjWx.js",
+        "text": "`+c.stack}return{value:e,source:t,stack:i,digest:null}}function hl(e,t,n){return{value:e,source:null,stack:n??null,digest:t??null}}function gl(e,t){try{console.error(t.value)}catch(n){setTimeout(function(){throw n})}}var L0=typeof WeakMap=="
+      },
+      {
+        "line": 16,
+        "path": "/api/services",
+        "sourcePath": "ui/src/views/Services.tsx",
+        "text": "const res = await fetch('/api/services');"
+      },
+      {
+        "line": 38,
+        "path": "/api/services/${name}/action",
+        "sourcePath": "ui/src/views/Services.tsx",
+        "text": "const res = await fetch(`/api/services/${name}/action`, {"
+      },
+      {
+        "line": 13,
+        "path": "/api/storage/${storageId}/content",
+        "sourcePath": "ui/src/components/dashboard/StorageContentView.tsx",
+        "text": "fetch(`/api/storage/${storageId}/content`)"
+      },
+      {
+        "line": 22,
+        "path": "/api/token",
+        "sourcePath": "ui/src/pages/Install.jsx",
+        "text": "fetch('/api/token')"
+      },
+      {
+        "line": 18,
+        "path": "/api/v1/auth/login",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v1/auth/login', {"
+      },
+      {
+        "line": 110,
+        "path": "/api/v1/auth/login",
+        "sourcePath": "ui/src/views/Login.tsx",
+        "text": "const response = await fetch('/api/v1/auth/login', {"
+      },
+      {
+        "line": 25,
+        "path": "/api/v1/auth/session",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v1/auth/session');"
+      },
+      {
+        "line": 134,
+        "path": "/api/v1/ceph/health",
+        "sourcePath": "ui/src/views/ApiHub.tsx",
+        "text": "path: '/api/v1/ceph/health',"
+      },
+      {
+        "line": 162,
+        "path": "/api/v1/ceph/osds",
+        "sourcePath": "ui/src/views/ApiHub.tsx",
+        "text": "path: '/api/v1/ceph/osds',"
+      },
+      {
+        "line": 203,
+        "path": "/api/v1/fleet/nodes",
+        "sourcePath": "ui/src/views/ApiHub.tsx",
+        "text": "path: '/api/v1/fleet/nodes',"
+      },
+      {
+        "line": 33,
+        "path": "/api/v1/fleet/status",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v1/fleet/status');"
+      },
+      {
+        "line": 34,
+        "path": "/api/v1/incus/instances",
+        "sourcePath": "ui/src/views/ApiHub.tsx",
+        "text": "path: '/api/v1/incus/instances',"
+      },
+      {
+        "line": 78,
+        "path": "/api/v1/incus/instances",
+        "sourcePath": "ui/src/views/ApiHub.tsx",
+        "text": "path: '/api/v1/incus/instances',"
+      },
+      {
+        "line": 111,
+        "path": "/api/v1/incus/instances/:name/state",
+        "sourcePath": "ui/src/views/ApiHub.tsx",
+        "text": "path: '/api/v1/incus/instances/:name/state',"
+      },
+      {
+        "line": 37,
+        "path": "/api/v1/storage/quotas",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v1/storage/quotas');"
+      },
+      {
+        "line": 381,
+        "path": "/api/v1/system/identity",
+        "sourcePath": "ui/src/App.jsx",
+        "text": "fetch('/api/v1/system/identity')"
+      },
+      {
+        "line": 29,
+        "path": "/api/v1/system/identity",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v1/system/identity');"
+      },
+      {
+        "line": 80,
+        "path": "/api/v1/system/identity",
+        "sourcePath": "ui/src/views/Login.tsx",
+        "text": "fetch('/api/v1/system/identity', { credentials: 'same-origin' })"
+      },
+      {
+        "line": 72,
+        "path": "/api/v2/cluster/topology",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/cluster/topology');"
+      },
+      {
+        "line": 228,
+        "path": "/api/v2/install",
+        "sourcePath": "ui/src/utils/installerApi.js",
+        "text": "return requestJson('/api/v2/install', {"
+      },
+      {
+        "line": 98,
+        "path": "/api/v2/metrics/host",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/metrics/host');"
+      },
+      {
+        "line": 186,
+        "path": "/api/v2/plan",
+        "sourcePath": "ui/src/utils/installerApi.js",
+        "text": "const result = await requestJson('/api/v2/plan', {"
+      },
+      {
+        "line": 208,
+        "path": "/api/v2/secrets",
+        "sourcePath": "ui/src/utils/installerApi.js",
+        "text": "return requestJson('/api/v2/secrets', {"
+      },
+      {
+        "line": 49,
+        "path": "/api/v2/storage/ceph/osds",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/storage/ceph/osds');"
+      },
+      {
+        "line": 45,
+        "path": "/api/v2/storage/ceph/status",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/storage/ceph/status');"
+      },
+      {
+        "line": 41,
+        "path": "/api/v2/storage/pools",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/storage/pools');"
+      },
+      {
+        "line": 57,
+        "path": "/api/v2/storage/replication/plan",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/storage/replication/plan', {"
+      },
+      {
+        "line": 53,
+        "path": "/api/v2/storage/replication/status",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/storage/replication/status');"
+      },
+      {
+        "line": 94,
+        "path": "/api/v2/system/details",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/system/details');"
+      },
+      {
+        "line": 68,
+        "path": "/api/v2/virt/instances",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/virt/instances');"
+      },
+      {
+        "line": 76,
+        "path": "/api/v2/virt/instances",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/virt/instances', {"
+      },
+      {
+        "line": 87,
+        "path": "/api/v2/virt/instances/${encodeURIComponent(id)}/state",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson(`/api/v2/virt/instances/${encodeURIComponent(id)}/state`, {"
+      },
+      {
+        "line": 64,
+        "path": "/api/v2/virt/nodes",
+        "sourcePath": "ui/src/lib/api.js",
+        "text": "return requestJson('/api/v2/virt/nodes');"
+      }
+    ]
+  },
+  "schemaVersion": 1
+}

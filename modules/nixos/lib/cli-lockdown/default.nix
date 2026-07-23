@@ -30,7 +30,7 @@ in
       let
         makeGuard = bin:
           let
-            binName = lib.strings.basename bin;
+            binName = baseNameOf bin;
           in
           pkgs.writeScriptBin binName ''
             #!${pkgs.bash}/bin/bash

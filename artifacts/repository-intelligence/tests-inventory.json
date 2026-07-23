@@ -1,0 +1,147 @@
+{
+  "repositories": {
+    "engine": [
+      {
+        "jsTests": 0,
+        "path": "packages/kryonix-optimizer/tests/test_context.py",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "packages/kryonix-optimizer/tests/test_optimizer.py",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "packages/test_clap.rs",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "tests/test_e2e_guest_agent.py",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "tests/test_e2e_serial.py",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "tests/test_iso_boot.sh",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "tests/test_qcow2_offline.sh",
+        "rustTests": 0,
+        "todoHits": 0
+      }
+    ],
+    "kryxd": [
+      {
+        "jsTests": 9,
+        "path": "ui/src/tests/Disks.behavior.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 2,
+        "path": "ui/src/tests/i18nHardcodedStrings.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 5,
+        "path": "ui/src/tests/installExecution.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 30,
+        "path": "ui/src/tests/installPlan.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 19,
+        "path": "ui/src/tests/layoutAssistant.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 5,
+        "path": "ui/src/tests/localizationCatalog.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 9,
+        "path": "ui/src/tests/manualPartitioner.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 7,
+        "path": "ui/src/tests/storagePlanner.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 13,
+        "path": "ui/src/tests/utils/installExecution.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 12,
+        "path": "ui/src/tests/utils/installPlan.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 14,
+        "path": "ui/src/tests/utils/storagePlanner.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 7,
+        "path": "ui/src/tests/wizardFuzz.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 2,
+        "path": "ui/src/tests/wizardState.test.js",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 2,
+        "path": "ui/tests/e2e/features-toggle.test.ts",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 0,
+        "path": "ui/tests/e2e/mocks/mockBackend.ts",
+        "rustTests": 0,
+        "todoHits": 0
+      },
+      {
+        "jsTests": 2,
+        "path": "ui/tests/e2e/wizard-navigation.test.ts",
+        "rustTests": 0,
+        "todoHits": 0
+      }
+    ]
+  },
+  "schemaVersion": 1
+}

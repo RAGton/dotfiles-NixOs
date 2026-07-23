@@ -1,0 +1,2004 @@
+{
+  "repositories": {
+    "engine": [
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features.ai",
+          "kryonix.features.ai.",
+          "mkEnableOption \"Kryonix Brain (LightRAG + Ollama)\";",
+          "mkEnableOption \"OpenAI Codex CLI\";",
+          "mkOption {"
+        ],
+        "path": "features/ai.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features.cpu",
+          "kryonix.features.cpu.",
+          "kryonix.features.cpu.amd.enable",
+          "kryonix.features.cpu.intel.enable",
+          "mkEnableOption \"AMD CPU support (microcode, diagnostics, P-State)\";",
+          "mkEnableOption \"Intel CPU support (microcode, diagnostics, thermald)\";",
+          "mkOption {",
+          "services.thermald"
+        ],
+        "path": "features/cpu.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features."
+        ],
+        "path": "features/default.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features.f5tts",
+          "kryonix.features.f5tts.enable",
+          "kryonix.features.network.bridge.name",
+          "mkEnableOption \"F5-TTS Server — síntese de voz zero-shot (glacier)\";",
+          "mkOption {",
+          "services.f5-tts-server"
+        ],
+        "path": "features/f5-tts-server/default.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [],
+        "path": "features/gaming.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features.gpu",
+          "kryonix.features.gpu.",
+          "kryonix.features.gpu.cuda.enable",
+          "kryonix.features.gpu.intel.enable",
+          "kryonix.features.gpu.nvidia.enable",
+          "mkEnableOption \"AMD GPU / AMDGPU support (drivers, Mesa/RADV, diagnostics)\";",
+          "mkEnableOption \"Intel GPU / iGPU support (drivers, VA-API, Quick Sync, diagnostics)\";",
+          "mkEnableOption \"NVIDIA CUDA / AI compute support\";",
+          "mkEnableOption \"NVIDIA GPU driver support (proprietary driver, modesetting, nvidia-settings)\";",
+          "mkOption {",
+          "services.xserver.enable",
+          "services.xserver.videoDrivers"
+        ],
+        "path": "features/gpu.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features.openrgb",
+          "kryonix.hardware.openrgb",
+          "mkEnableOption \"OpenRGB (serviço, CLI e regras udev)\";",
+          "mkOption {",
+          "services.hardware.openrgb",
+          "services.kryonix-rgb-off",
+          "services.udev.extraRules",
+          "services.udev.packages"
+        ],
+        "path": "features/openrgb.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.features.remoteDesktop",
+          "kryonix.features.remoteDesktop.server.enable",
+          "mkEnableOption \"Clientes VNC e wrapper kryonix-remote-desktop\";",
+          "mkEnableOption \"Servidor VNC (wayvnc) para Hyprland\";",
+          "mkOption {",
+          "services.wayvnc"
+        ],
+        "path": "features/remote-desktop.nix"
+      },
+      {
+        "layer": "features",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.features.workstation",
+          "kryonix.shell.caelestia.enable",
+          "mkEnableOption \"Stack workstation (Hyprland/Caelestia + apps de produtividade)\";",
+          "mkOption {"
+        ],
+        "path": "features/workstation.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [],
+        "path": "flake/checks.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [
+          "kryonix.installer.kiosk.listenAddress",
+          "services.kryxd-backend.environment"
+        ],
+        "path": "flake/data/hosts.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [],
+        "path": "flake/formatter.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [],
+        "path": "flake/lib.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [
+          "kryonix.shell.backend"
+        ],
+        "path": "flake/modules.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [],
+        "path": "flake/packages.nix"
+      },
+      {
+        "layer": "flake",
+        "optionsOrSignals": [],
+        "path": "flake/shells.nix"
+      },
+      {
+        "layer": "hosts",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment"
+        ],
+        "path": "hosts/common/default.nix"
+      },
+      {
+        "layer": "hosts",
+        "optionsOrSignals": [
+          "kryonix.boot.silent.enable",
+          "kryonix.branding.enable",
+          "kryonix.installer.kiosk.enable",
+          "kryonix.meta.version.enable",
+          "services.getty.greetingLine",
+          "services.getty.helpLine",
+          "services.openssh.enable",
+          "services.qemuGuest.enable"
+        ],
+        "path": "hosts/iso/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.sudo_local.touchIdAuth"
+        ],
+        "path": "modules/darwin/common/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/common/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop",
+          "kryonix.desktop.monitors",
+          "kryonix.desktop.workspaceMonitorMap",
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/desktop/monitors.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.ai",
+          "mkEnableOption \"Claude Desktop\";",
+          "mkEnableOption \"Gemini Web Wrapper\";",
+          "mkEnableOption \"Ollama CLI\";"
+        ],
+        "path": "modules/home-manager/features/ai.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.browser",
+          "mkEnableOption \"Chromium browser\";",
+          "mkEnableOption \"Firefox browser\";"
+        ],
+        "path": "modules/home-manager/features/browser.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/features/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.desktop",
+          "mkEnableOption \"KDE expert shortcuts\";",
+          "mkEnableOption \"Kryonix lock screen theme\";",
+          "mkEnableOption \"Kvantum transparent theme\";"
+        ],
+        "path": "modules/home-manager/features/desktop.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.dev",
+          "mkEnableOption \"Git tools\";",
+          "mkEnableOption \"GitHub CLI\";",
+          "mkEnableOption \"Jupyter\";",
+          "mkEnableOption \"Nix development tools\";",
+          "mkEnableOption \"Node.js\";",
+          "mkEnableOption \"Python environment\";",
+          "mkEnableOption \"Rust toolchain\";"
+        ],
+        "path": "modules/home-manager/features/dev.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.editor",
+          "mkEnableOption \"Antigravity IDE\";",
+          "mkEnableOption \"Neovim\";",
+          "mkEnableOption \"VSCode Insiders\";"
+        ],
+        "path": "modules/home-manager/features/editor.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.obsidian",
+          "mkEnableOption \"Obsidian vault integration\";"
+        ],
+        "path": "modules/home-manager/features/obsidian.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.shell",
+          "mkEnableOption \"Starship prompt\";",
+          "mkEnableOption \"ZSH with Oh My Zsh\";"
+        ],
+        "path": "modules/home-manager/features/shell.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.home.features.terminal",
+          "mkEnableOption \"Kitty terminal emulator\";",
+          "mkEnableOption \"Warp Terminal\";"
+        ],
+        "path": "modules/home-manager/features/terminal.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/misc/gtk/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/misc/qt/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/misc/wallpaper/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/misc/xdg/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/aerospace/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.programs.aiWorkstation",
+          "mkEnableOption \"ferramentas de estudo, IDE e IA no perfil do usuario\";",
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/programs/ai-workstation/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/alacritty/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.shell.backend",
+          "services.albert"
+        ],
+        "path": "modules/home-manager/programs/albert/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/atuin/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/bat/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/brave/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/btop/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.programs.fastfetch",
+          "kryonix.programs.fastfetch.logo.enable",
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/programs/fastfetch/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/fzf/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/git/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/go/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.gpg-agent"
+        ],
+        "path": "modules/home-manager/programs/gpg/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"JupyterLab via Nix (Python + ipykernel) e kernels extras\";",
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/programs/jupyter/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/k9s/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/krew/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/lazygit/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/mangohud/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/neovim/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/obs-studio/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/obsidian/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/rofi/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/rust/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/saml2aws/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/starship/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/swappy/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/telegram/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/tilix/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/tmux/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/virt-manager/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.vscode",
+          "kryonix.vscode.channel",
+          "kryonix.vscode.delivery",
+          "kryonix.vscode.delivery.",
+          "kryonix.vscode.edition",
+          "kryonix.vscode.edition.",
+          "kryonix.vscode.flavor",
+          "kryonix.vscode.installMethod",
+          "mkEnableOption \"Configura uma única origem de verdade para o VSCode\";",
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/programs/vscode/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/warp-terminal/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.shell.backend"
+        ],
+        "path": "modules/home-manager/programs/wofi/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/zellij/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/programs/zen-browser/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.programs.zsh",
+          "kryonix.programs.zsh.welcomeBanner.enable",
+          "mkOption {"
+        ],
+        "path": "modules/home-manager/programs/zsh/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/home-manager/scripts/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.cliphist",
+          "services.cliphist.enable"
+        ],
+        "path": "modules/home-manager/services/cliphist/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.easyeffects"
+        ],
+        "path": "modules/home-manager/services/easyeffects/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.flatpak",
+          "kryonix.flatpak.enable",
+          "mkOption {",
+          "services.flatpak"
+        ],
+        "path": "modules/home-manager/services/flatpak/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.kanshi"
+        ],
+        "path": "modules/home-manager/services/kanshi/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.Bar",
+          "mkEnableOption \"Kryonix Bar Backend Service\";",
+          "mkOption {",
+          "services.kryonix-bar"
+        ],
+        "path": "modules/home-manager/services/kryonix-bar.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kryonix Brain remote SSH tunnel to Glacier\";",
+          "services.kryonix-brain-tunnel",
+          "services.kryonix-brain-tunnel.enable"
+        ],
+        "path": "modules/home-manager/services/kryonix-brain-tunnel/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kryonix VNC remote SSH tunnel to Glacier\";",
+          "services.kryonix-glacier-vnc-tunnel"
+        ],
+        "path": "modules/home-manager/services/kryonix-glacier-vnc-tunnel/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.smart-filer",
+          "mkEnableOption \"Daemon de Organização Semântica de Arquivos\";",
+          "mkOption {",
+          "services.kryonix-home"
+        ],
+        "path": "modules/home-manager/services/kryonix-home.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kryonix KRDP Server (Plasma RDP, loopback only)\";",
+          "mkOption {",
+          "services.kryonix-krdp"
+        ],
+        "path": "modules/home-manager/services/kryonix-krdp/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kryonix Ollama remote SSH tunnel to Glacier\";",
+          "services.kryonix-ollama-tunnel",
+          "services.kryonix-ollama-tunnel.enable"
+        ],
+        "path": "modules/home-manager/services/kryonix-ollama-tunnel/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.ram-optimizer",
+          "mkEnableOption \"Daemon Otimizador Vivo de RAM do Kryonix\";",
+          "services.kryonix-optimizer"
+        ],
+        "path": "modules/home-manager/services/kryonix-optimizer.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kryonix WayVNC Server (Loopback only)\";",
+          "services.kryonix-wayvnc"
+        ],
+        "path": "modules/home-manager/services/kryonix-wayvnc/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.desktop.wallpaper.animated",
+          "services.kryonix-waywallen",
+          "services.kryonix-waywallen-layer-shell"
+        ],
+        "path": "modules/home-manager/services/kryonix-waywallen/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.shell.backend",
+          "services.swaync"
+        ],
+        "path": "modules/home-manager/services/swaync/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.shell.backend"
+        ],
+        "path": "modules/home-manager/services/waybar/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.inputs.nix-cachyos-kernel",
+          "kryonix.kernel.cachyos",
+          "mkEnableOption \"Enable CachyOS kernel\";"
+        ],
+        "path": "modules/kernel/cachyos.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kernel Linux Zen otimizado para desktop\";",
+          "mkOption {"
+        ],
+        "path": "modules/kernel/zen.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.blueman-applet",
+          "services.blueman.enable",
+          "services.pipewire",
+          "services.pulseaudio.enable"
+        ],
+        "path": "modules/nixos/audio/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/nixos/boot/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.boot.silent",
+          "mkEnableOption \"Habilitar Silent Boot (Kernel silencioso e supressão de logs de console)\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/boot/silent-boot.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.branding",
+          "kryonix.branding.enable",
+          "kryonix.branding.versionId",
+          "kryonix.plymouth",
+          "kryonix.script",
+          "mkEnableOption \"Ativa branding do sistema como Kryonix\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/branding/kryonix/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.cachix.org",
+          "kryonix.cachix.org-1",
+          "services.avahi",
+          "services.colord.enable",
+          "services.dbus.implementation",
+          "services.devmon.enable",
+          "services.earlyoom",
+          "services.flatpak",
+          "services.gnome.gcr-ssh-agent.enable",
+          "services.gnome.gnome-keyring.enable",
+          "services.gvfs.enable",
+          "services.kryxd",
+          "services.libinput.enable",
+          "services.locate.enable",
+          "services.logind.settings.Login",
+          "services.openssh.enable",
+          "services.printing.enable",
+          "services.udisks2.enable",
+          "services.upower.enable",
+          "services.xserver"
+        ],
+        "path": "modules/nixos/common/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.shell.caelestia",
+          "kryonix.shell.caelestia.enable",
+          "mkEnableOption \"Caelestia Shell como shell principal do stack Hyprland\";",
+          "mkOption {",
+          "services.caelestia"
+        ],
+        "path": "modules/nixos/desktop/caelestia/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.directLogin.enable",
+          "kryonix.desktop.environment",
+          "kryonix.shell.caelestia.enable",
+          "services.desktopManager.gnome.enable",
+          "services.desktopManager.plasma6.enable",
+          "services.displayManager.gdm.enable",
+          "services.displayManager.sddm.enable",
+          "services.greetd.enable"
+        ],
+        "path": "modules/nixos/desktop/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.desktop.kde",
+          "kryonix.desktop.sddm.theme.preset",
+          "mkOption {",
+          "services.desktopManager.plasma6.enable",
+          "services.displayManager.autoLogin",
+          "services.displayManager.defaultSession",
+          "services.displayManager.sddm"
+        ],
+        "path": "modules/nixos/desktop/kde/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.desktop.kde.sddm.theme",
+          "kryonix.desktop.sddm",
+          "kryonix.desktop.sddm.theme.preset",
+          "mkEnableOption \"camada declarativa de temas SDDM do Kryonix\") // {",
+          "mkOption {",
+          "services.displayManager.sddm.extraPackages",
+          "services.displayManager.sddm.theme"
+        ],
+        "path": "modules/nixos/desktop/sddm/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.desktop.wallpaper.animated",
+          "kryonix.desktop.wallpaper.animated.enable",
+          "mkEnableOption \"wallpapers animados opt-in no Kryonix\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/desktop/wallpaper/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.acme",
+          "mkEnableOption \"ACME (Let's Encrypt) client for automated SSL certificates\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/features/acme.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.ai",
+          "mkEnableOption \"Kryonix Brain AI ecosystem (legacy/compat)\";",
+          "mkEnableOption \"LightRAG retrieval engine\";",
+          "mkEnableOption \"Neo4j graph database\";",
+          "mkEnableOption \"Ollama LLM runtime\";",
+          "mkEnableOption \"Open WebUI for Ollama\";",
+          "services.neo4j.enable",
+          "services.ollama"
+        ],
+        "path": "modules/nixos/features/ai.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.browserAutomation",
+          "kryonix.features.browserAutomation.enable",
+          "mkEnableOption \"nixpkgs playwright-driver + browsers\" // {",
+          "mkEnableOption ''"
+        ],
+        "path": "modules/nixos/features/browser-automation.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features",
+          "kryonix.features.ai",
+          "kryonix.features.development",
+          "kryonix.features.development.editors",
+          "kryonix.features.gpu",
+          "kryonix.features.gpu.intel"
+        ],
+        "path": "modules/nixos/features/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.desktop",
+          "mkEnableOption \"Bluetooth support\";",
+          "mkEnableOption \"CUPS printing service\";",
+          "mkEnableOption \"KDE Plasma 6 desktop environment\";",
+          "mkEnableOption \"PipeWire audio server\";",
+          "services.desktopManager.plasma6.enable",
+          "services.displayManager.sddm.enable",
+          "services.pipewire",
+          "services.printing.enable"
+        ],
+        "path": "modules/nixos/features/desktop.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.development",
+          "kryonix.features.development.enable",
+          "kryonix.features.development.languages.rust.enable",
+          "kryonix.features.development.tools.psim.enable",
+          "kryonix.features.development.tools.wine.enable.",
+          "kryonix.vscode",
+          "mkEnableOption \"Ambiente Wine para aplicativos Windows\";",
+          "mkEnableOption \"Ambiente de desenvolvimento C/C++\";",
+          "mkEnableOption \"Ambiente de desenvolvimento Go\";",
+          "mkEnableOption \"Ambiente de desenvolvimento Java\";",
+          "mkEnableOption \"Ambiente de desenvolvimento Python\";",
+          "mkEnableOption \"Ambiente de desenvolvimento Rust\";",
+          "mkEnableOption \"Ambiente de desenvolvimento\";",
+          "mkEnableOption \"Desenvolvimento JavaScript/TypeScript\";",
+          "mkEnableOption \"Ferramentas Kubernetes (kubectl, k9s, helm)\";",
+          "mkEnableOption \"Gerenciamento de configuração com Ansible\";",
+          "mkEnableOption \"Helpers para rodar o PSIM via Wine\";",
+          "mkEnableOption \"Integração para o Google Antigravity IDE\";",
+          "mkEnableOption \"Terraform e ferramentas relacionadas\";",
+          "mkEnableOption \"Toolchain Arduino (IDE, CLI, serial e PlatformIO)\";",
+          "mkOption {",
+          "services.udev.extraRules"
+        ],
+        "path": "modules/nixos/features/development.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.etcher"
+        ],
+        "path": "modules/nixos/features/etcher.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.gaming",
+          "kryonix.features.gaming.enable",
+          "mkEnableOption \"Stack de gaming (Steam, Lutris, GameMode, etc)\";",
+          "mkOption {",
+          "services.udev.extraRules",
+          "services.xserver.videoDrivers"
+        ],
+        "path": "modules/nixos/features/gaming.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.hermes",
+          "mkEnableOption \"Hermes Agent via Podman OCI\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/features/hermes.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.mcp",
+          "kryonix.features.mcp.filesystem.roots",
+          "kryonix.features.mcp.git.repositories",
+          "kryonix.features.mcp.github.enable",
+          "mkEnableOption \"GitHub MCP integration\";",
+          "mkEnableOption \"MCP Git isolado com repositórios montados read-only\";",
+          "mkEnableOption \"MCP de documentação NixOS isolado, com rede e sem acesso ao host\";",
+          "mkEnableOption \"MCP de filesystem isolado e efetivamente read-only\";",
+          "mkEnableOption \"MCP sequential-thinking isolado, sem rede e sem acesso ao host\";",
+          "mkEnableOption \"Neo4j MCP integration\";",
+          "mkEnableOption \"Ollama MCP integration\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/features/mcp.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.network"
+        ],
+        "path": "modules/nixos/features/network.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.ntfs"
+        ],
+        "path": "modules/nixos/features/ntfs.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.observability",
+          "mkEnableOption \"Grafana dashboards\";",
+          "mkEnableOption \"Prometheus metrics\";",
+          "services.grafana.enable",
+          "services.grafana.settings.server.http_port",
+          "services.prometheus.enable",
+          "services.prometheus.port"
+        ],
+        "path": "modules/nixos/features/observability.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.featureRegistry",
+          "kryonix.features.",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/features/registry.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.remote",
+          "mkEnableOption \"Kryonix Web Installer remote access\";",
+          "mkEnableOption \"VNC remote desktop\";",
+          "mkOption {",
+          "services.openssh",
+          "services.xrdp.enable"
+        ],
+        "path": "modules/nixos/features/remote.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.ai.brain.client.enable",
+          "kryonix.features.ai.brain.server.enable",
+          "kryonix.features.remote.desktop.client.enable",
+          "kryonix.features.remote.desktop.server.enable"
+        ],
+        "path": "modules/nixos/features/removed-options.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features",
+          "kryonix.features.",
+          "mkEnableOption \"AMD GPU drivers (amdgpu, ROCm)\";",
+          "mkEnableOption \"Balena Etcher\";",
+          "mkEnableOption \"Base system configuration (Nix settings, locale, registry)\";",
+          "mkEnableOption \"CUDA toolkit and GPU compute support\";",
+          "mkEnableOption \"Hardware sensors monitoring (lm-sensors, hddtemp)\";",
+          "mkEnableOption \"Hyprland compositor (legacy/coexistence)\";",
+          "mkEnableOption \"Intel GPU drivers (i915, VAAPI, media driver)\";",
+          "mkEnableOption \"Kryonix Brain client mode (connects to remote Brain server)\";",
+          "mkEnableOption \"Kryonix Brain server mode (hosts Ollama, LightRAG, Neo4j)\";",
+          "mkEnableOption \"Laptop hardware profile (TLP, battery, thermald, power management)\";",
+          "mkEnableOption \"Linux Hardened kernel (security-focused)\";",
+          "mkEnableOption \"Linux Low-Latency kernel (audio production)\";",
+          "mkEnableOption \"Linux Zen kernel (desktop/gaming optimized)\";",
+          "mkEnableOption \"NTFS Support\";",
+          "mkEnableOption \"NVIDIA proprietary driver (nvidia, nvidia-utils, prime)\";",
+          "mkEnableOption \"Network bridge for VMs and containers\";",
+          "mkEnableOption \"OpenSSH server daemon\";",
+          "mkEnableOption \"Proxmox-like virtualization stack (bridge + libvirt + ZFS + firewall strict)\";",
+          "mkEnableOption \"Remote desktop client tools (TigerVNC, KRDC)\";",
+          "mkEnableOption \"Remote desktop server (VNC/WayVNC/KRDP)\";",
+          "mkEnableOption \"Server mode umbrella (containers, database, reverse proxy, backups)\";",
+          "mkEnableOption \"Strict firewall (default deny, explicit allow)\";",
+          "mkEnableOption \"Tailscale mesh VPN (Zero-config VPN)\";",
+          "mkEnableOption \"VLAN support and tagging\";",
+          "mkEnableOption \"virtual Libvirt bridge network ${name}\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/features/schema.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.security",
+          "mkEnableOption \"Fail2ban intrusion prevention\";",
+          "mkEnableOption \"Strict firewall\";",
+          "services.fail2ban.enable"
+        ],
+        "path": "modules/nixos/features/security.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.server",
+          "mkEnableOption \"Backup services\";",
+          "mkEnableOption \"Container runtime (Podman)\";",
+          "mkEnableOption \"Database services\";",
+          "mkEnableOption \"Reverse proxy (Traefik/Nginx)\";"
+        ],
+        "path": "modules/nixos/features/server.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.storage",
+          "mkEnableOption \"Dedicated /srv/data mount\";",
+          "mkEnableOption \"Pre-cache AI models on /srv/data\";"
+        ],
+        "path": "modules/nixos/features/storage.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.virtualization",
+          "kryonix.features.virtualization.enable",
+          "mkEnableOption \"Stack de virtualização\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/features/virtualization.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.fstrim.enable"
+        ],
+        "path": "modules/nixos/hardware/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment"
+        ],
+        "path": "modules/nixos/hyprland/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.xserver.xkb"
+        ],
+        "path": "modules/nixos/input/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.fstrim.enable"
+        ],
+        "path": "modules/nixos/installer/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.installer.kiosk",
+          "mkEnableOption \"Kiosk web do instalador (Cage + Chromium)\";",
+          "mkOption {",
+          "services.getty.autologinUser",
+          "services.kryxd",
+          "services.kryxd-terminal",
+          "services.kryxd.enable",
+          "services.kryxd.port",
+          "services.logind.settings.Login",
+          "services.seatd.enable"
+        ],
+        "path": "modules/nixos/installer/web-kiosk.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/nixos/meta/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.branding",
+          "kryonix.branding.prettyName",
+          "kryonix.meta.version",
+          "kryonix.org",
+          "mkEnableOption \"Observabilidade e versionamento do Kryonix\";",
+          "mkOption {",
+          "services.kryonix-telemetry"
+        ],
+        "path": "modules/nixos/meta/version.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment"
+        ],
+        "path": "modules/nixos/network/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.performance.schedExt",
+          "mkEnableOption \"Suporte a sched-ext\";",
+          "mkOption {",
+          "services.scx"
+        ],
+        "path": "modules/nixos/performance/sched-ext.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Jupyter no sistema com kernels Python/Rust/C++/Node e venv mutável por usuário\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/programs/jupyter/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkOption {"
+        ],
+        "path": "modules/nixos/programs/kryonix/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"MikroTik Winbox\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/programs/winbox/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.security.hardening",
+          "kryonix.security.hardening.enable",
+          "mkEnableOption \"Harden system via AppArmor (Industrial)\";"
+        ],
+        "path": "modules/nixos/security/apparmor_industrial.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/nixos/security/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.aura",
+          "mkEnableOption \"Camada Aura (roteamento de providers da assistente Kryonix)\";"
+        ],
+        "path": "modules/nixos/services/aura.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.features.network.bridge.name",
+          "kryonix.services.brain",
+          "mkEnableOption \"Kryonix Brain AI services\";",
+          "mkOption {",
+          "services.kryonix-brain-api",
+          "services.kryonix-lightrag",
+          "services.ollama",
+          "services.ollama-vram-check",
+          "services.ollama.acceleration"
+        ],
+        "path": "modules/nixos/services/brain.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.telemetry.enable",
+          "services.gvfs.enable",
+          "services.udisks2.enable"
+        ],
+        "path": "modules/nixos/services/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"greetd com tuigreet (gerenciador de login Wayland-friendly)\";",
+          "mkOption {",
+          "services.greetd",
+          "services.greetdDms",
+          "services.greetdDms.enable",
+          "services.logind.killUserProcesses"
+        ],
+        "path": "modules/nixos/services/greetd-dms/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.home-assistant",
+          "mkEnableOption \"Serviço local de Home Assistant (Podman)\";",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/services/home-assistant/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.brain",
+          "kryonix.services.state",
+          "mkOption {"
+        ],
+        "path": "modules/nixos/services/kryonix-state.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Kryonix Management Daemon (kryxd)\";",
+          "mkOption {",
+          "services.kryxd"
+        ],
+        "path": "modules/nixos/services/kryxd/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.llama-cpp",
+          "kryonix.services.llama-cpp.modelPath",
+          "mkEnableOption \"llama.cpp server (experimental CUDA backend)\";",
+          "mkOption {",
+          "services.kryonix-llama-cpp"
+        ],
+        "path": "modules/nixos/services/llama-cpp.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.kryonix-local-models-warmup",
+          "services.ollama"
+        ],
+        "path": "modules/nixos/services/local-ai.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.n8n",
+          "mkEnableOption \"Serviço local de workflows visuais (n8n)\";",
+          "services.n8n"
+        ],
+        "path": "modules/nixos/services/n8n/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.neo4j",
+          "mkEnableOption \"Neo4j Graph Database para o Kryonix Brain\";",
+          "mkOption {",
+          "services.neo4j",
+          "services.neo4j.serviceConfig.EnvironmentFile"
+        ],
+        "path": "modules/nixos/services/neo4j.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.snapper",
+          "services.snapper-home-boot"
+        ],
+        "path": "modules/nixos/services/snapper/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Tailscale VPN (system-wide)\";",
+          "mkOption {",
+          "services.kryonix.tailscale",
+          "services.tailscale",
+          "services.tailscale-autoconnect"
+        ],
+        "path": "modules/nixos/services/tailscale/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.telemetry",
+          "mkEnableOption \"Kryonix Telemetry Heartbeat\";",
+          "services.kryx-telemetry"
+        ],
+        "path": "modules/nixos/services/telemetry.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.fprintd.enable",
+          "services.tlp.settings"
+        ],
+        "path": "modules/nixos/services/tlp/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Mount group storage directories after login\";",
+          "mkOption {",
+          "services.nfs.idmapd.settings"
+        ],
+        "path": "modules/node/core/client/auth/group-storage-mount.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Mount user homes after login via pam_mount\";",
+          "mkOption {",
+          "services.nfs.idmapd.settings"
+        ],
+        "path": "modules/node/core/client/auth/home-after-login.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Mount user sectors inside the mounted home after a real login\";",
+          "mkOption {",
+          "services.login.rules.session.mount.order",
+          "services.login.rules.session.nodeUserSectorMounts",
+          "services.nfs.idmapd.settings",
+          "services.sddm.rules.session.mount.order",
+          "services.sddm.rules.session.nodeUserSectorMounts"
+        ],
+        "path": "modules/node/core/client/auth/pam-mount-user-groups.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/auth/users.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/base-diskless.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/base-rescue.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/base.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/client.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/desktop/applications.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/desktop/branding.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.xserver.xkb.layout",
+          "services.xserver.xkb.model"
+        ],
+        "path": "modules/node/core/client/desktop/keyboard.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.save-hwclock.enable",
+          "services.timesyncd.fallbackServers",
+          "services.timesyncd.servers",
+          "services.xserver.xkb"
+        ],
+        "path": "modules/node/core/client/desktop/locale.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/desktop/login-welcome.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/desktop/plasma-generic.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/desktop/plasma-lab.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkOption {",
+          "services.desktopManager.plasma6.enable",
+          "services.displayManager.defaultSession",
+          "services.displayManager.sddm",
+          "services.xserver.enable"
+        ],
+        "path": "modules/node/core/client/desktop/plasma6.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.qemuGuest.enable"
+        ],
+        "path": "modules/node/core/client/hardware/common-hardware.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.udev.packages"
+        ],
+        "path": "modules/node/core/client/hardware/hyperv.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/hardware/physical-base.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/hardware/physical-generic.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/hardware/physical-lab.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkOption {"
+        ],
+        "path": "modules/node/core/client/modules/base.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/boot/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/boot/filesystem-overlay.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/boot/initrd-network.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.node-networkd-profile",
+          "services.systemd-networkd"
+        ],
+        "path": "modules/node/core/client/modules/boot/network-stage2.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.node-boot-report"
+        ],
+        "path": "modules/node/core/client/modules/boot/observability.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/diskless-core.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/filesystem-diskless.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/initrd.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/network.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/modules/performance.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkOption {"
+        ],
+        "path": "modules/node/core/client/modules/publish-tree.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.desktopManager.plasma6.enable",
+          "services.displayManager.sddm.enable",
+          "services.openssh.enable",
+          "services.xserver.enable"
+        ],
+        "path": "modules/node/core/client/modules/rescue.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.openssh"
+        ],
+        "path": "modules/node/core/client/modules/security-no-root.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.node-home-unmount",
+          "services.systemd-networkd.serviceConfig.TimeoutStopSec"
+        ],
+        "path": "modules/node/core/client/modules/shutdown.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.pipewire",
+          "services.printing.enable",
+          "services.udisks2.enable"
+        ],
+        "path": "modules/node/core/client/profiles/desktop-generic.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.pipewire",
+          "services.printing.enable",
+          "services.udisks2.enable"
+        ],
+        "path": "modules/node/core/client/profiles/desktop-lab.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/profiles/hyperv-debug.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/profiles/physical-generic.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/profiles/rescue-minimal.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/client/profiles/rescue.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/flake/branding-assets.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/flake/default-params.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/flake/lib.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/flake/packages.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/flake/validations.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/knyc/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/knyc/package.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/auth/ragos-users-declare.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.nix"
+        ],
+        "path": "modules/node/core/server/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/hardware/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/hardware/hardware-configuration.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/network/clients-inventory-lib.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/network/clients-inventory.bootstrap.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/ragos-cli.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.openssh.enable"
+        ],
+        "path": "modules/node/core/server/roles/base.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/roles/ragos-operational.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.chrony",
+          "services.dnsmasq",
+          "services.nfs",
+          "services.nfs.settings.nfsd.threads",
+          "services.nginx"
+        ],
+        "path": "modules/node/core/server/roles/services.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/runtime/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/runtime/guard.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/runtime/hardware-configuration.example.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/runtime/params.example.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/node/core/server/services/boot.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"NODE login audit tracking\";",
+          "mkOption {",
+          "services.login.rules.session.nodeLoginAudit",
+          "services.login.rules.session.systemd.order",
+          "services.node-audit-cleanup",
+          "services.sddm.rules.session.nodeLoginAudit",
+          "services.sddm.rules.session.systemd.order"
+        ],
+        "path": "modules/node/core/server/services/login-audit.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.grafana",
+          "services.node-metrics",
+          "services.prometheus",
+          "services.prometheus.exporters.nfs.enable",
+          "services.prometheus.exporters.nginx.enable",
+          "services.prometheus.exporters.node"
+        ],
+        "path": "modules/node/core/server/services/monitoring.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.node-pppoe"
+        ],
+        "path": "modules/node/core/server/services/networking.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"NODE user management with BTRFS quotas\";",
+          "mkOption {",
+          "services.btrfs-qgroups"
+        ],
+        "path": "modules/node/core/server/services/ragos-users-btrfs.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.nix"
+        ],
+        "path": "modules/node/core/server/services/srv-layout.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.nfs-server.serviceConfig.ExecCondition",
+          "services.nfs-server.unitConfig",
+          "services.nginx.serviceConfig.ExecCondition",
+          "services.nginx.unitConfig",
+          "services.node-btrfs-quota",
+          "services.node-snapshot"
+        ],
+        "path": "modules/node/core/server/services/storage.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"NODE user groups and sector storage (dynamic creation via CLI)\";"
+        ],
+        "path": "modules/node/core/server/services/user-groups.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"NODE user management and CLI\";"
+        ],
+        "path": "modules/node/core/server/services/user-management.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"NODE Think Server\";",
+          "mkOption {"
+        ],
+        "path": "modules/node/think/think-server.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "kryonix.services.node-think",
+          "mkEnableOption \"NODE Think Service\";",
+          "mkOption {",
+          "services.nix"
+        ],
+        "path": "modules/services/node/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [],
+        "path": "modules/shared/nixpkgs/default.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "mkEnableOption \"Habilita virtualização KVM/QEMU/libvirt\";",
+          "mkOption {"
+        ],
+        "path": "modules/virtualization/kvm.nix"
+      },
+      {
+        "layer": "modules",
+        "optionsOrSignals": [
+          "services.libvirt-net-ragthink"
+        ],
+        "path": "modules/virtualization/net-ragthink.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.profiles."
+        ],
+        "path": "profiles/default.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.boot.silent.enable",
+          "kryonix.desktop.environment",
+          "kryonix.desktop.sddm.theme.preset",
+          "kryonix.features",
+          "kryonix.features.",
+          "kryonix.profiles.desktop",
+          "kryonix.profiles.desktop.enable",
+          "mkEnableOption \"Perfil desktop (virtualização + desenvolvimento + gaming opcional)\";",
+          "mkOption {"
+        ],
+        "path": "profiles/desktop.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.features.development",
+          "kryonix.profiles.dev",
+          "mkEnableOption \"Perfil de desenvolvimento\";",
+          "mkOption {"
+        ],
+        "path": "profiles/dev/default.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [],
+        "path": "profiles/dev/rust.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.profiles.glacier-ai",
+          "kryonix.profiles.glacier-ai.enable",
+          "kryonix.services.aura",
+          "kryonix.services.brain",
+          "kryonix.services.neo4j",
+          "mkEnableOption \"Perfil IA do Glacier (Ollama + Brain + LightRAG, sem autostart)\";",
+          "mkOption {"
+        ],
+        "path": "profiles/glacier-ai.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.branding",
+          "kryonix.features.gpu.nvidia",
+          "kryonix.profiles.glacier-base",
+          "mkEnableOption \"Perfil base do Glacier (NVIDIA, SSH, Tailscale, firewall, branding)\";",
+          "services.fail2ban",
+          "services.tailscale.enable"
+        ],
+        "path": "profiles/glacier-base.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.features.gaming",
+          "kryonix.profiles.glacier-gamer",
+          "mkEnableOption \"Perfil gamer do Glacier (Steam, Lutris, Wine, Heroic, OpenRGB, desktop)\";",
+          "services.ollama",
+          "services.ollama.enable"
+        ],
+        "path": "profiles/glacier-gamer.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.features",
+          "kryonix.profiles.laptop",
+          "kryonix.profiles.laptop.enable",
+          "mkEnableOption \"Perfil laptop (dev + virtualização padrão; sem gaming por padrão)\";",
+          "mkOption {"
+        ],
+        "path": "profiles/laptop.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.profiles.server-ai",
+          "kryonix.services.brain",
+          "mkEnableOption \"Profile de Servidor de IA (Glacier)\";",
+          "services.kryonix.tailscale",
+          "services.openssh"
+        ],
+        "path": "profiles/server-ai.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.profiles.ti",
+          "kryonix.profiles.ti.enable",
+          "mkEnableOption \"Perfil TI/Sysadmin\";"
+        ],
+        "path": "profiles/ti/default.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.profiles.university",
+          "kryonix.profiles.university.enable",
+          "mkEnableOption \"Perfil universitário\";"
+        ],
+        "path": "profiles/ti/university/default.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.profiles.tools",
+          "kryonix.vscode",
+          "mkEnableOption \"Perfil de ferramentas e utilitários\";",
+          "mkOption {"
+        ],
+        "path": "profiles/tools.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.profiles.university",
+          "kryonix.profiles.university.enable",
+          "mkEnableOption \"Perfil universitário\";"
+        ],
+        "path": "profiles/university/default.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.features.virtualization",
+          "kryonix.profiles.virtualization",
+          "mkEnableOption \"Perfil de virtualização\";",
+          "mkOption {"
+        ],
+        "path": "profiles/virtualization.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.desktop.environment",
+          "kryonix.features",
+          "kryonix.profiles.vm",
+          "kryonix.profiles.vm.enable",
+          "mkEnableOption \"Perfil VM (defaults com footprint reduzido)\";",
+          "mkOption {"
+        ],
+        "path": "profiles/vm.nix"
+      },
+      {
+        "layer": "profiles",
+        "optionsOrSignals": [
+          "kryonix.features.gaming",
+          "kryonix.profiles.workstation-gamer",
+          "mkEnableOption \"Profile de Workstation e Gaming (Glacier)\";"
+        ],
+        "path": "profiles/workstation-gamer.nix"
+      }
+    ],
+    "kryxd": [
+      {
+        "layer": "nixos",
+        "optionsOrSignals": [
+          "kryonix.notebooklmMcp",
+          "mkEnableOption \"Habilita o MCP Kryonix NotebookLM\";",
+          "mkOption {"
+        ],
+        "path": "nixos/modules/kryonix/notebooklm-mcp.nix"
+      }
+    ]
+  },
+  "schemaVersion": 1
+}

@@ -1,0 +1,1095 @@
+{
+  "repositories": {
+    "engine": {
+      "apiCoverage": [
+        {
+          "documented": false,
+          "line": 50,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/caelestia/events",
+          "repoPath": "packages/kryonix-caelestia-watcher/src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 51,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/profile/apply",
+          "repoPath": "packages/kryonix-caelestia-watcher/src/main.rs"
+        }
+      ],
+      "documentationFiles": [
+        ".github/copilot-instructions.md",
+        ".github/instructions/caelestia.instructions.md",
+        ".github/instructions/hyprland.instructions.md",
+        ".github/instructions/nix.instructions.md",
+        ".github/instructions/obsidian.instructions.md",
+        ".github/instructions/release.instructions.md",
+        ".github/prompts/fix-launcher.prompt.md",
+        ".github/prompts/implement-host.prompt.md",
+        ".github/prompts/write-release.prompt.md",
+        ".github/pull_request_template.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "CONTRIBUTING.md",
+        "CONTRIBUTING_AGENTS.md",
+        "README.md",
+        "SECURITY.md",
+        "desktop/hyprland/rice/README.md",
+        "desktop/kde/kryonix-blue-glass/mascot/kryonix-mascot-concept.md",
+        "desktop/kde/kryonix-blue-glass/mascot/kryonix-mascot-prompt.md",
+        "docs/ARCHITECTURE.md",
+        "docs/CI_CACHIX.md",
+        "docs/CLI.md",
+        "docs/CURRENT_STATE.md",
+        "docs/FEATURE_REGISTRY.md",
+        "docs/FIREWALL_FEATURE_AUDIT.md",
+        "docs/INSTALL.md",
+        "docs/OPERATIONS.md",
+        "docs/README.md",
+        "docs/REMOTE_SSH_FEATURE.md",
+        "docs/ROADMAP.md",
+        "docs/SECURITY.md",
+        "docs/SHORTCUTS.md",
+        "docs/TESTING.md",
+        "docs/TROUBLESHOOTING.md",
+        "docs/USAGE.md",
+        "docs/VIRTUAL_BRIDGE_AUDIT.md",
+        "docs/agents/AGENT_SYSTEM_INVENTORY.md",
+        "docs/agents/CONTEXT_ARCHITECTURE.md",
+        "docs/agents/README.md",
+        "docs/agents/VIBECODE_GOVERNANCE.md",
+        "docs/agents/agente-update.md",
+        "docs/aura/KORA_RETIREMENT_STUDY.md",
+        "docs/brain/AUTOPILOT.md",
+        "docs/brain/CAG_ARCHITECTURE.md",
+        "docs/brain/GRAPH_RAG_ARCHITECTURE.md",
+        "docs/brain/INGESTION_PIPELINE.md",
+        "docs/brain/MEMORY.md",
+        "docs/brain/NEO4J.md",
+        "docs/brain/NEO4J_SCHEMA.md",
+        "docs/brain/OBSIDIAN_NEO4J_MODEL.md",
+        "docs/brain/RAG_ARCHITECTURE.md",
+        "docs/brain/RAG_CAG_GRAPHRAG.md",
+        "docs/brain/README.md",
+        "docs/brain/REASONING_MEMORY.md",
+        "docs/brain/REMOTE_CLIENT_INSPIRON.md",
+        "docs/brain/STATE_LAYOUT.md",
+        "docs/brain/kryonix-rag-pipeline.md",
+        "docs/brain/lightrag.md",
+        "docs/brain/mcp.md",
+        "docs/brain/vault.md",
+        "docs/cli/KRYONIX_COMMAND_CONTRACT.md",
+        "docs/cli/README.md",
+        "docs/desktop/KDE_PLASMA.md",
+        "docs/desktop/KRYONIX_AURORA_SHELL.md",
+        "docs/desktop/KRYONIX_BLUE_GLASS.md",
+        "docs/desktop/KRYONIX_BRANDING.md",
+        "docs/desktop/KRYONIX_SDDM.md",
+        "docs/desktop/KRYONIX_SDDM_CLEAN.md",
+        "docs/desktop/KRYONIX_SHELL_ARCHITECTURE.md",
+        "docs/desktop/KRYONIX_SHELL_ROADMAP.md",
+        "docs/desktop/KRYONIX_WALLPAPERS.md",
+        "docs/desktop/LOCKSCREEN_THEME.md",
+        "docs/desktop/PLASMA_THEME_KRYONIX_DARK.md",
+        "docs/desktop/SDDM.md",
+        "docs/desktop/SHORTCUTS.md",
+        "docs/desktop/WALLPAPER_DYNAMIC.md",
+        "docs/desktop/WAYWALLEN.md",
+        "docs/desktop/WINDOWS_TILING.md",
+        "docs/development/LICENSING_POLICY.md",
+        "docs/development/SUBMODULES.md",
+        "docs/evidence/README.md",
+        "docs/evidence/ragos-audit.md",
+        "docs/features/REMOTE_DESKTOP.md",
+        "docs/hardware/CPU.md",
+        "docs/hardware/GPU_AMD.md",
+        "docs/hardware/GPU_INTEL.md",
+        "docs/hardware/GPU_NVIDIA.md",
+        "docs/hardware/HARDWARE_FEATURES_AUDIT.md",
+        "docs/home-brain/AUTOMATION_POLICY.md",
+        "docs/home-brain/DAILY_WORKFLOW.md",
+        "docs/home-brain/MEMORY_BRIDGE.md",
+        "docs/home-brain/OPERATIONS.md",
+        "docs/home-brain/PHASE_3B_TAXONOMY.md",
+        "docs/home-brain/README.md",
+        "docs/home-brain/SUBREPO_WORKFLOW.md",
+        "docs/hosts/glacier-disko-plan.md",
+        "docs/hosts/glacier-live-iso.md",
+        "docs/hosts/glacier-rebuild.md",
+        "docs/hosts/glacier-switch.md",
+        "docs/hosts/glacier.md",
+        "docs/hosts/inspiron-reinstall-plan.md",
+        "docs/hosts/inspiron.md",
+        "docs/hosts/iso.md",
+        "docs/installer/ARCHITECTURE.md",
+        "docs/installer/CURRENT_STATE.md",
+        "docs/installer/E2E.md",
+        "docs/installer/INSTALL_PLAN.md",
+        "docs/installer/README.md",
+        "docs/installer/ROADMAP.md",
+        "docs/installer/VENTOY.md",
+        "docs/mcp/README.md",
+        "docs/mcp/client-configs.md",
+        "docs/mcp/security.md",
+        "docs/operations/API_KEY_ROTATION.md",
+        "docs/operations/BRAIN_ASK_SEARCH_CONTRACT.md",
+        "docs/operations/BRAIN_GROUNDING_ANSWERABILITY.md",
+        "docs/operations/BRAIN_REMOTE_API_KEY_PRODUCTION.md",
+        "docs/operations/BRAIN_SAFE_DEPLOY.md",
+        "docs/operations/DO_NOT_DO.md",
+        "docs/operations/FLAKE_MODULARIZATION_PLAN.md",
+        "docs/operations/GIT_DEV_PROD_WORKFLOW.md",
+        "docs/operations/GLACIER_BTRFS_INSTALL.md",
+        "docs/operations/GLACIER_VRAM_PROFILES.md",
+        "docs/operations/GRAPH_MAINTENANCE.md",
+        "docs/operations/HOME_BRAIN_AUTOPILOT_PRODUCTION.md",
+        "docs/operations/HOME_MANAGER_TROUBLESHOOTING.md",
+        "docs/operations/KRYONIX_CI_HARDENING.md",
+        "docs/operations/KRYONIX_COMMANDS_CANONICAL.md",
+        "docs/operations/KRYONIX_DEPLOY_REPORT_20260517-012936.md",
+        "docs/operations/KRYONIX_DOCS_AUDIT.md",
+        "docs/operations/KRYONIX_ISSUES_GOVERNANCE.md",
+        "docs/operations/KRYONIX_ISSUE_TRIAGE_CURRENT.md",
+        "docs/operations/KRYONIX_LICENSE_AUDIT.md",
+        "docs/operations/KRYONIX_NETWORK_STATUS.md",
+        "docs/operations/KRYONIX_PR_CLOSURE_AUDIT.md",
+        "docs/operations/KRYONIX_REFINEMENT_DEPLOYMENT.md",
+        "docs/operations/KRYONIX_REINDEX_REPORT.md",
+        "docs/operations/KRYONIX_REVIEW_WALKTHROUGH.md",
+        "docs/operations/KRYONIX_RUNTIME_MATRIX.md",
+        "docs/operations/KRYONIX_UPDATE_POLICY.md",
+        "docs/operations/KRYONIX_VALIDATION.md",
+        "docs/operations/LLAMA_CPP_CUDA_BENCHMARK_RTX4060.md",
+        "docs/operations/MAINTENANCE_LOG_2026-05-25.md",
+        "docs/operations/NEO4J_TROUBLESHOOTING.md",
+        "docs/operations/OLLAMA_MODEL_BENCHMARK_RTX4060.md",
+        "docs/operations/RELEASE_ISO.md",
+        "docs/operations/REMOTE_DESKTOP_WAYVNC.md",
+        "docs/operations/ROLLBACK_TAGS.md",
+        "docs/operations/STRUCTURAL_AUDIT.md",
+        "docs/operations/agente.md",
+        "docs/operations/audit_report_brain_infra.md",
+        "docs/operations/novo.md",
+        "packages/kryonix-optimizer/README.md",
+        "skills/git-dev-prod/SKILL.md",
+        "skills/yt-to-notebook/SKILL.md",
+        "skills/yt-to-notebook/references/exemplo-gold.md",
+        "skills/yt-to-notebook/references/formato-visual.md",
+        "specs/00-auditoria.md",
+        "specs/01-flake.md",
+        "specs/02-packages.md",
+        "specs/03-cachix.md",
+        "specs/04-desktop.md",
+        "specs/06-caelestia-hybrid.md",
+        "specs/07-kryonix-shell.md",
+        "specs/08-kryonix-aurora-shell.md",
+        "windows/README.md"
+      ],
+      "uiCoverage": [],
+      "undocumentedApiCount": 2,
+      "undocumentedUiCount": 0
+    },
+    "kryxd": {
+      "apiCoverage": [
+        {
+          "documented": false,
+          "line": 369,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/detection",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 375,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/disks",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 376,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/disks/:device/partitions",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 330,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/partition",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 377,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/reboot",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 378,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/stream",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 367,
+          "method": null,
+          "middlewareSignals": [
+            "token",
+            "token))"
+          ],
+          "path": "/api/token",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 385,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/v1",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 386,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/v2",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 373,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/validate-install",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 387,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/virt",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 347,
+          "method": null,
+          "middlewareSignals": [
+            "auth",
+            "auth::start_device_flow))"
+          ],
+          "path": "/auth/github/device",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 348,
+          "method": null,
+          "middlewareSignals": [
+            "auth",
+            "auth::poll_device_flow))"
+          ],
+          "path": "/auth/github/poll",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 67,
+          "method": null,
+          "middlewareSignals": [
+            "auth"
+          ],
+          "path": "/auth/login",
+          "repoPath": "src/api/auth.rs"
+        },
+        {
+          "documented": false,
+          "line": 68,
+          "method": null,
+          "middlewareSignals": [
+            "auth"
+          ],
+          "path": "/auth/session",
+          "repoPath": "src/api/auth.rs"
+        },
+        {
+          "documented": false,
+          "line": 25,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/ceph/osds",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "documented": false,
+          "line": 24,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/ceph/status",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "documented": true,
+          "line": 350,
+          "method": null,
+          "middlewareSignals": [
+            "auth::clone_repo))"
+          ],
+          "path": "/clone",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 31,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/cluster",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": false,
+          "line": 32,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/console",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": false,
+          "line": 365,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/debug/target",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 328,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/disk/apply",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 371,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/disk/manual-setup",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 27,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/dry-run",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": true,
+          "line": 326,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/dry-run",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 10,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/fleet/status",
+          "repoPath": "src/api/v1/fleet.rs"
+        },
+        {
+          "documented": true,
+          "line": 337,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/hardware",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 334,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/health",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 36,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/host/ws",
+          "repoPath": "src/api/console.rs"
+        },
+        {
+          "documented": true,
+          "line": 29,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": true,
+          "line": 327,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 329,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install/finalize",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 361,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install/progress",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 360,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install/status",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 20,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/instances",
+          "repoPath": "src/api/virt.rs"
+        },
+        {
+          "documented": false,
+          "line": 21,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/instances/:id/state",
+          "repoPath": "src/api/virt.rs"
+        },
+        {
+          "documented": false,
+          "line": 37,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/instances/:name/console/ws",
+          "repoPath": "src/api/console.rs"
+        },
+        {
+          "documented": false,
+          "line": 9,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/ldap/users",
+          "repoPath": "src/api/v1/ldap.rs"
+        },
+        {
+          "documented": false,
+          "line": 385,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/legacy",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 80,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/metrics/host",
+          "repoPath": "src/api/system.rs"
+        },
+        {
+          "documented": true,
+          "line": 345,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/apply",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 341,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/interfaces",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 340,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/status",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 343,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/wifi/connect",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 344,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/wifi/disconnect",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 342,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/wifi/scan",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 19,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/nodes",
+          "repoPath": "src/api/virt.rs"
+        },
+        {
+          "documented": false,
+          "line": 25,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/plan",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": false,
+          "line": 325,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/plan",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 23,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/pools",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "documented": false,
+          "line": 28,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/preflight",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": true,
+          "line": 338,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/probe",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": true,
+          "line": 363,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/profile/apply",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 27,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/replication/plan",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "documented": false,
+          "line": 26,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/replication/status",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "documented": true,
+          "line": 349,
+          "method": null,
+          "middlewareSignals": [
+            "auth::list_repos))"
+          ],
+          "path": "/repos",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 26,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/secrets",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": false,
+          "line": 33,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/storage",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "documented": false,
+          "line": 10,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/storage/quotas",
+          "repoPath": "src/api/v1/storage.rs"
+        },
+        {
+          "documented": false,
+          "line": 79,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/system/details",
+          "repoPath": "src/api/system.rs"
+        },
+        {
+          "documented": false,
+          "line": 8,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/system/identity",
+          "repoPath": "src/api/v1/system.rs"
+        },
+        {
+          "documented": false,
+          "line": 78,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/system/status",
+          "repoPath": "src/api/system.rs"
+        },
+        {
+          "documented": false,
+          "line": 11,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/topology",
+          "repoPath": "src/api/cluster.rs"
+        },
+        {
+          "documented": true,
+          "line": 335,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/version",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "documented": false,
+          "line": 30,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/virt",
+          "repoPath": "src/api/mod.rs"
+        }
+      ],
+      "documentationFiles": [
+        ".agents/skills/kryonix-notebooklm/SKILL.md",
+        "README.md",
+        "docs/FRONTEND_BACKEND_CONTRACT.md",
+        "docs/ai/notebooklm/MCP_AUDIT.md",
+        "docs/ai/notebooklm/README.md",
+        "docs/ai/notebooklm/REQUEST_TEMPLATE.md",
+        "docs/ai/notebooklm/RESPONSE_TEMPLATE.md",
+        "docs/audits/KRYONIX_INSTALLER_PHASE2_AUDIT.md",
+        "ui/README.md"
+      ],
+      "uiCoverage": [
+        {
+          "documented": false,
+          "line": 22,
+          "path": "/api/cluster/tasks",
+          "sourcePath": "ui/src/components/dashboard/TaskLogPanel.tsx",
+          "text": "const res = await fetch('/api/cluster/tasks');"
+        },
+        {
+          "documented": false,
+          "line": 40,
+          "path": "/api/detection",
+          "sourcePath": "ui/src/pages/Welcome.jsx",
+          "text": "fetch('/api/detection')"
+        },
+        {
+          "documented": false,
+          "line": 721,
+          "path": "/api/disks/${encodeURIComponent(devName)}/partitions",
+          "sourcePath": "ui/src/pages/Disks.jsx",
+          "text": "fetch(`/api/disks/${encodeURIComponent(devName)}/partitions`)"
+        },
+        {
+          "documented": false,
+          "line": 50,
+          "path": "/api/disks/${encodeURIComponent(ve)}/partitions",
+          "sourcePath": "ui/static/assets/index-DMCyZjWx.js",
+          "text": "`).map(a=>a.trim()).filter(Boolean)}function pp(r){return Array.from(new Set(Yp(r).filter(a=>Tu.test(a))))}function hp(r){const a=Yp(r);return a.length>0&&a.every(o=>Tu.test(o))}function gp(r){const a=De(r);if(!a)return null;const o=a.split"
+        },
+        {
+          "documented": false,
+          "line": 158,
+          "path": "/api/nixos/config",
+          "sourcePath": "ui/src/views/Settings.tsx",
+          "text": "const res = await fetch('/api/nixos/config');"
+        },
+        {
+          "documented": false,
+          "line": 199,
+          "path": "/api/nixos/rebuild",
+          "sourcePath": "ui/src/views/Settings.tsx",
+          "text": "const res = await fetch('/api/nixos/rebuild', {"
+        },
+        {
+          "documented": false,
+          "line": 9,
+          "path": "/api/nodes",
+          "sourcePath": "ui/src/components/dashboard/ClusterNodesView.tsx",
+          "text": "fetch('/api/nodes')"
+        },
+        {
+          "documented": false,
+          "line": 30,
+          "path": "/api/nodes",
+          "sourcePath": "ui/src/views/Nodes.tsx",
+          "text": "const res = await fetch('/api/nodes');"
+        },
+        {
+          "documented": false,
+          "line": 86,
+          "path": "/api/nodes/${nodeId}/action",
+          "sourcePath": "ui/src/views/Nodes.tsx",
+          "text": "const res = await fetch(`/api/nodes/${nodeId}/action`, {"
+        },
+        {
+          "documented": false,
+          "line": 62,
+          "path": "/api/nodes/${nodeId}/authorize",
+          "sourcePath": "ui/src/views/Nodes.tsx",
+          "text": "const res = await fetch(`/api/nodes/${nodeId}/authorize`, { method: 'POST' });"
+        },
+        {
+          "documented": false,
+          "line": 9,
+          "path": "/api/nodes/${nodeId}/vms",
+          "sourcePath": "ui/src/components/dashboard/VmListView.tsx",
+          "text": "fetch(`/api/nodes/${nodeId}/vms`)"
+        },
+        {
+          "documented": false,
+          "line": 15,
+          "path": "/api/nodes/${node}/vms/${vmid}/config",
+          "sourcePath": "ui/src/components/dashboard/VmHardwareView.tsx",
+          "text": "fetch(`/api/nodes/${node}/vms/${vmid}/config`)"
+        },
+        {
+          "documented": false,
+          "line": 15,
+          "path": "/api/nodes/${node}/vms/${vmid}/snapshots",
+          "sourcePath": "ui/src/components/dashboard/SnapshotsView.tsx",
+          "text": "fetch(`/api/nodes/${node}/vms/${vmid}/snapshots`)"
+        },
+        {
+          "documented": false,
+          "line": 73,
+          "path": "/api/nodes/authorize-all",
+          "sourcePath": "ui/src/views/Nodes.tsx",
+          "text": "const res = await fetch('/api/nodes/authorize-all', { method: 'POST' });"
+        },
+        {
+          "documented": false,
+          "line": 49,
+          "path": "/api/nodes/scan",
+          "sourcePath": "ui/src/views/Nodes.tsx",
+          "text": "const res = await fetch('/api/nodes/scan', { method: 'POST' });"
+        },
+        {
+          "documented": true,
+          "line": 40,
+          "path": "/api/reboot",
+          "sourcePath": "ui/static/assets/index-DMCyZjWx.js",
+          "text": "`+c.stack}return{value:e,source:t,stack:i,digest:null}}function hl(e,t,n){return{value:e,source:null,stack:n??null,digest:t??null}}function gl(e,t){try{console.error(t.value)}catch(n){setTimeout(function(){throw n})}}var L0=typeof WeakMap=="
+        },
+        {
+          "documented": false,
+          "line": 16,
+          "path": "/api/services",
+          "sourcePath": "ui/src/views/Services.tsx",
+          "text": "const res = await fetch('/api/services');"
+        },
+        {
+          "documented": false,
+          "line": 38,
+          "path": "/api/services/${name}/action",
+          "sourcePath": "ui/src/views/Services.tsx",
+          "text": "const res = await fetch(`/api/services/${name}/action`, {"
+        },
+        {
+          "documented": false,
+          "line": 13,
+          "path": "/api/storage/${storageId}/content",
+          "sourcePath": "ui/src/components/dashboard/StorageContentView.tsx",
+          "text": "fetch(`/api/storage/${storageId}/content`)"
+        },
+        {
+          "documented": false,
+          "line": 22,
+          "path": "/api/token",
+          "sourcePath": "ui/src/pages/Install.jsx",
+          "text": "fetch('/api/token')"
+        },
+        {
+          "documented": false,
+          "line": 18,
+          "path": "/api/v1/auth/login",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v1/auth/login', {"
+        },
+        {
+          "documented": false,
+          "line": 110,
+          "path": "/api/v1/auth/login",
+          "sourcePath": "ui/src/views/Login.tsx",
+          "text": "const response = await fetch('/api/v1/auth/login', {"
+        },
+        {
+          "documented": false,
+          "line": 25,
+          "path": "/api/v1/auth/session",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v1/auth/session');"
+        },
+        {
+          "documented": false,
+          "line": 134,
+          "path": "/api/v1/ceph/health",
+          "sourcePath": "ui/src/views/ApiHub.tsx",
+          "text": "path: '/api/v1/ceph/health',"
+        },
+        {
+          "documented": false,
+          "line": 162,
+          "path": "/api/v1/ceph/osds",
+          "sourcePath": "ui/src/views/ApiHub.tsx",
+          "text": "path: '/api/v1/ceph/osds',"
+        },
+        {
+          "documented": false,
+          "line": 203,
+          "path": "/api/v1/fleet/nodes",
+          "sourcePath": "ui/src/views/ApiHub.tsx",
+          "text": "path: '/api/v1/fleet/nodes',"
+        },
+        {
+          "documented": false,
+          "line": 33,
+          "path": "/api/v1/fleet/status",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v1/fleet/status');"
+        },
+        {
+          "documented": false,
+          "line": 34,
+          "path": "/api/v1/incus/instances",
+          "sourcePath": "ui/src/views/ApiHub.tsx",
+          "text": "path: '/api/v1/incus/instances',"
+        },
+        {
+          "documented": false,
+          "line": 78,
+          "path": "/api/v1/incus/instances",
+          "sourcePath": "ui/src/views/ApiHub.tsx",
+          "text": "path: '/api/v1/incus/instances',"
+        },
+        {
+          "documented": false,
+          "line": 111,
+          "path": "/api/v1/incus/instances/:name/state",
+          "sourcePath": "ui/src/views/ApiHub.tsx",
+          "text": "path: '/api/v1/incus/instances/:name/state',"
+        },
+        {
+          "documented": false,
+          "line": 37,
+          "path": "/api/v1/storage/quotas",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v1/storage/quotas');"
+        },
+        {
+          "documented": false,
+          "line": 381,
+          "path": "/api/v1/system/identity",
+          "sourcePath": "ui/src/App.jsx",
+          "text": "fetch('/api/v1/system/identity')"
+        },
+        {
+          "documented": false,
+          "line": 29,
+          "path": "/api/v1/system/identity",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v1/system/identity');"
+        },
+        {
+          "documented": false,
+          "line": 80,
+          "path": "/api/v1/system/identity",
+          "sourcePath": "ui/src/views/Login.tsx",
+          "text": "fetch('/api/v1/system/identity', { credentials: 'same-origin' })"
+        },
+        {
+          "documented": false,
+          "line": 72,
+          "path": "/api/v2/cluster/topology",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/cluster/topology');"
+        },
+        {
+          "documented": true,
+          "line": 228,
+          "path": "/api/v2/install",
+          "sourcePath": "ui/src/utils/installerApi.js",
+          "text": "return requestJson('/api/v2/install', {"
+        },
+        {
+          "documented": false,
+          "line": 98,
+          "path": "/api/v2/metrics/host",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/metrics/host');"
+        },
+        {
+          "documented": false,
+          "line": 186,
+          "path": "/api/v2/plan",
+          "sourcePath": "ui/src/utils/installerApi.js",
+          "text": "const result = await requestJson('/api/v2/plan', {"
+        },
+        {
+          "documented": false,
+          "line": 208,
+          "path": "/api/v2/secrets",
+          "sourcePath": "ui/src/utils/installerApi.js",
+          "text": "return requestJson('/api/v2/secrets', {"
+        },
+        {
+          "documented": false,
+          "line": 49,
+          "path": "/api/v2/storage/ceph/osds",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/storage/ceph/osds');"
+        },
+        {
+          "documented": false,
+          "line": 45,
+          "path": "/api/v2/storage/ceph/status",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/storage/ceph/status');"
+        },
+        {
+          "documented": false,
+          "line": 41,
+          "path": "/api/v2/storage/pools",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/storage/pools');"
+        },
+        {
+          "documented": false,
+          "line": 57,
+          "path": "/api/v2/storage/replication/plan",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/storage/replication/plan', {"
+        },
+        {
+          "documented": false,
+          "line": 53,
+          "path": "/api/v2/storage/replication/status",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/storage/replication/status');"
+        },
+        {
+          "documented": false,
+          "line": 94,
+          "path": "/api/v2/system/details",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/system/details');"
+        },
+        {
+          "documented": false,
+          "line": 68,
+          "path": "/api/v2/virt/instances",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/virt/instances');"
+        },
+        {
+          "documented": false,
+          "line": 76,
+          "path": "/api/v2/virt/instances",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/virt/instances', {"
+        },
+        {
+          "documented": false,
+          "line": 87,
+          "path": "/api/v2/virt/instances/${encodeURIComponent(id)}/state",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson(`/api/v2/virt/instances/${encodeURIComponent(id)}/state`, {"
+        },
+        {
+          "documented": false,
+          "line": 64,
+          "path": "/api/v2/virt/nodes",
+          "sourcePath": "ui/src/lib/api.js",
+          "text": "return requestJson('/api/v2/virt/nodes');"
+        }
+      ],
+      "undocumentedApiCount": 39,
+      "undocumentedUiCount": 47
+    }
+  },
+  "schemaVersion": 1
+}

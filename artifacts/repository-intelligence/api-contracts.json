@@ -1,0 +1,533 @@
+{
+  "repositories": {
+    "engine": {
+      "routes": [
+        {
+          "line": 50,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/caelestia/events",
+          "repoPath": "packages/kryonix-caelestia-watcher/src/main.rs"
+        },
+        {
+          "line": 51,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/profile/apply",
+          "repoPath": "packages/kryonix-caelestia-watcher/src/main.rs"
+        }
+      ],
+      "schemas": []
+    },
+    "kryxd": {
+      "routes": [
+        {
+          "line": 369,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/detection",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 375,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/disks",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 376,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/disks/:device/partitions",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 330,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/partition",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 377,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/reboot",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 378,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/stream",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 367,
+          "method": null,
+          "middlewareSignals": [
+            "token",
+            "token))"
+          ],
+          "path": "/api/token",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 385,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/v1",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 386,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/v2",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 373,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/validate-install",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 387,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/api/virt",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 347,
+          "method": null,
+          "middlewareSignals": [
+            "auth",
+            "auth::start_device_flow))"
+          ],
+          "path": "/auth/github/device",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 348,
+          "method": null,
+          "middlewareSignals": [
+            "auth",
+            "auth::poll_device_flow))"
+          ],
+          "path": "/auth/github/poll",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 67,
+          "method": null,
+          "middlewareSignals": [
+            "auth"
+          ],
+          "path": "/auth/login",
+          "repoPath": "src/api/auth.rs"
+        },
+        {
+          "line": 68,
+          "method": null,
+          "middlewareSignals": [
+            "auth"
+          ],
+          "path": "/auth/session",
+          "repoPath": "src/api/auth.rs"
+        },
+        {
+          "line": 25,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/ceph/osds",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "line": 24,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/ceph/status",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "line": 350,
+          "method": null,
+          "middlewareSignals": [
+            "auth::clone_repo))"
+          ],
+          "path": "/clone",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 31,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/cluster",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 32,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/console",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 365,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/debug/target",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 328,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/disk/apply",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 371,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/disk/manual-setup",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 27,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/dry-run",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 326,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/dry-run",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 10,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/fleet/status",
+          "repoPath": "src/api/v1/fleet.rs"
+        },
+        {
+          "line": 337,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/hardware",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 334,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/health",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 36,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/host/ws",
+          "repoPath": "src/api/console.rs"
+        },
+        {
+          "line": 29,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 327,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 329,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install/finalize",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 361,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install/progress",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 360,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/install/status",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 20,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/instances",
+          "repoPath": "src/api/virt.rs"
+        },
+        {
+          "line": 21,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/instances/:id/state",
+          "repoPath": "src/api/virt.rs"
+        },
+        {
+          "line": 37,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/instances/:name/console/ws",
+          "repoPath": "src/api/console.rs"
+        },
+        {
+          "line": 9,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/ldap/users",
+          "repoPath": "src/api/v1/ldap.rs"
+        },
+        {
+          "line": 385,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/legacy",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 80,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/metrics/host",
+          "repoPath": "src/api/system.rs"
+        },
+        {
+          "line": 345,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/apply",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 341,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/interfaces",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 340,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/status",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 343,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/wifi/connect",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 344,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/wifi/disconnect",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 342,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/network/wifi/scan",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 19,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/nodes",
+          "repoPath": "src/api/virt.rs"
+        },
+        {
+          "line": 25,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/plan",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 325,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/plan",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 23,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/pools",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "line": 28,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/preflight",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 338,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/probe",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 363,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/profile/apply",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 27,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/replication/plan",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "line": 26,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/replication/status",
+          "repoPath": "src/api/storage.rs"
+        },
+        {
+          "line": 349,
+          "method": null,
+          "middlewareSignals": [
+            "auth::list_repos))"
+          ],
+          "path": "/repos",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 26,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/secrets",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 33,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/storage",
+          "repoPath": "src/api/mod.rs"
+        },
+        {
+          "line": 10,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/storage/quotas",
+          "repoPath": "src/api/v1/storage.rs"
+        },
+        {
+          "line": 79,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/system/details",
+          "repoPath": "src/api/system.rs"
+        },
+        {
+          "line": 8,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/system/identity",
+          "repoPath": "src/api/v1/system.rs"
+        },
+        {
+          "line": 78,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/system/status",
+          "repoPath": "src/api/system.rs"
+        },
+        {
+          "line": 11,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/topology",
+          "repoPath": "src/api/cluster.rs"
+        },
+        {
+          "line": 335,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/version",
+          "repoPath": "src/main.rs"
+        },
+        {
+          "line": 30,
+          "method": null,
+          "middlewareSignals": [],
+          "path": "/virt",
+          "repoPath": "src/api/mod.rs"
+        }
+      ],
+      "schemas": [
+        {
+          "path": "schemas/install-plan.schema.json",
+          "properties": [
+            "features",
+            "isThinkServer",
+            "repository",
+            "storage",
+            "version"
+          ],
+          "title": "Kryonix Install Plan v2",
+          "type": "object"
+        },
+        {
+          "path": "ui/src/install-plan.schema.json",
+          "properties": [
+            "admin",
+            "confirmedFeatures",
+            "disk",
+            "features",
+            "locale",
+            "network",
+            "profile",
+            "security",
+            "source",
+            "storage",
+            "targetRemoteAccess",
+            "version"
+          ],
+          "title": "Kryonix Install Plan",
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "schemaVersion": 1
+}

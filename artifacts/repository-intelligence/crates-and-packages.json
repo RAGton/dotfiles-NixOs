@@ -1,0 +1,172 @@
+{
+  "repositories": {
+    "engine": [
+      {
+        "declaredAttributes": [],
+        "kind": "flake",
+        "path": "flake.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/bonafides-theme.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/darwinmenu.nix"
+      },
+      {
+        "kind": "rust-crate",
+        "name": "kryonix-bar-backend",
+        "path": "packages/kryonix-bar/backend/Cargo.toml",
+        "version": "0.1.0"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-bar/backend/src/main.rs"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-bar/default.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-brain-lightrag.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-branding.nix"
+      },
+      {
+        "kind": "rust-crate",
+        "name": "kryonix-caelestia-watcher",
+        "path": "packages/kryonix-caelestia-watcher/Cargo.toml",
+        "version": "0.1.0"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-caelestia-watcher/src/main.rs"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-caelestia-watcher/src/watcher.rs"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-disk-planner.nix"
+      },
+      {
+        "kind": "rust-crate",
+        "name": "kryonix-disk-planner",
+        "path": "packages/kryonix-disk-planner/Cargo.toml",
+        "version": "0.1.0"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-disk-planner/src/main.rs"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-hardware-probe.nix"
+      },
+      {
+        "kind": "rust-crate",
+        "name": "kryonix-hardware-probe",
+        "path": "packages/kryonix-hardware-probe/Cargo.toml",
+        "version": "0.1.0"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-hardware-probe/src/main.rs"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-home.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-llama-cpp-cuda.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-monitors.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-open-wallpaper-engine.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-optimizer/default.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-optimizer/kryonix_optimizer/__init__.py"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-optimizer/kryonix_optimizer/context_binder.py"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-optimizer/kryonix_optimizer/main.py"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-optimizer/tests/test_context.py"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-optimizer/tests/test_optimizer.py"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-plasma-theme.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-sddm-theme.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-wallpapers.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-waywallen-display-kde.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/kryonix-waywallen.nix"
+      },
+      {
+        "kind": "package-source",
+        "path": "packages/test_clap.rs"
+      }
+    ],
+    "kryxd": [
+      {
+        "kind": "rust-crate",
+        "name": "kryxd",
+        "path": "Cargo.toml",
+        "version": "0.1.0"
+      },
+      {
+        "kind": "rust-crate",
+        "name": "kryx",
+        "path": "crates/kryx/Cargo.toml",
+        "version": "0.1.0"
+      },
+      {
+        "declaredAttributes": [
+          "cargo-tests",
+          "kryxd",
+          "kryxdUi",
+          "ui-build"
+        ],
+        "kind": "flake",
+        "path": "flake.nix"
+      }
+    ]
+  },
+  "schemaVersion": 1
+}

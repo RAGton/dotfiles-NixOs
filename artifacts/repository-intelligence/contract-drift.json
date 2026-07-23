@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "status": "DRIFT_DETECTED",
+  "sources": {
+    "engine": "/home/rocha/kryonix-dev/repos/kryonix",
+    "kryxd": "/home/rocha/kryonix-dev/repos/kryxd",
+    "backendSchemaVersion": 2,
+    "uiSchemaVersion": 1,
+    "uiProducerVersion": 1,
+    "backendRequired": [
+      "features",
+      "isThinkServer",
+      "repository",
+      "storage",
+      "version"
+    ],
+    "uiRequired": [
+      "admin",
+      "disk",
+      "features",
+      "locale",
+      "network",
+      "profile",
+      "security",
+      "source",
+      "storage",
+      "targetRemoteAccess",
+      "version"
+    ],
+    "producerKeys": [
+      "admin",
+      "locale",
+      "network",
+      "profile",
+      "security",
+      "source",
+      "storage",
+      "targetRemoteAccess",
+      "version"
+    ]
+  },
+  "findings": [
+    {
+      "code": "UI_SCHEMA_VERSION_DRIFT",
+      "severity": "high",
+      "source": [
+        "/home/rocha/kryonix-dev/repos/kryxd/ui/src/install-plan.schema.json",
+        "/home/rocha/kryonix-dev/repos/kryxd/schemas/install-plan.schema.json"
+      ],
+      "message": "Schema da UI declara v1; schema do backend declara v2.",
+      "remediation": "Fazer a UI consumir o schema v2 canônico; não relaxar o deserializador Rust."
+    },
+    {
+      "code": "UI_PRODUCER_VERSION_DRIFT",
+      "severity": "high",
+      "source": [
+        "/home/rocha/kryonix-dev/repos/kryxd/ui/src/utils/installPlan.js",
+        "/home/rocha/kryonix-dev/repos/kryxd/schemas/install-plan.schema.json"
+      ],
+      "message": "Producer declara INSTALL_PLAN_VERSION=1, enquanto o backend exige v2.",
+      "remediation": "Unificar a constante e os testes com InstallPlanV2."
+    },
+    {
+      "code": "UI_PAYLOAD_SHAPE_DRIFT",
+      "severity": "high",
+      "source": [
+        "/home/rocha/kryonix-dev/repos/kryxd/ui/src/utils/installPlan.js",
+        "/home/rocha/kryonix-dev/repos/kryxd/schemas/install-plan.schema.json",
+        "/home/rocha/kryonix-dev/repos/kryxd/crates/kryx/src/domain/config.rs"
+      ],
+      "message": "Chaves requeridas ausentes no producer: ['features', 'isThinkServer', 'repository']; chaves do envelope antigo/extras: ['admin', 'locale', 'network', 'profile', 'security', 'source', 'targetRemoteAccess'].",
+      "remediation": "Construir exatamente o envelope repository/storage/features do v2 e manter estado de UI fora do contrato."
+    }
+  ]
+}

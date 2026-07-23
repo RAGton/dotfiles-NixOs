@@ -1,0 +1,121 @@
+{
+  "repositories": {
+    "engine": {
+      "boundedContextSignals": {
+        "datacenter": [
+          "ceph",
+          "cluster",
+          "fleet",
+          "incus",
+          "storage",
+          "virt"
+        ],
+        "installer": [
+          "disko",
+          "disks",
+          "install",
+          "liveinstaller",
+          "plans",
+          "secrets",
+          "target tree"
+        ],
+        "management": [
+          "identity",
+          "installedhost",
+          "logs",
+          "system",
+          "terminal"
+        ],
+        "shared": [
+          "capabilities",
+          "domain",
+          "errors",
+          "services"
+        ]
+      },
+      "topLevelDirectories": [
+        ".github",
+        ".gitleaks.toml",
+        ".mcp.example.json",
+        ".vscode",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "CONTRIBUTING.md",
+        "CONTRIBUTING_AGENTS.md",
+        "LICENSE",
+        "README.md",
+        "SECURITY.md",
+        "desktop",
+        "docs",
+        "features",
+        "find_aliases.py",
+        "flake",
+        "flake.nix",
+        "hosts",
+        "iso.nix",
+        "lib",
+        "modules",
+        "overlays",
+        "packages",
+        "profiles",
+        "rename_dirs.py",
+        "scripts",
+        "skills",
+        "specs",
+        "test-smart-hm.sh",
+        "tests",
+        "windows"
+      ]
+    },
+    "kryxd": {
+      "boundedContextSignals": {
+        "datacenter": [
+          "ceph",
+          "cluster",
+          "fleet",
+          "incus",
+          "storage",
+          "virt"
+        ],
+        "installer": [
+          "disko",
+          "disks",
+          "install",
+          "liveinstaller",
+          "plans",
+          "secrets",
+          "target tree"
+        ],
+        "management": [
+          "identity",
+          "installedhost",
+          "logs",
+          "system",
+          "terminal"
+        ],
+        "shared": [
+          "capabilities",
+          "domain",
+          "errors",
+          "services"
+        ]
+      },
+      "topLevelDirectories": [
+        ".agents",
+        ".github",
+        "Cargo.toml",
+        "README.md",
+        "crates",
+        "docs",
+        "flake.nix",
+        "nix",
+        "nixos",
+        "schemas",
+        "scripts",
+        "src",
+        "ui"
+      ]
+    }
+  },
+  "schemaVersion": 1
+}

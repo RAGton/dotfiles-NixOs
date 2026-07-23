@@ -1,0 +1,401 @@
+{
+  "repositories": {
+    "engine": [
+      {
+        "path": "features/ai.nix",
+        "signals": [
+          "AI",
+          "BRAIN",
+          "Brain",
+          "ai",
+          "brain",
+          "brain.brainPort",
+          "brain.enable",
+          "brain.env",
+          "brain.ollamaPort",
+          "brain.role",
+          "brain.serverHost"
+        ]
+      },
+      {
+        "path": "features/cpu.nix",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "features/f5-tts-server/default.nix",
+        "signals": [
+          "ai",
+          "systemd.services.f5-tts-server"
+        ]
+      },
+      {
+        "path": "features/gaming.nix",
+        "signals": [
+          "gaming.nix"
+        ]
+      },
+      {
+        "path": "features/gpu.nix",
+        "signals": [
+          "AI",
+          "Management",
+          "Management.enable",
+          "Management.finegrained",
+          "ai",
+          "desktop",
+          "management"
+        ]
+      },
+      {
+        "path": "features/openrgb.nix",
+        "signals": [
+          "ai",
+          "systemd.services.kryonix-rgb-off"
+        ]
+      },
+      {
+        "path": "features/remote-desktop.nix",
+        "signals": [
+          "AI",
+          "Desktop",
+          "Desktop.server.enable",
+          "ai",
+          "desktop",
+          "systemd.user.services.wayvnc"
+        ]
+      },
+      {
+        "path": "features/workstation.nix",
+        "signals": [
+          "Desktop",
+          "desktop",
+          "desktop.enable",
+          "desktop.environment",
+          "gaming"
+        ]
+      },
+      {
+        "path": "modules/home-manager/features/ai.nix",
+        "signals": [
+          "Desktop",
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/home-manager/features/default.nix",
+        "signals": [
+          "ai.nix",
+          "desktop.nix",
+          "terminal.nix"
+        ]
+      },
+      {
+        "path": "modules/home-manager/features/desktop.nix",
+        "signals": [
+          "desktop"
+        ]
+      },
+      {
+        "path": "modules/home-manager/features/dev.nix",
+        "signals": [
+          "ai",
+          "development"
+        ]
+      },
+      {
+        "path": "modules/home-manager/features/terminal.nix",
+        "signals": [
+          "Terminal",
+          "terminal"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/acme.nix",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/ai.nix",
+        "signals": [
+          "AI",
+          "Brain",
+          "Brain.enable",
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/browser-automation.nix",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/default.nix",
+        "signals": [
+          "Desktop",
+          "ai",
+          "ai.nix",
+          "brain",
+          "desktop.nix",
+          "development",
+          "development.editors",
+          "development.nix",
+          "gaming.nix",
+          "storage.nix",
+          "virtualization.nix"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/desktop.nix",
+        "signals": [
+          "desktop"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/development.nix",
+        "signals": [
+          "AI",
+          "Development",
+          "ai",
+          "development",
+          "development.enable",
+          "development.languages.rust.enable",
+          "development.tools.psim.enable",
+          "development.tools.wine.enable",
+          "installer"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/gaming.nix",
+        "signals": [
+          "AI",
+          "Gaming",
+          "Management.cpuFreqGovernor",
+          "ai",
+          "gaming",
+          "gaming.enable"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/hermes.nix",
+        "signals": [
+          "Desktop",
+          "Development",
+          "ai",
+          "desktop",
+          "terminal"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/mcp.nix",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/network.nix",
+        "signals": [
+          "AI",
+          "ai",
+          "systemd.services"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/registry.nix",
+        "signals": [
+          "AI",
+          "Brain",
+          "Desktop",
+          "Development",
+          "Gaming",
+          "Installer",
+          "Virtualization",
+          "ai",
+          "ai.brain.client",
+          "ai.brain.server",
+          "ai.lightrag",
+          "ai.neo4j",
+          "ai.nix",
+          "ai.ollama",
+          "ai.openWebui",
+          "desktop",
+          "desktop.audio",
+          "desktop.bluetooth",
+          "desktop.client",
+          "desktop.hyprland",
+          "desktop.plasma",
+          "desktop.printing",
+          "desktop.server",
+          "development",
+          "development.editors.vscode",
+          "development.languages.c",
+          "development.languages.go",
+          "development.languages.nix",
+          "development.languages.python",
+          "development.languages.rust",
+          "gaming",
+          "gaming.gamemode",
+          "gaming.heroic",
+          "gaming.lutris",
+          "gaming.mangohud",
+          "gaming.nvtop",
+          "gaming.steam",
+          "gaming.sunshine",
+          "gaming.wineTools",
+          "installer",
+          "management",
+          "storage",
+          "storage.aiModels",
+          "storage.srvData",
+          "virtualization",
+          "virtualization.docker",
+          "virtualization.libvirt",
+          "virtualization.podman",
+          "virtualization.proxmoxLike"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/remote.nix",
+        "signals": [
+          "Installer",
+          "Installer.enable",
+          "desktop"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/removed-options.nix",
+        "signals": [
+          "Brain",
+          "Desktop",
+          "ai",
+          "ai.brain.client.enable",
+          "ai.brain.role",
+          "ai.brain.server.enable",
+          "ai.brain.serverHost",
+          "brain",
+          "desktop.client.enable",
+          "desktop.server.enable"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/schema.nix",
+        "signals": [
+          "AI",
+          "Brain",
+          "Desktop",
+          "Development",
+          "Installer",
+          "Virtualization",
+          "ai",
+          "brain",
+          "desktop",
+          "desktop.plasma",
+          "development",
+          "gaming",
+          "management",
+          "virtualization"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/security.nix",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/server.nix",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/storage.nix",
+        "signals": [
+          "AI",
+          "ai",
+          "storage"
+        ]
+      },
+      {
+        "path": "modules/nixos/features/virtualization.nix",
+        "signals": [
+          "AI",
+          "Incus",
+          "Storage",
+          "Virtualization",
+          "ai",
+          "desktop",
+          "incus",
+          "incus.enable",
+          "incus.preseed",
+          "incus.socketActivation",
+          "incus.ui.enable",
+          "storage",
+          "virtualization",
+          "virtualization.enable"
+        ]
+      }
+    ],
+    "kryxd": [
+      {
+        "path": "ui/src/data/featureCatalog.js",
+        "signals": [
+          "AI",
+          "Brain",
+          "DESKTOP",
+          "Desktop",
+          "Development",
+          "Installer",
+          "Management",
+          "STORAGE",
+          "Storage",
+          "Terminal",
+          "VIRTUALIZATION",
+          "Virtualization",
+          "ai",
+          "ai.claude",
+          "ai.gemini",
+          "ai.kryonix-brain",
+          "ai.lightrag",
+          "ai.neo4j",
+          "ai.ollama",
+          "ai.open-webui",
+          "desktop",
+          "desktop.audio",
+          "desktop.bluetooth",
+          "desktop.kde-shortcuts",
+          "desktop.kvantum-theme",
+          "desktop.lock-screen-theme",
+          "desktop.plasma",
+          "desktop.printing",
+          "installer",
+          "storage",
+          "storage.ai-models",
+          "storage.estimatedDiskGb",
+          "storage.requiresSrvData",
+          "storage.srv-data",
+          "terminal",
+          "terminal.warp",
+          "virtualization.libvirt",
+          "virtualization.podman"
+        ]
+      },
+      {
+        "path": "ui/src/pages/SystemFeatures.jsx",
+        "signals": [
+          "ai"
+        ]
+      },
+      {
+        "path": "ui/src/pages/UserFeatures.jsx",
+        "signals": [
+          "ai"
+        ]
+      }
+    ]
+  },
+  "schemaVersion": 1
+}
