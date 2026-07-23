@@ -40,5 +40,10 @@ in
       "--preview-window=:hidden"
       "--prompt='~ ' --pointer='▶' --marker='✓'"
     ];
+
+    # Atuin owns Ctrl-R (history manager com SQLite sync).
+    # Desabilitar o widget de history do fzf remove a colisão de atalho.
+    # Binário continua disponível para uso via pipe (e.g. `find | fzf`).
+    historyWidget.command = "";
   };
 }
