@@ -31,18 +31,18 @@
     # ===========================================================================
     # VERSION PINS — tudo fixo em 26.05 estável
     # ===========================================================================
-    # nixpkgs          → nixos-26.05  (release estável maio 2026)
-    # nixpkgs-stable   → nixos-26.05  (mesma branch — sem divergência)
-    # home-manager     → release-26.05 (alinhado com nixpkgs)
+    # nixpkgs          → nixos-unstable (latest stable, KDE 6.2.x+)
+    # nixpkgs-stable   → nixos-26.05  (branch estável para referências)
+    # home-manager     → master (latest, alinhado com nixos-unstable)
     # ===========================================================================
 
-    # Nixpkgs — estável 26.05
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    # Nixpkgs — unstable (latest, KDE mais novo)
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-26.05";
 
-    # Home Manager — release-26.05 alinha com nixpkgs
+    # Home Manager — master alinha com nixos-unstable
     home-manager = {
-      url = "github:nix-community/home-manager/release-26.05";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
