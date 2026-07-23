@@ -3,10 +3,6 @@ let
   cfg = config.kryonix.security.cliLockdown;
 in
 {
-  imports = [
-    (lib.mkAliasOptionModule [ "node" "kryonix" "security" "cliLockdown" ] [ "kryonix" "security" "cliLockdown" ])
-  ];
-
   options.kryonix.security.cliLockdown = {
     enable = lib.mkEnableOption ''
       Kryonix Guard — bloqueia acesso direto a binários Nix/NH/NixOS.
