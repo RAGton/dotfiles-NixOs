@@ -118,8 +118,13 @@
     # Usa git+https em vez do shorthand `github:` para não depender da API
     # REST do GitHub (que apresentou 504 intermitente logo após o repo
     # virar público); o protocolo git é mais robusto e o lock pina o rev.
+    # Migrado de `git+file:///home/rocha/kryonix-dev/repos/kryxd` para
+    # `git+https://github.com/RAGton/kryxd.git`: a amarração a path local
+    # quebra portabilidade entre hosts e autodestrói o rebuild se o
+    # workspace for movido. SSOT remoto via clone git, mesmo protocolo
+    # usado em `kryx-cli`/`kryonix-assets` (git+ vs API REST).
     kryxd = {
-      url = "git+file:///home/rocha/kryonix-dev/repos/kryxd";
+      url = "git+https://github.com/RAGton/kryxd.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -130,8 +135,12 @@
     };
 
     # Kryonix Assets (SSOT visual: logos, wallpapers, sddm themes)
+    # Migrado de `git+file:///home/rocha/kryonix-dev/repos/kryonix-assets`
+    # para `git+https://github.com/RAGton/kryonix-assets.git`: mesma
+    # justificativa de `kryxd` acima (portabilidade entre hosts + git
+    # puro vs API REST). Coordenada com `kryxd` no mesmo commit.
     kryonix-assets = {
-      url = "git+file:///home/rocha/kryonix-dev/repos/kryonix-assets";
+      url = "git+https://github.com/RAGton/kryonix-assets.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
