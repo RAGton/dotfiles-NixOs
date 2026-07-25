@@ -25,6 +25,7 @@
     ./home-assistant
     ./telemetry.nix
     ./kryxd
+    ./kryonix
   ];
 
   kryonix.services.telemetry.enable = lib.mkDefault true;

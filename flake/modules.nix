@@ -107,6 +107,13 @@
       {
         imports = [ ../modules/services/node/default.nix ];
       };
+
+    # Features opt-in no namespace kryonix.* (KCP, etc.)
+    kryonix-kcp =
+      { ... }:
+      {
+        imports = [ ../modules/nixos/services/kryonix ];
+      };
   };
 
   homeManagerModules = {
