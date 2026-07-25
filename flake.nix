@@ -123,16 +123,19 @@
     # quebra portabilidade entre hosts e autodestrói o rebuild se o
     # workspace for movido. SSOT remoto via clone git, mesmo protocolo
     # usado em `kryx-cli`/`kryonix-assets` (git+ vs API REST).
-    # Pinned em `v0.2.1` (tag semver) para garantir `nix flake update` traz
+    # Pinned em `v0.2.2` (tag semver) para garantir `nix flake update` traz
     # sempre o kryxd com capability-driven UI consolidada (PR #12 + AGENTS.md
     # skill ref do V25a) + capability `virtualization.incus` (P1/V58b).
-    # v0.2.0 (c544d41) foi o release de codigo. v0.2.1 (75b24a6) adiciona
-    # bump do manifesto (Cargo.toml + ui/package.json) para 0.2.1, evitando
-    # artefato fantasma kryxd-0.1.0 no Nix store. Refs: V36b, V58b, V66b.
+    # Historico:
+    #   v0.2.0 (c544d41) = release de codigo com P1
+    #   v0.2.1 (75b24a6) = bump manifestos (Cargo.toml + ui/package.json)
+    #   v0.2.2 (efd57ba) = fix package.nix version hardcoded
+    # Sem v0.2.2, buildRustPackage gera derivacao kryxd-0.1.0 fantasma.
+    # Refs: V36b, V58b, V66b, V69a.
     # Sintaxe `refs/tags/` explicita porque o formato `git+https://`
     # assume `refs/heads/` por padrao (V37a).
     kryxd = {
-      url = "git+https://github.com/RAGton/kryxd.git?ref=refs/tags/v0.2.1";
+      url = "git+https://github.com/RAGton/kryxd.git?ref=refs/tags/v0.2.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
