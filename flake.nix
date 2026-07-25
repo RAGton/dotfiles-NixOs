@@ -129,8 +129,13 @@
     };
 
     # Novo CLI em Rust (standalone)
+    # Pinned em `v0.1.0` (tag semver) para garantir que `nix flake update`
+    # sempre traga o kryx-cli COM o bypass de lockdown (`discover_real_nix_dir`
+    # em `modules.rs`), nunca revertendo para o rev pré-fix `5ab75997`
+    # (que tem o problema do chicken-and-egg com o cli-lockdown wrapper).
+    # Refs: V22b (semver), V34a (kryx-cli semver stabilization).
     kryx-cli = {
-      url = "github:RAGton/kryx-cli";
+      url = "github:RAGton/kryx-cli/v0.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
