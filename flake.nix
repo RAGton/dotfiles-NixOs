@@ -148,7 +148,7 @@
     # justificativa de `kryxd` acima (portabilidade entre hosts + git
     # puro vs API REST). Coordenada com `kryxd` no mesmo commit.
     kryonix-assets = {
-      url = "git+https://github.com/RAGton/kryonix-assets.git";
+      url = "git+https://github.com/RAGton/kryonix-assets.git?ref=v0.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
