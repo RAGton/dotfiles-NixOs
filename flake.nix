@@ -126,8 +126,10 @@
     # Pinned em `v0.1.0` (tag semver) para garantir `nix flake update` traz
     # sempre o kryxd com capability-driven UI consolidada (PR #12 + AGENTS.md
     # skill ref do V25a), nunca HEAD do main. Refs: V36b.
+    # Sintaxe `refs/tags/` explicita porque o formato `git+https://`
+    # assume `refs/heads/` por padrao (V37a).
     kryxd = {
-      url = "git+https://github.com/RAGton/kryxd.git?ref=v0.1.0";
+      url = "git+https://github.com/RAGton/kryxd.git?ref=refs/tags/v0.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -147,8 +149,10 @@
     # para `git+https://github.com/RAGton/kryonix-assets.git`: mesma
     # justificativa de `kryxd` acima (portabilidade entre hosts + git
     # puro vs API REST). Coordenada com `kryxd` no mesmo commit.
+    # Pinned em `v0.1.0` tag semver (V36b). Sintaxe `refs/tags/`
+    # explicita porque `git+https://` assume `refs/heads/` (V37a).
     kryonix-assets = {
-      url = "git+https://github.com/RAGton/kryonix-assets.git?ref=v0.1.0";
+      url = "git+https://github.com/RAGton/kryonix-assets.git?ref=refs/tags/v0.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
