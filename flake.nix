@@ -123,8 +123,11 @@
     # quebra portabilidade entre hosts e autodestrói o rebuild se o
     # workspace for movido. SSOT remoto via clone git, mesmo protocolo
     # usado em `kryx-cli`/`kryonix-assets` (git+ vs API REST).
+    # Pinned em `v0.1.0` (tag semver) para garantir `nix flake update` traz
+    # sempre o kryxd com capability-driven UI consolidada (PR #12 + AGENTS.md
+    # skill ref do V25a), nunca HEAD do main. Refs: V36b.
     kryxd = {
-      url = "git+https://github.com/RAGton/kryxd.git";
+      url = "git+https://github.com/RAGton/kryxd.git?ref=v0.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
