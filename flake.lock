@@ -323,17 +323,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1784645727,
-        "narHash": "sha256-LdmnauGJ6M5SoDnRfTYLzR3ki7tPdTJHjwQH7xyu3DM=",
-        "ref": "refs/heads/main",
-        "rev": "10441257e269862164a198a9ae705682f72e8ffa",
-        "revCount": 5,
+        "lastModified": 1784655392,
+        "narHash": "sha256-7yBfRr/y4/xxI8iSsBgHuaJle7bBK3NTYp/RbQ1tQ4U=",
+        "ref": "refs/tags/v0.1.0",
+        "rev": "f6b87b31247909c2b35f32ddc0eb8bcd5408ede5",
+        "revCount": 9,
         "type": "git",
-        "url": "file:///home/rocha/kryonix-dev/repos/kryonix-assets"
+        "url": "https://github.com/RAGton/kryonix-assets.git"
       },
       "original": {
+        "ref": "refs/tags/v0.1.0",
         "type": "git",
-        "url": "file:///home/rocha/kryonix-dev/repos/kryonix-assets"
+        "url": "https://github.com/RAGton/kryonix-assets.git"
       }
     },
     "kryonix-brain-lightrag": {
@@ -376,15 +377,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1784838493,
-        "narHash": "sha256-QKBRCZOTpHNS+2CrhTOl+8O1iF1ndw5PbRnBK0OYoH8=",
+        "lastModified": 1784895207,
+        "narHash": "sha256-ygPMWR3q+0y1nS5KDOZIcLgAwx+7hd2i0MRwwz1POCg=",
         "owner": "RAGton",
         "repo": "kryx-cli",
-        "rev": "5ab75997e24d7207278e996fd2fdcc344da076a7",
+        "rev": "919743689727dae241dee995d77de0880f19a04e",
         "type": "github"
       },
       "original": {
         "owner": "RAGton",
+        "ref": "v0.1.0",
         "repo": "kryx-cli",
         "type": "github"
       }
@@ -396,17 +398,18 @@
         ]
       },
       "locked": {
-        "lastModified": 1784665430,
-        "narHash": "sha256-IRmNCKey7El1xDXBFW21YNRSwEY+CmHjRP5fz95OXP0=",
-        "ref": "refs/heads/main",
-        "rev": "6ea5cb8d103170947a75e736dd4b11a3faae9c64",
-        "revCount": 141,
+        "lastModified": 1784989790,
+        "narHash": "sha256-AmNZcSeLTPQes28jSDNakURXxiS/H6P15mVyXBOuDCw=",
+        "ref": "refs/tags/v0.2.2",
+        "rev": "efd57baf67295ef536796755611e62912bcbd1ff",
+        "revCount": 162,
         "type": "git",
-        "url": "file:///home/rocha/kryonix-dev/repos/kryxd"
+        "url": "https://github.com/RAGton/kryxd.git"
       },
       "original": {
+        "ref": "refs/tags/v0.2.2",
         "type": "git",
-        "url": "file:///home/rocha/kryonix-dev/repos/kryxd"
+        "url": "https://github.com/RAGton/kryxd.git"
       }
     },
     "nix-cachyos-kernel": {
