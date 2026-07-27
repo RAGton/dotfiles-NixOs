@@ -1,7 +1,7 @@
 # 🌌 Kryonix: High-Performance NixOS Platform
 ### *Manual do Engenheiro — Versão de Operação Industrial*
 
-O Kryonix é uma plataforma NixOS de alto desempenho, projetada para estabilidade extrema, observabilidade nativa e cargas de trabalho críticas (Gaming, Desenvolvimento e IA). Este repositório segue o princípio da **Verdade Operacional**: todo estado é declarativo, reproduzível e validado por testes automatizados.
+O Kryonix é uma plataforma NixOS de alto desempenho, projetada para estabilidade extrema, observabilidade nativa e cargas de trabalho críticas (Gaming, Desenvolvimento e IA). Este repositório segue o princípio da **Verdade Operacional**: todo estado é declarativa, reproduzível e validado por testes automatizados.
 
 ---
 
@@ -15,7 +15,7 @@ Se você acabou de dar boot na Live ISO do Kryonix:
     *   **Modo Recomendado**: Instalação limpa com particionamento BTRFS otimizado.
     *   **Modo de Restauração**: Recuperação de sistemas Kryonix existentes.
 4.  **Finalização**: Clique em "Finalizar Instalação" para disparar o motor de particionamento (Disko) e o `nixos-install`.
-5.  **Primeiro Boot**: Após o reboot, utilize a CLI `kryonix` para gerenciar atualizações e perfis.
+5.  **Primeiro Boot**: Após o reboot, utilize a CLI `kryx` (ou `kryonix`) para gerenciar atualizações e perfis.
 
 ---
 
@@ -30,12 +30,12 @@ graph TD
     C --> D[nixos-install --flake]
     D --> E[Flag de Sucesso /mnt/etc/kryonix-installed]
     E --> F[Reboot]
-    F --> G[Kryonix Switch - Gestão de Estado]
+    F --> G[Kryx Switch - Gestão de Estado]
 ```
 
 1.  **Provisionamento**: O `disko` cria as tabelas GPT, subvolumes BTRFS e pontos de montagem em `/mnt`.
 2.  **Implantação**: O `nixos-install` copia as closures diretamente da Flake local em `/etc/kryonixos`.
-3.  **Gestão Post-Install**: Após o boot, o comando `kryonix switch` torna-se a fonte única de mutação do sistema, garantindo que o hardware reflita exatamente o que está no Git.
+3.  **Gestão Post-Install**: Após o boot, o comando `kryx switch` torna-se a fonte única de mutação do sistema, garantindo que o hardware reflita exatamente o que está no Git.
 
 ---
 
@@ -94,7 +94,7 @@ O script de teste emula o hardware real, carrega a ISO e valida a API do instala
 
 ```bash
 # 1. Build da ISO (Gera o artefato .iso)
-kryonix build iso
+kryx build iso
 
 # 2. Executa a validação em sandbox
 ./scripts/test-iso-boot.sh
@@ -118,7 +118,49 @@ Toda instância Kryonix reporta sua identidade técnica em `/etc/kryonix-version
 ## 📚 Catálogo de Features
 
 A lista oficial de features canônicas (como `desktop`, `gaming`, `virtualization`, etc) e seus estados de migração está documentada no nosso Vault de arquitetura:
-[Catálogo de Features do Kryonix](../kryonix-vault/02-Areas/Kryonix/canonical/EXISTING_FEATURES_CATALOG.md)
+[Catálogo de Features do Kryonix](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/canonical/EXISTING_FEATURES_CATALOG.md)
+
+---
+
+## 🗺️ Mapa da Documentação
+
+A documentação canônica do Kryonix vive no **Vault Obsidian**
+(`github:RAGton/kryonix-vault`), sob `02-Areas/Kryonix/canonical/`. Os links
+abaixo apontam para os arquivos reais (os antigos `docs/*.md` foram
+consolidados no vault):
+
+- **[Estado Atual](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/kryonix-meta/CURRENT_STATE.md):** O que está implementado, o que é parcial e o que está quebrado.
+- **[Roadmap](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/kryonix-meta/ROADMAP.md):** Planejamento de futuras versões.
+- **[Arquitetura](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/canonical/Architecture.md):** Como as peças se encaixam dentro do engine.
+- **[Operações](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/canonical/Operations.md):** Como rodar, testar e fazer build.
+- **[Segurança](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/canonical/Security.md):** Políticas de secrets, MCP e diretrizes de hardening.
+- **[Usage / CLI](https://github.com/RAGton/kryonix-vault/blob/main/02-Areas/Kryonix/canonical/Usage.md):** Referência de comandos da CLI `kryx`/`kryonix`.
+
+> A wiki GitHub (`github:RAGton/kryonix/wiki`) é a porta de entrada amigável
+> para humanos; o vault é a fonte canônica para agentes e decisões.
+
+## 📂 Diretórios Principais do Engine
+
+- `modules/`: Módulos base do NixOS e Home Manager.
+- `features/`: Combinações de alto nível (ex: `ai.nix`, `gaming.nix`).
+- `profiles/`: Arquétipos de uso (ex: `glacier-ai.nix`, `laptop.nix`).
+- `packages/`: Pacotes empacotados pelo Kryonix (ex: `kryonix-brain-lightrag`, `kryonix-cli`).
+- `desktop/`: Configurações de ambiente gráfico (KDE Plasma 6 — migração de Hyprland/Caelestia em coexistência).
+- `hosts/`: Definições básicas e a ISO do instalador.
+
+## 🧩 Sub-repositórios do ecossistema
+
+O Kryonix é uma meta-distro dividida em múltiplos repos (ver `_Sidebar` da wiki):
+
+- `kryonix` (este) — motor / engine (módulos, features, ISO).
+- `kryxd` — installer daemon (Axum + React/Vite) + capability registry.
+- `kryx-cli` — CLI unificada (`kryx`) de runtime.
+- `kryonixos` — instância downstream (hosts reais: glacier, inspiron, inspiron-nina).
+- `kryonix-vault` — cérebro Obsidian (RAG/CAG), fonte canônica de docs.
+- `kryonix-assets` — marca, boot (Plymouth), SDDM, wallpapers.
+- `kryonix-brain-lightrag` — pacote Python de RAG via grafo.
+- `kryonix-aura` — agente Aura (launcher/provider).
+- `kryonix-home` — ferramenta Rust de autopilot do Home Manager.
 
 ---
 
