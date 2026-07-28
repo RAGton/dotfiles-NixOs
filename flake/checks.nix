@@ -43,5 +43,19 @@ in
 
     "nixos-iso-eval" =
       lib.checkPkgs.writeText "nixos-iso-drvpath" "${lib.stripContext inputs.self.nixosConfigurations.iso.config.system.build.toplevel.drvPath}\n";
+
+    # PR 1 do Kryonix AI Server: garante que 10 cenarios das assertions
+    # do modulo `kryonix.services.aiServer` se mantem compativeis. Se
+    # algum cenario divergir, o `assert evaluated.allPass;` no tests.nix
+    # faz o derivation falhar e `nix flake check` reporta.
+    #
+    # Ver: modules/nixos/services/ai-server/tests.nix
+    "ai-server-options" = import ../modules/nixos/services/ai-server/tests.nix {
+      inherit lib;
+      checkPkgs = lib.checkPkgs;
+      self = inputs.self;
+      # lib customizada do motor nao expoe evalModules; injete o canonico.
+      nixpkgsLib = inputs.nixpkgs.lib;
+    };
   };
 }
