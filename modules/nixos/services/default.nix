@@ -20,6 +20,7 @@
     ./aura.nix
     ./neo4j.nix
     ./llama-cpp.nix
+    ./ai-server
     ./kryonix-state.nix
     ./n8n
     ./home-assistant
