@@ -54,6 +54,14 @@ in
         Restart = "always";
         User = "root";
         Group = "root";
+        # Silence the boot banner that prints `KRYONIX INSTALLER TOKEN: <uuid>` to journal.
+        # The token itself comes from env var KRYONIX_INSTALLER_TOKEN (or a generated UUID);
+        # we no longer rely on stdout for visibility because systemd's journal then captures
+        # it on every boot. Callers use the X-Kryonix-Installer-Token header.
+        # Rationale: see kryonix-iso-loop-001 / EVIDENCE.md (TOK-001, ~39 banner lines).
+        LogLevelMax = "err";
+        StandardOutput = "null";
+        StandardError = "journal";
       };
     };
 
