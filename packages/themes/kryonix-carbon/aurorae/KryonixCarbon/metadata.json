@@ -1,0 +1,15 @@
+{
+  "KPlugin": {
+    "Id": "kryonix-carbon",
+    "Name": "Kryonix Carbon",
+    "Description": "Kryonix Carbon — server-grade window decoration. Borda fina, accent âmbar no botão close, sem transparency.",
+    "Description$": "pt-BR: Decoração de janelas Kryonix Carbon — server-grade. Borda fina, accent âmbar Kryonix no botão close, sem transparência.",
+    "ServiceTypes": [
+      "org.kde.kdecoration2"
+    ],
+    "EnabledByDefault": false,
+    "Version": "1.0.0",
+    "Author": "Gabriel Aguiar Rocha (Kryonix)"
+  },
+  "X-KDE-ConfigVersion": 1
+}
