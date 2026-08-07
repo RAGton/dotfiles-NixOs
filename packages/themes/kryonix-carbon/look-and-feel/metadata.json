@@ -1,0 +1,18 @@
+{
+  "KPlugin": {
+    "Id": "org.kryonix.desktoptheme.KryonixCarbon",
+    "Name": "Kryonix Carbon",
+    "Description": "Kryonix Carbon — server-grade global theme. Applies KryonixCarbon color scheme, kryonix-carbon Plasma desktoptheme, kryonix-carbon Aurorae decoration.",
+    "Description$": "pt-BR: Kryonix Carbon — global theme server-grade. Aplica color scheme KryonixCarbon, Plasma desktoptheme kryonix-carbon, decoração Aurorae kryonix-carbon.",
+    "Version": "1.0.0",
+    "Category": "Plasma Look And Feel",
+    "License": "CC-BY-4.0",
+    "Authors": [
+      {
+        "Name": "Gabriel Aguiar Rocha (Kryonix)"
+      }
+    ]
+  },
+  "X-KDE-lookandfeel-Fallback": "org.kde.desktop.theme.KDE",
+  "X-Plasma-API": "6.0"
+}

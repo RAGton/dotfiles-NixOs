@@ -1,0 +1,11 @@
+[Theme]
+name=KryonixCarbon
+defaultWallpaperTheme=kryonix-carbon
+widgetSize=small
+
+# Carbon é server-grade: sem blur, sem contrast effect (overhead zero)
+[ContrastEffect]
+enabled=false
+
+[BlurBehindEffect]
+enabled=false

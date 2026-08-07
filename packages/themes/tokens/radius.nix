@@ -14,5 +14,5 @@
   radiusMd = 8;
   radiusLg = 12;
   radiusXl = 16;
-  radiusFull = 9999;   # pill / círculo
+  radiusFull = 9999; # pill / círculo
 }

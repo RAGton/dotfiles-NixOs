@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plasma 6 SVG widget — scrollbar -->
+<!-- Status: DRAFT v0 — gerado proceduralmente -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="8" height="100" viewBox="0 0 8 100" preserveAspectRatio="none">
+  <title>Kryonix Carbon scrollbar</title>
+  <rect x="0" y="0" width="8" height="100" fill="#0A0A0A"/>
+  <rect x="2" y="4" width="4" height="92" rx="2" ry="2"
+        fill="#8D8D8D" fill-opacity="0.6"/>
+</svg>

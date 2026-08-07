@@ -28,7 +28,15 @@ stdenvNoCC.mkDerivation {
   pname = "kryonix-carbon";
   version = "1.0.0";
 
-  src = ./.;
+  # builtins.path com filtro simples (true = inclui tudo).
+  # Necessário porque lib.cleanSource em Nix 2.35+ filtra untracked files,
+  # quebrando o build enquanto desktoptheme/ e look-and-feel/ ainda não
+  # estão commitados.
+  src = builtins.path {
+    path = ./.;
+    name = "kryonix-carbon-source";
+    filter = path: type: true;
+  };
 
   dontConfigure = true;
   dontBuild = true;
@@ -40,6 +48,15 @@ stdenvNoCC.mkDerivation {
     mkdir -p "$out/share/color-schemes"
     cp plasma/*.colors "$out/share/color-schemes/"
 
+    # Plasma desktoptheme (widgets SVGs + metadata)
+    mkdir -p "$out/share/plasma/desktoptheme/KryonixCarbon"
+    cp -r desktoptheme/KryonixCarbon/. "$out/share/plasma/desktoptheme/KryonixCarbon/"
+
+    # Plasma look-and-feel (global theme) — apply-once metadata
+    mkdir -p "$out/share/plasma/look-and-feel/KryonixCarbon/contents"
+    cp look-and-feel/metadata.json "$out/share/plasma/look-and-feel/KryonixCarbon/"
+    cp look-and-feel/contents/defaults "$out/share/plasma/look-and-feel/KryonixCarbon/contents/"
+
     # Kvantum (Qt style)
     mkdir -p "$out/share/Kvantum/KryonixCarbon"
     cp -r kvantum/. "$out/share/Kvantum/KryonixCarbon/"
@@ -48,7 +65,7 @@ stdenvNoCC.mkDerivation {
     mkdir -p "$out/share/aurorae/themes/KryonixCarbon"
     cp -r aurorae/KryonixCarbon/. "$out/share/aurorae/themes/KryonixCarbon/"
 
-    # Splash (placeholder — preparado pra FASE 2)
+    # Splash (placeholder — preparado pra FASE 3)
     mkdir -p "$out/share/splash/themes/KryonixCarbon"
     if [ -d splash ] && [ "$(ls -A splash 2>/dev/null)" ]; then
       cp -r splash/. "$out/share/splash/themes/KryonixCarbon/"

@@ -17,15 +17,15 @@
   accent = "#FF9F0A";
   accentHover = "#FFB340";
   accentPressed = "#E08E00";
-  accentSubtle = "#FF9F0A22";   # ~13% alpha para fills sutis
+  accentSubtle = "#FF9F0A22"; # ~13% alpha para fills sutis
 
   # Diferenciação semântica adicional (sobrescreve base quando Carbon)
-  terminalBg = "#000000";       # terminal usa preto puro p/ contraste ANSI
+  terminalBg = "#000000"; # terminal usa preto puro p/ contraste ANSI
   terminalCursor = "#FF9F0A";
 
   # Cantos e densidade (Carbon é "vivo", industrial)
-  radiusDefault = 4;            # radiusSm — não arredonda demais
-  density = "compact";          # menos padding, mais info na tela
+  radiusDefault = 4; # radiusSm — não arredonda demais
+  density = "compact"; # menos padding, mais info na tela
 
   # Estados derivados (alinhados com base.stateSuccess/etc; aqui explícitos
   # para casar com a paleta escura do Carbon)

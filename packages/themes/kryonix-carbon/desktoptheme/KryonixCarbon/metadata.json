@@ -1,0 +1,19 @@
+{
+  "KPlugin": {
+    "Id": "kryonix-carbon",
+    "Name": "Kryonix Carbon",
+    "Description": "Kryonix Carbon — server-grade dark Plasma theme. Amber accent on deep neutral. Industrial, no translucency, dense layout.",
+    "Description$": "pt-BR: Kryonix Carbon — tema Plasma escuro server-grade. Accent âmbar sobre neutro profundo. Industrial, sem translucência.",
+    "Version": "1.0.0",
+    "Category": "Plasma Theme",
+    "License": "CC-BY-4.0",
+    "Authors": [
+      {
+        "Name": "Gabriel Aguiar Rocha (Kryonix)"
+      }
+    ]
+  },
+  "X-Plasma-API": "6.0",
+  "X-KDE-PluginInfo-EnabledByDefault": false,
+  "X-Plasma-FallbackTheme": "breeze-dark"
+}
