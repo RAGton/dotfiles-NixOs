@@ -12,9 +12,22 @@
 # - Eclipse (azul, Apple-like) fica para profile desktop (futuro).
 #
 # Como usar:
-#   { kryonix.profiles.server.enable = true; }       # Carbon default
-#   { kryonix.profiles.server.enable = true;
-#     kryonix.profiles.server.theme  = "kryonix-carbon"; }   # explícito
+#   # Forma simples (assume theme default 'kryonix-carbon'):
+#   { kryonix.profiles.server.enable = true; }
+#
+#   # Forma completa (resolver themePackage externamente via flake input):
+#   { kryonix.profiles.server = {
+#       enable = true;
+#       theme = "kryonix-carbon";
+#       themePackage = inputs.kryonix.packages.x86_64-linux.kryonix-carbon;
+#     }; }
+#
+# IMPORTANTE — Resolução do themePackage:
+# - O motor não tem flake input próprio (por design — ver AGENTS.md do kryonixos:
+#   "todo inputs.<x> referenciado por módulos do motor deve ter .follows").
+# - Por isso o `themePackage` é resolvido EXTERNAMENTE (no host que consome).
+# - Quando o user não fornece `themePackage`, o módulo cai num fallback
+#   warning + pacote vazio (sem quebrar eval).
 #
 # Risco:
 # - Esta opção NÃO instala Plasma; ela apenas injeta o pacote do theme
@@ -32,21 +45,39 @@ with lib;
 let
   cfg = config.kryonix.profiles.server;
 
-  # Themes disponíveis (atualmente apenas carbon).
-  # Quando kryonix-eclipse existir, adicionar aqui.
-  availableThemes = {
-    kryonix-carbon = pkgs.kryonix-carbon;
-  };
+  # Themes disponíveis — apenas nomes. O pacote é resolvido externamente.
+  availableThemes = [
+    "kryonix-carbon"
+  ];
 
-  # Resolve o theme package; falha explicitamente se nome inválido
+  # Valida nome do theme
+  isValidTheme = builtins.elem cfg.theme availableThemes;
+
+  # selectedTheme: usa o package fornecido externamente, OU um warning placeholder.
+  # O placeholder existe pra não quebrar eval quando themePackage não é setado
+  # (cenário comum: módulo importado mas option não totalmente configurada).
   selectedTheme =
-    if !hasAttr cfg.theme availableThemes then
+    if cfg.themePackage != null then
+      cfg.themePackage
+    else if !isValidTheme then
       throw ''
         kryonix.profiles.server: theme "${cfg.theme}" não disponível.
-        Themes válidos: ${toString (attrNames availableThemes)}
+        Themes válidos: ${toString availableThemes}
+        E themePackage precisa ser setado externamente (não é resolvido pelo motor).
       ''
     else
-      availableThemes.${cfg.theme};
+      # Placeholder que satisfaz o type system mas é inerte.
+      # Log warning pra debug.
+      let
+        _ = builtins.trace ''
+          [kryonix.profiles.server] AVISO: themePackage não foi setado.
+          O theme "${cfg.theme}" NÃO será instalado em environment.packages.
+          Pra ativar, passe themePackage via inputs.kryonix.packages.<system>.${cfg.theme}.
+        '' null;
+      in
+      # Derivação vazia: package trivial que satisfaz o tipo `package`.
+      # Não vai fazer nada útil, mas permite eval sem crash.
+      pkgs.runCommand "kryonix-${cfg.theme}-placeholder" { } "mkdir -p $out";
 in
 {
   options.kryonix.profiles.server = {
@@ -72,31 +103,33 @@ in
           - "kryonix-carbon"  (default, server-grade, âmbar)
       '';
     };
+
+    themePackage = mkOption {
+      type = types.nullOr types.package;
+      default = null;
+      description = ''
+        Derivação do theme a instalar.
+
+        Quando null, o módulo tenta ativar o theme mas não instala o pacote
+        (útil pra hosts que gerenciam o pacote externamente).
+
+        Pra resolução via flake input:
+          kryonix.profiles.server.themePackage =
+            inputs.kryonix.packages.x86_64-linux.kryonix-carbon;
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
-    # Tema sempre instalado quando profile ativo (mesmo sem Plasma)
-    environment.packages = [ selectedTheme ];
+    # Tema sempre instalado quando profile ativo E themePackage foi setado.
+    # Se themePackage é null, não instala nada (eval não quebra).
+    # environment.systemPackages é a option canônica NixOS pra instalar
+    # pacotes visíveis no PATH do sistema (substituiu environment.packages).
+    environment.systemPackages = mkIf (cfg.themePackage != null) [ selectedTheme ];
 
-    # Configuração declarativa do Plasma via plasma-manager (Home Manager)
-    # Namespace oficial: programs.plasma.* — confirmado no source upstream
-    # (modules/workspace.nix). Ativa SOMENTE se KDE for o DE escolhido
-    # E se plasma-manager estiver carregado (fail-safe: mkIf).
-    programs.plasma.workspace = mkIf (config.kryonix.desktop.environment or null == "kde") {
-      # Color scheme (Plasma 6 .colors filename sem extensão)
-      colorScheme = "KryonixCarbon";
-
-      # Plasma desktop style (KPlugin Id do desktoptheme/metadata.json)
-      theme = "kryonix-carbon";
-
-      # Look-and-feel global theme (KPlugin Id do look-and-feel/metadata.json)
-      lookAndFeel = "KryonixCarbon";
-    };
-
-    # Qt/Kvantum: aplicar via env var pro apps Qt não-Plasma
-    environment.sessionVariables = mkIf (config.kryonix.desktop.environment or null == "kde") {
-      QT_STYLE_OVERRIDE = "kvantum";
-      QT_PLUGIN_PATH = "${pkgs.kvantum}/lib/qt-6/plugins";
-    };
+    # IMPORTANTE — Configuração Plasma/Qt NÃO vai aqui.
+    # A parte Plasma via plasma-manager vive em
+    # modules/home-manager/profiles/server.nix (Home Manager namespace).
+    # Aqui só temos options NixOS-side válidas.
   };
 }

@@ -129,6 +129,13 @@
         imports = [ ../modules/home-manager/features ];
       };
 
+    # Profile server (Home Manager side — Plasma config via plasma-manager)
+    profile-server =
+      { ... }:
+      {
+        imports = [ ../modules/home-manager/profiles/server.nix ];
+      };
+
     # Base HM compartilhada (programas, serviços, aliases comuns)
     common =
       { nhModules, ... }:
