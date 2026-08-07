@@ -380,7 +380,7 @@ in
         port = 11434;
         user = "ollama";
         group = "ollama";
-        models = "/var/lib/kryonix/ollama/models";
+        modelsDir = "/var/lib/kryonix/ollama/models";
         # keep_alive=0: modelo descarregado da VRAM imediatamente após uso.
         # Crítico para liberar GPU quando Ollama para (kryonix ollama stop).
         environmentVariables = {

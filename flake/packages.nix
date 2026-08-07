@@ -27,6 +27,7 @@ lib.forAllSystems (
     kryonixPlasmaTheme = pkgs.callPackage ../packages/kryonix-plasma-theme.nix {
       inherit kryonixBranding;
     };
+    kryonixCarbon = pkgs.callPackage ../packages/themes/kryonix-carbon { };
     kryonixSddmTheme = pkgs.callPackage ../packages/kryonix-sddm-theme.nix {
       inherit kryonixBranding kryonixAssets;
     };
@@ -52,6 +53,7 @@ lib.forAllSystems (
     kryonix-open-wallpaper-engine = kryonixOpenWallpaperEngine;
     kryonix-waywallen-display-kde = kryonixWaywallenDisplayKde;
     kryonix-plasma-theme = kryonixPlasmaTheme;
+    kryonix-carbon = kryonixCarbon;
     kryonix-sddm-theme = kryonixSddmTheme;
     kryonix-darwinmenu = kryonixDarwinMenu;
     kryonix-wallpapers = kryonixWallpapers;

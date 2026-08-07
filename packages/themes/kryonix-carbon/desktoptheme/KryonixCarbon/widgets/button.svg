@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plasma 6 SVG widget — button -->
+<!-- Status: DRAFT v0 — gerado proceduralmente -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="96" height="32" viewBox="0 0 96 32" preserveAspectRatio="none">
+  <title>Kryonix Carbon button</title>
+  <rect x="0.5" y="0.5" width="95" height="31" rx="4" ry="4"
+        fill="#161616" stroke="#393939" stroke-width="1"/>
+  <rect x="0.5" y="0.5" width="95" height="31" rx="4" ry="4"
+        fill="#FF9F0A" fill-opacity="0" stroke="none"/>
+  <text x="48" y="20" font-family="Inter, sans-serif" font-size="13" font-weight="500"
+        fill="#F5F5F5" text-anchor="middle">Button</text>
+</svg>

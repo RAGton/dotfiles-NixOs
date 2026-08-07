@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  plasma/KryonixCarbon.colors
+  Plasma 6 color scheme — schema KDE 4/5/6 compatível.
+  Status: DRAFT v0 — NÃO testado em runtime (Plasma 6 real não foi carregado ainda).
+  Quando Gabriel aplicar via kryonix.profiles.server.enable = true, validar com:
+    plasma-apply-colorscheme KryonixCarbon
+  e checar visivelmente o resultado.
+
+  Inspirado no Breeze Dark, com paleta Carbon (preto profundo + âmbar Kryonix).
+  Cantos: radiusSm (4). Sem translucência (Carbon é server-grade).
+-->
+<!DOCTYPE colorscheme>
+<colorscheme name="KryonixCarbon" comment="Server-grade, âmbar Kryonix sobre preto profundo. Industrial, hacker, sem fluff.">
+
+  <!-- ============ BACKGROUNDS ============ -->
+  <Color name="BackgroundNormal">#161616</Color>
+  <Color name="BackgroundAlternate">#1F1F1F</Color>
+  <Color name="BackgroundActive">#2A2A2A</Color>
+  <Color name="BackgroundLink">#0A0A0A</Color>
+  <Color name="BackgroundVisited">#0A0A0A</Color>
+
+  <!-- ============ FOREGROUNDS (text) ============ -->
+  <Color name="ForegroundNormal">#F5F5F5</Color>
+  <Color name="ForegroundInactive">#8D8D8D</Color>
+  <Color name="ForegroundActive">#FF9F0A</Color>
+  <Color name="ForegroundLink">#FF9F0A</Color>
+  <Color name="ForegroundVisited">#FFB340</Color>
+  <Color name="ForegroundNegative">#FA4D56</Color>
+  <Color name="ForegroundPositive">#42BE65</Color>
+  <Color name="ForegroundNeutral">#F1C21B</Color>
+
+  <!-- ============ DECORATIONS (window controls) ============ -->
+  <Color name="DecorationFocus">#FF9F0A</Color>
+  <Color name="DecorationHover">#FFB340</Color>
+  <Color name="DecorationShadow">#000000</Color>
+  <Color name="DecorationBackground">#0A0A0A</Color>
+
+  <!-- ============ SELECTION ============
+       Schema KDE: cor com alpha usa DUAS entries — uma Color (6 hex)
+       e outra *Opacity (0-255). NUNCA hex 8 (#RRGGBBAA), é inválido. -->
+  <Color name="SelectionBackground">#FF9F0A</Color>
+  <Color name="SelectionBackgroundOpacity">128</Color>
+  <Color name="SelectionForeground">#161616</Color>
+  <Color name="SelectionAlternateBackground">#FF9F0A</Color>
+  <Color name="SelectionAlternateBackgroundOpacity">64</Color>
+
+  <!-- ============ BUTTONS ============ -->
+  <Color name="Button">#1F1F1F</Color>
+  <Color name="ButtonAlternate">#161616</Color>
+  <Color name="ButtonHover">#2A2A2A</Color>
+  <Color name="ButtonFocus">#393939</Color>
+  <Color name="ButtonText">#F5F5F5</Color>
+  <Color name="ButtonPositive">#42BE65</Color>
+  <Color name="ButtonNegative">#FA4D56</Color>
+  <Color name="ButtonNeutral">#F1C21B</Color>
+
+  <!-- ============ VIEWS (listas, sidebars) ============ -->
+  <Color name="ViewBackground">#0A0A0A</Color>
+  <Color name="ViewAlternateBackground">#161616</Color>
+  <Color name="ViewHoverBackground">#2A2A2A</Color>
+  <Color name="ViewFocusBackground">#393939</Color>
+  <Color name="ViewHoverForeground">#F5F5F5</Color>
+  <Color name="ViewFocusForeground">#FF9F0A</Color>
+
+  <!-- ============ TREES ============ -->
+  <Color name="TreeLine">#393939</Color>
+
+  <!-- ============ TOOLTIPS ============ -->
+  <Color name="TooltipBackground">#1F1F1F</Color>
+  <Color name="TooltipText">#F5F5F5</Color>
+  <Color name="TooltipAlternateBackground">#2A2A2A</Color>
+  <Color name="TooltipAlternateText">#C6C6C6</Color>
+
+  <!-- ============ WINDOWS ============ -->
+  <Color name="WindowBackground">#161616</Color>
+  <Color name="WindowForeground">#F5F5F5</Color>
+  <Color name="WindowHoverBackground">#2A2A2A</Color>
+  <Color name="WindowHoverForeground">#F5F5F5</Color>
+  <Color name="WindowFocusBackground">#393939</Color>
+  <Color name="WindowFocusForeground">#FF9F0A</Color>
+
+  <!-- ============ BORDERS ============ -->
+  <Color name="FocusBox">#FF9F0A</Color>
+  <Color name="HoverBox">#FFB340</Color>
+
+  <!-- ============ PLACEHOLDERS ============ -->
+  <Color name="PlaceholderText">#8D8D8D</Color>
+  <Color name="PlaceholderForeground">#8D8D8D</Color>
+
+  <!-- ============ COMPOSITOR (KWin effects) ============
+       OutlineColor: 6 hex. OutlineWidth: inteiro (px). -->
+  <Color name="CompositorOutline">#FF9F0A</Color>
+  <Color name="CompositorOutlineWidth">3</Color>
+
+  <!-- ============ ALERTS (notification banners) ============ -->
+  <Color name="AlertBackground">#1F1F1F</Color>
+  <Color name="AlertText">#F5F5F5</Color>
+  <Color name="AlertLinkText">#FF9F0A</Color>
+  <Color name="AlertVisitedText">#FFB340</Color>
+  <Color name="AlertPositiveBackground">#0A2A12</Color>
+  <Color name="AlertPositiveText">#42BE65</Color>
+  <Color name="AlertWarningBackground">#2A2300</Color>
+  <Color name="AlertWarningText">#F1C21B</Color>
+  <Color name="AlertNegativeBackground">#2A0808</Color>
+  <Color name="AlertNegativeText">#FA4D56</Color>
+
+  <!-- ============ HEADER / GROUP BOX ============ -->
+  <Color name="HeaderBackground">#0A0A0A</Color>
+  <Color name="HeaderForeground">#F5F5F5</Color>
+
+  <!-- ============ DEFAULT ============ -->
+  <Color name="NormalText">#F5F5F5</Color>
+
+</colorscheme>

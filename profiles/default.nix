@@ -18,6 +18,7 @@
     ./dev
     ./university
     ./ti
+    ./server.nix
     ./server-ai.nix
     ./workstation-gamer.nix
     ./virtualization.nix

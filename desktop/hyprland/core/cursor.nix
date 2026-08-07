@@ -7,6 +7,7 @@
 {
   config = lib.mkIf (config.wayland.windowManager.hyprland.enable or false) {
     home.pointerCursor = {
+    enable = true;
       gtk.enable = true;
       x11.enable = true;
       package = config.gtk.cursorTheme.package;

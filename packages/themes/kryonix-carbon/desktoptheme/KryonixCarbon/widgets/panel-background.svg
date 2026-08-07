@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plasma 6 SVG widget — panel-background -->
+<!-- Status: DRAFT v0 — gerado proceduralmente -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1920" height="32" viewBox="0 0 1920 32" preserveAspectRatio="none">
+  <title>Kryonix Carbon panel background</title>
+  <rect x="0" y="0" width="1920" height="32" fill="#1F1F1F"/>
+  <rect x="0" y="31" width="1920" height="1" fill="#FF9F0A"/>
+</svg>

@@ -1,0 +1,27 @@
+[General]
+name=Kryonix Carbon
+comment=Kryonix Carbon — server-grade, amber accent, no translucency
+
+[plasma]
+colorScheme=KryonixCarbon
+theme=KryonixCarbon
+desktopStyle=kryonix-carbon
+widgetStyle=CarbonWidgets
+
+[KDE]
+widgetStyle=CarbonWidgets
+ApplicationIcons=breeze-dark
+ColorScheme=KryonixCarbon
+Font=Inter,10,-1,5,50,0,0,0,0,0
+LookAndFeelPackage=KryonixCarbon
+SingleClick=false
+AnimationDurationFactor=0.5
+
+[org.kde.kdecoration2]
+ButtonsOnLeft=XIA
+ButtonsOnRight=
+library=org.kde.kwin.aurorae
+theme=kryonix-carbon
+
+[Icons]
+Theme=breeze-dark

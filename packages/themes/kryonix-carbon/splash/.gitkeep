@@ -1,0 +1,15 @@
+# kryonix-carbon/splash/
+#
+# Splash screen — placeholder. Implementação prevista para FASE 2.
+# Quando existir, vai ser um SVG único (KDE Splash plasma-splash-engine)
+# com paleta Carbon + logomarca Kryonix sobre preto profundo.
+#
+# Estrutura esperada em FASE 2:
+#   splash/
+#     metadata.json
+#     1280x720/      (Plasma 6)
+#       images/
+#       layouts/
+#     1920x1080/
+#       images/
+#       layouts/

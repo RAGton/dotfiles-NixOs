@@ -33,6 +33,7 @@ in
 {
   # --- Cursor Nordzy (X11 / GTK / Wayland) ---------------------------------
   home.pointerCursor = {
+    enable = true;
     gtk.enable = true;
     x11.enable = true;
     package = pkgs.nordzy-cursor-theme;

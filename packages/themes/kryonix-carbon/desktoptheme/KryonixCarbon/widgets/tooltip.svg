@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plasma 6 SVG widget — tooltip -->
+<!-- Status: DRAFT v0 — gerado proceduralmente -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="200" height="60" viewBox="0 0 200 60" preserveAspectRatio="none">
+  <title>Kryonix Carbon tooltip</title>
+  <rect x="0.5" y="0.5" width="199" height="59" rx="4" ry="4"
+        fill="#1F1F1F" stroke="#393939" stroke-width="1"/>
+  <text x="10" y="35" font-family="Inter, sans-serif" font-size="12" font-weight="400"
+        fill="#F5F5F5">Tooltip text</text>
+</svg>

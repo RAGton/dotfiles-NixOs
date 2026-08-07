@@ -51,6 +51,11 @@
       {
         imports = [ ../profiles/dev/rust.nix ];
       };
+    profile-server =
+      { ... }:
+      {
+        imports = [ ../profiles/server.nix ];
+      };
 
     # Modulos para ISO modular
     installer-core =

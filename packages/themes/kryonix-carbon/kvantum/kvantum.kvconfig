@@ -1,0 +1,41 @@
+[General]
+# Kvantum theme config — Kryonix Carbon
+# Status: DRAFT v0 — NÃO testado em runtime (Kvantum real não foi carregado ainda).
+# Validar depois aplicando via kvantum-manager --set KryonixCarbon.
+#
+# Convenção Kvantum: o nome da pasta do theme deve ser igual ao theme name.
+# O binário espera encontrar KryonixCarbon/kvantum.kvconfig.
+
+theme=KryonixCarbon
+# Compositor Native delega para o compositor do sistema (KWin/Incus-friendly).
+compositor=Native
+# Tamanho da scrollbar — Carbon é denso, scrollbar compacto
+scrollBarSublineButtons=1
+scrollBarAddLineButtons=1
+scrollBarExtendButtons=1
+# Acelerar render (sem sombras/blur: server-grade)
+no_blur=0
+
+[ColorScheme]
+# Cores principais espelhando o .colors Plasma. Kvantum lê o Plasma scheme
+# automaticamente, mas essas aqui são fallback caso o .colors não carregue.
+Window=#161616
+WindowText=#F5F5F5
+Base=#0A0A0A
+AlternateBase=#1F1F1F
+ToolTipBase=#1F1F1F
+ToolTipText=#F5F5F5
+Text=#F5F5F5
+Button=#1F1F1F
+ButtonText=#F5F5F5
+BrightText=#FF9F0A
+Highlight=#FF9F0A
+HighlightedText=#161616
+Link=#FF9F0A
+VisitedLink=#FFB340
+
+[Hacks]
+# Compact: density server-grade
+compact=1
+# Desabilitar sombras pesadas (overhead em headless/VM)
+no_shadows_on_hover=0
