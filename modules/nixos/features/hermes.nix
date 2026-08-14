@@ -53,12 +53,23 @@ in
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Criar atalho GUI (.desktop) para o Hermes.";
+        description = "Criar atalho GUI (.desktop) para o Hermes Desktop.";
       };
+
+      asService = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Quando true, o hermes-desktop é iniciado como serviço systemd user
+          (hermes-desktop.service) junto com a sessão gráfica, garantindo que o
+          GUI do agente fique sempre disponível sem precisar abrir manualmente.
+        '';
+      };
+
       execCommand = lib.mkOption {
         type = lib.types.str;
         default = "${pkgs.xdg-utils}/bin/xdg-open http://127.0.0.1:8080";
-        description = "Comando disparado pelo atalho Desktop.";
+        description = "Comando disparado pelo atalho Desktop e pelo serviço.";
       };
     };
   };
@@ -80,6 +91,7 @@ in
       autoStart = true;
     };
 
+    # Atalho .desktop no menu de aplicativos para abrir o Hermes Desktop.
     environment.systemPackages = lib.mkIf cfg.guiLauncher.enable [
       (pkgs.makeDesktopItem {
         name = "hermes-agent";
@@ -92,6 +104,32 @@ in
           "Development"
         ];
       })
+    ];
+
+    # Serviço systemd user: mantém o GUI do Hermes Desktop sempre vivo na sessão.
+    # Ativado via guiLauncher.asService = true no host.
+    home-manager.sharedModules = lib.mkIf (cfg.guiLauncher.enable && cfg.guiLauncher.asService) [
+      {
+        systemd.user.services.hermes-desktop = {
+          Unit = {
+            Description = "Hermes Agent Desktop GUI";
+            Documentation = "https://github.com/RAGton/kryonix";
+            After = [ "graphical-session.target" ];
+            PartOf = [ "graphical-session.target" ];
+          };
+          Service = {
+            ExecStart = cfg.guiLauncher.execCommand;
+            Restart = "on-failure";
+            RestartSec = "5s";
+            # Não tentar reiniciar indefinidamente na primeira hora de sessão
+            StartLimitBurst = 5;
+            StartLimitIntervalSec = 300;
+          };
+          Install = {
+            WantedBy = [ "graphical-session.target" ];
+          };
+        };
+      }
     ];
   };
 }

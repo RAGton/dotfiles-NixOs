@@ -14,7 +14,10 @@
 # - Instala `pkgs.albert`, escreve `~/.config/albert/config` e cria `systemd.user.services.albert`.
 #
 # Riscos:
-# - A string `command_logout` depende de ferramentas do ambiente (hyprctl/jq).
+# - A string `command_logout` detecta o ambiente via $DESKTOP_SESSION/$XDG_SESSION_DESKTOP.
+# - Hyprland: usa hyprctl para fechar janelas e dispatch exit.
+# - KDE Plasma: usa qdbus (org.kde.ksmserver) para logout limpo.
+# - Fallback: loginctl terminate-session para outros ambientes.
 # - Mudanças no desktop session podem exigir ajuste nos comandos.
 # =============================================================================
 {
@@ -56,7 +59,7 @@ in
 
       [system]
       command_lock=loginctl lock-session
-      command_logout="[[ \"$DESKTOP_SESSION\" == hyprland* ]] && { hyprctl -j clients 2>/dev/null | jq -j '.[] | \"dispatch closewindow address:\\(.address); \"' | xargs -r hyprctl --batch 2>/dev/null; } || true"
+      command_logout=bash -c 'if [[ "$DESKTOP_SESSION" == hyprland* ]] || [[ "$XDG_SESSION_DESKTOP" == hyprland ]]; then hyprctl -j clients 2>/dev/null | jq -j \'\''[.[] | "dispatch closewindow address:\(.address); "] | join("")'\'\'' | xargs -r hyprctl --batch 2>/dev/null; hyprctl dispatch exit 2>/dev/null || true; elif [[ "$XDG_SESSION_DESKTOP" == KDE ]] || [[ "$DESKTOP_SESSION" == plasmawayland* ]] || [[ "$DESKTOP_SESSION" == plasma* ]]; then qdbus org.kde.ksmserver /KSMServer logout 0 3 3 2>/dev/null || loginctl terminate-session "$XDG_SESSION_ID"; else loginctl terminate-session "$XDG_SESSION_ID" 2>/dev/null || true; fi'
       command_poweroff=systemctl poweroff -i
       command_reboot=systemctl reboot -i
       enabled=true
