@@ -211,6 +211,19 @@ in
       preseed = lib.mkIf (cfg.incus.preseed != null) cfg.incus.preseed;
     };
 
+    # Garante que o endpoint HTTPS da Web UI do Incus escute de forma declarativa e canônica
+    systemd.services.incus-webui-setup = lib.mkIf (cfg.incus.enable && cfg.incus.ui.enable) {
+      description = "Configuração canônica e declarativa do endpoint HTTPS da Incus Web UI (:8443)";
+      after = [ "incus.service" ];
+      wants = [ "incus.service" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.incus}/bin/incus config set core.https_address :8443";
+      };
+    };
+
     # =========================
     # Podman
     # =========================
