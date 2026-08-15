@@ -54,6 +54,15 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    # macOS Tahoe Liquid Theme — pacote externo opt-in (v0.47.2 LTS)
+    # Empacotado por packages/macos-tahoe-liquid.nix (derivação Kryonix).
+    # Ativado apenas quando kryonix.desktop.kde.theme.preset = "tahoe-liquid".
+    # NÃO é parte da stack padrão (opt-in por design).
+    macos-tahoe-liquid-kde = {
+      url = "github:lestercorderomurillo/macos-tahoe-liquid-kde/v0.47.2";
+      flake = false;
+    };
+
     # Módulos de hardware do NixOS (nixos-hardware)
     hardware.url = "github:nixos/nixos-hardware";
 

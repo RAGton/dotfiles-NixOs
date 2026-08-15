@@ -412,6 +412,23 @@
         "url": "https://github.com/RAGton/kryxd.git"
       }
     },
+    "macos-tahoe-liquid-kde": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786296602,
+        "narHash": "sha256-RT+dtxn6GtJdJ+mED5zUz4yzzuypI+Qu173MQ3M5rmk=",
+        "owner": "lestercorderomurillo",
+        "repo": "macos-tahoe-liquid-kde",
+        "rev": "fea4e200da10843c6fd91ebc826871fb078f8a92",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lestercorderomurillo",
+        "ref": "v0.47.2",
+        "repo": "macos-tahoe-liquid-kde",
+        "type": "github"
+      }
+    },
     "nix-cachyos-kernel": {
       "inputs": {
         "cachyos-kernel": "cachyos-kernel",
@@ -643,6 +660,7 @@
         "kryonix-home": "kryonix-home",
         "kryx-cli": "kryx-cli",
         "kryxd": "kryxd",
+        "macos-tahoe-liquid-kde": "macos-tahoe-liquid-kde",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
         "nix-flatpak": "nix-flatpak",
         "nixpkgs": "nixpkgs_2",

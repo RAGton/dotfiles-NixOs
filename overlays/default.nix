@@ -142,13 +142,14 @@
   # - Mantido para não quebrar builds antigos; remover quando vš os users
   #   migraram para xeus-cpp.
   xeus-cling-no-checks = _final: prev: {
-    xeus-cling = if prev ? xeus-cling then
-      prev.xeus-cling.overrideAttrs (_old: {
-        doCheck = false;
-        doInstallCheck = false;
-      })
-    else
-      prev.xeus-cling or {};
+    xeus-cling =
+      if prev ? xeus-cling then
+        prev.xeus-cling.overrideAttrs (_old: {
+          doCheck = false;
+          doInstallCheck = false;
+        })
+      else
+        prev.xeus-cling or { };
   };
 
   # python312: stub de docs
@@ -283,6 +284,9 @@
     in
     {
       bonafides-theme = final.callPackage ../packages/bonafides-theme.nix { };
+      # macOS Tahoe Liquid Glass theme (v0.47.2 LTS) — opt-in, NÃO default.
+      # Ativado apenas quando kryonix.desktop.kde.theme.preset = "tahoe-liquid".
+      macos-tahoe-liquid-theme = final.callPackage ../packages/macos-tahoe-liquid.nix { };
       kryonix-branding = final.callPackage ../packages/kryonix-branding.nix { inherit kryonixAssets; };
       kryonix-waywallen = final.callPackage ../packages/kryonix-waywallen.nix { };
       kryonix-open-wallpaper-engine = final.callPackage ../packages/kryonix-open-wallpaper-engine.nix { };

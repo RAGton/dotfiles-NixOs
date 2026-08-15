@@ -104,6 +104,13 @@ in
         HorizontalGap = 30;
         VerticalGap = 20;
       };
+      "org.kde.kdecoration2" = {
+        library = "org.kde.kwin.aurorae";
+        theme = "__aurorae__svg__WhiteSur-dark";
+        ButtonsOnLeft = "XIA";
+        ButtonsOnRight = "";
+        BorderSize = "None";
+      };
     };
 
     # --- PAINEL Kryonix (macOS/Niri 3-Island Topology) -------------------
