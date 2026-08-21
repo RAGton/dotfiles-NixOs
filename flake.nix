@@ -156,7 +156,7 @@
     # (que tem o problema do chicken-and-egg com o cli-lockdown wrapper).
     # Refs: V22b (semver), V34a (kryx-cli semver stabilization), V36b (check).
     kryx-cli = {
-      url = "github:RAGton/kryx-cli/v0.2.0";
+      url = "github:RAGton/kryx-cli/v0.3.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
