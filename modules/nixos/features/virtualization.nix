@@ -177,6 +177,15 @@ in
       enable = true;
     };
 
+    # Polkit: permite gestão do libvirt (virsh / virt-manager) sem senha para usuários no grupo libvirtd
+    security.polkit.extraRules = lib.mkIf (cfg.kvm.enable && cfg.libvirt.enable) ''
+      polkit.addRule(function(action, subject) {
+        if (action.id.indexOf("org.libvirt.unix.") === 0 && subject.isInGroup("libvirtd")) {
+          return polkit.Result.YES;
+        }
+      });
+    '';
+
     # =========================
     # Docker
     # =========================
