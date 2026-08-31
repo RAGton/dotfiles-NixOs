@@ -130,6 +130,10 @@
     );
   };
 
+  # qdbus-nocore: silencia coredump residual do qdbus em qttools 6.11.0.
+  # Detalhes/justificativa em overlays/qdbus-nocore.nix.
+  qdbus-nocore = import ./qdbus-nocore.nix;
+
   # xeus-cling: workaround
   #
   # Por quê

@@ -20,6 +20,7 @@
     ++ lib.optionals (!isDarwin) [
       outputs.overlays.openrgb-git
       outputs.overlays.drkonqi-ignore-missing-buildid
+      outputs.overlays.qdbus-nocore
       outputs.overlays.python312-docs-stub
       outputs.overlays.openldap-no-checks
       outputs.overlays.kryxd-tools
