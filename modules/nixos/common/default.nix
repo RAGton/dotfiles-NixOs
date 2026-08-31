@@ -336,7 +336,8 @@
       "node"
       "wheel"
     ]
-    ++ lib.optionals config.programs.wireshark.enable [ "wireshark" ];
+    ++ lib.optionals config.programs.wireshark.enable [ "wireshark" ]
+    ++ lib.optionals config.virtualisation.libvirtd.enable [ "libvirtd" "kvm" ];
     isNormalUser = true;
     shell = pkgs.zsh;
   }
@@ -560,7 +561,4 @@
     });
   '';
 
-  users.users.${userConfig.name}.extraGroups = lib.mkIf config.virtualisation.libvirtd.enable (
-    lib.mkAfter [ "libvirtd" "kvm" ]
-  );
 }
