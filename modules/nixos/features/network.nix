@@ -14,6 +14,7 @@ let
 in
 lib.mkIf (enabledVirtualBridges != { }) {
   virtualisation.libvirtd.enable = true;
+  networking.firewall.trustedInterfaces = lib.mapAttrsToList (_: v: v.bridgeName) enabledVirtualBridges;
 
   systemd.services = lib.mapAttrs' (
     name: bridgeCfg:
