@@ -552,7 +552,6 @@
   # Daemon OpenSSH
   services.openssh.enable = true;
 
-  # Polkit & grupos para Libvirt (sempre que libvirtd estiver ativo em qualquer parte do sistema)
   security.polkit.extraConfig = lib.mkIf config.virtualisation.libvirtd.enable ''
     polkit.addRule(function(action, subject) {
       if (action.id.indexOf("org.libvirt.unix.") === 0 && subject.isInGroup("libvirtd")) {
@@ -560,10 +559,6 @@
       }
     });
   '';
-
-  users.users.${userConfig.name}.extraGroups = lib.mkIf config.virtualisation.libvirtd.enable (
-    lib.mkAfter [ "libvirtd" "kvm" ]
-  );
 
   networking.firewall.trustedInterfaces = lib.mkIf config.virtualisation.libvirtd.enable [
     "virbr0"
