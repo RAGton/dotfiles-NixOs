@@ -569,7 +569,5 @@
     "virbr0"
     "virbr-gwan"
     "virbr-glan"
-    "virbr-ragthink"
-    "incusbr-kryonix"
   ];
 }
