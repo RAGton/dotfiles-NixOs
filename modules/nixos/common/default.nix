@@ -561,4 +561,15 @@
     });
   '';
 
+  users.users.${userConfig.name}.extraGroups = lib.mkIf config.virtualisation.libvirtd.enable (
+    lib.mkAfter [ "libvirtd" "kvm" ]
+  );
+
+  networking.firewall.trustedInterfaces = lib.mkIf config.virtualisation.libvirtd.enable [
+    "virbr0"
+    "virbr-gwan"
+    "virbr-glan"
+    "virbr-ragthink"
+    "incusbr-kryonix"
+  ];
 }
